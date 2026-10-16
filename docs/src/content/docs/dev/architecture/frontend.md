@@ -25,6 +25,16 @@ Each level only composes the levels below it. An organism may use molecules and 
 
 shadcn is configured to generate into `components/atoms`. Plain Tailwind is preferred, so add a shadcn component only when it saves real effort.
 
+## Mobile first
+
+The app must work fully on phones. Build for a small screen first, then add `sm:` and `md:` styles for bigger ones. Check every page at 375px wide: nothing should scroll sideways, and anything you can tap should be at least 44px (`min-h-11` or `size-11`).
+
+## App shell
+
+`__root.tsx` wraps every page in `AppLayout` (`components/templates/app-layout.tsx`): the `Navbar` on top and the page below. The navbar shows the logo, the nav links and the user menu. On phones the links move into a slide-out menu. Unknown URLs show `NotFoundPage`.
+
+The user menu shows a placeholder user from `lib/placeholder-user.ts` until sign-in exists.
+
 ## Routing
 
 Routes live in `src/routes` and are discovered by the TanStack Router Vite plugin, which generates `routeTree.gen.ts`. A route file stays thin and renders a page from `src/pages`.
@@ -113,16 +123,19 @@ Component tests use `vitest-browser-react`:
 
 ```tsx
 import { expect, it } from "vitest";
-import { render } from "vitest-browser-react";
 
-import { HomePage } from "@/pages/home-page";
+import { renderApp } from "@/test/render-app";
 
-it("shows the app name", async () => {
-  const screen = await render(<HomePage />);
+it("shows the courses empty state", async () => {
+  const screen = await renderApp("/courses");
 
-  await expect.element(screen.getByRole("heading", { name: "Rebalance" })).toBeVisible();
+  await expect.element(screen.getByRole("heading", { name: "Courses", level: 1 })).toBeVisible();
 });
 ```
+
+`renderApp(path)` in `src/test/render-app.tsx` renders the whole app at that path, so links and the navbar work. For a component that doesn't need the router, use `render` from `vitest-browser-react` directly.
+
+To test a phone layout, call `await page.viewport(375, 800)` (from `vitest/browser`) before rendering. Hidden elements drop out of role queries, so check them with `not.toBeInTheDocument()`.
 
 Because it's a real browser, layout works. You can measure SVG nodes and check where things end up on screen.
 
