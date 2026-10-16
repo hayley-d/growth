@@ -1,0 +1,224 @@
+{
+  "$schema": "./node_modules/@biomejs/biome/configuration_schema.json",
+  "vcs": {
+    "enabled": true,
+    "clientKind": "git",
+    "useIgnoreFile": true
+  },
+  "files": {
+    "includes": [
+      "**",
+      "!**/dist",
+      "!**/node_modules",
+      "!**/routeTree.gen.ts",
+      "!**/src/generated",
+      "!**/.astro"
+    ]
+  },
+  "formatter": {
+    "enabled": true,
+    "indentStyle": "space",
+    "indentWidth": 2,
+    "lineWidth": 100
+  },
+  "javascript": {
+    "formatter": {
+      "quoteStyle": "double",
+      "semicolons": "always",
+      "trailingCommas": "all"
+    }
+  },
+  "css": {
+    "parser": {
+      "tailwindDirectives": true
+    }
+  },
+  "linter": {
+    "enabled": true,
+    "rules": {
+      "preset": "recommended",
+      "style": {
+        "noRestrictedImports": {
+          "level": "error",
+          "options": {
+            "patterns": [
+              {
+                "group": ["./*", "../*", "./**", "../**"],
+                "message": "Use the @/ or @shared/ alias instead of a relative import."
+              }
+            ]
+          }
+        }
+      }
+    }
+  },
+  "assist": {
+    "enabled": true,
+    "actions": {
+      "source": {
+        "organizeImports": {
+          "level": "on",
+          "options": {
+            "groups": [
+              [
+                ":BUN:",
+                ":NODE:",
+                ":URL:",
+                ":PACKAGE_WITH_PROTOCOL:",
+                {
+                  "source": [":PACKAGE:", "!@shared/**"]
+                }
+              ],
+              ":BLANK_LINE:",
+              ["@shared/**", ":ALIAS:"]
+            ]
+          }
+        }
+      }
+    }
+  },
+  "overrides": [
+    {
+      "includes": ["docs/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": "off"
+          }
+        }
+      }
+    },
+    {
+      "includes": ["backend/src/domain/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["./*", "../*", "./**", "../**"],
+                    "message": "Use the @/ or @shared/ alias instead of a relative import."
+                  },
+                  {
+                    "group": ["@/application", "@/application/**"],
+                    "message": "The domain layer must not import from application."
+                  },
+                  {
+                    "group": ["@/infrastructure", "@/infrastructure/**"],
+                    "message": "The domain layer must not import from infrastructure."
+                  },
+                  {
+                    "group": ["@/presentation", "@/presentation/**"],
+                    "message": "The domain layer must not import from presentation."
+                  },
+                  {
+                    "group": ["@/generated", "@/generated/**", "@prisma/**"],
+                    "message": "The domain layer must not depend on Prisma."
+                  },
+                  {
+                    "group": ["@shared", "@shared/**"],
+                    "message": "The domain layer must not import from shared. Map shared types in application."
+                  },
+                  {
+                    "group": ["express", "express/**"],
+                    "message": "The domain layer must not depend on Express."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["backend/src/application/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["./*", "../*", "./**", "../**"],
+                    "message": "Use the @/ or @shared/ alias instead of a relative import."
+                  },
+                  {
+                    "group": ["@/infrastructure", "@/infrastructure/**"],
+                    "message": "The application layer must not import from infrastructure. Depend on a domain interface instead."
+                  },
+                  {
+                    "group": ["@/presentation", "@/presentation/**"],
+                    "message": "The application layer must not import from presentation."
+                  },
+                  {
+                    "group": ["@/generated", "@/generated/**", "@prisma/**"],
+                    "message": "The application layer must not depend on Prisma. Use a domain repository interface."
+                  },
+                  {
+                    "group": ["express", "express/**"],
+                    "message": "The application layer must not depend on Express."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["backend/src/infrastructure/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["./*", "../*", "./**", "../**"],
+                    "message": "Use the @/ or @shared/ alias instead of a relative import."
+                  },
+                  {
+                    "group": ["@/presentation", "@/presentation/**"],
+                    "message": "The infrastructure layer must not import from presentation."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "includes": ["backend/src/presentation/**"],
+      "linter": {
+        "rules": {
+          "style": {
+            "noRestrictedImports": {
+              "level": "error",
+              "options": {
+                "patterns": [
+                  {
+                    "group": ["./*", "../*", "./**", "../**"],
+                    "message": "Use the @/ or @shared/ alias instead of a relative import."
+                  },
+                  {
+                    "group": ["@/infrastructure", "@/infrastructure/**"],
+                    "message": "The presentation layer must not import from infrastructure. Wire it up in main.ts."
+                  },
+                  {
+                    "group": ["@/generated", "@/generated/**", "@prisma/**"],
+                    "message": "The presentation layer must not depend on Prisma."
+                  }
+                ]
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}
