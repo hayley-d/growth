@@ -1,0 +1,17 @@
+name: rebalance
+
+services:
+  database:
+    image: postgres:17
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: rebalance
+      POSTGRES_PASSWORD: rebalance
+      POSTGRES_DB: rebalance
+    ports:
+      - "5433:5432"
+    volumes:
+      - database-data:/var/lib/postgresql/data
+
+volumes:
+  database-data:

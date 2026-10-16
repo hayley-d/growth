@@ -1,0 +1,46 @@
+---
+title: Rebalance
+description: Documentation for Rebalance, an interactive way to learn advanced tree data structures.
+template: splash
+hero:
+  tagline: Learn the trees students struggle with, from AVL and red-black trees to Merkle trees.
+  actions:
+    - text: Learn the trees
+      link: /learn/trees/
+      icon: right-arrow
+    - text: Work on the code
+      link: /dev/getting-started/
+      variant: minimal
+---
+
+import { Card, CardGrid, LinkCard } from "@astrojs/starlight/components";
+
+<CardGrid>
+  <LinkCard
+    title="Learn the trees"
+    description="What each tree is, the part that trips people up, and a suggested order to learn them in."
+    href="/learn/trees/"
+  />
+  <LinkCard
+    title="Work on the code"
+    description="Set up the project, see how the backend and frontend fit together, and find every script."
+    href="/dev/getting-started/"
+  />
+</CardGrid>
+
+## Built with
+
+<CardGrid>
+  <Card title="Backend" icon="setting">
+    Express 5 on Bun with Prisma 7 and PostgreSQL, split into domain, application, infrastructure and presentation layers.
+  </Card>
+  <Card title="Frontend" icon="laptop">
+    React 19 with TanStack Router, Query, Form and Table, Zustand and Tailwind, organised with atomic design.
+  </Card>
+  <Card title="Shared" icon="puzzle">
+    Zod schemas in `shared/`, imported with `@shared/`, define every request and response contract once.
+  </Card>
+  <Card title="Tooling" icon="approve-check">
+    Bun workspaces, Biome for linting and formatting, and a Lefthook pre-commit hook.
+  </Card>
+</CardGrid>

@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DATABASE_URL: postgresql://rebalance:rebalance@localhost:5433/rebalance?schema=public
+
+jobs:
+  lint:
+    name: Lint and format
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bunx biome ci .
+
+  typecheck:
+    name: Typecheck
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: bun run typecheck
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: cd backend && bun run prisma:generate
+      - run: bun run build
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    services:
+      database:
+        image: postgres:17
+        env:
+          POSTGRES_USER: rebalance
+          POSTGRES_PASSWORD: rebalance
+          POSTGRES_DB: rebalance
+        ports:
+          - 5433:5432
+        options: >-
+          --health-cmd "pg_isready -U rebalance"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install --frozen-lockfile
+      - run: cd backend && bun run prisma:generate
+      - run: cd frontend && bunx playwright install --with-deps chromium
+      - run: bun run test

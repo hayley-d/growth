@@ -1,0 +1,9 @@
+pre-commit:
+  parallel: false
+  jobs:
+    - name: format and lint
+      glob: "*.{js,jsx,ts,tsx,json,jsonc,css,astro}"
+      run: bunx biome check --write --error-on-warnings --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
+      stage_fixed: true
+    - name: typecheck
+      run: bun run typecheck
