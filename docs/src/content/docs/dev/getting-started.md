@@ -91,6 +91,14 @@ Only need one part? Run `bun run --filter @growth/frontend dev`. The same works 
 | `bun run prisma:studio` (in `backend`)   | Browse the database in your browser |
 | `bun run check`                          | Format and fix lint issues         |
 
+## Working with AI agents
+
+We build this with AI agents, so the rules are written down for them.
+
+- Every package and layer has an `AGENTS.md` that says what goes in that folder and the rules for it. The one at the root covers the whole repo and lists the rest.
+- Each folder also has a `CLAUDE.md` that just says `@AGENTS.md`. Claude Code loads `CLAUDE.md` files, and the import pulls in the rules. Other tools read `AGENTS.md` directly.
+- When your change makes an `AGENTS.md` wrong or adds something new, update it in the same commit.
+
 ## If something breaks
 
 :::caution[Port already in use]

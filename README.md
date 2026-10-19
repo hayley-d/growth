@@ -34,3 +34,5 @@ Then open:
 The full setup guide, architecture notes and a page on each tree live in the docs. Run `bun run dev` and open http://localhost:4321.
 
 Before you commit, read the branches and commits page in the docs. Commits must be conventional commits, and a hook checks this.
+
+Using an AI agent? Start with `AGENTS.md`. Each package and layer has its own.
