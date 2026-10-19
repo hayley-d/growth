@@ -98,3 +98,127 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  .tree-loader-node {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: var(--tree-loader-duration) ease-out infinite;
+  }
+
+  .tree-loader-edge {
+    stroke-dasharray: 1;
+    animation: var(--tree-loader-duration) ease-in-out infinite;
+  }
+
+  .tree-loader-root {
+    animation-name: tree-loader-root;
+  }
+
+  .tree-loader-left-edge {
+    animation-name: tree-loader-left-edge;
+  }
+
+  .tree-loader-left-node {
+    animation-name: tree-loader-left-node;
+  }
+
+  .tree-loader-right-edge {
+    animation-name: tree-loader-right-edge;
+  }
+
+  .tree-loader-right-node {
+    animation-name: tree-loader-right-node;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tree-loader-node,
+    .tree-loader-edge {
+      animation: none;
+    }
+  }
+}
+
+@keyframes tree-loader-root {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  8%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes tree-loader-left-edge {
+  0%,
+  15% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  28%,
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes tree-loader-left-node {
+  0%,
+  28% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  36%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes tree-loader-right-edge {
+  0%,
+  42% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  55%,
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes tree-loader-right-node {
+  0%,
+  55% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  63%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
