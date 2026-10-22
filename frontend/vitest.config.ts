@@ -20,14 +20,14 @@ export default defineConfig({
         test: {
           name: "unit",
           environment: "node",
-          include: ["src/**/*.test.ts"],
+          include: ["src/test/**/*.test.ts"],
         },
       },
       {
         extends: true,
         test: {
           name: "browser",
-          include: ["src/**/*.test.tsx"],
+          include: ["src/test/**/*.test.tsx"],
           browser: {
             enabled: true,
             headless: true,

@@ -16,6 +16,7 @@ frontend/src/
   lib/queries/            hooks that read data
   lib/mutations/          hooks that change data
   lib/                    query client and small helpers
+  test/                   all tests, mirroring the src layout, plus render-app.tsx
   config.ts               where the API lives
 ```
 
@@ -49,7 +50,6 @@ Each feature gets its own folder:
 services/tree-service/
   tree.urls.ts          the endpoints
   tree.service.ts       the functions that call them
-  tree.service.test.ts  tests, with the network mocked
   index.ts              exports
 ```
 
@@ -113,6 +113,8 @@ Keep the query keys in the queries file and reuse them, so a typo can't break a 
 - **Tables** use TanStack Table.
 
 ## Testing
+
+All tests live in `src/test/`, at the same path as the code they cover. For example, the test for `src/pages/courses-page.tsx` is `src/test/pages/courses-page.test.tsx`.
 
 Vitest runs two groups, set up in `frontend/vitest.config.ts`:
 
