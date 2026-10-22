@@ -25,9 +25,9 @@ Each level only composes the levels below it. An organism may use molecules and 
 
 shadcn is configured to generate into `components/atoms`. Plain Tailwind is preferred, so add a shadcn component only when it saves real effort.
 
-## Mobile first
+## Responsive
 
-The app must work fully on phones. Build for a small screen first, then add `sm:` and `md:` styles for bigger ones. Check every page at 375px wide: nothing should scroll sideways, and anything you can tap should be at least 44px (`min-h-11` or `size-11`).
+The app should work well on every screen size, from phones to large desktops. Use Tailwind's breakpoints (`sm:`, `md:`, `lg:`, `xl:`) to adapt layouts, and check each page at a few widths so nothing breaks or scrolls sideways.
 
 ## App shell
 
@@ -134,8 +134,6 @@ it("shows the courses empty state", async () => {
 ```
 
 `renderApp(path)` in `src/test/render-app.tsx` renders the whole app at that path, so links and the navbar work. For a component that doesn't need the router, use `render` from `vitest-browser-react` directly.
-
-To test a phone layout, call `await page.viewport(375, 800)` (from `vitest/browser`) before rendering. Hidden elements drop out of role queries, so check them with `not.toBeInTheDocument()`.
 
 Because it's a real browser, layout works. You can measure SVG nodes and check where things end up on screen.
 
