@@ -1,9 +1,7 @@
-import type { Server } from "node:http";
-
 import type { Logger } from "@/application/logging/logger";
 
 type GracefulShutdownOptions = {
-  server: Server;
+  server: { stop: () => Promise<void> };
   logger: Logger;
   cleanups: Array<() => Promise<unknown>>;
   timeoutMilliseconds?: number;
@@ -29,9 +27,7 @@ export const registerGracefulShutdown = ({
     forceExit.unref();
 
     try {
-      await new Promise<void>((resolve, reject) =>
-        server.close((error) => (error ? reject(error) : resolve())),
-      );
+      await server.stop();
       for (const cleanup of cleanups) await cleanup();
       logger.info("Shutdown complete");
       process.exit(0);

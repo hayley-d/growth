@@ -1,10 +1,10 @@
 import { randomUUID } from "node:crypto";
-import type { RequestHandler } from "express";
+import type { MiddlewareHandler } from "hono";
 
 import { requestContext } from "@/application/context/request-context";
 
-export const requestContextMiddleware: RequestHandler = (_request, response, next) => {
+export const requestContextMiddleware: MiddlewareHandler = async (context, next) => {
   const requestId = randomUUID();
-  response.setHeader("x-request-id", requestId);
-  requestContext.run({ requestId }, next);
+  await requestContext.run({ requestId }, next);
+  context.header("x-request-id", requestId);
 };

@@ -10,5 +10,4 @@ backend/src/generated
 .idea
 .vscode
 docs/plans/*
-CLAUDE.md
 frontend/.vitest

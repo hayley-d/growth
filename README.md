@@ -25,7 +25,7 @@ Then open:
 ## What's in here
 
 - `frontend/` is the React app.
-- `backend/` is the Express API, with Prisma and Postgres.
+- `backend/` is the Hono API, with Prisma and Postgres.
 - `shared/` holds the zod schemas both sides use.
 - `docs/` is the docs site you're about to read.
 

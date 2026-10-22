@@ -1,18 +1,25 @@
-import express from "express";
-import request from "supertest";
+import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
 
 import { paginationQuerySchema } from "@shared/schemas/common";
-import { validateRequest } from "@/presentation/middleware/validate-request";
+import { validate } from "@/presentation/middleware/validate-request";
 
-describe("validateRequest", () => {
+describe("validate", () => {
   it("passes the parsed query to the handler", async () => {
-    const application = express();
-    application.get("/", validateRequest({ query: paginationQuerySchema }), (request, response) => {
-      response.json(request.query);
-    });
+    const application = new Hono().get("/", validate("query", paginationQuerySchema), (context) =>
+      context.json(context.req.valid("query")),
+    );
 
-    const response = await request(application).get("/?page=3");
-    expect(response.body).toEqual({ page: 3, pageSize: 20 });
+    const response = await application.request("/?page=3");
+    expect(await response.json()).toEqual({ page: 3, pageSize: 20 });
+  });
+
+  it("throws the zod error for invalid input", async () => {
+    const application = new Hono()
+      .get("/", validate("query", paginationQuerySchema), (context) => context.json({}))
+      .onError((error, context) => context.json({ name: error.name }, 400));
+
+    const response = await application.request("/?page=0");
+    expect(await response.json()).toEqual({ name: "ZodError" });
   });
 });

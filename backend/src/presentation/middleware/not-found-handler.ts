@@ -1,7 +1,7 @@
-import type { RequestHandler } from "express";
+import type { NotFoundHandler } from "hono";
 
 import { NotFoundError } from "@/domain/errors";
 
-export const notFoundHandler: RequestHandler = (request) => {
-  throw new NotFoundError(`Route not found: ${request.method} ${request.originalUrl}`);
+export const notFoundHandler: NotFoundHandler = (context) => {
+  throw new NotFoundError(`Route not found: ${context.req.method} ${context.req.path}`);
 };

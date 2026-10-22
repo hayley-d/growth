@@ -1,6 +1,6 @@
 ---
 title: Backend
-description: Clean architecture layers in the Express API.
+description: Clean architecture layers in the Hono API.
 ---
 
 The backend follows clean architecture with a layer-first layout. Each layer holds one folder per feature.
@@ -17,9 +17,9 @@ backend/src/
   infrastructure/database/   prisma client and prisma error mapping
   infrastructure/logging/    pino logger
   infrastructure/lifecycle/  process error handlers and graceful shutdown
-  presentation/routes/       express routes, one <feature>-routes.ts per feature
+  presentation/routes/       hono routes, one <feature>-routes.ts per feature
   presentation/middleware/   request id, request logging, validation, 404 and error handling
-  presentation/http/         express application factory
+  presentation/http/         hono application factory
   main.ts                    composition root
 ```
 
@@ -41,28 +41,28 @@ Biome checks this for you. Import something from the wrong layer and you get an 
 × The domain layer must not import from application.
 ```
 
-| Layer            | Can't import                                            |
-| ---------------- | ------------------------------------------------------- |
-| `domain`         | application, infrastructure, presentation, Prisma, `@shared/`, Express |
-| `application`    | infrastructure, presentation, Prisma, Express           |
-| `infrastructure` | presentation                                            |
-| `presentation`   | infrastructure, Prisma                                  |
+| Layer            | Can't import                                                         |
+| ---------------- | -------------------------------------------------------------------- |
+| `domain`         | application, infrastructure, presentation, Prisma, `@shared/`, Hono |
+| `application`    | infrastructure, presentation, Prisma, Hono                           |
+| `infrastructure` | presentation                                                         |
+| `presentation`   | infrastructure, Prisma                                               |
 
 If you hit one of these, the code is in the wrong layer. Move it, don't change the rule.
 
 ## Request flow
 
-1. `helmet` adds security headers to every response, like `x-content-type-options: nosniff`.
+1. `secureHeaders` adds security headers to every response, like `x-content-type-options: nosniff`.
 2. `requestContextMiddleware` gives the request a fresh ID and sends it back in the `x-request-id` header.
 3. The request logger writes one line when the response finishes. It skips `/api/health`.
-4. `express.json` reads the body. Bodies over 100kb are turned away with a 413.
-5. An Express route in `presentation/routes` receives the request.
-6. `validateRequest` parses the body, params and query with schemas from `@shared/`. The parsed values replace the raw ones, so defaults and coerced numbers reach your handler.
+4. `bodyLimit` turns away bodies over 100kb with a 413.
+5. A Hono route in `presentation/routes` receives the request.
+6. `validate(target, schema)` parses the `json` body, `param` or `query` with a schema from `@shared/`. Read the parsed value with `context.req.valid(target)`, so defaults and coerced numbers reach your handler with the right types.
 7. The controller calls a use case in `application`.
 8. The use case works with domain entities through repository interfaces.
 9. A Prisma repository in `infrastructure` reads or writes the database.
-10. Unknown routes fall through to `notFoundHandler`, which returns a 404.
-11. The error handler turns anything thrown into a JSON response.
+10. Unknown routes go to `notFoundHandler` (set with `app.notFound`), which returns a 404.
+11. The error handler (set with `app.onError`) turns anything thrown into a JSON response.
 
 ## Errors
 
@@ -141,4 +141,4 @@ The schema is `backend/prisma/schema.prisma` and the configuration is `backend/p
 
 ## Testing
 
-Vitest runs `src/**/*.test.ts`. HTTP behaviour is tested with Supertest against `createApplication({ logger })`, so tests do not open a real port. Pass a stub logger made of `vi.fn()` calls so you can assert on what was logged.
+Vitest runs `src/**/*.test.ts`. HTTP behaviour is tested with Hono's `app.request()` against `createApplication({ logger })`, so tests do not open a real port. Pass a stub logger made of `vi.fn()` calls so you can assert on what was logged.

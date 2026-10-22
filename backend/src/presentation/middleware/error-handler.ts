@@ -1,4 +1,6 @@
-import type { ErrorRequestHandler } from "express";
+import type { ErrorHandler } from "hono";
+import { HTTPException } from "hono/http-exception";
+import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { ZodError } from "zod";
 
 import type { ErrorIssue, ErrorResponse } from "@shared/schemas/error";
@@ -6,7 +8,7 @@ import { requestContext } from "@/application/context/request-context";
 import type { Logger } from "@/application/logging/logger";
 import { DomainError, type DomainErrorKind } from "@/domain/errors";
 
-const statusByKind: Record<DomainErrorKind, number> = {
+const statusByKind: Record<DomainErrorKind, ContentfulStatusCode> = {
   "bad-request": 400,
   unauthorized: 401,
   forbidden: 403,
@@ -21,38 +23,23 @@ const toIssues = (error: ZodError): ErrorIssue[] =>
     code: issue.code,
   }));
 
-const isMalformedJson = (error: unknown) =>
-  error instanceof SyntaxError &&
-  (error as SyntaxError & { type?: string }).type === "entity.parse.failed";
-
-const isBodyTooLarge = (error: unknown) =>
-  error instanceof Error && (error as Error & { type?: string }).type === "entity.too.large";
-
 export const createErrorHandler =
-  (logger: Logger): ErrorRequestHandler =>
-  (error, _request, response, _next) => {
+  (logger: Logger): ErrorHandler =>
+  (error, context) => {
     const requestId = requestContext.getRequestId();
-    const send = (status: number, body: Omit<ErrorResponse, "requestId">) => {
-      response.status(status).json({ ...body, requestId });
-    };
+    const send = (status: ContentfulStatusCode, body: Omit<ErrorResponse, "requestId">) =>
+      context.json({ ...body, requestId }, status);
 
     if (error instanceof ZodError) {
-      send(400, { message: "Validation failed", issues: toIssues(error) });
-      return;
+      return send(400, { message: "Validation failed", issues: toIssues(error) });
     }
     if (error instanceof DomainError) {
-      send(statusByKind[error.kind], { message: error.message });
-      return;
+      return send(statusByKind[error.kind], { message: error.message });
     }
-    if (isMalformedJson(error)) {
-      send(400, { message: "Malformed JSON body" });
-      return;
-    }
-    if (isBodyTooLarge(error)) {
-      send(413, { message: "Request body too large" });
-      return;
+    if (error instanceof HTTPException) {
+      return send(error.status as ContentfulStatusCode, { message: error.message });
     }
 
     logger.error("Unhandled error", { error });
-    send(500, { message: "Internal server error" });
+    return send(500, { message: "Internal server error" });
   };
