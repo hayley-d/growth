@@ -11,3 +11,4 @@ backend/src/generated
 .vscode
 docs/plans/*
 CLAUDE.md
+frontend/.vitest

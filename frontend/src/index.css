@@ -64,16 +64,16 @@
 
 .dark {
   --radius: 0.5rem;
-  --background: oklch(0.097 0.007 191.712);
+  --background: oklch(0.235 0.012 220);
   --foreground: oklch(0.986 0.002 192.376);
-  --muted: oklch(0.202 0.009 323.863);
-  --muted-foreground: oklch(0.71 0.02 323.778);
-  --popover: oklch(0.122 0.009 191.712);
+  --muted: oklch(0.32 0.014 220);
+  --muted-foreground: oklch(0.78 0.015 220);
+  --popover: oklch(0.28 0.013 220);
   --popover-foreground: oklch(0.993 0.001 192.402);
-  --card: oklch(0.122 0.009 191.712);
+  --card: oklch(0.28 0.013 220);
   --card-foreground: oklch(0.993 0.001 192.402);
-  --border: oklch(0.261 0.003 192.175);
-  --input: oklch(0.261 0.003 192.175);
+  --border: oklch(0.37 0.014 220);
+  --input: oklch(0.37 0.014 220);
   --primary: oklch(0.922 0.103 189.941);
   --primary-foreground: oklch(0.402 0.069 187.223);
   --secondary: oklch(0.791 0.184 324.689);
@@ -96,5 +96,129 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer components {
+  .tree-loader-node {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: var(--tree-loader-duration) ease-out infinite;
+  }
+
+  .tree-loader-edge {
+    stroke-dasharray: 1;
+    animation: var(--tree-loader-duration) ease-in-out infinite;
+  }
+
+  .tree-loader-root {
+    animation-name: tree-loader-root;
+  }
+
+  .tree-loader-left-edge {
+    animation-name: tree-loader-left-edge;
+  }
+
+  .tree-loader-left-node {
+    animation-name: tree-loader-left-node;
+  }
+
+  .tree-loader-right-edge {
+    animation-name: tree-loader-right-edge;
+  }
+
+  .tree-loader-right-node {
+    animation-name: tree-loader-right-node;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tree-loader-node,
+    .tree-loader-edge {
+      animation: none;
+    }
+  }
+}
+
+@keyframes tree-loader-root {
+  0% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  8%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes tree-loader-left-edge {
+  0%,
+  15% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  28%,
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes tree-loader-left-node {
+  0%,
+  28% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  36%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
+  }
+}
+
+@keyframes tree-loader-right-edge {
+  0%,
+  42% {
+    stroke-dashoffset: 1;
+    opacity: 1;
+  }
+  55%,
+  85% {
+    stroke-dashoffset: 0;
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0;
+  }
+}
+
+@keyframes tree-loader-right-node {
+  0%,
+  55% {
+    opacity: 0;
+    transform: scale(0.3);
+  }
+  63%,
+  85% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(1);
   }
 }

@@ -16,6 +16,7 @@ frontend/src/
   lib/queries/            hooks that read data
   lib/mutations/          hooks that change data
   lib/                    query client and small helpers
+  test/                   all tests, mirroring the src layout, plus render-app.tsx
   config.ts               where the API lives
 ```
 
@@ -24,6 +25,16 @@ frontend/src/
 Each level only composes the levels below it. An organism may use molecules and atoms but never another organism's internals. Templates arrange organisms without knowing where data comes from, and pages supply that data.
 
 shadcn is configured to generate into `components/atoms`. Plain Tailwind is preferred, so add a shadcn component only when it saves real effort.
+
+## Responsive
+
+The app should work well on every screen size, from phones to large desktops. Use Tailwind's breakpoints (`sm:`, `md:`, `lg:`, `xl:`) to adapt layouts, and check each page at a few widths so nothing breaks or scrolls sideways.
+
+## App shell
+
+`__root.tsx` wraps every page in `AppLayout` (`components/templates/app-layout.tsx`): the `Navbar` on top and the page below. The navbar shows the logo, the nav links and the user menu. On phones the links move into a slide-out menu. Unknown URLs show `NotFoundPage`.
+
+The user menu shows a placeholder user from `lib/placeholder-user.ts` until sign-in exists.
 
 ## Routing
 
@@ -39,7 +50,6 @@ Each feature gets its own folder:
 services/tree-service/
   tree.urls.ts          the endpoints
   tree.service.ts       the functions that call them
-  tree.service.test.ts  tests, with the network mocked
   index.ts              exports
 ```
 
@@ -104,6 +114,8 @@ Keep the query keys in the queries file and reuse them, so a typo can't break a 
 
 ## Testing
 
+All tests live in `src/test/`, at the same path as the code they cover. For example, the test for `src/pages/courses-page.tsx` is `src/test/pages/courses-page.test.tsx`.
+
 Vitest runs two groups, set up in `frontend/vitest.config.ts`:
 
 - **`*.test.ts`** runs in Node. Use it for services, hooks logic and plain functions. Mock `networkService` with `vi.mock`.
@@ -113,16 +125,17 @@ Component tests use `vitest-browser-react`:
 
 ```tsx
 import { expect, it } from "vitest";
-import { render } from "vitest-browser-react";
 
-import { HomePage } from "@/pages/home-page";
+import { renderApp } from "@/test/render-app";
 
-it("shows the app name", async () => {
-  const screen = await render(<HomePage />);
+it("shows the courses empty state", async () => {
+  const screen = await renderApp("/courses");
 
-  await expect.element(screen.getByRole("heading", { name: "Growth" })).toBeVisible();
+  await expect.element(screen.getByRole("heading", { name: "Courses", level: 1 })).toBeVisible();
 });
 ```
+
+`renderApp(path)` in `src/test/render-app.tsx` renders the whole app at that path, so links and the navbar work. For a component that doesn't need the router, use `render` from `vitest-browser-react` directly.
 
 Because it's a real browser, layout works. You can measure SVG nodes and check where things end up on screen.
 
