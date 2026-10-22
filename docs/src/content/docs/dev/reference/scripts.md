@@ -39,7 +39,7 @@ Lefthook runs two jobs before every commit:
 1. `biome check --write --error-on-warnings` on staged files. Fixes are staged automatically, and anything that cannot be fixed blocks the commit.
 2. `bun run typecheck` across every package.
 
-Then a `commit-msg` hook runs commitlint on the message. It must be a conventional commit. See [Branches and commits](/dev/reference/git-workflow/).
+Then a `commit-msg` hook runs commitlint on the message. It must be a conventional commit. See [Branches and commits](../git-workflow/).
 
 ## Continuous integration
 
@@ -53,6 +53,12 @@ GitHub Actions runs `.github/workflows/ci.yml` on pushes to `master` and on pull
 | Test      | `bun run test`        | No                  |
 
 The test job starts its own Postgres on port 5433 and installs Chromium. It uses `continue-on-error`, so failing tests are reported without failing the run.
+
+## Docs site
+
+`.github/workflows/docs.yml` builds this site and publishes it to GitHub Pages at https://hayley-d.github.io/growth/. It runs on every push to `master`, and you can also start it by hand from the Actions tab. The site is static, so it doesn't need the backend.
+
+The site lives under `/growth`, set by `base` in `docs/astro.config.mjs`. Starlight adds the prefix to sidebar links for you, but not to links you write in pages. Use relative links there, like `../git-workflow/`, not `/dev/reference/git-workflow/`.
 
 ## Coding rules
 
