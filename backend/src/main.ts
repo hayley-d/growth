@@ -10,9 +10,8 @@ registerProcessErrorHandlers(logger);
 
 const application = createApplication({ logger });
 
-const server = application.listen(environment.PORT, () => {
-  logger.info(`Server listening on http://localhost:${environment.PORT}`);
-});
+const server = Bun.serve({ port: environment.PORT, fetch: application.fetch });
+logger.info(`Server listening on http://localhost:${environment.PORT}`);
 
 registerGracefulShutdown({
   server,

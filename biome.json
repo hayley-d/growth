@@ -122,8 +122,8 @@
                     "message": "The domain layer must not import from shared. Map shared types in application."
                   },
                   {
-                    "group": ["express", "express/**"],
-                    "message": "The domain layer must not depend on Express."
+                    "group": ["hono", "hono/**", "@hono/**"],
+                    "message": "The domain layer must not depend on Hono."
                   }
                 ]
               }
@@ -158,8 +158,8 @@
                     "message": "The application layer must not depend on Prisma. Use a domain repository interface."
                   },
                   {
-                    "group": ["express", "express/**"],
-                    "message": "The application layer must not depend on Express."
+                    "group": ["hono", "hono/**", "@hono/**"],
+                    "message": "The application layer must not depend on Hono."
                   }
                 ]
               }
