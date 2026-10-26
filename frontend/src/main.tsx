@@ -5,8 +5,11 @@ import { createRoot } from "react-dom/client";
 
 import { PageLoader } from "@/components/molecules/page-loader";
 import { queryClient } from "@/lib/query-client";
+import { syncColourScheme } from "@/lib/sync-colour-scheme";
 import { routeTree } from "@/routeTree.gen";
 import "@/index.css";
+
+syncColourScheme();
 
 const router = createRouter({
   routeTree,

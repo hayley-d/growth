@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { LogOut, Settings, User } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar";
@@ -36,9 +37,11 @@ export function UserMenu() {
           <User />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem disabled>
-          <Settings />
-          Settings
+        <DropdownMenuItem asChild>
+          <Link to="/settings">
+            <Settings />
+            Settings
+          </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
         <DropdownMenuItem disabled>
