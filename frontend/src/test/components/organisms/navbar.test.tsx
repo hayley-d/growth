@@ -37,3 +37,13 @@ it("uses a menu button on phones", async () => {
   await expect.element(screen.getByRole("heading", { name: "Courses", level: 1 })).toBeVisible();
   await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
 });
+
+it("opens the settings page from the user menu", async () => {
+  await page.viewport(1280, 800);
+  const screen = await renderApp("/");
+
+  await screen.getByRole("button", { name: "Open user menu" }).click();
+  await page.getByRole("menuitem", { name: "Settings" }).click();
+
+  await expect.element(screen.getByRole("heading", { name: "Settings", level: 1 })).toBeVisible();
+});

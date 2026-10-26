@@ -34,7 +34,21 @@ The app should work well on every screen size, from phones to large desktops. Us
 
 `__root.tsx` wraps every page in `AppLayout` (`components/templates/app-layout.tsx`): the `Navbar` on top and the page below. The navbar shows the logo, the nav links and the user menu. On phones the links move into a slide-out menu. Unknown URLs show `NotFoundPage`.
 
-The user menu shows a placeholder user from `lib/placeholder-user.ts` until sign-in exists.
+The user menu shows a placeholder user from `lib/placeholder-user.ts` until sign-in exists. Its Settings item opens the Settings page.
+
+## Colour schemes
+
+Learners can pick a colour scheme on the Settings page (`/settings`):
+
+- **Default**: the standard teal, pink and lime.
+- **High contrast**: black and white with bright fills, for low vision.
+- **Colour-blind friendly**: the Okabe-Ito palette, which stays distinct for every common kind of colour blindness.
+
+Each scheme is a block of CSS variables in `src/index.css`, with a light and a dark version. The chosen scheme is set as `data-colour-scheme` on `<html>`, and the variables change with it. The choice is saved in the browser by `stores/colour-scheme-store.ts`.
+
+This only works if components use theme colours (`bg-primary`, `text-muted-foreground`) and never raw colour values. When you add a new colour variable, add it to every scheme block.
+
+Colour is never the only signal. States also need an icon, shape or label, so they still read in any scheme.
 
 ## Routing
 
