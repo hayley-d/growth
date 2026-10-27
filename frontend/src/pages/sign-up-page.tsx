@@ -23,7 +23,7 @@ export function SignUpPage() {
   });
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-col gap-6 py-12">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold">Sign up</h1>
         <p className="mt-1 text-muted-foreground">Create your Growth account.</p>

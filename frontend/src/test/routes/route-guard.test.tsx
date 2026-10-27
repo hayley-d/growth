@@ -32,3 +32,9 @@ it("shows an error page with a retry button when the session request fails", asy
     .toBeVisible();
   await expect.element(screen.getByRole("button", { name: "Try again" })).toBeVisible();
 });
+
+it("sends a signed in visitor from the login page to the dashboard", async () => {
+  const screen = await renderApp("/login");
+
+  await expect.element(screen.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();
+});

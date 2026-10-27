@@ -15,15 +15,15 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     });
     return { session };
   },
-  component: RootLayout,
+  component: Outlet,
   errorComponent: RootErrorPage,
-  notFoundComponent: NotFoundPage,
+  notFoundComponent: RootNotFound,
 });
 
-function RootLayout() {
+function RootNotFound() {
   return (
     <AppLayout>
-      <Outlet />
+      <NotFoundPage />
     </AppLayout>
   );
 }

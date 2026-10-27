@@ -35,3 +35,10 @@ it("goes to the dashboard after a successful log in", async () => {
 
   await expect.element(screen.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();
 });
+
+it("shows the log in form on its own, without the navbar", async () => {
+  const screen = await renderApp("/login", { session: null });
+
+  await expect.element(screen.getByRole("heading", { name: "Log in", level: 1 })).toBeVisible();
+  await expect.element(screen.getByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
+});
