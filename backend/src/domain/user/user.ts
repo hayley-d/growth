@@ -1,31 +1,13 @@
-export type ColourTheme = "default" | "high-contrast" | "okabe-ito";
-
 export type User = {
   id: string;
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  passwordHash: string;
-  learningStyleId: string;
-  codeLanguageId: string;
-  textToSpeech: boolean;
-  colourTheme: ColourTheme;
+  emailVerified: boolean;
+  image: string | null;
+  role: string | null;
+  banned: boolean;
+  banReason: string | null;
+  banExpires: Date | null;
   createdAt: Date;
-  displayName: string;
-  showOnLeaderboard: boolean;
+  updatedAt: Date;
 };
-
-export type NewUser = {
-  firstName: string;
-  lastName: string;
-  email: string;
-  passwordHash: string;
-  learningStyleId: string;
-  codeLanguageId: string;
-  textToSpeech?: boolean;
-  colourTheme?: ColourTheme;
-  displayName: string;
-  showOnLeaderboard?: boolean;
-};
-
-export type UserChanges = Partial<NewUser>;

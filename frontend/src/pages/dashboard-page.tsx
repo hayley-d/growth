@@ -1,10 +1,11 @@
 import { Link } from "@tanstack/react-router";
 
 import { EmptyState } from "@/components/molecules/empty-state";
-import { placeholderUser } from "@/lib/placeholder-user";
+import { useSessionQuery } from "@/lib/queries";
 
 export function DashboardPage() {
-  const firstName = placeholderUser.name.split(" ")[0];
+  const session = useSessionQuery();
+  const firstName = session.data?.user.name.split(" ")[0];
 
   return (
     <div className="flex flex-col gap-8">

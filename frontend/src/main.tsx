@@ -13,7 +13,7 @@ syncColourScheme();
 
 const router = createRouter({
   routeTree,
-  context: {},
+  context: { session: null },
   defaultPendingComponent: PageLoader,
 });
 

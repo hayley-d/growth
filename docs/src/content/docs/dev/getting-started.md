@@ -47,9 +47,19 @@ It should look like this:
 DATABASE_URL="postgresql://growth:growth@localhost:5433/growth?schema=public"
 PORT=3000
 LOG_LEVEL=info
+BETTER_AUTH_SECRET="replace-with-32-plus-random-characters"
+BETTER_AUTH_URL="http://localhost:5173"
 ```
 
 `LOG_LEVEL` can be `fatal`, `error`, `warn`, `info`, `debug`, `trace` or `silent`.
+
+Generate a real `BETTER_AUTH_SECRET` and paste it in:
+
+```sh
+openssl rand -base64 32
+```
+
+Leave `BETTER_AUTH_URL` as `http://localhost:5173`. It has to match the origin your browser visits (the Vite dev server, which proxies `/api` to the backend), not the backend's own port.
 
 **4. Start the database**
 
@@ -65,7 +75,17 @@ cd ..
 
 Postgres runs on port `5433`, not the usual `5432`, so it won't clash with any Postgres you already have.
 
-**5. Run it**
+**5. Seed a dev admin (optional)**
+
+```sh
+cd backend
+bun run prisma:seed
+cd ..
+```
+
+Creates `admin@growth.local` / `growth` with the `admin` role. Safe to re-run. Refuses to run against anything but a localhost database.
+
+**6. Run it**
 
 ```sh
 bun run dev
@@ -92,6 +112,7 @@ Only need one part? Run `bun run --filter @growth/frontend dev`. The same works 
 | `docker compose down -v`                 | Stop it and wipe all its data      |
 | `bun run prisma:migrate` (in `backend`)  | Apply changes to the schema        |
 | `bun run prisma:studio` (in `backend`)   | Browse the database in your browser |
+| `bun run prisma:seed` (in `backend`)     | Create the dev admin login         |
 | `bun run check`                          | Format and fix lint issues         |
 
 ## If something breaks

@@ -11,6 +11,10 @@ concurrency:
 
 env:
   DATABASE_URL: postgresql://growth:growth@localhost:5433/growth?schema=public
+  BETTER_AUTH_SECRET: ci-only-secret-not-used-anywhere-else-32chars
+  # No frontend/proxy runs in CI, so the backend's own port is the right value here.
+  # In dev this must match the Vite origin (see backend/.env.example) because a real browser is involved.
+  BETTER_AUTH_URL: http://localhost:3000
 
 jobs:
   lint:
@@ -64,5 +68,6 @@ jobs:
       - uses: oven-sh/setup-bun@v2
       - run: bun install --frozen-lockfile
       - run: cd backend && bun run prisma:generate
+      - run: cd backend && bun run prisma:deploy
       - run: cd frontend && bunx playwright install --with-deps chromium
       - run: bun run test
