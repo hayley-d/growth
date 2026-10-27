@@ -3,6 +3,7 @@ import { AsyncLocalStorage } from "node:async_hooks";
 export type RequestContext = {
   requestId: string;
   userId?: string;
+  role?: string;
   state: Map<string, unknown>;
 };
 
@@ -16,6 +17,11 @@ export const requestContext = {
   setUserId: (userId: string) => {
     const store = storage.getStore();
     if (store) store.userId = userId;
+  },
+  getRole: () => storage.getStore()?.role,
+  setRole: (role: string) => {
+    const store = storage.getStore();
+    if (store) store.role = role;
   },
   getState: <Value>(key: string) => storage.getStore()?.state.get(key) as Value | undefined,
   setState: (key: string, value: unknown) => {

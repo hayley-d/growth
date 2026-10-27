@@ -1,36 +1,34 @@
+import type { Page, PageRequest } from "@/domain/common/page";
 import type { UserRepository } from "@/domain/user/repositories/user-repository";
-import type { NewUser, User, UserChanges } from "@/domain/user/user";
-import type { Prisma, PrismaClient, User as UserRow } from "@/generated/prisma/client";
-import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
-import {
-  toUser,
-  toUserCreateData,
-  toUserUpdateData,
-} from "@/infrastructure/user/mappers/user-mapper";
+import type { User } from "@/domain/user/user";
+import type { PrismaClient } from "@/generated/prisma/client";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
+import { toUser } from "@/infrastructure/user/mappers/user-mapper";
 
-type UserModel = {
-  row: UserRow;
-  where: Prisma.UserWhereUniqueInput;
-  create: Prisma.UserUncheckedCreateInput;
-  update: Prisma.UserUncheckedUpdateInput;
-  orderBy: Prisma.UserOrderByWithRelationInput;
-};
+export class PrismaUserRepository implements UserRepository {
+  constructor(private readonly client: PrismaClient) {}
 
-export class PrismaUserRepository
-  extends PrismaRepository<UserModel, User, NewUser, UserChanges>
-  implements UserRepository
-{
-  constructor(client: PrismaClient) {
-    super(client, client.user, {
-      toEntity: toUser,
-      toWhere: (id) => ({ id }),
-      orderBy: [{ id: "asc" }],
-      toCreateData: toUserCreateData,
-      toUpdateData: toUserUpdateData,
+  findById(id: string): Promise<User | null> {
+    return withPrismaErrors(async () => {
+      const row = await this.client.user.findUnique({ where: { id } });
+      return row ? toUser(row) : null;
     });
   }
 
-  findByEmail(email: string) {
-    return this.findOne({ email });
+  findByEmail(email: string): Promise<User | null> {
+    return withPrismaErrors(async () => {
+      const row = await this.client.user.findUnique({ where: { email } });
+      return row ? toUser(row) : null;
+    });
+  }
+
+  list({ skip, take }: PageRequest): Promise<Page<User>> {
+    return withPrismaErrors(async () => {
+      const [rows, total] = await this.client.$transaction([
+        this.client.user.findMany({ skip, take, orderBy: { id: "asc" } }),
+        this.client.user.count(),
+      ]);
+      return { items: rows.map(toUser), total };
+    });
   }
 }

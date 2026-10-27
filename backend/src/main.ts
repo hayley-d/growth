@@ -1,3 +1,4 @@
+import { authHandler, getSession } from "@/infrastructure/auth/auth";
 import { environment } from "@/infrastructure/config/environment";
 import { prismaClient } from "@/infrastructure/database/prisma-client";
 import { registerGracefulShutdown } from "@/infrastructure/lifecycle/register-graceful-shutdown";
@@ -8,7 +9,7 @@ import { createApplication } from "@/presentation/http/create-application";
 const logger = createPinoLogger(environment.LOG_LEVEL);
 registerProcessErrorHandlers(logger);
 
-const application = createApplication({ logger });
+const application = createApplication({ logger, authHandler, getSession });
 
 const server = Bun.serve({ port: environment.PORT, fetch: application.fetch });
 logger.info(`Server listening on http://localhost:${environment.PORT}`);

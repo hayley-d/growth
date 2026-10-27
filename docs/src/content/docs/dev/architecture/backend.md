@@ -59,15 +59,16 @@ If you hit one of these, the code is in the wrong layer. Move it, don't change t
 
 1. `secureHeaders` adds security headers to every response, like `x-content-type-options: nosniff`.
 2. `requestContextMiddleware` gives the request a fresh ID and sends it back in the `x-request-id` header.
-3. The request logger writes one line when the response finishes. It skips `/api/health`.
-4. `bodyLimit` turns away bodies over 100kb with a 413.
-5. A Hono route in `presentation/routes` receives the request.
-6. `validate(target, schema)` parses the `json` body, `param` or `query` with a schema from `@shared/`. Read the parsed value with `context.req.valid(target)`, so defaults and coerced numbers reach your handler with the right types.
-7. The route hands the request to a controller method in `presentation/controllers`, which calls a command or query in `application`.
-8. The use case works with domain entities through repository interfaces.
-9. A Prisma repository in `infrastructure` reads or writes the database.
-10. Unknown routes go to `notFoundHandler` (set with `app.notFound`), which returns a 404.
-11. The error handler (set with `app.onError`) turns anything thrown into a JSON response.
+3. The auth middleware resolves the session from the request's cookie, if any, and sets the user id and role on the request context. It never blocks the request — a missing, invalid or unreadable session just leaves the context unset, so the request continues as signed out. Routes that require a user go through their own guard.
+4. The request logger writes one line when the response finishes. It skips `/api/health`.
+5. `bodyLimit` turns away bodies over 100kb with a 413.
+6. A Hono route in `presentation/routes` receives the request.
+7. `validate(target, schema)` parses the `json` body, `param` or `query` with a schema from `@shared/`. Read the parsed value with `context.req.valid(target)`, so defaults and coerced numbers reach your handler with the right types.
+8. The route hands the request to a controller method in `presentation/controllers`, which calls a command or query in `application`.
+9. The use case works with domain entities through repository interfaces.
+10. A Prisma repository in `infrastructure` reads or writes the database.
+11. Unknown routes go to `notFoundHandler` (set with `app.notFound`), which returns a 404.
+12. The error handler (set with `app.onError`) turns anything thrown into a JSON response.
 
 ## Errors
 
@@ -151,7 +152,10 @@ The tables follow the team's ERD, which has three modules: `course-content`, `as
 | Module | Tables |
 | --- | --- |
 | `course-content` | `learning_style`, `code_language` |
-| `user` | `user` |
+| `user` | `user`, `user_profile` |
+| `auth` | `user`, `session`, `account`, `verification` |
+
+`auth/models/{user,session,account,verification}.prisma` were scaffolded once by Better Auth's CLI (`bun run auth:generate`, reading `infrastructure/auth/auth.ts`), then are hand-maintained from then on like any other model. Two reasons: Better Auth's `additionalFields` can't type a column as `uuid` (it only offers `string`/`number`/`boolean`/`date`/`json`, since not every database it supports has a native UUID type), and it can't add a foreign key to a model it doesn't itself manage. That's why `user`'s extra columns (`colour_theme`, `learning_style_id`, …) live in a separate, fully hand-written `user_profile` table instead, with a real relation back to `user` — a relation only possible because `user.prisma` is no longer regenerated. Only re-run `auth:generate` when adding a new Better Auth plugin that needs new core columns, and re-add any hand-written relation fields afterward, since it overwrites the whole model file.
 
 Every other table in the ERD is added by whoever builds the feature that needs it. The `user` example shows each step, so copy it.
 

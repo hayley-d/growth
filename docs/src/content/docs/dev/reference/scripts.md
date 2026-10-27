@@ -17,11 +17,14 @@ description: Workspace scripts, Biome, the git hooks and coding rules.
 
 ## Backend scripts
 
-| Script                    | What it does                       |
-| ------------------------- | ---------------------------------- |
-| `bun run prisma:generate` | Generates the Prisma client        |
-| `bun run prisma:migrate`  | Creates and applies a migration    |
-| `bun run prisma:studio`   | Opens Prisma Studio                |
+| Script                    | What it does                                           |
+| ------------------------- | ------------------------------------------------------- |
+| `bun run prisma:generate` | Generates the Prisma client                            |
+| `bun run prisma:migrate`  | Creates and applies a migration                        |
+| `bun run prisma:deploy`   | Applies existing migrations without creating a new one. Used in CI |
+| `bun run prisma:studio`   | Opens Prisma Studio                                    |
+| `bun run prisma:seed`     | Creates the dev admin login (`admin@growth.local`)     |
+| `bun run auth:generate`   | Regenerates the Better Auth models from `infrastructure/auth/auth.ts`. Only needed when that config changes in a way that needs new schema — see the Prisma section of the backend architecture page |
 
 ## Frontend scripts
 
