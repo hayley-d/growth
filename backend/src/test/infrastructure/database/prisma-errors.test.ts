@@ -21,12 +21,84 @@ describe("translatePrismaError", () => {
     expect(() => translatePrismaError(error)).toThrow("A record already exists with username");
   });
 
+  it("reads the conflicting field from the unique index name", () => {
+    const error = createKnownError("P2002", {
+      driverAdapterError: {
+        cause: { constraint: { index: "learning_style_name_key" }, table: "learning_style" },
+      },
+    });
+    expect(() => translatePrismaError(error)).toThrow(
+      new ConflictError("A record already exists with name", { fields: ["name"] }),
+    );
+  });
+
+  it("falls back to a general conflict when the index name can't be read", () => {
+    const error = createKnownError("P2002", {
+      driverAdapterError: { cause: { constraint: { index: "custom_index" }, table: "user" } },
+    });
+    expect(() => translatePrismaError(error)).toThrow("A record with these values already exists");
+  });
+
   it("turns a missing record into not found", () => {
     expect(() => translatePrismaError(createKnownError("P2025"))).toThrow(NotFoundError);
   });
 
-  it("turns a foreign key failure into bad request", () => {
-    expect(() => translatePrismaError(createKnownError("P2003"))).toThrow(BadRequestError);
+  it("turns a missing related record into bad request", () => {
+    const error = createKnownError("P2003", {
+      driverAdapterError: {
+        cause: {
+          originalMessage:
+            'insert or update on table "user" violates foreign key constraint "user_learning_style_id_fkey"',
+        },
+      },
+    });
+    expect(() => translatePrismaError(error)).toThrow(
+      new BadRequestError("A related record does not exist"),
+    );
+  });
+
+  it("turns deleting a record that is still in use into a conflict", () => {
+    const error = createKnownError("P2003", {
+      driverAdapterError: {
+        cause: {
+          originalMessage:
+            'update or delete on table "learning_style" violates foreign key constraint "user_learning_style_id_fkey" on table "user"',
+        },
+      },
+    });
+    expect(() => translatePrismaError(error)).toThrow(
+      new ConflictError("This record is still used by another record"),
+    );
+  });
+
+  it("turns a missing required value into bad request", () => {
+    expect(() => translatePrismaError(createKnownError("P2011"))).toThrow(
+      new BadRequestError("A required value is missing"),
+    );
+  });
+
+  it("turns a check constraint failure into bad request naming the constraint", () => {
+    const error = createKnownError("P2039", {
+      driverAdapterError: {
+        cause: {
+          originalCode: "23514",
+          originalMessage:
+            'new row for relation "user" violates check constraint "user_display_name_check"',
+        },
+      },
+    });
+    expect(() => translatePrismaError(error)).toThrow(
+      new BadRequestError("A value is outside its allowed range", {
+        constraint: "user_display_name_check",
+      }),
+    );
+  });
+
+  it("rethrows other database errors", () => {
+    const error = createKnownError("P2039", {
+      driverAdapterError: { cause: { originalCode: "53100", originalMessage: "disk full" } },
+    });
+    expect(() => translatePrismaError(error)).toThrow(error);
   });
 
   it("rethrows anything else untouched", () => {

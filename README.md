@@ -10,7 +10,7 @@ cd growth
 bun install
 cp backend/.env.example backend/.env
 docker compose up -d
-cd backend && bun run prisma:generate && cd ..
+cd backend && bun run prisma:migrate && bun run prisma:generate && cd ..
 bun run dev
 ```
 

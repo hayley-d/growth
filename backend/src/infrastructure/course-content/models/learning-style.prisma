@@ -1,0 +1,8 @@
+model LearningStyle {
+  id String @id @default(uuid()) @database.Uuid
+  name String @unique
+  description String
+  users User[]
+
+  @@map("learning_style")
+}

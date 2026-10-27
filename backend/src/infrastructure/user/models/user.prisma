@@ -1,0 +1,20 @@
+model User {
+  id String @id @default(uuid()) @database.Uuid
+  firstName String @map("first_name")
+  lastName String @map("last_name")
+  email String @unique
+  passwordHash String @map("password_hash")
+  learningStyleId String @map("learning_style_id") @database.Uuid
+  codeLanguageId String @map("code_language_id") @database.Uuid
+  textToSpeech Boolean @default(false) @map("text_to_speech")
+  colourTheme ColourTheme @default(default) @map("colour_theme")
+  createdAt DateTime @default(now()) @map("created_at") @database.Timestamptz(3)
+  displayName String @map("display_name")
+  showOnLeaderboard Boolean @default(true) @map("show_on_leaderboard")
+  learningStyle LearningStyle @relation(fields: [learningStyleId], references: [id], onDelete: Restrict)
+  codeLanguage CodeLanguage @relation(fields: [codeLanguageId], references: [id], onDelete: Restrict)
+
+  @@index([learningStyleId])
+  @@index([codeLanguageId])
+  @@map("user")
+}

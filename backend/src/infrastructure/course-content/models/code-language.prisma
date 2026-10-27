@@ -1,0 +1,8 @@
+model CodeLanguage {
+  id String @id @default(uuid()) @database.Uuid
+  code String @unique
+  name String
+  users User[]
+
+  @@map("code_language")
+}

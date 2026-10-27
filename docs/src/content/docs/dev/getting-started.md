@@ -56,9 +56,12 @@ LOG_LEVEL=info
 ```sh
 docker compose up -d
 cd backend
+bun run prisma:migrate
 bun run prisma:generate
 cd ..
 ```
+
+`prisma:migrate` creates every table. Run it again whenever you pull a new migration.
 
 Postgres runs on port `5433`, not the usual `5432`, so it won't clash with any Postgres you already have.
 
