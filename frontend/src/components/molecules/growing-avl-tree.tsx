@@ -29,6 +29,14 @@ const largestKey = 99;
 const stepDuration = 1400;
 const tweenDuration = 650;
 
+const nodeColours = [
+  { fill: "var(--primary)", stroke: "var(--primary-foreground)" },
+  { fill: "var(--secondary)", stroke: "var(--secondary-foreground)" },
+  { fill: "var(--accent)", stroke: "var(--accent-foreground)" },
+];
+
+const toNodeColour = (key: number) => nodeColours[key % nodeColours.length] ?? nodeColours[0];
+
 const createRandom = (seed: number) => {
   let state = seed;
   return () => {
@@ -212,8 +220,8 @@ export function GrowingAvlTree({
           cx={point.x}
           cy={point.y}
           r={nodeRadius * (0.4 + 0.6 * point.opacity)}
-          fill="var(--primary)"
-          stroke="var(--primary-foreground)"
+          fill={toNodeColour(point.key)?.fill}
+          stroke={toNodeColour(point.key)?.stroke}
           strokeWidth="1.5"
           opacity={point.opacity}
         />
