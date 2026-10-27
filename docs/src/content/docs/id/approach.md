@@ -1,6 +1,6 @@
 ---
 title: Instructional design approach
-description: We follow SAM, why we picked it, how each step shows up in the app, and how it fits with our Agile SE method.
+description: We follow SAM 2, why we picked it, how each step shows up in the app, and how it fits with our Agile SE method.
 ---
 
 ## SAM 2
