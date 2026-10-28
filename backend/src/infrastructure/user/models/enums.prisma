@@ -1,7 +1,7 @@
 enum ColourTheme {
   default
   high_contrast @map("high-contrast")
-  okabe_ito @map("okabe-ito")
+  okabe_ito     @map("okabe-ito")
 
-  @@map("colour_theme")
+  @@map("colourTheme")
 }

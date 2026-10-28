@@ -28,4 +28,28 @@ describe("auth", () => {
     expect(session).not.toBeNull();
     expect(session?.role).toBe("student");
   });
+
+  it("creates a default profile when a user signs up", async () => {
+    await authHandler(
+      new Request(`${environment.BETTER_AUTH_URL}/api/auth/sign-up/email`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email: testEmail, password: "password123", name: "Test User" }),
+      }),
+    );
+    const user = await prismaClient.user.findUnique({ where: { email: testEmail } });
+
+    const profile = await prismaClient.userProfile.findUnique({
+      where: { userId: user?.id ?? "" },
+    });
+
+    expect(profile).toMatchObject({
+      colourTheme: "default",
+      textToSpeech: false,
+      showOnLeaderboard: true,
+      onboardingComplete: false,
+      learningStyleId: null,
+      codeLanguageId: null,
+    });
+  });
 });

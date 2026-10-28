@@ -24,7 +24,7 @@ describe("translatePrismaError", () => {
   it("reads the conflicting field from the unique index name", () => {
     const error = createKnownError("P2002", {
       driverAdapterError: {
-        cause: { constraint: { index: "learning_style_name_key" }, table: "learning_style" },
+        cause: { constraint: { index: "learningStyle_name_key" }, table: "learningStyle" },
       },
     });
     expect(() => translatePrismaError(error)).toThrow(
@@ -48,7 +48,7 @@ describe("translatePrismaError", () => {
       driverAdapterError: {
         cause: {
           originalMessage:
-            'insert or update on table "user" violates foreign key constraint "user_learning_style_id_fkey"',
+            'insert or update on table "userProfile" violates foreign key constraint "userProfile_learningStyleId_fkey"',
         },
       },
     });
@@ -62,7 +62,7 @@ describe("translatePrismaError", () => {
       driverAdapterError: {
         cause: {
           originalMessage:
-            'update or delete on table "learning_style" violates foreign key constraint "user_learning_style_id_fkey" on table "user"',
+            'update or delete on table "learningStyle" violates foreign key constraint "userProfile_learningStyleId_fkey" on table "userProfile"',
         },
       },
     });

@@ -10,6 +10,7 @@ const row = {
   textToSpeech: false,
   colourTheme: "high_contrast" as const,
   showOnLeaderboard: true,
+  onboardingComplete: false,
 };
 
 const createClient = () => {
@@ -22,22 +23,21 @@ describe("PrismaUserProfileRepository", () => {
     const { userProfile, client } = createClient();
     userProfile.findUnique.mockResolvedValue(row);
 
-    const found = await new PrismaUserProfileRepository(client).findByUserId(row.userId);
+    const found = await new PrismaUserProfileRepository(client).findById(row.userId);
 
+    expect(userProfile.findUnique).toHaveBeenCalledWith({ where: { userId: row.userId } });
     expect(found?.colourTheme).toBe("high-contrast");
   });
 
   it("maps the frontend colour theme id back on create", async () => {
     const { userProfile, client } = createClient();
     userProfile.create.mockResolvedValue(row);
-    const { userId, colourTheme, ...newProfile } = row;
 
-    await new PrismaUserProfileRepository(client).create(userId, {
-      ...newProfile,
-      colourTheme: "high-contrast",
+    await new PrismaUserProfileRepository(client).create({ ...row, colourTheme: "high-contrast" });
+
+    expect(userProfile.create).toHaveBeenCalledWith({
+      data: { ...row, colourTheme: "high_contrast" },
     });
-
-    expect(userProfile.create.mock.calls[0]?.[0].data.colourTheme).toBe("high_contrast");
   });
 
   it("maps the frontend colour theme id back on update", async () => {
@@ -63,7 +63,7 @@ describe("PrismaUserProfileRepository", () => {
       codeLanguageId: null,
     });
 
-    const created = await new PrismaUserProfileRepository(client).create(row.userId, {});
+    const created = await new PrismaUserProfileRepository(client).create({ userId: row.userId });
 
     expect(userProfile.create).toHaveBeenCalledWith({
       data: { userId: row.userId, colourTheme: undefined },

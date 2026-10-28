@@ -30,7 +30,7 @@ export function LoginPage() {
         className="flex flex-col gap-4"
         onSubmit={(event) => {
           event.preventDefault();
-          form.handleSubmit();
+          if (!signInMutation.isPending) form.handleSubmit();
         }}
       >
         <form.Field name="email">

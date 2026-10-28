@@ -83,7 +83,7 @@ bun run prisma:seed
 cd ..
 ```
 
-Creates `admin@growth.local` / `growth` with the `admin` role. Safe to re-run. Refuses to run against anything but a localhost database.
+Creates `admin@growth.local` / `growth123` with the `admin` role. Safe to re-run: it resets that password if the admin already exists. Refuses to run against anything but a localhost database.
 
 **6. Run it**
 

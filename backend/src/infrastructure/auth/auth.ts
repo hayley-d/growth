@@ -5,8 +5,10 @@ import { admin } from "better-auth/plugins/admin";
 import type { AuthHandler, GetSession } from "@/application/auth/session";
 import { environment } from "@/infrastructure/config/environment";
 import { prismaClient } from "@/infrastructure/database/prisma-client";
-import { PrismaUserProfileRepository } from "@/infrastructure/user/repositories/user-profile-repository";
+import { createPinoLogger } from "@/infrastructure/logging/pino-logger";
+import { PrismaUserProfileRepository } from "@/infrastructure/user/repositories";
 
+const logger = createPinoLogger(environment.LOG_LEVEL);
 const userProfileRepository = new PrismaUserProfileRepository(prismaClient);
 
 export const auth = betterAuth({
@@ -19,13 +21,18 @@ export const auth = betterAuth({
   session: {
     cookieCache: {
       enabled: true,
+      maxAge: 60,
     },
   },
   databaseHooks: {
     user: {
       create: {
         after: async (user) => {
-          await userProfileRepository.create(user.id, {});
+          try {
+            await userProfileRepository.create({ userId: user.id });
+          } catch (error) {
+            logger.error("Creating the user profile failed", { userId: user.id, error });
+          }
         },
       },
     },
@@ -36,15 +43,11 @@ export const auth = betterAuth({
 export const authHandler: AuthHandler = (request) => auth.handler(request);
 
 export const getSession: GetSession = async (headers) => {
-  try {
-    const session = await auth.api.getSession({ headers });
-    if (!session) return null;
+  const session = await auth.api.getSession({ headers });
+  if (!session) return null;
 
-    return {
-      userId: session.user.id,
-      role: session.user.role ?? null,
-    };
-  } catch {
-    return null;
-  }
+  return {
+    userId: session.user.id,
+    role: session.user.role ?? null,
+  };
 };

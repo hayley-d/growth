@@ -24,7 +24,7 @@ description: Workspace scripts, Biome, the git hooks and coding rules.
 | `bun run prisma:deploy`   | Applies existing migrations without creating a new one. Used in CI |
 | `bun run prisma:studio`   | Opens Prisma Studio                                    |
 | `bun run prisma:seed`     | Creates the dev admin login (`admin@growth.local`)     |
-| `bun run auth:generate`   | Regenerates the Better Auth models from `infrastructure/auth/auth.ts`. Only needed when that config changes in a way that needs new schema — see the Prisma section of the backend architecture page |
+| `bun run auth:generate`   | Merges anything new Better Auth needs into `infrastructure/auth/models/auth.prisma`. Run it after you upgrade Better Auth or add a plugin, then create a migration |
 
 ## Frontend scripts
 

@@ -13,9 +13,23 @@ it("shows an error when sign up fails", async () => {
 
   await screen.getByLabelText("Email").fill("test@example.com");
   await screen.getByLabelText("Password").fill("password123");
+  await screen.getByLabelText("Display name").fill("Ada");
   await screen.getByRole("button", { name: "Sign up" }).click();
 
   await expect.element(screen.getByText("Email already in use")).toBeVisible();
+});
+
+it("asks for a display name before signing up", async () => {
+  vi.mocked(authClient.signUp.email).mockReset();
+
+  const screen = await renderApp("/sign-up", { session: null });
+
+  await screen.getByLabelText("Email").fill("test@example.com");
+  await screen.getByLabelText("Password").fill("password123");
+  await screen.getByRole("button", { name: "Sign up" }).click();
+
+  await expect.element(screen.getByText("Display name is required")).toBeVisible();
+  expect(authClient.signUp.email).not.toHaveBeenCalled();
 });
 
 it("goes to the dashboard after a successful sign up", async () => {
@@ -31,6 +45,7 @@ it("goes to the dashboard after a successful sign up", async () => {
 
   await screen.getByLabelText("Email").fill("test@example.com");
   await screen.getByLabelText("Password").fill("password123");
+  await screen.getByLabelText("Display name").fill("Ada");
   await screen.getByRole("button", { name: "Sign up" }).click();
 
   await expect.element(screen.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();

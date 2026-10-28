@@ -1,8 +1,8 @@
 model CodeLanguage {
-  id String @id @default(uuid()) @database.Uuid
-  code String @unique
-  name String
+  id           String        @id @default(uuid()) @database.Uuid
+  code         String        @unique
+  name         String
   userProfiles UserProfile[]
 
-  @@map("code_language")
+  @@map("codeLanguage")
 }

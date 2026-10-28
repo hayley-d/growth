@@ -11,7 +11,7 @@
     "prisma:migrate": "bun --bun node_modules/.bin/prisma migrate dev",
     "prisma:deploy": "bun --bun node_modules/.bin/prisma migrate deploy",
     "prisma:studio": "bun --bun node_modules/.bin/prisma studio",
-    "auth:generate": "bun --bun node_modules/.bin/auth generate --config src/infrastructure/auth/auth.ts --output src/infrastructure/database/schema.prisma -y",
+    "auth:generate": "bun --bun node_modules/.bin/auth generate --config src/infrastructure/auth/auth.ts --output src/infrastructure/auth/models/auth.prisma -y",
     "prisma:seed": "bun --bun node_modules/.bin/prisma db seed",
     "typecheck": "bun --bun node_modules/.bin/prisma generate && tsc --noEmit"
   },

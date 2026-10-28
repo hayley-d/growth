@@ -31,12 +31,12 @@ export const toUserProfile = (row: UserProfileRow): UserProfile => ({
   textToSpeech: row.textToSpeech,
   colourTheme: toColourTheme(row.colourTheme),
   showOnLeaderboard: row.showOnLeaderboard,
+  onboardingComplete: row.onboardingComplete,
   learningStyleId: row.learningStyleId,
   codeLanguageId: row.codeLanguageId,
 });
 
-export const toUserProfileCreateData = (userId: string, profile: NewUserProfile) => ({
-  userId,
+export const toUserProfileCreateData = (profile: NewUserProfile) => ({
   ...profile,
   colourTheme:
     profile.colourTheme === undefined ? undefined : toColourThemeRow(profile.colourTheme),

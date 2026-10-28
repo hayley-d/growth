@@ -3,26 +3,16 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authQueryKeys } from "@/lib/queries/auth.queries";
 import { authService } from "@/services/auth-service";
 
-export const useSignInMutation = () => {
+const useSessionMutation = <Variables>(mutationFn: (variables: Variables) => Promise<void>) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: authService.signInWithEmail,
+    mutationFn,
     onSuccess: () => queryClient.invalidateQueries({ queryKey: authQueryKeys.session }),
   });
 };
 
-export const useSignUpMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: authService.signUpWithEmail,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: authQueryKeys.session }),
-  });
-};
+export const useSignInMutation = () => useSessionMutation(authService.signInWithEmail);
 
-export const useSignOutMutation = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: authService.signOutUser,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: authQueryKeys.session }),
-  });
-};
+export const useSignUpMutation = () => useSessionMutation(authService.signUpWithEmail);
+
+export const useSignOutMutation = () => useSessionMutation(authService.signOutUser);
