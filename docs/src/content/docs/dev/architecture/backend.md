@@ -153,7 +153,7 @@ The tables follow the team's ERD, which has three modules: `course-content`, `as
 
 | Module | Tables |
 | --- | --- |
-| `course-content` | `learningStyle`, `codeLanguage` |
+| `course-content` | `learningStyle`, `codeLanguage`, `unit`, `lesson`, `contentBlock` |
 | `user` | `user`, `userProfile` |
 | `auth` | `user`, `session`, `account`, `verification` |
 
