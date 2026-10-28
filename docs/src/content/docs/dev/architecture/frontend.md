@@ -42,7 +42,7 @@ Unknown URLs show `NotFoundPage` inside `AppLayout`.
 
 The user menu shows the signed-in user's name and email, with Settings and Sign out. If signing out fails, the menu stays open and shows why.
 
-The AVL rules the background uses live in `lib/avl/` as pure functions (`insertKey`, `removeKey`, `layoutTree`). They have no React, so lessons can reuse them later.
+The background imports its AVL rules (`insertKey`, `removeKey`, `layoutTree`) from `@shared/avl`, the same copy the backend uses. Each tree is a `GrowingAvlTree` molecule drawn from two atoms, `TreeNodeCircle` and `TreeEdge`. Phones show one tree, tablets two and desktops three. Trees for bigger screens are only mounted at that size, so phones don't animate trees nobody can see.
 
 ## Colour schemes
 

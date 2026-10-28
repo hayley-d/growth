@@ -1,6 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { type AvlNode, insertKey, layoutTree, removeKey, toKeys } from "@/lib/avl";
+import { type AvlNode, insertKey, layoutTree, removeKey, toKeys } from "@shared/avl";
+import { TreeEdge } from "@/components/atoms/tree-edge";
+import { TreeNodeCircle } from "@/components/atoms/tree-node-circle";
+import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 type GrowingAvlTreeProperties = {
@@ -15,6 +18,8 @@ type NodePoint = {
   x: number;
   y: number;
   parentKey: number | null;
+  parentX: number;
+  parentY: number;
   opacity: number;
 };
 
@@ -29,11 +34,13 @@ const largestKey = 99;
 const stepDuration = 1400;
 const tweenDuration = 650;
 
+const allKeys = Array.from({ length: largestKey }, (_, index) => index + 1);
+
 const nodeColours = [
   { fill: "var(--primary)", stroke: "var(--primary-foreground)" },
   { fill: "var(--secondary)", stroke: "var(--secondary-foreground)" },
   { fill: "var(--accent)", stroke: "var(--accent-foreground)" },
-];
+] as const;
 
 const toNodeColour = (key: number) => nodeColours[key % nodeColours.length] ?? nodeColours[0];
 
@@ -45,48 +52,46 @@ const createRandom = (seed: number) => {
   };
 };
 
-const pickUnusedKey = (keys: number[], random: () => number) => {
-  let key = 1 + Math.floor(random() * largestKey);
-  while (keys.includes(key)) key = 1 + Math.floor(random() * largestKey);
-  return key;
+const insertRandomKey = (root: AvlNode | null, random: () => number) => {
+  const keys = toKeys(root);
+  const unusedKeys = allKeys.filter((key) => !keys.includes(key));
+  const key = unusedKeys[Math.floor(random() * unusedKeys.length)];
+  return key === undefined ? root : insertKey(root, key);
 };
 
 const buildTree = (size: number, random: () => number) => {
   let root: AvlNode | null = null;
-  for (let count = 0; count < size; count += 1)
-    root = insertKey(root, pickUnusedKey(toKeys(root), random));
+  for (let count = 0; count < size; count += 1) root = insertRandomKey(root, random);
   return root;
 };
 
 const toPoints = (root: AvlNode | null): NodePoint[] => {
   const layout = layoutTree(root);
   const offset = viewWidth / 2 - ((layout.length - 1) * nodeSpacing) / 2;
-  return layout.map((position) => ({
+  const placed = layout.map((position) => ({
     key: position.key,
     x: offset + position.x * nodeSpacing,
     y: topPadding + position.y * levelSpacing,
     parentKey: position.parentKey,
-    opacity: 1,
   }));
+  const placedByKey = new Map(placed.map((point) => [point.key, point]));
+  return placed.map((point) => {
+    const parent = point.parentKey === null ? undefined : placedByKey.get(point.parentKey);
+    return { ...point, parentX: parent?.x ?? point.x, parentY: parent?.y ?? point.y, opacity: 1 };
+  });
 };
+
+const isSamePlace = (from: NodePoint, to: NodePoint) =>
+  from.x === to.x &&
+  from.y === to.y &&
+  from.parentX === to.parentX &&
+  from.parentY === to.parentY &&
+  from.opacity === to.opacity;
 
 const easeInOut = (progress: number) =>
   progress < 0.5 ? 2 * progress * progress : 1 - (-2 * progress + 2) ** 2 / 2;
 
 const blend = (from: number, to: number, amount: number) => from + (to - from) * amount;
-
-function usePrefersReducedMotion() {
-  const [prefersReducedMotion, setPrefersReducedMotion] = useState(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-  useEffect(() => {
-    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const update = () => setPrefersReducedMotion(query.matches);
-    query.addEventListener("change", update);
-    return () => query.removeEventListener("change", update);
-  }, []);
-  return prefersReducedMotion;
-}
 
 function usePageVisible() {
   const [isVisible, setIsVisible] = useState(() => document.visibilityState === "visible");
@@ -112,7 +117,7 @@ function useAvlCycle(seed: number, delay: number, maxSize: number, isRunning: bo
       if (keys.length <= minSize) isGrowingReference.current = true;
       const random = randomReference.current;
       const next = isGrowingReference.current
-        ? insertKey(rootReference.current, pickUnusedKey(keys, random))
+        ? insertRandomKey(rootReference.current, random)
         : removeKey(rootReference.current, keys[Math.floor(random() * keys.length)] ?? 0);
       rootReference.current = next;
       setRoot(next);
@@ -131,7 +136,7 @@ function useAvlCycle(seed: number, delay: number, maxSize: number, isRunning: bo
   return root;
 }
 
-function useTweenedPoints(targets: NodePoint[]) {
+function useTweenedPoints(targets: NodePoint[], isAnimated: boolean) {
   const [points, setPoints] = useState<NodePoint[]>(targets);
   const currentReference = useRef<NodePoint[]>(targets);
 
@@ -144,6 +149,8 @@ function useTweenedPoints(targets: NodePoint[]) {
         ...target,
         x: parent?.x ?? target.x,
         y: parent?.y ?? target.y,
+        parentX: parent?.x ?? target.parentX,
+        parentY: parent?.y ?? target.parentY,
         opacity: 0,
       };
       return { from, to: target };
@@ -153,6 +160,12 @@ function useTweenedPoints(targets: NodePoint[]) {
       .map((point) => ({ from: point, to: { ...point, opacity: 0 } }));
     const moves = [...entering, ...leaving];
 
+    if (!isAnimated || moves.every(({ from, to }) => isSamePlace(from, to))) {
+      currentReference.current = targets;
+      setPoints(targets);
+      return;
+    }
+
     let frameId = 0;
     const startTime = performance.now();
     const tick = (now: number) => {
@@ -160,8 +173,11 @@ function useTweenedPoints(targets: NodePoint[]) {
       const amount = easeInOut(progress);
       const frame = moves.map(({ from, to }) => ({
         ...to,
+        parentKey: to.parentKey ?? from.parentKey,
         x: blend(from.x, to.x, amount),
         y: blend(from.y, to.y, amount),
+        parentX: blend(from.parentX, to.parentX, amount),
+        parentY: blend(from.parentY, to.parentY, amount),
         opacity: blend(from.opacity, to.opacity, amount),
       }));
       currentReference.current = progress < 1 ? frame : targets;
@@ -170,7 +186,7 @@ function useTweenedPoints(targets: NodePoint[]) {
     };
     frameId = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frameId);
-  }, [targets]);
+  }, [targets, isAnimated]);
 
   return points;
 }
@@ -181,15 +197,14 @@ export function GrowingAvlTree({
   maxSize = 8,
   className,
 }: GrowingAvlTreeProperties) {
-  const prefersReducedMotion = usePrefersReducedMotion();
+  const size = Math.min(Math.max(maxSize, minSize + 1), largestKey);
+  const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const isVisible = usePageVisible();
-  const [staticTree] = useState(() => buildTree(maxSize, createRandom(seed)));
-  const cycledTree = useAvlCycle(seed, delay, maxSize, isVisible && !prefersReducedMotion);
+  const [staticTree] = useState(() => buildTree(size, createRandom(seed)));
+  const cycledTree = useAvlCycle(seed, delay, size, isVisible && !prefersReducedMotion);
   const root = prefersReducedMotion ? staticTree : cycledTree;
   const targets = useMemo(() => toPoints(root), [root]);
-  const tweened = useTweenedPoints(targets);
-  const points = prefersReducedMotion ? targets : tweened;
-  const pointsByKey = new Map(points.map((point) => [point.key, point]));
+  const points = useTweenedPoints(targets, !prefersReducedMotion);
 
   return (
     <svg
@@ -197,35 +212,32 @@ export function GrowingAvlTree({
       aria-hidden="true"
       className={cn("text-muted-foreground", className)}
     >
+      {points.map((point) =>
+        point.parentKey === null ? null : (
+          <TreeEdge
+            key={point.key}
+            fromX={point.parentX}
+            fromY={point.parentY}
+            toX={point.x}
+            toY={point.y}
+            opacity={point.opacity}
+          />
+        ),
+      )}
       {points.map((point) => {
-        const parent = point.parentKey === null ? undefined : pointsByKey.get(point.parentKey);
-        if (!parent) return null;
+        const colour = toNodeColour(point.key);
         return (
-          <line
-            key={`${parent.key}-${point.key}`}
-            x1={parent.x}
-            y1={parent.y}
-            x2={point.x}
-            y2={point.y}
-            stroke="currentColor"
-            strokeWidth="2"
-            strokeLinecap="round"
-            opacity={Math.min(point.opacity, parent.opacity)}
+          <TreeNodeCircle
+            key={point.key}
+            x={point.x}
+            y={point.y}
+            radius={nodeRadius * (0.4 + 0.6 * point.opacity)}
+            fill={colour.fill}
+            stroke={colour.stroke}
+            opacity={point.opacity}
           />
         );
       })}
-      {points.map((point) => (
-        <circle
-          key={point.key}
-          cx={point.x}
-          cy={point.y}
-          r={nodeRadius * (0.4 + 0.6 * point.opacity)}
-          fill={toNodeColour(point.key)?.fill}
-          stroke={toNodeColour(point.key)?.stroke}
-          strokeWidth="1.5"
-          opacity={point.opacity}
-        />
-      ))}
     </svg>
   );
 }
