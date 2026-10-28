@@ -1,5 +1,6 @@
 export * from "@shared/schemas/auth";
 export * from "@shared/schemas/common";
+export * from "@shared/schemas/content-block";
 export * from "@shared/schemas/error";
 export * from "@shared/schemas/health";
 export * from "@shared/schemas/user";

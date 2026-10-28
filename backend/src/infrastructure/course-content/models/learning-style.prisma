@@ -1,8 +1,9 @@
 model LearningStyle {
-  id           String        @id @default(uuid()) @database.Uuid
-  name         String        @unique
-  description  String
-  userProfiles UserProfile[]
+  id            String         @id @default(uuid()) @database.Uuid
+  name          String         @unique
+  description   String
+  userProfiles  UserProfile[]
+  contentBlocks ContentBlock[]
 
   @@map("learningStyle")
 }

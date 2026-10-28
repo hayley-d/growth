@@ -1,0 +1,15 @@
+model ContentBlock {
+  id              String           @id @default(uuid()) @database.Uuid
+  lessonId        String           @database.Uuid
+  learningStyleId String?          @database.Uuid
+  type            ContentBlockType
+  body            Json
+  transcript      String
+  position        Int
+  lesson          Lesson           @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+  learningStyle   LearningStyle?   @relation(fields: [learningStyleId], references: [id], onDelete: Restrict)
+
+  @@index([lessonId])
+  @@index([learningStyleId])
+  @@map("contentBlock")
+}

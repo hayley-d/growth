@@ -1,0 +1,16 @@
+enum LessonKind {
+  lesson
+  checkpoint
+
+  @@map("lessonKind")
+}
+
+enum ContentBlockType {
+  text
+  diagram
+  animation
+  playground
+  code_trace
+
+  @@map("contentBlockType")
+}
