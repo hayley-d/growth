@@ -50,3 +50,10 @@ it("goes to the dashboard after a successful sign up", async () => {
 
   await expect.element(screen.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();
 });
+
+it("shows the sign up form on its own, without the navbar", async () => {
+  const screen = await renderApp("/sign-up", { session: null });
+
+  await expect.element(screen.getByRole("heading", { name: "Sign up", level: 1 })).toBeVisible();
+  await expect.element(screen.getByRole("navigation", { name: "Main" })).not.toBeInTheDocument();
+});

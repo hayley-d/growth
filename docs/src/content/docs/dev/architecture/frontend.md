@@ -32,9 +32,17 @@ The app should work well on every screen size, from phones to large desktops. Us
 
 ## App shell
 
-`__root.tsx` wraps every page in `AppLayout` (`components/templates/app-layout.tsx`): the `Navbar` on top and the page below. The navbar shows the logo, the nav links and the user menu. On phones the links move into a slide-out menu. Unknown URLs show `NotFoundPage`.
+Pages get their layout from a pathless layout route:
+
+- `routes/_app.tsx` wraps pages in `AppLayout` (`components/templates/app-layout.tsx`): the `Navbar` on top and the page below. The navbar shows the logo, the nav links and the user menu. On phones the links move into a slide-out menu. Settings and every signed-in page live under `routes/_app/`.
+- `routes/_app/_authenticated.tsx` sends signed-out visitors to `/login`. Put any page that needs a signed-in user under `routes/_app/_authenticated/`.
+- `routes/_auth.tsx` wraps the login and sign-up pages in `AuthLayout`. It has no navbar. Small AVL trees grow and shrink in a faint background behind the form (`organisms/avl-background.tsx`), and they stay still when the visitor prefers reduced motion. Signed-in visitors are sent to `/`.
+
+Unknown URLs show `NotFoundPage` inside `AppLayout`.
 
 The user menu shows the signed-in user's name and email, with Settings and Sign out. If signing out fails, the menu stays open and shows why.
+
+The background imports its AVL rules (`insertKey`, `removeKey`, `layoutTree`) from `@shared/avl`, the same copy the backend uses. Each tree is a `GrowingAvlTree` molecule drawn from two atoms, `TreeNodeCircle` and `TreeEdge`. Phones show one tree, tablets two and desktops three. Trees for bigger screens are only mounted at that size, so phones don't animate trees nobody can see.
 
 ## Colour schemes
 
@@ -54,7 +62,7 @@ Colour is never the only signal. States also need an icon, shape or label, so th
 
 Routes live in `src/routes` and are discovered by the TanStack Router Vite plugin, which generates `routeTree.gen.ts`. A route file stays thin and renders a page from `src/pages`.
 
-The root route loads the session in `beforeLoad` with `queryClient.fetchQuery(sessionQueryOptions)` and puts it in the router context, where `_authenticated.tsx`, `login.tsx` and `sign-up.tsx` read it. `fetchQuery` asks the server again whenever the cached session is stale, which is after 60 seconds or straight after sign-in, sign-up or sign-out. If the session request fails, `beforeLoad` throws a `SessionLoadError`. The root's `RootErrorPage` shows `SessionErrorPage` for that error, which says the server can't be reached and has a Try again button. It doesn't treat the user as signed out. Any other error from a page shows `ErrorPage` inside `AppLayout`, so the navbar stays.
+The root route loads the session in `beforeLoad` with `queryClient.fetchQuery(sessionQueryOptions)` and puts it in the router context, where `_app/_authenticated.tsx` and `_auth.tsx` read it. `fetchQuery` asks the server again whenever the cached session is stale, which is after 60 seconds or straight after sign-in, sign-up or sign-out. If the session request fails, `beforeLoad` throws a `SessionLoadError`. The root's `RootErrorPage` shows `SessionErrorPage` for that error, which says the server can't be reached and has a Try again button. It doesn't treat the user as signed out. Any other error from a page shows `ErrorPage` inside `AppLayout`, so the navbar stays.
 
 ## Services
 

@@ -21,7 +21,7 @@ export function LoginPage() {
   });
 
   return (
-    <div className="mx-auto flex w-full max-w-sm flex-col gap-6 py-12">
+    <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold">Log in</h1>
         <p className="mt-1 text-muted-foreground">Welcome back to Growth.</p>
