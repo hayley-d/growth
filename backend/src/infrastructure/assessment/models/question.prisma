@@ -1,0 +1,22 @@
+model Question {
+  id               String           @id @default(uuid()) @database.Uuid
+  lessonId         String           @database.Uuid
+  reviewLessonId   String           @database.Uuid
+  type             QuestionType
+  difficulty       Int
+  bloomsLevel      BloomsLevel
+  prompt           String?
+  generatorKey     String?
+  generatorOptions Json?
+  explanation      String
+  lesson           Lesson           @relation("questionLesson", fields: [lessonId], references: [id], onDelete: Cascade)
+  reviewLesson     Lesson           @relation("questionReviewLesson", fields: [reviewLessonId], references: [id], onDelete: Restrict)
+  answerOptions    AnswerOption[]
+  hints            Hint[]
+  dailyChallenges  DailyChallenge[]
+  attemptAnswers   AttemptAnswer[]
+
+  @@index([lessonId])
+  @@index([reviewLessonId])
+  @@map("question")
+}

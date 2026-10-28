@@ -154,6 +154,7 @@ The tables follow the team's ERD, which has three modules: `course-content`, `as
 | Module | Tables |
 | --- | --- |
 | `course-content` | `learningStyle`, `codeLanguage`, `unit`, `lesson`, `contentBlock` |
+| `assessment` | `question`, `answerOption`, `hint`, `dailyChallenge`, `assessmentAttempt`, `attemptAnswer` |
 | `user` | `user`, `userProfile` |
 | `auth` | `user`, `session`, `account`, `verification` |
 

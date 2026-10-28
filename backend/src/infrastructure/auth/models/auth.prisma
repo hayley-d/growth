@@ -13,6 +13,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   profile       UserProfile?
+  assessmentAttempts AssessmentAttempt[]
 
   @@unique([email])
   @@map("user")
