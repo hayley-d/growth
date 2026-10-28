@@ -1,5 +1,6 @@
 export * from "@shared/schemas/assessment";
 export * from "@shared/schemas/auth";
+export * from "@shared/schemas/case-study";
 export * from "@shared/schemas/common";
 export * from "@shared/schemas/content-block";
 export * from "@shared/schemas/error";

@@ -1,0 +1,8 @@
+model Algorithm {
+  id           String        @id @default(uuid()) @database.Uuid
+  code         String        @unique
+  name         String
+  codeSnippets CodeSnippet[]
+
+  @@map("algorithm")
+}

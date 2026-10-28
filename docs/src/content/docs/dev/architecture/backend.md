@@ -153,9 +153,9 @@ The tables follow the team's ERD, which has three modules: `course-content`, `as
 
 | Module | Tables |
 | --- | --- |
-| `course-content` | `learningStyle`, `codeLanguage`, `unit`, `lesson`, `contentBlock` |
+| `course-content` | `learningStyle`, `codeLanguage`, `unit`, `lesson`, `contentBlock`, `caseStudy`, `algorithm`, `codeSnippet`, `codeLine` |
 | `assessment` | `question`, `answerOption`, `hint`, `dailyChallenge`, `assessmentAttempt`, `attemptAnswer` |
-| `user` | `user`, `userProfile` |
+| `user` | `user`, `userProfile`, `lessonProgress`, `userMastery`, `dailyActivity` |
 | `auth` | `user`, `session`, `account`, `verification` |
 
 Better Auth owns four tables. Their models all live in one file, `auth/models/auth.prisma`, because that's the file `bun run auth:generate` writes to. The generator merges into the file: it adds models and fields Better Auth needs and keeps everything else, including our `@database.Timestamptz(3)` and the `profile` relation on `User`. Run it after you upgrade Better Auth or add a plugin, add `@database.Timestamptz(3)` to any new date field, then create a migration. If it prints "Your schema is already up to date", nothing changed. Don't split the file: the generator only writes one file, and pointed at a new one it writes a whole schema with its own datasource and a copy of every model.

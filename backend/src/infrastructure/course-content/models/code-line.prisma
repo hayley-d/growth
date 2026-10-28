@@ -1,0 +1,9 @@
+model CodeLine {
+  codeSnippetId String      @database.Uuid
+  stepKey       String
+  lineNumber    Int
+  codeSnippet   CodeSnippet @relation(fields: [codeSnippetId], references: [id], onDelete: Cascade)
+
+  @@id([codeSnippetId, stepKey])
+  @@map("codeLine")
+}
