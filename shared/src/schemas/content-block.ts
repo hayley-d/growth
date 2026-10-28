@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { TraversalOrder } from "@shared/avl";
+import type { TraversalOrder, TreeGoal } from "@shared/avl";
 
 export const treeKeySchema = z.number().int();
 
@@ -44,7 +44,7 @@ export const playgroundGoalSchema = z.discriminatedUnion("kind", [
   z.object({ kind: z.literal("containsKeys"), keys: treeKeysSchema }),
   z.object({ kind: z.literal("validAvl") }),
   z.object({ kind: z.literal("traversal"), order: traversalOrderSchema, keys: treeKeysSchema }),
-]);
+]) satisfies z.ZodType<TreeGoal>;
 
 export type PlaygroundGoal = z.infer<typeof playgroundGoalSchema>;
 

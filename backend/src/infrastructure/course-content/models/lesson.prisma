@@ -10,6 +10,9 @@ model Lesson {
   questions          Question[]          @relation("questionLesson")
   reviewQuestions    Question[]          @relation("questionReviewLesson")
   assessmentAttempts AssessmentAttempt[]
+  caseStudies        CaseStudy[]
+  progress           LessonProgress[]
+  mastery            UserMastery[]
 
   @@unique([unitId, position])
   @@map("lesson")

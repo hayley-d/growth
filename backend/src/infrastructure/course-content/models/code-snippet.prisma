@@ -1,0 +1,13 @@
+model CodeSnippet {
+  id             String       @id @default(uuid()) @database.Uuid
+  algorithmId    String       @database.Uuid
+  codeLanguageId String       @database.Uuid
+  source         String
+  algorithm      Algorithm    @relation(fields: [algorithmId], references: [id], onDelete: Cascade)
+  codeLanguage   CodeLanguage @relation(fields: [codeLanguageId], references: [id], onDelete: Restrict)
+  codeLines      CodeLine[]
+
+  @@unique([algorithmId, codeLanguageId])
+  @@index([codeLanguageId])
+  @@map("codeSnippet")
+}

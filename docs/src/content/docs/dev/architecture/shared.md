@@ -13,6 +13,7 @@ shared/src/
       tree-traversal.ts   TreeTraversal: walk a tree one node at a time
       tree-searcher.ts    TreeSearcher: find a key and the path to it
       tree-encoding.ts    encodeTree and decodeTree: a tree as a string
+      goal-check.ts       checkGoal: did the learner's tree meet a playground goal
     test/                 one <file>.test.ts for each file in src/
 ```
 
@@ -62,6 +63,22 @@ The `#` markers matter. Without them, 5 with 10 as its left child and 5 with 10 
 `decodeTree` only accepts keys written exactly as `encodeTree` writes them. No spaces, and no other spellings like `1.0` or `0x10`. That gives every tree exactly one string, so a quiz answer is checked by comparing the learner's string with `encodeTree` of the right answer.
 
 `decodeTree` doesn't check BST or AVL order, so a wrong answer still decodes. Bad input throws a `TreeEncodingError`. In the backend, catch it in the use case and throw a `BadRequestError`, or it turns into a 500.
+
+## Goal check
+
+A playground or case study task gives the learner a goal, and `checkGoal(root, goal)` says whether their tree meets it:
+
+```ts
+checkGoal(root, { kind: "containsKeys", keys: [25] });
+checkGoal(root, { kind: "traversal", order: "inorder", keys: [5, 10, 15, 20, 30] });
+checkGoal(root, { kind: "validAvl" });
+```
+
+- `containsKeys` passes when every listed key is somewhere in the tree.
+- `traversal` passes when walking the tree in the given order gives exactly those keys, in that order.
+- `validAvl` passes when the tree is in BST order, every node's stored `height` matches what its children actually give, and every balance factor is `-1`, `0` or `1`.
+
+`TreeGoal` is a plain type, not a zod schema, because `avl/` imports nothing. `playgroundGoalSchema` in `@shared/schemas/content-block` is marked `satisfies z.ZodType<TreeGoal>` so the two can't drift apart. The frontend calls `checkGoal` for instant feedback while a learner works, and the backend calls it again to verify before awarding points.
 
 ## Size limit
 

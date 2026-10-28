@@ -1,0 +1,12 @@
+model LessonProgress {
+  userId      String
+  lessonId    String         @database.Uuid
+  status      ProgressStatus @default(started)
+  completedAt DateTime?      @database.Timestamptz(3)
+  user        User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson      Lesson         @relation(fields: [lessonId], references: [id], onDelete: Restrict)
+
+  @@id([userId, lessonId])
+  @@index([lessonId])
+  @@map("lessonProgress")
+}
