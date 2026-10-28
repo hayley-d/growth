@@ -1,5 +1,5 @@
-import type { authClient } from "@/lib/auth-client";
+import type { SessionResponse } from "@shared/schemas/auth";
 
 export type RouterContext = {
-  session: (typeof authClient)["$Infer"]["Session"] | null;
+  session: SessionResponse;
 };

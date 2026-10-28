@@ -24,6 +24,41 @@ describe("getSession", () => {
     await expect(authService.getSession()).resolves.toBeNull();
   });
 
+  it("returns the parsed session", async () => {
+    vi.mocked(authClient.getSession).mockResolvedValue({
+      data: {
+        user: { id: "user-1", name: "Ada", email: "ada@example.com", role: "student" },
+        session: { id: "session-1", token: "secret", expiresAt: "2026-10-28T12:00:00.000Z" },
+      },
+      error: null,
+    });
+
+    const session = await authService.getSession();
+
+    expect(session?.session).toEqual({
+      id: "session-1",
+      expiresAt: new Date("2026-10-28T12:00:00.000Z"),
+    });
+  });
+
+  it("rejects a session in the wrong shape", async () => {
+    vi.mocked(authClient.getSession).mockResolvedValue({
+      data: { user: { id: "user-1" } },
+      error: null,
+    });
+
+    await expect(authService.getSession()).rejects.toThrow("Incorrect data format");
+  });
+
+  it("falls back to a default message when the server sends an empty one", async () => {
+    vi.mocked(authClient.getSession).mockResolvedValue({
+      data: null,
+      error: { message: "", status: 500 },
+    });
+
+    await expect(authService.getSession()).rejects.toThrow("Unable to fetch session");
+  });
+
   it("rejects with a ServiceError when the request fails", async () => {
     vi.mocked(authClient.getSession).mockResolvedValue({
       data: null,
@@ -56,46 +91,18 @@ describe("signInWithEmail", () => {
     expect(error).toMatchObject({ message: "Invalid credentials", status: 401 });
   });
 
-  it("returns the data when sign in succeeds", async () => {
+  it("resolves with nothing when sign in succeeds", async () => {
     vi.mocked(authClient.signIn.email).mockResolvedValue({ data: { token: "abc" }, error: null });
 
     await expect(
       authService.signInWithEmail({ email: "test@example.com", password: "correct" }),
-    ).resolves.toEqual({ token: "abc" });
+    ).resolves.toBeUndefined();
   });
 });
 
 describe("signUpWithEmail", () => {
   beforeEach(() => {
     vi.mocked(authClient.signUp.email).mockReset();
-  });
-
-  it("falls back to the email's local part when no name is given", async () => {
-    vi.mocked(authClient.signUp.email).mockResolvedValue({ data: { user: {} }, error: null });
-
-    await authService.signUpWithEmail({ email: "ada@example.com", password: "password123" });
-
-    expect(authClient.signUp.email).toHaveBeenCalledWith({
-      email: "ada@example.com",
-      password: "password123",
-      name: "ada",
-    });
-  });
-
-  it("falls back to the email's local part when the name is only whitespace", async () => {
-    vi.mocked(authClient.signUp.email).mockResolvedValue({ data: { user: {} }, error: null });
-
-    await authService.signUpWithEmail({
-      email: "ada@example.com",
-      password: "password123",
-      name: "   ",
-    });
-
-    expect(authClient.signUp.email).toHaveBeenCalledWith({
-      email: "ada@example.com",
-      password: "password123",
-      name: "ada",
-    });
   });
 
   it("trims surrounding whitespace from a given name", async () => {
@@ -137,7 +144,7 @@ describe("signUpWithEmail", () => {
     });
 
     const error = await authService
-      .signUpWithEmail({ email: "ada@example.com", password: "password123" })
+      .signUpWithEmail({ email: "ada@example.com", password: "password123", name: "Ada" })
       .catch((caught: unknown) => caught);
 
     expect(error).toBeInstanceOf(ServiceError);

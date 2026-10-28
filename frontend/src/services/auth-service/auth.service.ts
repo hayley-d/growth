@@ -1,29 +1,41 @@
-import type { SignInRequest, SignUpRequest } from "@shared/schemas/auth";
+import {
+  type SessionResponse,
+  type SignInRequest,
+  type SignUpRequest,
+  sessionResponseSchema,
+} from "@shared/schemas/auth";
 import { authClient } from "@/lib/auth-client";
-import { ServiceError } from "@/services/service-error";
+import { rejectInvalidResponse, ServiceError } from "@/services/service-error";
 
-export const getSession = async () => {
+type AuthClientError = { message?: string | null; status: number } | null;
+
+const throwIfError = (error: AuthClientError, fallbackMessage: string) => {
+  if (error) throw new ServiceError(error.message || fallbackMessage, error.status);
+};
+
+export const getSession = async (): Promise<SessionResponse> => {
   const { data, error } = await authClient.getSession();
-  if (error) throw new ServiceError(error.message ?? "Unable to fetch session", error.status);
-  return data;
+  throwIfError(error, "Unable to fetch session");
+
+  const parsedData = sessionResponseSchema.safeParse(data);
+  if (!parsedData.success) return rejectInvalidResponse();
+
+  return parsedData.data;
 };
 
-export const signInWithEmail = async ({ email, password }: SignInRequest) => {
-  const { data, error } = await authClient.signIn.email({ email, password });
-  if (error) throw new ServiceError(error.message ?? "Unable to sign in", error.status);
-  return data;
+export const signInWithEmail = async ({ email, password }: SignInRequest): Promise<void> => {
+  const { error } = await authClient.signIn.email({ email, password });
+  throwIfError(error, "Unable to sign in");
 };
 
-export const signUpWithEmail = async ({ email, password, name }: SignUpRequest) => {
-  const resolvedName = name?.trim() || (email.split("@")[0] ?? email);
-  const { data, error } = await authClient.signUp.email({ email, password, name: resolvedName });
-  if (error) throw new ServiceError(error.message ?? "Unable to sign up", error.status);
-  return data;
+export const signUpWithEmail = async ({ email, password, name }: SignUpRequest): Promise<void> => {
+  const { error } = await authClient.signUp.email({ email, password, name: name.trim() });
+  throwIfError(error, "Unable to sign up");
 };
 
-export const signOutUser = async () => {
+export const signOutUser = async (): Promise<void> => {
   const { error } = await authClient.signOut();
-  if (error) throw new ServiceError(error.message ?? "Unable to sign out", error.status);
+  throwIfError(error, "Unable to sign out");
 };
 
 export const authService = {

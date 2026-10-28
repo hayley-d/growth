@@ -5,16 +5,19 @@ export type UserProfile = {
   textToSpeech: boolean;
   colourTheme: ColourTheme;
   showOnLeaderboard: boolean;
+  onboardingComplete: boolean;
   learningStyleId: string | null;
   codeLanguageId: string | null;
 };
 
 export type NewUserProfile = {
-  learningStyleId?: string;
-  codeLanguageId?: string;
+  userId: string;
+  learningStyleId?: string | null;
+  codeLanguageId?: string | null;
   textToSpeech?: boolean;
   colourTheme?: ColourTheme;
   showOnLeaderboard?: boolean;
+  onboardingComplete?: boolean;
 };
 
-export type UserProfileChanges = Partial<NewUserProfile>;
+export type UserProfileChanges = Partial<Omit<NewUserProfile, "userId">>;

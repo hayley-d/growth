@@ -64,7 +64,13 @@ export function UserMenu() {
           </Link>
         </DropdownMenuItem>
         <DropdownMenuSeparator />
-        <DropdownMenuItem onSelect={handleSignOut}>
+        <DropdownMenuItem
+          disabled={signOutMutation.isPending}
+          onSelect={(event) => {
+            event.preventDefault();
+            handleSignOut();
+          }}
+        >
           <LogOut />
           Sign out
         </DropdownMenuItem>

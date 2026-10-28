@@ -1,15 +1,16 @@
 model UserProfile {
-  userId            String      @id
-  textToSpeech      Boolean     @default(false) @map("text_to_speech")
-  colourTheme       ColourTheme @default(default) @map("colour_theme")
-  showOnLeaderboard Boolean     @default(true) @map("show_on_leaderboard")
-  learningStyleId   String?     @map("learning_style_id") @database.Uuid
-  codeLanguageId    String?     @map("code_language_id") @database.Uuid
-  user              User           @relation(fields: [userId], references: [id], onDelete: Cascade)
-  learningStyle     LearningStyle? @relation(fields: [learningStyleId], references: [id], onDelete: Restrict)
-  codeLanguage      CodeLanguage?  @relation(fields: [codeLanguageId], references: [id], onDelete: Restrict)
+  userId             String         @id
+  textToSpeech       Boolean        @default(false)
+  colourTheme        ColourTheme    @default(default)
+  showOnLeaderboard  Boolean        @default(true)
+  onboardingComplete Boolean        @default(false)
+  learningStyleId    String?        @database.Uuid
+  codeLanguageId     String?        @database.Uuid
+  user               User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  learningStyle      LearningStyle? @relation(fields: [learningStyleId], references: [id], onDelete: Restrict)
+  codeLanguage       CodeLanguage?  @relation(fields: [codeLanguageId], references: [id], onDelete: Restrict)
 
   @@index([learningStyleId])
   @@index([codeLanguageId])
-  @@map("user_profile")
+  @@map("userProfile")
 }

@@ -59,7 +59,7 @@ If you hit one of these, the code is in the wrong layer. Move it, don't change t
 
 1. `secureHeaders` adds security headers to every response, like `x-content-type-options: nosniff`.
 2. `requestContextMiddleware` gives the request a fresh ID and sends it back in the `x-request-id` header.
-3. The auth middleware resolves the session from the request's cookie, if any, and sets the user id and role on the request context. It never blocks the request — a missing, invalid or unreadable session just leaves the context unset, so the request continues as signed out. Routes that require a user go through their own guard.
+3. The auth middleware resolves the session from the request's cookie, if any, and sets the user id and role on the request context. A missing or invalid session leaves the context unset, so the request continues as signed out. If the lookup itself fails, for example because the database is down, the error goes to the error handler and the request gets a 500. It doesn't carry on signed out, because then a server fault would show up as a 401. Routes that require a user go through their own guard. Better Auth caches the session in a cookie for 60 seconds, so a ban or role change can take up to a minute to apply.
 4. The request logger writes one line when the response finishes. It skips `/api/health`.
 5. `bodyLimit` turns away bodies over 100kb with a 413.
 6. A Hono route in `presentation/routes` receives the request.
@@ -151,11 +151,13 @@ The tables follow the team's ERD, which has three modules: `course-content`, `as
 
 | Module | Tables |
 | --- | --- |
-| `course-content` | `learning_style`, `code_language` |
-| `user` | `user`, `user_profile` |
+| `course-content` | `learningStyle`, `codeLanguage` |
+| `user` | `user`, `userProfile` |
 | `auth` | `user`, `session`, `account`, `verification` |
 
-`auth/models/{user,session,account,verification}.prisma` were scaffolded once by Better Auth's CLI (`bun run auth:generate`, reading `infrastructure/auth/auth.ts`), then are hand-maintained from then on like any other model. Two reasons: Better Auth's `additionalFields` can't type a column as `uuid` (it only offers `string`/`number`/`boolean`/`date`/`json`, since not every database it supports has a native UUID type), and it can't add a foreign key to a model it doesn't itself manage. That's why `user`'s extra columns (`colour_theme`, `learning_style_id`, …) live in a separate, fully hand-written `user_profile` table instead, with a real relation back to `user` — a relation only possible because `user.prisma` is no longer regenerated. Only re-run `auth:generate` when adding a new Better Auth plugin that needs new core columns, and re-add any hand-written relation fields afterward, since it overwrites the whole model file.
+Better Auth owns four tables. Their models all live in one file, `auth/models/auth.prisma`, because that's the file `bun run auth:generate` writes to. The generator merges into the file: it adds models and fields Better Auth needs and keeps everything else, including our `@database.Timestamptz(3)` and the `profile` relation on `User`. Run it after you upgrade Better Auth or add a plugin, add `@database.Timestamptz(3)` to any new date field, then create a migration. If it prints "Your schema is already up to date", nothing changed. Don't split the file: the generator only writes one file, and pointed at a new one it writes a whole schema with its own datasource and a copy of every model.
+
+Our own user columns (`colourTheme`, `learningStyleId`, …) live in `userProfile`, not in `user`. Better Auth's `additionalFields` can't type a column as `uuid` or add a foreign key, and a separate table keeps Better Auth's table to what Better Auth writes. `userProfile.userId` is a normal foreign key to `user.id`, which is `TEXT` because Better Auth makes the ids.
 
 Every other table in the ERD is added by whoever builds the feature that needs it. The `user` example shows each step, so copy it.
 
@@ -165,11 +167,13 @@ A module folder looks like this:
 infrastructure/user/
   models/
     enums.prisma
-    user.prisma
+    user-profile.prisma
   mappers/
     user-mapper.ts
+    user-profile-mapper.ts
   repositories/
     user-repository.ts
+    user-profile-repository.ts
     index.ts
 ```
 
@@ -178,39 +182,39 @@ Every table has its own repository, named after the table. Each module uses the 
 Every repository extends one base class, `PrismaRepository` in `infrastructure/database/prisma-repository.ts`. It does `findById`, `list`, `create`, `update` and `delete` once, wraps each in `withPrismaErrors`, and maps rows to domain entities. A repository only tells it which Prisma model to use and how to map it, then adds finders for its unique columns:
 
 ```ts
-type UserModel = {
-  row: UserRow;
-  where: Prisma.UserWhereUniqueInput;
-  create: Prisma.UserUncheckedCreateInput;
-  update: Prisma.UserUncheckedUpdateInput;
-  orderBy: Prisma.UserOrderByWithRelationInput;
+type UserProfileModel = {
+  row: UserProfileRow;
+  where: Prisma.UserProfileWhereUniqueInput;
+  create: Prisma.UserProfileUncheckedCreateInput;
+  update: Prisma.UserProfileUncheckedUpdateInput;
+  orderBy: Prisma.UserProfileOrderByWithRelationInput;
 };
 
-export class PrismaUserRepository
-  extends PrismaRepository<UserModel, User, NewUser, UserChanges>
-  implements UserRepository
+export class PrismaUserProfileRepository
+  extends PrismaRepository<UserProfileModel, UserProfile, NewUserProfile, UserProfileChanges>
+  implements UserProfileRepository
 {
   constructor(client: PrismaClient) {
-    super(client, client.user, {
-      toEntity: toUser,
-      toWhere: (id) => ({ id }),
-      orderBy: [{ id: "asc" }],
-      toCreateData: toUserCreateData,
-      toUpdateData: toUserUpdateData,
+    super(client, client.userProfile, {
+      toEntity: toUserProfile,
+      toWhere: (userId) => ({ userId }),
+      orderBy: [{ userId: "asc" }],
+      toCreateData: toUserProfileCreateData,
+      toUpdateData: toUserProfileUpdateData,
     });
-  }
-
-  findByEmail(email: string) {
-    return this.findOne({ email });
   }
 }
 ```
 
-`UserModel` lists the Prisma types for the table, so TypeScript checks the domain types, sort columns and finders against the real schema. When nothing needs converting, pass `(entity) => entity` and `(changes) => changes`, like `learning-style-repository.ts` does. A table with a two-column key uses the key object as its id, for example `findById({ userId, lessonId })`. The domain side matches: `UserRepository` is `Repository<User, NewUser, UserChanges>` from `domain/common/repository.ts`, plus `findByEmail`.
+`UserProfileModel` lists the Prisma types for the table, so TypeScript checks the domain types, sort columns and finders against the real schema. When nothing needs converting, pass `(entity) => entity` and `(changes) => changes`, like `learning-style-repository.ts` does. The key doesn't have to be called `id`: here it's `userId`, and the method is still `findById`. A table with a two-column key uses the key object as its id, for example `findById({ userId, lessonId })`. The domain side matches: `UserProfileRepository` is `Repository<UserProfile, NewUserProfile, UserProfileChanges>` from `domain/common/repository.ts`. Add a finder for each other unique column with `this.findOne({ column })`.
 
-Tables and columns are snake_case in the database. In the schema, models are PascalCase and fields are camelCase, mapped with `@@map` and `@map`. Ids are UUIDs.
+`PrismaUserRepository` is the one exception. Better Auth creates, updates and deletes users, so that repository only reads: `findById`, `findByEmail` and `list`. Change a user through Better Auth's API, never through Prisma.
 
-A user points at a learning style and a code language. Neither can be deleted while a user still uses it.
+Tables and columns are camelCase in the database, the same as Better Auth's own tables, so its generator never fights our names. In the schema, models are PascalCase and mapped to a camelCase table with `@@map` (`UserProfile` is `userProfile`). Fields are camelCase and need no `@map`. Ids are UUIDs, except in Better Auth's tables, where they're `TEXT`.
+
+Every user gets a profile when they sign up. A `databaseHooks.user.create.after` hook in `infrastructure/auth/auth.ts` creates it with the defaults. Better Auth runs that hook after the user is saved, so if it fails the user exists without a profile. The hook logs the error and the sign-up still succeeds. That should only happen when the database is down.
+
+A profile points at a learning style and a code language. Both start empty and are filled in once the learner picks them. Neither can be deleted while a profile still uses it.
 
 ### Adding a table
 

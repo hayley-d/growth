@@ -32,7 +32,7 @@ export function SignUpPage() {
         className="flex flex-col gap-4"
         onSubmit={(event) => {
           event.preventDefault();
-          form.handleSubmit();
+          if (!signUpMutation.isPending) form.handleSubmit();
         }}
       >
         <form.Field name="email">
@@ -65,10 +65,11 @@ export function SignUpPage() {
           {(field) => (
             <FormField
               id={field.name}
-              label="Username (optional)"
-              value={field.state.value ?? ""}
+              label="Display name"
+              value={field.state.value}
               onBlur={field.handleBlur}
               onChange={field.handleChange}
+              error={field.state.meta.errors[0]?.message}
             />
           )}
         </form.Field>

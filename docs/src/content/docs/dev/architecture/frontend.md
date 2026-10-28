@@ -34,7 +34,7 @@ The app should work well on every screen size, from phones to large desktops. Us
 
 `__root.tsx` wraps every page in `AppLayout` (`components/templates/app-layout.tsx`): the `Navbar` on top and the page below. The navbar shows the logo, the nav links and the user menu. On phones the links move into a slide-out menu. Unknown URLs show `NotFoundPage`.
 
-The user menu shows a placeholder user from `lib/placeholder-user.ts` until sign-in exists. Its Settings item opens the Settings page.
+The user menu shows the signed-in user's name and email, with Settings and Sign out. If signing out fails, the menu stays open and shows why.
 
 ## Colour schemes
 
@@ -53,6 +53,8 @@ Colour is never the only signal. States also need an icon, shape or label, so th
 ## Routing
 
 Routes live in `src/routes` and are discovered by the TanStack Router Vite plugin, which generates `routeTree.gen.ts`. A route file stays thin and renders a page from `src/pages`.
+
+The root route loads the session in `beforeLoad` with `queryClient.fetchQuery(sessionQueryOptions)` and puts it in the router context, where `_authenticated.tsx`, `login.tsx` and `sign-up.tsx` read it. `fetchQuery` asks the server again whenever the cached session is stale, which is after 60 seconds or straight after sign-in, sign-up or sign-out. If the session request fails, `beforeLoad` throws a `SessionLoadError`. The root's `RootErrorPage` shows `SessionErrorPage` for that error, which says the server can't be reached and has a Try again button. It doesn't treat the user as signed out. Any other error from a page shows `ErrorPage` inside `AppLayout`, so the navbar stays.
 
 ## Services
 
@@ -85,6 +87,8 @@ export const getHealth = async (): Promise<Health> => {
 If the request fails, `rejectAxios` turns it into a `ServiceError` with a status and message. If the response looks wrong, `rejectInvalidResponse` does the same. Either way the UI gets one kind of error to handle.
 
 To add a service, copy `health-service`, rename it, and export it from `services/index.ts`.
+
+`auth-service` is the one service that doesn't use `networkService`. It calls Better Auth's `authClient` instead, but follows the same rules: failures become a `ServiceError`, and the session is checked with `sessionResponseSchema` from `@shared/schemas/auth` before anything uses it.
 
 ## Queries and mutations
 
