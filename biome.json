@@ -118,8 +118,8 @@
                     "message": "The domain layer must not depend on Prisma."
                   },
                   {
-                    "group": ["@shared", "@shared/**"],
-                    "message": "The domain layer must not import from shared. Map shared types in application."
+                    "group": ["@shared", "@shared/**", "!@shared/avl", "!@shared/avl/**"],
+                    "message": "The domain layer may only import @shared/avl from shared. Map shared schemas in application."
                   },
                   {
                     "group": ["hono", "hono/**", "@hono/**"],

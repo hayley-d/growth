@@ -26,7 +26,7 @@ Then open:
 
 - `frontend/` is the React app.
 - `backend/` is the Hono API, with Prisma and Postgres.
-- `shared/` holds the zod schemas both sides use.
+- `shared/` holds the zod schemas and the AVL tree functions both sides use.
 - `docs/` is the docs site you're about to read.
 
 ## More

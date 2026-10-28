@@ -64,6 +64,7 @@ export default defineConfig({
                   items: [
                     { label: "Backend", slug: "dev/architecture/backend" },
                     { label: "Frontend", slug: "dev/architecture/frontend" },
+                    { label: "Shared", slug: "dev/architecture/shared" },
                   ],
                 },
                 {
