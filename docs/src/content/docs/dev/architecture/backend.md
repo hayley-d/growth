@@ -30,11 +30,13 @@ backend/src/
 
 Dependencies only point inward.
 
-- `domain` imports nothing outside itself.
+- `domain` imports nothing outside itself, except the tree rules in `@shared/avl`.
 - `application` imports `domain` and `@shared/`.
 - `infrastructure` implements the repository interfaces declared in `domain`.
 - `presentation` calls use cases from `application`.
 - `main.ts` wires concrete infrastructure into the use cases and starts the server.
+
+The AVL functions live in `shared/src/avl`, so the frontend and the backend use one copy of the tree rules. The rest of `@shared/` is the HTTP contract, and `application` maps it to domain types.
 
 Prisma types never leave `infrastructure`. Repositories use the mappers in `infrastructure/<module>/mappers/` to turn database rows into domain entities.
 
@@ -46,12 +48,12 @@ Biome checks this for you. Import something from the wrong layer and you get an 
 × The domain layer must not import from application.
 ```
 
-| Layer            | Can't import                                                         |
-| ---------------- | -------------------------------------------------------------------- |
-| `domain`         | application, infrastructure, presentation, Prisma, `@shared/`, Hono |
-| `application`    | infrastructure, presentation, Prisma, Hono                           |
-| `infrastructure` | presentation                                                         |
-| `presentation`   | infrastructure, Prisma                                               |
+| Layer            | Can't import                                                                               |
+| ---------------- | ------------------------------------------------------------------------------------------ |
+| `domain`         | application, infrastructure, presentation, Prisma, `@shared/` (except `@shared/avl`), Hono |
+| `application`    | infrastructure, presentation, Prisma, Hono                                                 |
+| `infrastructure` | presentation                                                                               |
+| `presentation`   | infrastructure, Prisma                                                                     |
 
 If you hit one of these, the code is in the wrong layer. Move it, don't change the rule.
 
