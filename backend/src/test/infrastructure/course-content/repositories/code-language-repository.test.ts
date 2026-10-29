@@ -18,4 +18,17 @@ describe("PrismaCodeLanguageRepository", () => {
     );
     expect(codeLanguage.findUnique).toHaveBeenCalledWith({ where: { code: "python" } });
   });
+
+  it("upserts a code language by its unique code", async () => {
+    const codeLanguage = { upsert: vi.fn().mockResolvedValue(row) };
+    const client = { codeLanguage } as unknown as PrismaClient;
+    await expect(
+      new PrismaCodeLanguageRepository(client).upsertByCode({ code: "python", name: "Python" }),
+    ).resolves.toEqual(row);
+    expect(codeLanguage.upsert).toHaveBeenCalledWith({
+      where: { code: "python" },
+      create: { code: "python", name: "Python" },
+      update: { code: "python", name: "Python" },
+    });
+  });
 });

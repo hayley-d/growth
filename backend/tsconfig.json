@@ -9,5 +9,5 @@
       "@shared/*": ["../shared/src/*"]
     }
   },
-  "include": ["src", "prisma.config.ts", "vitest.config.ts"]
+  "include": ["src", "prisma", "prisma.config.ts", "vitest.config.ts"]
 }

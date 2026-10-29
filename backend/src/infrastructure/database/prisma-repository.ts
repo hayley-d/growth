@@ -24,6 +24,11 @@ export type PrismaDelegate<Model extends PrismaModel> = {
     where: Model["where"];
     data: Model["update"];
   }): Prisma.PrismaPromise<Model["row"]>;
+  upsert(arguments_: {
+    where: Model["where"];
+    create: Model["create"];
+    update: Model["update"];
+  }): Prisma.PrismaPromise<Model["row"]>;
   delete(arguments_: { where: Model["where"] }): Prisma.PrismaPromise<Model["row"]>;
 };
 
@@ -88,5 +93,17 @@ export class PrismaRepository<Model extends PrismaModel, Entity, NewEntity, Chan
       const row = await this.delegate.findUnique({ where });
       return row ? this.options.toEntity(row) : null;
     });
+  }
+
+  protected upsertOne(where: Model["where"], entity: NewEntity, changes: Changes): Promise<Entity> {
+    return withPrismaErrors(async () =>
+      this.options.toEntity(
+        await this.delegate.upsert({
+          where,
+          create: this.options.toCreateData(entity),
+          update: this.options.toUpdateData(changes),
+        }),
+      ),
+    );
   }
 }
