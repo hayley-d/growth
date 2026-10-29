@@ -15,9 +15,29 @@ shared/src/
       tree-encoding.ts    encodeTree and decodeTree: a tree as a string
       goal-check.ts       checkGoal: did the learner's tree meet a playground goal
     test/                 one <file>.test.ts for each file in src/
+  engine/
+    index.ts              re-exports everything in src/
+    src/
+      step.ts             Step: one snapshot of a manual rotation
+      bst.ts              insertBst and removeBst, with no rebalancing
+      balance.ts          findUnbalanced and isAvl
+      rotate.ts           rotate: one left or right rotation, or a reason
+    test/                 one <file>.test.ts for each file in src/
 ```
 
-`schemas/` is the contract between the frontend and the backend. `avl/` holds the tree rules, so both sides use one copy. `avl/` imports nothing else, so it runs in the browser and in the backend `domain` layer.
+`schemas/` is the contract between the frontend and the backend. `avl/` holds the tree rules, so both sides use one copy. `avl/` imports nothing else, so it runs in the browser and in the backend `domain` layer. `domain` still imports only `@shared/avl`. The backend calls `engine/` from `application`.
+
+## Engine
+
+`insertBst` and `removeBst` follow the same search-tree rules as `insertKey` and `removeKey`, including the in-order successor when a deleted node has two children. They update height and they do not rebalance. They return the tree, not a list of steps.
+
+`findUnbalanced` returns the nodes, in order, whose balance factor is outside -1 to 1. Balance factor is the left height minus the right height.
+
+`isAvl` is true for an empty tree. Otherwise every node must store the right height, have a balance factor from -1 to 1, and sit strictly inside the bounds of its ancestors.
+
+`rotate(tree, key, kind)` turns the node with that key once to the left or the right. It returns `{ ok: true, tree, steps }` or `{ ok: false, reason }`. A reason looks like `Node 30 has no left child`. A success has two steps, `rotate.select` and then `rotate.rotate-left` or `rotate.rotate-right`. Each step is `{ stepKey, tree, nodeStates, message, variables }`.
+
+Import it with `@shared/engine`. It is not exported from the shared barrel.
 
 ## Traversal
 
