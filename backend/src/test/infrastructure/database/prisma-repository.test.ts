@@ -20,6 +20,10 @@ class ThingRepository extends PrismaRepository<ThingModel, Thing, NewThing, Thin
   findByLabel(label: string) {
     return this.findOne({ label });
   }
+
+  upsertByLabel(thing: NewThing) {
+    return this.upsertOne({ label: thing.name }, thing, thing);
+  }
 }
 
 const row: ThingRow = { id: "8d3c1f9e-4b1a-4c55-9d0e-2f6a7b8c9d01", label: "root" };
@@ -31,6 +35,7 @@ const createRepository = () => {
     count: vi.fn(),
     create: vi.fn(),
     update: vi.fn(),
+    upsert: vi.fn(),
     delete: vi.fn(),
   };
   const client = {
@@ -92,6 +97,20 @@ describe("PrismaRepository", () => {
     expect(delegate.update).toHaveBeenCalledWith({
       where: { id: row.id },
       data: { label: "root" },
+    });
+  });
+
+  it("upserts on a unique column with converted data", async () => {
+    const { delegate, repository } = createRepository();
+    delegate.upsert.mockResolvedValue(row);
+    await expect(repository.upsertByLabel({ name: "root" })).resolves.toEqual({
+      id: row.id,
+      name: "root",
+    });
+    expect(delegate.upsert).toHaveBeenCalledWith({
+      where: { label: "root" },
+      create: { label: "root" },
+      update: { label: "root" },
     });
   });
 

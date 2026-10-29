@@ -42,4 +42,8 @@ export class PrismaLearningStyleRepository
   findByName(name: string) {
     return this.findOne({ name });
   }
+
+  upsertByName(learningStyle: NewLearningStyle) {
+    return this.upsertOne({ name: learningStyle.name }, learningStyle, learningStyle);
+  }
 }

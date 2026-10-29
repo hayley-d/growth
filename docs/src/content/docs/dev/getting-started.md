@@ -49,6 +49,7 @@ PORT=3000
 LOG_LEVEL=info
 BETTER_AUTH_SECRET="replace-with-32-plus-random-characters"
 BETTER_AUTH_URL="http://localhost:5173"
+SEED_DEV_ADMIN=true
 ```
 
 `LOG_LEVEL` can be `fatal`, `error`, `warn`, `info`, `debug`, `trace` or `silent`.
@@ -75,7 +76,7 @@ cd ..
 
 Postgres runs on port `5433`, not the usual `5432`, so it won't clash with any Postgres you already have.
 
-**5. Seed a dev admin (optional)**
+**5. Seed the database**
 
 ```sh
 cd backend
@@ -83,7 +84,7 @@ bun run prisma:seed
 cd ..
 ```
 
-Creates `admin@growth.local` / `growth123` with the `admin` role. Safe to re-run: it resets that password if the admin already exists. Refuses to run against anything but a localhost database.
+Adds the four learning styles and seven code languages that onboarding needs. When `SEED_DEV_ADMIN=true` and the database is on localhost, it also creates a dev admin, `admin@growth.local` / `growth123`, with the `admin` role. Otherwise it skips the admin. Never set `SEED_DEV_ADMIN` on a shared or production database. Safe to run again: it skips rows that haven't changed, updates the rest and resets the admin password.
 
 **6. Run it**
 
@@ -112,7 +113,7 @@ Only need one part? Run `bun run --filter @growth/frontend dev`. The same works 
 | `docker compose down -v`                 | Stop it and wipe all its data      |
 | `bun run prisma:migrate` (in `backend`)  | Apply changes to the schema        |
 | `bun run prisma:studio` (in `backend`)   | Browse the database in your browser |
-| `bun run prisma:seed` (in `backend`)     | Create the dev admin login         |
+| `bun run prisma:seed` (in `backend`)     | Add learning styles, code languages and the dev admin |
 | `bun run check`                          | Format and fix lint issues         |
 
 ## If something breaks

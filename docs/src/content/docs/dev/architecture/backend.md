@@ -19,6 +19,7 @@ backend/src/
   infrastructure/database/   prisma client and prisma error mapping
   infrastructure/logging/    pino logger
   infrastructure/lifecycle/  process error handlers and graceful shutdown
+  infrastructure/seed/       seed steps and their data, run by prisma/seed.ts
   presentation/controllers/  one <feature>-controller.ts per feature, calls the use cases
   presentation/routes/       hono routes, one <feature>-routes.ts per feature, send each path to a controller
   presentation/middleware/   request id, request logging, validation, 404 and error handling
@@ -234,6 +235,17 @@ Two branches that both add a migration will clash. Before you merge, rebase onto
 ### Emails
 
 The shared request schema trims and lowercases emails, so `Ada@x.com` and `ada@x.com` are the same account. Anything that writes or looks up a user's email without going through that schema must lowercase it first.
+
+### Seeding
+
+`bun run prisma:seed` runs `backend/prisma/seed.ts`. That file only wires up the steps in `infrastructure/seed/`:
+
+- `seed-learning-styles.ts` and `seed-code-languages.ts` add the rows from `reference-data.ts`. They look each row up by its unique `name` or `code` and skip it if nothing changed. Otherwise they upsert it (`upsertByName`, `upsertByCode`), so two runs at once can't add the same row twice. They run on every database and log how many rows were created, updated and unchanged.
+- `seed-admin.ts` creates the dev admin, but only when `SEED_DEV_ADMIN=true` and the database is on localhost (`localhost`, `127.0.0.1` or `[::1]`). Both checks are needed, because a tunnel to a remote database also looks like localhost. Otherwise it logs that it skipped.
+
+The `name` or `code` is what makes a row the same row. If you rename one in `reference-data.ts`, the seed adds a new row and leaves the old one behind, and learners' profiles still point at the old one. Rename it with a migration instead.
+
+A later feature that needs rows in every database adds its own step here and calls it from `seed.ts`. Each step takes the domain repository interfaces, so its tests use in-memory fakes.
 
 ## Testing
 
