@@ -2,6 +2,8 @@ import { describe, expect, it, vi } from "vitest";
 
 import type { ErrorResponse } from "@shared/schemas/error";
 import type { Logger } from "@/application/logging/logger";
+import { NotFoundError } from "@/domain/errors";
+import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
 const createStubLogger = (): Logger => ({
@@ -16,6 +18,12 @@ const createTestApp = (logger: Logger) =>
     logger,
     authHandler: async () => new Response(null, { status: 404 }),
     getSession: async () => null,
+    algorithmController: createAlgorithmController({
+      listAlgorithms: async () => ({ data: { algorithms: [] } }),
+      getAlgorithmSnippet: async () => {
+        throw new NotFoundError("Algorithm not found");
+      },
+    }),
   });
 
 describe("createApplication", () => {
@@ -31,6 +39,12 @@ describe("createApplication", () => {
     expect(response.status).toBe(404);
     expect(body.message).toBe("Route not found: GET /api/missing");
     expect(body.requestId).toBe(response.headers.get("x-request-id"));
+  });
+
+  it("mounts the algorithm routes", async () => {
+    const response = await createTestApp(createStubLogger()).request("/api/algorithms");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({ data: { algorithms: [] } });
   });
 
   it("generates a request id and sends it back", async () => {
