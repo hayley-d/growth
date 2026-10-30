@@ -30,4 +30,17 @@ describe("PrismaCodeSnippetRepository", () => {
     });
     expect(found).toEqual(row);
   });
+
+  it("lists the snippets for one algorithm", async () => {
+    const codeSnippet = { findMany: vi.fn().mockResolvedValue([row]) };
+    const client = { codeSnippet } as unknown as PrismaClient;
+
+    await expect(
+      new PrismaCodeSnippetRepository(client).listByAlgorithmId(row.algorithmId),
+    ).resolves.toEqual([row]);
+    expect(codeSnippet.findMany).toHaveBeenCalledWith({
+      where: { algorithmId: row.algorithmId },
+      orderBy: [{ algorithmId: "asc" }, { codeLanguageId: "asc" }],
+    });
+  });
 });

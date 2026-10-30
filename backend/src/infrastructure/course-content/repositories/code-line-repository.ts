@@ -7,6 +7,7 @@ import type {
 import type { CodeLineRepository } from "@/domain/course-content/repositories/code-line-repository";
 import type { CodeLine as CodeLineRow, Prisma, PrismaClient } from "@/generated/prisma/client";
 import { toCodeLine } from "@/infrastructure/course-content/mappers/code-line-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type CodeLineModel = {
@@ -29,5 +30,16 @@ export class PrismaCodeLineRepository
       toCreateData: (codeLine) => codeLine,
       toUpdateData: (changes) => changes,
     });
+  }
+
+  listByCodeSnippetId(codeSnippetId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.codeLine.findMany({
+          where: { codeSnippetId },
+          orderBy: this.options.orderBy,
+        })
+      ).map(toCodeLine),
+    );
   }
 }

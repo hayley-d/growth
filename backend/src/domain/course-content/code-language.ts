@@ -10,3 +10,5 @@ export type NewCodeLanguage = {
 };
 
 export type CodeLanguageChanges = Partial<NewCodeLanguage>;
+
+export const defaultCodeLanguageCode = "pseudocode";

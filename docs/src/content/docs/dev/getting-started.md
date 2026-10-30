@@ -84,7 +84,7 @@ bun run prisma:seed
 cd ..
 ```
 
-Adds the four learning styles and seven code languages that onboarding needs. When `SEED_DEV_ADMIN=true` and the database is on localhost, it also creates a dev admin, `admin@growth.local` / `growth123`, with the `admin` role. Otherwise it skips the admin. Never set `SEED_DEV_ADMIN` on a shared or production database. Safe to run again: it skips rows that haven't changed, updates the rest and resets the admin password.
+Adds the four learning styles and three code languages that onboarding needs, and the algorithms the code trace shows. Then it checks that every code snippet has a line for every step the engine can emit, and fails if one doesn't. When `SEED_DEV_ADMIN=true` and the database is on localhost, it also creates a dev admin, `admin@growth.local` / `growth123`, with the `admin` role. Otherwise it skips the admin. Never set `SEED_DEV_ADMIN` on a shared or production database. Safe to run again: it skips rows that haven't changed, updates the rest and resets the admin password.
 
 **6. Run it**
 
@@ -113,7 +113,7 @@ Only need one part? Run `bun run --filter @growth/frontend dev`. The same works 
 | `docker compose down -v`                 | Stop it and wipe all its data      |
 | `bun run prisma:migrate` (in `backend`)  | Apply changes to the schema        |
 | `bun run prisma:studio` (in `backend`)   | Browse the database in your browser |
-| `bun run prisma:seed` (in `backend`)     | Add learning styles, code languages and the dev admin |
+| `bun run prisma:seed` (in `backend`)     | Add learning styles, code languages, algorithms and the dev admin, then check the code snippets |
 | `bun run check`                          | Format and fix lint issues         |
 
 ## If something breaks

@@ -10,6 +10,7 @@ import type {
   PrismaClient,
 } from "@/generated/prisma/client";
 import { toCodeSnippet } from "@/infrastructure/course-content/mappers/code-snippet-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type CodeSnippetModel = {
@@ -36,5 +37,16 @@ export class PrismaCodeSnippetRepository
 
   findByAlgorithmIdAndCodeLanguageId(algorithmId: string, codeLanguageId: string) {
     return this.findOne({ algorithmId_codeLanguageId: { algorithmId, codeLanguageId } });
+  }
+
+  listByAlgorithmId(algorithmId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.codeSnippet.findMany({
+          where: { algorithmId },
+          orderBy: this.options.orderBy,
+        })
+      ).map(toCodeSnippet),
+    );
   }
 }
