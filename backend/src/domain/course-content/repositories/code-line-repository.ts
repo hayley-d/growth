@@ -6,4 +6,6 @@ import type {
   NewCodeLine,
 } from "@/domain/course-content/code-line";
 
-export type CodeLineRepository = Repository<CodeLine, NewCodeLine, CodeLineChanges, CodeLineKey>;
+export type CodeLineRepository = Repository<CodeLine, NewCodeLine, CodeLineChanges, CodeLineKey> & {
+  listByCodeSnippetId(codeSnippetId: string): Promise<CodeLine[]>;
+};

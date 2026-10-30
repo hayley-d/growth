@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { TraversalOrder, TreeGoal } from "@shared/avl";
+import type { NodeState, TraversalOrder, TreeGoal } from "@shared/avl";
 
 export const treeKeySchema = z.number().int();
 
@@ -12,14 +12,19 @@ export const treeKeysSchema = z
 
 export type TreeKeys = z.infer<typeof treeKeysSchema>;
 
-export const nodeStateSchema = z.enum(["active", "visited", "deleting", "unbalanced", "new"]);
-
-export type NodeState = z.infer<typeof nodeStateSchema>;
+export const nodeStateSchema = z.enum([
+  "active",
+  "visited",
+  "deleting",
+  "unbalanced",
+  "new",
+]) satisfies z.ZodType<NodeState>;
 
 export const traversalOrderSchema = z.enum([
   "preorder",
   "inorder",
   "postorder",
+  "levelorder",
 ]) satisfies z.ZodType<TraversalOrder>;
 
 export const treeOperationSchema = z.enum([

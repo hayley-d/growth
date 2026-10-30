@@ -10,4 +10,5 @@ export type CodeSnippetRepository = Repository<CodeSnippet, NewCodeSnippet, Code
     algorithmId: string,
     codeLanguageId: string,
   ): Promise<CodeSnippet | null>;
+  listByAlgorithmId(algorithmId: string): Promise<CodeSnippet[]>;
 };

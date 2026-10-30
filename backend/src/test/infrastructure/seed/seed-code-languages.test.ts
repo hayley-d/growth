@@ -43,7 +43,7 @@ describe("seedCodeLanguages", () => {
     const { repository, rows } = createInMemoryRepository();
 
     await expect(seedCodeLanguages(repository, codeLanguages)).resolves.toEqual({
-      created: 7,
+      created: 3,
       updated: 0,
       unchanged: 0,
     });
@@ -54,16 +54,16 @@ describe("seedCodeLanguages", () => {
 
   it("updates the name of a language that already exists instead of adding another", async () => {
     const { repository, rows } = createInMemoryRepository([
-      { id: "cpp-id", code: "cpp", name: "Old name" },
+      { id: "rust-id", code: "rust", name: "Old name" },
     ]);
 
     await expect(seedCodeLanguages(repository, codeLanguages)).resolves.toEqual({
-      created: 6,
+      created: 2,
       updated: 1,
       unchanged: 0,
     });
-    expect(rows.get("cpp-id")?.name).toBe("C++");
-    expect(rows.size).toBe(7);
+    expect(rows.get("rust-id")?.name).toBe("Rust");
+    expect(rows.size).toBe(3);
   });
 
   it("writes nothing on a second run", async () => {
@@ -75,9 +75,9 @@ describe("seedCodeLanguages", () => {
     await expect(seedCodeLanguages(repository, codeLanguages)).resolves.toEqual({
       created: 0,
       updated: 0,
-      unchanged: 7,
+      unchanged: 3,
     });
     expect(repository.upsertByCode).not.toHaveBeenCalled();
-    expect(rows.size).toBe(7);
+    expect(rows.size).toBe(3);
   });
 });

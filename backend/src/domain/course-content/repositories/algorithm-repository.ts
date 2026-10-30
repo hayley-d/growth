@@ -3,4 +3,6 @@ import type { Algorithm, AlgorithmChanges, NewAlgorithm } from "@/domain/course-
 
 export type AlgorithmRepository = Repository<Algorithm, NewAlgorithm, AlgorithmChanges> & {
   findByCode(code: string): Promise<Algorithm | null>;
+  listAll(): Promise<Algorithm[]>;
+  upsertByCode(algorithm: NewAlgorithm): Promise<Algorithm>;
 };

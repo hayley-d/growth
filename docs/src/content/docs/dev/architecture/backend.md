@@ -58,6 +58,26 @@ Biome checks this for you. Import something from the wrong layer and you get an 
 
 If you hit one of these, the code is in the wrong layer. Move it, don't change the rule.
 
+## Use cases, controllers and routes
+
+The algorithm endpoints were the first feature built end to end, so copy them.
+
+| Endpoint | What it returns |
+| --- | --- |
+| `GET /api/algorithms` | Every algorithm's `code` and `name`, in the order the engine lists them |
+| `GET /api/algorithms/:code/snippet?language=<code>` | The snippet's `source`, plus `lines`, a map from step key to line number |
+
+Algorithm and language codes are lower case letters, digits and hyphens, up to 64 characters. Anything else gets a 400.
+
+Both are public. The snippet's language is `?language` if it's given. If not, it's the signed-in learner's code language. If they haven't picked one, or nobody is signed in, it's pseudocode. An unknown algorithm, an unknown language or a snippet nobody has written yet each return a 404.
+
+The pieces:
+
+- **Use case.** `application/course-content/queries/get-algorithm-snippet.ts` exports `makeGetAlgorithmSnippet(dependencies)`, which returns the function that does the work. Its dependencies are repository interfaces, narrowed with `Pick<...>` to the methods it calls, so a test fake only needs those methods. It returns the response from a shared `to<Response>` helper, which drops fields like `id`.
+- **Controller.** `presentation/controllers/algorithm-controller.ts` takes the use cases and has one method per endpoint. Each reads `context.req.valid(...)`, calls one use case and returns `context.json(...)`.
+- **Routes.** `presentation/routes/algorithm-routes.ts` takes the controller and returns a `new Hono()` with the paths and validators. `create-application.ts` mounts it at `/api/algorithms`.
+- **Wiring.** `main.ts` makes the Prisma repositories, the use cases and the controller, and passes the controller to `createApplication`.
+
 ## Request flow
 
 1. `secureHeaders` adds security headers to every response, like `x-content-type-options: nosniff`.
@@ -212,6 +232,8 @@ export class PrismaUserProfileRepository
 
 `UserProfileModel` lists the Prisma types for the table, so TypeScript checks the domain types, sort columns and finders against the real schema. When nothing needs converting, pass `(entity) => entity` and `(changes) => changes`, like `learning-style-repository.ts` does. The key doesn't have to be called `id`: here it's `userId`, and the method is still `findById`. A table with a two-column key uses the key object as its id, for example `findById({ userId, lessonId })`. The domain side matches: `UserProfileRepository` is `Repository<UserProfile, NewUserProfile, UserProfileChanges>` from `domain/common/repository.ts`. Add a finder for each other unique column with `this.findOne({ column })`.
 
+The base class only lists a whole table, a page at a time. For a filtered list, like `listByCodeSnippetId`, add a method that calls `this.client.<model>.findMany({ where, orderBy })` inside `withPrismaErrors` and maps the rows with the mapper.
+
 `PrismaUserRepository` is the one exception. Better Auth creates, updates and deletes users, so that repository only reads: `findById`, `findByEmail` and `list`. Change a user through Better Auth's API, never through Prisma.
 
 Tables and columns are camelCase in the database, the same as Better Auth's own tables, so its generator never fights our names. In the schema, models are PascalCase and mapped to a camelCase table with `@@map` (`UserProfile` is `userProfile`). Fields are camelCase and need no `@map`. Ids are UUIDs, except in Better Auth's tables, where they're `TEXT`.
@@ -219,6 +241,8 @@ Tables and columns are camelCase in the database, the same as Better Auth's own 
 Every user gets a profile when they sign up. A `databaseHooks.user.create.after` hook in `infrastructure/auth/auth.ts` creates it with the defaults. Better Auth runs that hook after the user is saved, so if it fails the user exists without a profile. The hook logs the error and the sign-up still succeeds. That should only happen when the database is down.
 
 A profile points at a learning style and a code language. Both start empty and are filled in once the learner picks them. Neither can be deleted while a profile still uses it.
+
+There are three code languages: Java, Rust and Pseudocode. Every algorithm needs a snippet in each. We started with seven, and the migration `remove_unused_code_languages` removed C, C++, Python and JavaScript. It clears them from learners' profiles first, so those learners fall back to pseudocode until they pick again.
 
 ### Adding a table
 
@@ -240,7 +264,8 @@ The shared request schema trims and lowercases emails, so `Ada@x.com` and `ada@x
 
 `bun run prisma:seed` runs `backend/prisma/seed.ts`. That file only wires up the steps in `infrastructure/seed/`:
 
-- `seed-learning-styles.ts` and `seed-code-languages.ts` add the rows from `reference-data.ts`. They look each row up by its unique `name` or `code` and skip it if nothing changed. Otherwise they upsert it (`upsertByName`, `upsertByCode`), so two runs at once can't add the same row twice. They run on every database and log how many rows were created, updated and unchanged.
+- `seed-learning-styles.ts`, `seed-code-languages.ts` and `seed-algorithms.ts` add the rows from `reference-data.ts`. They look each row up by its unique `name` or `code` and skip it if nothing changed. Otherwise they upsert it (`upsertByName`, `upsertByCode`), so two runs at once can't add the same row twice. They run on every database and log how many rows were created, updated and unchanged.
+- `check-code-lines.ts` runs last, through `verifyCodeLines`. For each algorithm, it checks that every snippet has a line for every step key the engine can emit (see the Shared page). If one is missing, the seed fails and lists each algorithm, language and missing key. A line for a key the engine never emits only logs a warning. With no snippets in the database yet, it logs "No code snippets to check yet".
 - `seed-admin.ts` creates the dev admin, but only when `SEED_DEV_ADMIN=true` and the database is on localhost (`localhost`, `127.0.0.1` or `[::1]`). Both checks are needed, because a tunnel to a remote database also looks like localhost. Otherwise it logs that it skipped.
 
 The `name` or `code` is what makes a row the same row. If you rename one in `reference-data.ts`, the seed adds a new row and leaves the old one behind, and learners' profiles still point at the old one. Rename it with a migration instead.
