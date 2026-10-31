@@ -1,0 +1,75 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" font-family="ui-sans-serif, system-ui, sans-serif">
+  <rect width="960" height="640" fill="#f3efe6"/>
+  <text x="36" y="42" font-size="22" fill="#1c1c1c">A different shape per state</text>
+  <text x="36" y="68" font-size="14" fill="#4e4942">The silhouette is the state, so a grey copy keeps the same shapes.</text>
+
+  <text x="48" y="108" font-size="13" font-weight="600" fill="#4e4942">With colour</text>
+  <g stroke="#6e685f" stroke-width="2">
+    <line x1="188" y1="196" x2="108" y2="262"/>
+    <line x1="212" y1="196" x2="292" y2="262"/>
+    <line x1="96" y1="286" x2="64" y2="348"/>
+    <line x1="124" y1="286" x2="164" y2="348"/>
+  </g>
+  <g>
+    <polygon points="200,118 194,106 206,106" fill="#6d5a16"/>
+    <circle cx="200" cy="168" r="26" fill="#f3e29a" stroke="#6d5a16" stroke-width="2"/>
+    <text x="200" y="173" text-anchor="middle" font-size="13" font-weight="600" fill="#6d5a16">20</text>
+    <text x="200" y="210" text-anchor="middle" font-size="11" fill="#4e4942">active</text>
+
+    <rect x="78" y="246" width="48" height="48" fill="#ddd8e4" stroke="#5c5668" stroke-width="2"/>
+    <text x="102" y="274" text-anchor="middle" font-size="13" font-weight="600" fill="#5c5668">10</text>
+    <text x="102" y="312" text-anchor="middle" font-size="11" fill="#4e4942">visited</text>
+
+    <circle cx="300" cy="270" r="20" fill="none" stroke="#1f8f88" stroke-width="3"/>
+    <circle cx="300" cy="270" r="28" fill="none" stroke="#1f8f88" stroke-width="2"/>
+    <text x="300" y="275" text-anchor="middle" font-size="13" font-weight="600" fill="#1f8f88">30</text>
+    <text x="300" y="314" text-anchor="middle" font-size="11" fill="#4e4942">new</text>
+
+    <polygon points="64,340 96,372 64,404 32,372" fill="#e39b8e" stroke="#8a3b2c" stroke-width="2"/>
+    <text x="64" y="377" text-anchor="middle" font-size="13" font-weight="600" fill="#5c2218">8</text>
+    <text x="8" y="422" font-size="11" fill="#4e4942">about to be</text>
+    <text x="8" y="436" font-size="11" fill="#4e4942">deleted</text>
+
+    <polygon points="164,338 184,350 184,374 164,386 144,374 144,350" fill="#f0c27a" stroke="#6a4a12" stroke-width="2"/>
+    <text x="164" y="367" text-anchor="middle" font-size="13" font-weight="600" fill="#6a4a12">15</text>
+    <text x="164" y="424" text-anchor="middle" font-size="11" fill="#4e4942">unbalanced</text>
+  </g>
+
+  <text x="520" y="108" font-size="13" font-weight="600" fill="#4e4942">Colour removed</text>
+  <g stroke="#6e685f" stroke-width="2">
+    <line x1="668" y1="196" x2="588" y2="262"/>
+    <line x1="692" y1="196" x2="772" y2="262"/>
+    <line x1="576" y1="286" x2="544" y2="348"/>
+    <line x1="604" y1="286" x2="644" y2="348"/>
+  </g>
+  <g fill="#d4d4d4" stroke="#222">
+    <polygon points="680,118 674,106 686,106" fill="#222" stroke="none"/>
+    <circle cx="680" cy="168" r="26" stroke-width="2"/>
+    <text x="680" y="173" text-anchor="middle" font-size="13" font-weight="600" fill="#222">20</text>
+
+    <rect x="558" y="246" width="48" height="48" stroke-width="2"/>
+    <text x="582" y="274" text-anchor="middle" font-size="13" font-weight="600" fill="#222">10</text>
+
+    <circle cx="780" cy="270" r="20" fill="none" stroke="#222" stroke-width="3"/>
+    <circle cx="780" cy="270" r="28" fill="none" stroke="#222" stroke-width="2"/>
+    <text x="780" y="275" text-anchor="middle" font-size="13" font-weight="600" fill="#222">30</text>
+
+    <polygon points="544,340 576,372 544,404 512,372" stroke-width="2"/>
+    <text x="544" y="377" text-anchor="middle" font-size="13" font-weight="600" fill="#222">8</text>
+
+    <polygon points="644,338 664,350 664,374 644,386 624,374 624,350" stroke-width="2"/>
+    <text x="644" y="367" text-anchor="middle" font-size="13" font-weight="600" fill="#222">15</text>
+  </g>
+
+  <line x1="36" y1="468" x2="924" y2="468" stroke="#d9d1c3"/>
+  <text x="48" y="498" font-size="13" font-weight="600" fill="#4e4942">Height and balance factor</text>
+  <text x="48" y="528" font-size="12" fill="#4e4942">Shown</text>
+  <rect x="118" y="542" width="48" height="48" fill="#fffdf8" stroke="#6e685f" stroke-width="2"/>
+  <text x="142" y="570" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1c1c">10</text>
+  <text x="180" y="562" font-size="12" fill="#1c1c1c">h 2</text>
+  <text x="180" y="580" font-size="12" fill="#1c1c1c">bf 0</text>
+
+  <text x="300" y="528" font-size="12" fill="#4e4942">Hidden</text>
+  <rect x="370" y="542" width="48" height="48" fill="#fffdf8" stroke="#6e685f" stroke-width="2"/>
+  <text x="394" y="570" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1c1c">10</text>
+</svg>

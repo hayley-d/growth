@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" font-family="ui-sans-serif, system-ui, sans-serif">
+  <rect width="960" height="620" fill="#f3efe6"/>
+  <text x="36" y="42" font-size="22" fill="#1c1c1c">Words beside the node</text>
+  <text x="36" y="68" font-size="14" fill="#4e4942">The state is written out. The word still reads when the colour is a grey wash.</text>
+
+  <text x="36" y="108" font-size="13" font-weight="600" fill="#4e4942">With colour</text>
+  <g stroke="#6e685f" stroke-width="2">
+    <line x1="118" y1="186" x2="70" y2="250"/>
+    <line x1="150" y1="190" x2="250" y2="250"/>
+    <line x1="58" y1="274" x2="40" y2="340"/>
+    <line x1="86" y1="274" x2="150" y2="340"/>
+  </g>
+  <g font-size="12">
+    <circle cx="132" cy="164" r="20" fill="#f3e29a" stroke="#6d5a16"/>
+    <text x="132" y="169" text-anchor="middle" font-size="13" font-weight="600" fill="#6d5a16">20</text>
+    <rect x="158" y="150" width="58" height="22" rx="4" fill="#f3e29a" stroke="#6d5a16"/>
+    <text x="166" y="165" fill="#6d5a16">active</text>
+
+    <circle cx="70" cy="268" r="20" fill="#ddd8e4" stroke="#5c5668"/>
+    <text x="70" y="273" text-anchor="middle" font-size="13" font-weight="600" fill="#5c5668">10</text>
+    <rect x="96" y="254" width="64" height="22" rx="4" fill="#ddd8e4" stroke="#5c5668"/>
+    <text x="104" y="269" fill="#5c5668">visited</text>
+
+    <circle cx="250" cy="268" r="20" fill="#d7f3f0" stroke="#1f8f88"/>
+    <text x="250" y="273" text-anchor="middle" font-size="13" font-weight="600" fill="#1f8f88">30</text>
+    <rect x="276" y="254" width="42" height="22" rx="4" fill="#d7f3f0" stroke="#1f8f88"/>
+    <text x="286" y="269" fill="#1f8f88">new</text>
+
+    <circle cx="36" cy="364" r="20" fill="#e39b8e" stroke="#8a3b2c"/>
+    <text x="36" y="369" text-anchor="middle" font-size="13" font-weight="600" fill="#5c2218">8</text>
+    <rect x="8" y="392" width="148" height="22" rx="4" fill="#e39b8e" stroke="#8a3b2c"/>
+    <text x="16" y="407" fill="#5c2218">about to be deleted</text>
+
+    <circle cx="160" cy="364" r="20" fill="#f0c27a" stroke="#6a4a12"/>
+    <text x="160" y="369" text-anchor="middle" font-size="13" font-weight="600" fill="#6a4a12">15</text>
+    <rect x="186" y="350" width="92" height="22" rx="4" fill="#f0c27a" stroke="#6a4a12"/>
+    <text x="194" y="365" fill="#6a4a12">unbalanced</text>
+  </g>
+
+  <text x="520" y="108" font-size="13" font-weight="600" fill="#4e4942">Colour removed</text>
+  <g stroke="#6e685f" stroke-width="2">
+    <line x1="618" y1="186" x2="570" y2="250"/>
+    <line x1="650" y1="190" x2="750" y2="250"/>
+    <line x1="558" y1="274" x2="540" y2="340"/>
+    <line x1="586" y1="274" x2="650" y2="340"/>
+  </g>
+  <g font-size="12" fill="#1c1c1c">
+    <circle cx="632" cy="164" r="20" fill="#d9d9d9" stroke="#222"/>
+    <text x="632" y="169" text-anchor="middle" font-size="13" font-weight="600">20</text>
+    <rect x="658" y="150" width="58" height="22" rx="4" fill="#eee" stroke="#222"/>
+    <text x="666" y="165">active</text>
+
+    <circle cx="570" cy="268" r="20" fill="#ececec" stroke="#222"/>
+    <text x="570" y="273" text-anchor="middle" font-size="13" font-weight="600">10</text>
+    <rect x="596" y="254" width="64" height="22" rx="4" fill="#eee" stroke="#222"/>
+    <text x="604" y="269">visited</text>
+
+    <circle cx="750" cy="268" r="20" fill="#f4f4f4" stroke="#222"/>
+    <text x="750" y="273" text-anchor="middle" font-size="13" font-weight="600">30</text>
+    <rect x="776" y="254" width="42" height="22" rx="4" fill="#eee" stroke="#222"/>
+    <text x="786" y="269">new</text>
+
+    <circle cx="536" cy="364" r="20" fill="#cfcfcf" stroke="#222"/>
+    <text x="536" y="369" text-anchor="middle" font-size="13" font-weight="600">8</text>
+    <rect x="508" y="392" width="148" height="22" rx="4" fill="#eee" stroke="#222"/>
+    <text x="516" y="407">about to be deleted</text>
+
+    <circle cx="660" cy="364" r="20" fill="#bdbdbd" stroke="#222"/>
+    <text x="660" y="369" text-anchor="middle" font-size="13" font-weight="600">15</text>
+    <rect x="686" y="350" width="92" height="22" rx="4" fill="#eee" stroke="#222"/>
+    <text x="694" y="365">unbalanced</text>
+  </g>
+
+  <line x1="36" y1="448" x2="924" y2="448" stroke="#d9d1c3"/>
+  <text x="48" y="478" font-size="13" font-weight="600" fill="#4e4942">Height and balance factor</text>
+  <text x="48" y="508" font-size="12" fill="#4e4942">Shown</text>
+  <circle cx="150" cy="548" r="20" fill="#fffdf8" stroke="#6e685f"/>
+  <text x="150" y="553" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1c1c">10</text>
+  <text x="178" y="544" font-size="12" fill="#1c1c1c">visited</text>
+  <text x="178" y="562" font-size="12" fill="#1c1c1c">h 2</text>
+  <text x="214" y="562" font-size="12" fill="#1c1c1c">bf 1</text>
+
+  <text x="360" y="508" font-size="12" fill="#4e4942">Hidden</text>
+  <circle cx="450" cy="548" r="20" fill="#fffdf8" stroke="#6e685f"/>
+  <text x="450" y="553" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1c1c">10</text>
+  <text x="478" y="553" font-size="12" fill="#1c1c1c">visited</text>
+</svg>
