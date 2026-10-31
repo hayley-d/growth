@@ -11,4 +11,5 @@ export type LearningStyleRepository = Repository<
   LearningStyleChanges
 > & {
   findByName(name: string): Promise<LearningStyle | null>;
+  upsertByName(learningStyle: NewLearningStyle): Promise<LearningStyle>;
 };

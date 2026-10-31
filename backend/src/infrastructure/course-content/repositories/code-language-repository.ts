@@ -37,4 +37,8 @@ export class PrismaCodeLanguageRepository
   findByCode(code: string) {
     return this.findOne({ code });
   }
+
+  upsertByCode(codeLanguage: NewCodeLanguage) {
+    return this.upsertOne({ code: codeLanguage.code }, codeLanguage, codeLanguage);
+  }
 }

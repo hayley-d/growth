@@ -1,0 +1,8 @@
+model Unit {
+  id       String   @id @default(uuid()) @database.Uuid
+  title    String
+  position Int      @unique
+  lessons  Lesson[]
+
+  @@map("unit")
+}

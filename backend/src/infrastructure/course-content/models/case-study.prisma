@@ -1,0 +1,13 @@
+model CaseStudy {
+  id       String @id @default(uuid()) @database.Uuid
+  lessonId String @database.Uuid
+  title    String
+  scenario String
+  body     String
+  task     Json
+  position Int
+  lesson   Lesson @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@index([lessonId])
+  @@map("caseStudy")
+}

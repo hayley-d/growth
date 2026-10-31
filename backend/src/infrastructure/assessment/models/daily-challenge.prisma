@@ -1,0 +1,11 @@
+model DailyChallenge {
+  id         String              @id @default(uuid()) @database.Uuid
+  date       DateTime            @unique @database.Date
+  questionId String              @database.Uuid
+  seed       Int
+  question   Question            @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  attempts   AssessmentAttempt[]
+
+  @@index([questionId])
+  @@map("dailyChallenge")
+}

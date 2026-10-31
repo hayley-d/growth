@@ -1,0 +1,22 @@
+model AttemptAnswer {
+  id                  String            @id @default(uuid()) @database.Uuid
+  assessmentAttemptId String            @database.Uuid
+  questionId          String            @database.Uuid
+  answerOptionId      String?           @database.Uuid
+  seed                Int?
+  generatedQuestion   Json?
+  response            Json
+  isCorrect           Boolean
+  difficulty          Int
+  hintsUsed           Int               @default(0)
+  ratingBefore        Int
+  ratingAfter         Int
+  assessmentAttempt   AssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Cascade)
+  question            Question          @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  answerOption        AnswerOption?     @relation(fields: [answerOptionId], references: [id], onDelete: Restrict)
+
+  @@index([assessmentAttemptId])
+  @@index([questionId])
+  @@index([answerOptionId])
+  @@map("attemptAnswer")
+}

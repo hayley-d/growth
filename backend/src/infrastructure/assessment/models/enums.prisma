@@ -1,0 +1,29 @@
+enum QuestionType {
+  multiple_choice
+  build_tree
+  order_nodes
+  predict_rotation
+  text
+
+  @@map("questionType")
+}
+
+enum BloomsLevel {
+  remember
+  understand
+  apply
+  analyse
+  evaluate
+  create
+
+  @@map("bloomsLevel")
+}
+
+enum AttemptKind {
+  lesson_test
+  checkpoint
+  daily_challenge
+  practice
+
+  @@map("attemptKind")
+}

@@ -1,0 +1,21 @@
+model AssessmentAttempt {
+  id               String          @id @default(uuid()) @database.Uuid
+  userId           String
+  lessonId         String?         @database.Uuid
+  dailyChallengeId String?         @database.Uuid
+  kind             AttemptKind
+  score            Int             @default(0)
+  passed           Boolean         @default(false)
+  points           Int             @default(0)
+  startedAt        DateTime        @default(now()) @database.Timestamptz(3)
+  finishedAt       DateTime?       @database.Timestamptz(3)
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson           Lesson?         @relation(fields: [lessonId], references: [id], onDelete: Restrict)
+  dailyChallenge   DailyChallenge? @relation(fields: [dailyChallengeId], references: [id], onDelete: Restrict)
+  answers          AttemptAnswer[]
+
+  @@index([userId])
+  @@index([lessonId])
+  @@index([dailyChallengeId])
+  @@map("assessmentAttempt")
+}

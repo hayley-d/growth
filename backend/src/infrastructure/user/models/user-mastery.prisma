@@ -1,0 +1,14 @@
+model UserMastery {
+  userId            String
+  lessonId          String   @database.Uuid
+  rating            Int      @default(1000)
+  mastery           Decimal  @default(0) @database.Decimal(5, 4)
+  currentDifficulty Int      @default(1)
+  updatedAt         DateTime @updatedAt @database.Timestamptz(3)
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson            Lesson   @relation(fields: [lessonId], references: [id], onDelete: Restrict)
+
+  @@id([userId, lessonId])
+  @@index([lessonId])
+  @@map("userMastery")
+}

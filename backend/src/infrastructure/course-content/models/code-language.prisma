@@ -3,6 +3,7 @@ model CodeLanguage {
   code         String        @unique
   name         String
   userProfiles UserProfile[]
+  codeSnippets CodeSnippet[]
 
   @@map("codeLanguage")
 }

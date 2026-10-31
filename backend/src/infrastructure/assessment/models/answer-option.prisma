@@ -1,0 +1,11 @@
+model AnswerOption {
+  id             String          @id @default(uuid()) @database.Uuid
+  questionId     String          @database.Uuid
+  text           String
+  isCorrect      Boolean
+  question       Question        @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  attemptAnswers AttemptAnswer[]
+
+  @@index([questionId])
+  @@map("answerOption")
+}
