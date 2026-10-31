@@ -41,6 +41,7 @@ export default defineConfig({
                 { label: "Introduction", slug: "id/introduction" },
                 { label: "Learners", slug: "id/learners" },
                 { label: "Approach", slug: "id/approach" },
+                { label: "Storyboard", slug: "id/storyboard" },
                 { label: "Learning objectives", slug: "id/objectives" },
                 { label: "Learning theories", slug: "id/theories" },
                 { label: "Learning styles", slug: "id/learning-styles" },
