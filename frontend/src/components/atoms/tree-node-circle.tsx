@@ -5,6 +5,8 @@ type TreeNodeCircleProperties = {
   fill: string;
   stroke: string;
   opacity?: number;
+  strokeWidth?: number;
+  strokeDasharray?: string;
 };
 
 export function TreeNodeCircle({
@@ -14,6 +16,8 @@ export function TreeNodeCircle({
   fill,
   stroke,
   opacity = 1,
+  strokeWidth = 1.5,
+  strokeDasharray,
 }: TreeNodeCircleProperties) {
   return (
     <circle
@@ -22,7 +26,8 @@ export function TreeNodeCircle({
       r={radius}
       fill={fill}
       stroke={stroke}
-      strokeWidth="1.5"
+      strokeWidth={strokeWidth}
+      strokeDasharray={strokeDasharray}
       opacity={opacity}
     />
   );
