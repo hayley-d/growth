@@ -23,6 +23,14 @@ shared/src/
       balance.ts          findUnbalanced and isAvl
       rotate.ts           rotate: one left or right rotation, or a reason
     test/                 one <file>.test.ts for each file in src/
+  engine/
+    index.ts              re-exports everything in src/
+    src/
+      step.ts             Step: one snapshot of a manual rotation
+      bst.ts              insertBst and removeBst, with no rebalancing
+      balance.ts          findUnbalanced and isAvl
+      rotate.ts           rotate: one left or right rotation, or a reason
+    test/                 one <file>.test.ts for each file in src/
 ```
 
 `schemas/` is the contract between the frontend and the backend. `avl/` holds the tree rules, so both sides use one copy. `avl/` imports nothing else, so it runs in the browser and in the backend `domain` layer. `domain` still imports only `@shared/avl`. The backend calls `engine/` from `application`.
