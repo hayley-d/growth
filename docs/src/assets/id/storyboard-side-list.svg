@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" font-family="ui-sans-serif, system-ui, sans-serif">
+  <rect width="960" height="640" fill="#f3efe6"/>
+  <text x="36" y="42" font-size="22" fill="#1c1c1c">A plain tree and a side list</text>
+  <text x="36" y="68" font-size="14" fill="#4e4942">The drawing is only keys. State, height, and balance live in a list beside it.</text>
+
+  <g stroke="#6e685f" stroke-width="2">
+    <line x1="150" y1="168" x2="90" y2="230"/>
+    <line x1="170" y1="168" x2="230" y2="230"/>
+    <line x1="78" y1="250" x2="52" y2="310"/>
+    <line x1="102" y1="250" x2="140" y2="310"/>
+  </g>
+  <g fill="#fffdf8" stroke="#6e685f" stroke-width="1.5">
+    <circle cx="160" cy="148" r="20"/>
+    <circle cx="90" cy="248" r="20"/>
+    <circle cx="230" cy="248" r="20"/>
+    <circle cx="52" cy="332" r="20"/>
+    <circle cx="140" cy="332" r="20"/>
+  </g>
+  <g text-anchor="middle" font-size="13" font-weight="600" fill="#1c1c1c">
+    <text x="160" y="153">20</text>
+    <text x="90" y="253">10</text>
+    <text x="230" y="253">30</text>
+    <text x="52" y="337">8</text>
+    <text x="140" y="337">15</text>
+  </g>
+  <g stroke="#b7aa96" stroke-dasharray="3 3" fill="none">
+    <path d="M180 148 C 260 148, 280 196, 340 196"/>
+    <path d="M72 332 C 160 360, 240 392, 340 404"/>
+  </g>
+
+  <text x="348" y="118" font-size="13" font-weight="600" fill="#4e4942">With colour</text>
+  <g font-size="13" fill="#1c1c1c">
+    <text x="348" y="148" fill="#4e4942">key</text>
+    <text x="400" y="148" fill="#4e4942">state</text>
+    <text x="590" y="148" fill="#4e4942">h</text>
+    <text x="640" y="148" fill="#4e4942">bf</text>
+
+    <rect x="392" y="164" width="12" height="12" fill="#f3e29a" stroke="#6d5a16"/>
+    <text x="348" y="176">20</text>
+    <text x="412" y="176">active</text>
+    <text x="590" y="176">3</text>
+    <text x="640" y="176">1</text>
+
+    <rect x="392" y="196" width="12" height="12" fill="#ddd8e4" stroke="#5c5668"/>
+    <text x="348" y="208">10</text>
+    <text x="412" y="208">visited</text>
+    <text x="590" y="208">2</text>
+    <text x="640" y="208">1</text>
+
+    <rect x="392" y="228" width="12" height="12" fill="#d7f3f0" stroke="#1f8f88"/>
+    <text x="348" y="240">30</text>
+    <text x="412" y="240">new</text>
+    <text x="590" y="240">1</text>
+    <text x="640" y="240">0</text>
+
+    <rect x="392" y="260" width="12" height="12" fill="#e39b8e" stroke="#8a3b2c"/>
+    <text x="348" y="272">8</text>
+    <text x="412" y="272">about to be deleted</text>
+    <text x="590" y="272">1</text>
+    <text x="640" y="272">0</text>
+
+    <rect x="392" y="292" width="12" height="12" fill="#f0c27a" stroke="#6a4a12"/>
+    <text x="348" y="304">15</text>
+    <text x="412" y="304">unbalanced</text>
+    <text x="590" y="304">1</text>
+    <text x="640" y="304">2</text>
+  </g>
+
+  <text x="348" y="360" font-size="13" font-weight="600" fill="#4e4942">Colour removed</text>
+  <g font-size="13" fill="#1c1c1c">
+    <text x="348" y="384">20</text>
+    <text x="392" y="384">active</text>
+    <text x="560" y="384">h 3</text>
+    <text x="620" y="384">bf 1</text>
+    <text x="348" y="404">10</text>
+    <text x="392" y="404">visited</text>
+    <text x="560" y="404">h 2</text>
+    <text x="620" y="404">bf 1</text>
+    <text x="348" y="424">30</text>
+    <text x="392" y="424">new</text>
+    <text x="560" y="424">h 1</text>
+    <text x="620" y="424">bf 0</text>
+    <text x="348" y="444">8</text>
+    <text x="392" y="444">about to be deleted</text>
+    <text x="560" y="444">h 1</text>
+    <text x="620" y="444">bf 0</text>
+    <text x="348" y="464">15</text>
+    <text x="392" y="464">unbalanced</text>
+    <text x="560" y="464">h 1</text>
+    <text x="620" y="464">bf 2</text>
+  </g>
+
+  <line x1="36" y1="480" x2="924" y2="480" stroke="#d9d1c3"/>
+  <text x="48" y="512" font-size="13" font-weight="600" fill="#4e4942">Height and balance factor hidden</text>
+  <text x="48" y="540" font-size="14" fill="#4e4942">The same list, with the h and bf columns left out. The tree drawing does not change.</text>
+  <g font-size="13" fill="#1c1c1c">
+    <text x="48" y="574">20</text>
+    <text x="92" y="574">active</text>
+    <text x="220" y="574">10</text>
+    <text x="264" y="574">visited</text>
+    <text x="400" y="574">30</text>
+    <text x="444" y="574">new</text>
+    <text x="48" y="602">8</text>
+    <text x="92" y="602">about to be deleted</text>
+    <text x="280" y="602">15</text>
+    <text x="324" y="602">unbalanced</text>
+  </g>
+</svg>

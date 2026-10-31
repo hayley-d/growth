@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" font-family="ui-sans-serif, system-ui, sans-serif">
+  <rect width="960" height="620" fill="#f3efe6"/>
+  <text x="36" y="42" font-size="22" fill="#1c1c1c">Marked circles</text>
+  <text x="36" y="68" font-size="14" fill="#4e4942">The state is a fill plus a mark. The mark stays when the colour is removed.</text>
+
+  <text x="48" y="108" font-size="13" font-weight="600" fill="#4e4942">With colour</text>
+  <g stroke="#6e685f" stroke-width="2">
+    <line x1="168" y1="186" x2="96" y2="252"/>
+    <line x1="192" y1="186" x2="268" y2="252"/>
+    <line x1="84" y1="276" x2="52" y2="340"/>
+    <line x1="108" y1="276" x2="148" y2="340"/>
+  </g>
+  <g fill="#1c1c1c">
+    <polygon points="180,128 174,116 186,116"/>
+    <circle cx="180" cy="162" r="30" fill="none" stroke="#1c1c1c" stroke-width="3.5"/>
+    <circle cx="180" cy="162" r="22" fill="#f3e29a" stroke="#6d5a16"/>
+    <text x="180" y="167" text-anchor="middle" font-size="13" font-weight="600" fill="#6d5a16">20</text>
+    <text x="218" y="166" font-size="12" fill="#4e4942">active</text>
+
+    <circle cx="96" cy="268" r="22" fill="#ddd8e4" stroke="#5c5668"/>
+    <text x="96" y="273" text-anchor="middle" font-size="13" font-weight="600" fill="#5c5668">10</text>
+    <polyline points="112,276 118,282 128,268" fill="none" stroke="#1c1c1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="4" y="246" font-size="12" fill="#4e4942">visited</text>
+
+    <circle cx="268" cy="268" r="22" fill="#fffdf8" stroke="#1f8f88" stroke-width="3"/>
+    <text x="268" y="273" text-anchor="middle" font-size="13" font-weight="600" fill="#1f8f88">30</text>
+    <text x="298" y="272" font-size="12" fill="#4e4942">new</text>
+
+    <circle cx="52" cy="364" r="22" fill="#e39b8e" stroke="#1c1c1c" stroke-dasharray="4 3"/>
+    <text x="52" y="369" text-anchor="middle" font-size="13" font-weight="600" fill="#5c2218">8</text>
+    <g stroke="#1c1c1c" stroke-width="2" stroke-linecap="round">
+      <line x1="70" y1="340" x2="80" y2="350"/>
+      <line x1="70" y1="350" x2="80" y2="340"/>
+    </g>
+    <text x="8" y="404" font-size="12" fill="#4e4942">about to be deleted</text>
+
+    <circle cx="148" cy="364" r="22" fill="#f0c27a" stroke="#6a4a12"/>
+    <text x="148" y="369" text-anchor="middle" font-size="13" font-weight="600" fill="#6a4a12">15</text>
+    <circle cx="166" cy="348" r="11" fill="#fffdf8" stroke="#1c1c1c"/>
+    <text x="166" y="352" text-anchor="middle" font-size="10" fill="#1c1c1c">2</text>
+    <text x="178" y="404" font-size="12" fill="#4e4942">unbalanced</text>
+  </g>
+
+  <text x="520" y="108" font-size="13" font-weight="600" fill="#4e4942">Colour removed</text>
+  <g stroke="#6e685f" stroke-width="2">
+    <line x1="668" y1="186" x2="596" y2="252"/>
+    <line x1="692" y1="186" x2="768" y2="252"/>
+    <line x1="584" y1="276" x2="552" y2="340"/>
+    <line x1="608" y1="276" x2="648" y2="340"/>
+  </g>
+  <g>
+    <polygon points="680,128 674,116 686,116" fill="#1c1c1c"/>
+    <circle cx="680" cy="162" r="30" fill="none" stroke="#1c1c1c" stroke-width="3.5"/>
+    <circle cx="680" cy="162" r="22" fill="#d9d9d9" stroke="#222"/>
+    <text x="680" y="167" text-anchor="middle" font-size="13" font-weight="600" fill="#222">20</text>
+
+    <circle cx="596" cy="268" r="22" fill="#ececec" stroke="#222"/>
+    <text x="596" y="273" text-anchor="middle" font-size="13" font-weight="600" fill="#222">10</text>
+    <polyline points="612,276 618,282 628,268" fill="none" stroke="#1c1c1c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <circle cx="768" cy="268" r="22" fill="#f7f7f7" stroke="#222" stroke-width="3"/>
+    <text x="768" y="273" text-anchor="middle" font-size="13" font-weight="600" fill="#222">30</text>
+
+    <circle cx="552" cy="364" r="22" fill="#cfcfcf" stroke="#1c1c1c" stroke-dasharray="4 3"/>
+    <text x="552" y="369" text-anchor="middle" font-size="13" font-weight="600" fill="#222">8</text>
+    <g stroke="#1c1c1c" stroke-width="2" stroke-linecap="round">
+      <line x1="570" y1="340" x2="580" y2="350"/>
+      <line x1="570" y1="350" x2="580" y2="340"/>
+    </g>
+
+    <circle cx="648" cy="364" r="22" fill="#bdbdbd" stroke="#222"/>
+    <text x="648" y="369" text-anchor="middle" font-size="13" font-weight="600" fill="#222">15</text>
+    <circle cx="666" cy="348" r="11" fill="#f7f7f7" stroke="#1c1c1c"/>
+    <text x="666" y="352" text-anchor="middle" font-size="10" fill="#1c1c1c">2</text>
+  </g>
+
+  <line x1="36" y1="448" x2="924" y2="448" stroke="#d9d1c3"/>
+  <text x="48" y="478" font-size="13" font-weight="600" fill="#4e4942">Height and balance factor</text>
+
+  <text x="48" y="508" font-size="12" fill="#4e4942">Shown</text>
+  <circle cx="130" cy="548" r="22" fill="#fffdf8" stroke="#6e685f"/>
+  <text x="130" y="553" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1c1c">10</text>
+  <text x="130" y="586" text-anchor="middle" font-size="11" fill="#1c1c1c">h 2</text>
+  <text x="130" y="602" text-anchor="middle" font-size="11" fill="#1c1c1c">bf 1</text>
+
+  <text x="250" y="508" font-size="12" fill="#4e4942">Hidden</text>
+  <circle cx="330" cy="548" r="22" fill="#fffdf8" stroke="#6e685f"/>
+  <text x="330" y="553" text-anchor="middle" font-size="13" font-weight="600" fill="#1c1c1c">10</text>
+</svg>

@@ -1,0 +1,95 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" font-family="ui-sans-serif, system-ui, sans-serif">
+  <rect width="960" height="680" fill="#f3efe6"/>
+  <text x="36" y="42" font-size="22" fill="#1c1c1c">Cards instead of circles</text>
+  <text x="36" y="68" font-size="14" fill="#4e4942">Each node is a card. The state word stays when the colour bar is grey.</text>
+
+  <text x="36" y="104" font-size="13" font-weight="600" fill="#4e4942">With colour</text>
+  <g stroke="#6e685f" stroke-width="2" fill="none">
+    <line x1="250" y1="196" x2="130" y2="230"/>
+    <line x1="370" y1="196" x2="430" y2="230"/>
+    <line x1="100" y1="318" x2="70" y2="348"/>
+    <line x1="180" y1="318" x2="210" y2="348"/>
+  </g>
+  <g font-size="12" fill="#1c1c1c">
+    <rect x="230" y="112" width="150" height="84" fill="#fffdf8" stroke="#6e685f"/>
+    <rect x="230" y="112" width="8" height="84" fill="#f3e29a"/>
+    <text x="248" y="136" font-size="16" font-weight="600">20</text>
+    <text x="248" y="156">active</text>
+    <text x="248" y="176">h 3</text>
+    <text x="290" y="176">bf 1</text>
+
+    <rect x="40" y="230" width="150" height="84" fill="#fffdf8" stroke="#6e685f"/>
+    <rect x="40" y="230" width="8" height="84" fill="#ddd8e4"/>
+    <text x="58" y="254" font-size="16" font-weight="600">10</text>
+    <text x="58" y="274">visited</text>
+    <text x="58" y="294">h 2</text>
+    <text x="100" y="294">bf 1</text>
+
+    <rect x="400" y="230" width="150" height="84" fill="#fffdf8" stroke="#6e685f"/>
+    <rect x="400" y="230" width="8" height="84" fill="#1f8f88"/>
+    <text x="418" y="254" font-size="16" font-weight="600">30</text>
+    <text x="418" y="274">new</text>
+    <text x="418" y="294">h 1</text>
+    <text x="460" y="294">bf 0</text>
+
+    <rect x="8" y="348" width="168" height="84" fill="#fffdf8" stroke="#6e685f"/>
+    <rect x="8" y="348" width="8" height="84" fill="#e39b8e"/>
+    <text x="26" y="372" font-size="16" font-weight="600">8</text>
+    <text x="26" y="392">about to be deleted</text>
+    <text x="26" y="412">h 1</text>
+    <text x="68" y="412">bf 0</text>
+
+    <rect x="196" y="348" width="150" height="84" fill="#fffdf8" stroke="#6e685f"/>
+    <rect x="196" y="348" width="8" height="84" fill="#f0c27a"/>
+    <text x="214" y="372" font-size="16" font-weight="600">15</text>
+    <text x="214" y="392">unbalanced</text>
+    <text x="214" y="412">h 1</text>
+    <text x="256" y="412">bf 2</text>
+  </g>
+
+  <text x="620" y="104" font-size="13" font-weight="600" fill="#4e4942">Colour removed</text>
+  <g font-size="12" fill="#1c1c1c">
+    <rect x="620" y="124" width="168" height="72" fill="#f7f7f7" stroke="#222"/>
+    <rect x="620" y="124" width="8" height="72" fill="#bdbdbd"/>
+    <text x="638" y="148" font-size="16" font-weight="600">20</text>
+    <text x="638" y="168">active</text>
+    <text x="638" y="186">h 3   bf 1</text>
+
+    <rect x="800" y="124" width="140" height="72" fill="#f7f7f7" stroke="#222"/>
+    <rect x="800" y="124" width="8" height="72" fill="#bdbdbd"/>
+    <text x="818" y="148" font-size="16" font-weight="600">30</text>
+    <text x="818" y="168">new</text>
+    <text x="818" y="186">h 1   bf 0</text>
+
+    <rect x="620" y="214" width="200" height="72" fill="#f7f7f7" stroke="#222"/>
+    <rect x="620" y="214" width="8" height="72" fill="#9a9a9a"/>
+    <text x="638" y="238" font-size="16" font-weight="600">8</text>
+    <text x="638" y="258">about to be deleted</text>
+    <text x="638" y="276">h 1   bf 0</text>
+
+    <rect x="620" y="304" width="168" height="72" fill="#f7f7f7" stroke="#222"/>
+    <rect x="620" y="304" width="8" height="72" fill="#8a8a8a"/>
+    <text x="638" y="328" font-size="16" font-weight="600">15</text>
+    <text x="638" y="348">unbalanced</text>
+    <text x="638" y="366">h 1   bf 2</text>
+  </g>
+
+  <line x1="36" y1="470" x2="924" y2="470" stroke="#d9d1c3"/>
+  <text x="48" y="502" font-size="13" font-weight="600" fill="#4e4942">Height and balance factor</text>
+  <text x="48" y="530" font-size="12" fill="#4e4942">Shown</text>
+  <g font-size="12" fill="#1c1c1c">
+    <rect x="48" y="544" width="150" height="84" fill="#fffdf8" stroke="#6e685f"/>
+    <rect x="48" y="544" width="8" height="84" fill="#ddd8e4"/>
+    <text x="66" y="568" font-size="16" font-weight="600">10</text>
+    <text x="66" y="588">visited</text>
+    <text x="66" y="608">h 2</text>
+    <text x="108" y="608">bf 1</text>
+  </g>
+  <text x="250" y="530" font-size="12" fill="#4e4942">Hidden</text>
+  <g font-size="12" fill="#1c1c1c">
+    <rect x="250" y="544" width="150" height="56" fill="#fffdf8" stroke="#6e685f"/>
+    <rect x="250" y="544" width="8" height="56" fill="#ddd8e4"/>
+    <text x="268" y="568" font-size="16" font-weight="600">10</text>
+    <text x="268" y="588">visited</text>
+  </g>
+</svg>
