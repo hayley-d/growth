@@ -5,7 +5,10 @@ description: The HTTP contract and the AVL tree rules that the frontend and back
 
 ```
 shared/src/
-  schemas/              zod schemas for every request and response
+  schemas/
+    index.ts              re-exports everything in src/
+    src/                  zod schemas for every request and response, one file per feature
+    test/                 one <file>.test.ts for each file in src/
   avl/
     index.ts              re-exports everything in src/
     src/
@@ -166,7 +169,7 @@ checkGoal(root, { kind: "validAvl" });
 - `traversal` passes when walking the tree in the given order gives exactly those keys, in that order.
 - `validAvl` passes when the tree is in BST order, every node's stored `height` matches what its children actually give, and every balance factor is `-1`, `0` or `1`.
 
-`TreeGoal` is a plain type, not a zod schema, because `avl/` imports nothing. `playgroundGoalSchema` in `@shared/schemas/content-block` is marked `satisfies z.ZodType<TreeGoal>` so the two can't drift apart. The frontend calls `checkGoal` for instant feedback while a learner works, and the backend calls it again to verify before awarding points.
+`TreeGoal` is a plain type, not a zod schema, because `avl/` imports nothing. `playgroundGoalSchema` in `@shared/schemas` is marked `satisfies z.ZodType<TreeGoal>` so the two can't drift apart. The frontend calls `checkGoal` for instant feedback while a learner works, and the backend calls it again to verify before awarding points.
 
 ## Size limit
 
