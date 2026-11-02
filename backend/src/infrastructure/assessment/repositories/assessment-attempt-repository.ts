@@ -10,6 +10,7 @@ import type {
   PrismaClient,
 } from "@/generated/prisma/client";
 import { toAssessmentAttempt } from "@/infrastructure/assessment/mappers/assessment-attempt-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type AssessmentAttemptModel = {
@@ -36,6 +37,16 @@ export class PrismaAssessmentAttemptRepository
       orderBy: [{ startedAt: "desc" }],
       toCreateData: (assessmentAttempt) => assessmentAttempt,
       toUpdateData: (changes) => changes,
+    });
+  }
+
+  hasPassedForLesson(userId: string, lessonId: string) {
+    return withPrismaErrors(async () => {
+      const attempt = await this.client.assessmentAttempt.findFirst({
+        where: { userId, lessonId, passed: true, kind: { in: ["lesson_test", "checkpoint"] } },
+        select: { id: true },
+      });
+      return attempt !== null;
     });
   }
 }

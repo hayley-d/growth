@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { traversalOrderSchema, treeKeySchema, treeKeysSchema } from "@shared/schemas/content-block";
+import {
+  traversalOrderSchema,
+  treeKeySchema,
+  treeKeysSchema,
+} from "@shared/schemas/src/content-block";
 
 export const questionTypeSchema = z.enum([
   "multiple_choice",

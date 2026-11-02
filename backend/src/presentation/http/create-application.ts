@@ -6,6 +6,7 @@ import { secureHeaders } from "hono/secure-headers";
 import type { AuthHandler, GetSession } from "@/application/auth/session";
 import type { Logger } from "@/application/logging/logger";
 import type { AlgorithmController } from "@/presentation/controllers/algorithm-controller";
+import type { LessonController } from "@/presentation/controllers/lesson-controller";
 import { createAuthMiddleware } from "@/presentation/middleware/auth-middleware";
 import { createErrorHandler } from "@/presentation/middleware/error-handler";
 import { notFoundHandler } from "@/presentation/middleware/not-found-handler";
@@ -14,12 +15,14 @@ import { createRequestLogger } from "@/presentation/middleware/request-logger";
 import { createAlgorithmRoutes } from "@/presentation/routes/algorithm-routes";
 import { createAuthRoutes } from "@/presentation/routes/auth-routes";
 import { healthRoutes } from "@/presentation/routes/health-routes";
+import { createLessonRoutes } from "@/presentation/routes/lesson-routes";
 
 type ApplicationDependencies = {
   logger: Logger;
   authHandler: AuthHandler;
   getSession: GetSession;
   algorithmController: AlgorithmController;
+  lessonController: LessonController;
 };
 
 export const createApplication = ({
@@ -27,6 +30,7 @@ export const createApplication = ({
   authHandler,
   getSession,
   algorithmController,
+  lessonController,
 }: ApplicationDependencies) => {
   const application = new Hono();
   application.use(secureHeaders());
@@ -44,6 +48,7 @@ export const createApplication = ({
   application.route("/api/auth", createAuthRoutes(authHandler));
   application.route("/api/health", healthRoutes);
   application.route("/api/algorithms", createAlgorithmRoutes(algorithmController));
+  application.route("/api/lessons", createLessonRoutes(lessonController));
   application.notFound(notFoundHandler);
   application.onError(createErrorHandler(logger));
   return application;

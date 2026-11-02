@@ -3,7 +3,8 @@ export type DomainErrorKind =
   | "unauthorized"
   | "forbidden"
   | "not-found"
-  | "conflict";
+  | "conflict"
+  | "internal";
 
 export class DomainError extends Error {
   readonly kind: DomainErrorKind;
@@ -49,5 +50,12 @@ export class ConflictError extends DomainError {
   constructor(message: string, details?: Record<string, unknown>) {
     super("conflict", message, details);
     this.name = "ConflictError";
+  }
+}
+
+export class InvalidContentError extends DomainError {
+  constructor(message: string, details?: Record<string, unknown>) {
+    super("internal", message, details);
+    this.name = "InvalidContentError";
   }
 }

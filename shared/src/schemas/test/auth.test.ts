@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { sessionResponseSchema, signUpRequestSchema } from "@shared/schemas/auth";
+import { sessionResponseSchema, signUpRequestSchema } from "@shared/schemas";
 
 describe("signUpRequestSchema", () => {
   const signUp = { email: "ada@example.com", password: "password123", name: "Ada" };

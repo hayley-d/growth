@@ -2,6 +2,7 @@ import type { Lesson, LessonChanges, NewLesson } from "@/domain/course-content/l
 import type { LessonRepository } from "@/domain/course-content/repositories/lesson-repository";
 import type { Lesson as LessonRow, Prisma, PrismaClient } from "@/generated/prisma/client";
 import { toLesson } from "@/infrastructure/course-content/mappers/lesson-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type LessonModel = {
@@ -28,5 +29,11 @@ export class PrismaLessonRepository
 
   findByUnitIdAndPosition(unitId: string, position: number) {
     return this.findOne({ unitId_position: { unitId, position } });
+  }
+
+  listAll() {
+    return withPrismaErrors(async () =>
+      (await this.client.lesson.findMany({ orderBy: this.options.orderBy })).map(toLesson),
+    );
   }
 }

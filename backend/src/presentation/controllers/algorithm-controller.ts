@@ -1,6 +1,6 @@
 import type { Context } from "hono";
 
-import type { AlgorithmParams, AlgorithmSnippetQuery } from "@shared/schemas/algorithm";
+import type { AlgorithmParams, AlgorithmSnippetQuery } from "@shared/schemas";
 import type { GetAlgorithmSnippet } from "@/application/course-content/queries/get-algorithm-snippet";
 import type { ListAlgorithms } from "@/application/course-content/queries/list-algorithms";
 

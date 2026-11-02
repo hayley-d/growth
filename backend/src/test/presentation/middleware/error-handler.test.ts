@@ -2,12 +2,13 @@ import { Hono } from "hono";
 import { describe, expect, it, vi } from "vitest";
 import { z } from "zod";
 
-import type { ErrorResponse } from "@shared/schemas/error";
+import type { ErrorResponse } from "@shared/schemas";
 import type { Logger } from "@/application/logging/logger";
 import {
   BadRequestError,
   ConflictError,
   ForbiddenError,
+  InvalidContentError,
   NotFoundError,
   UnauthorizedError,
 } from "@/domain/errors";
@@ -46,6 +47,7 @@ describe("createErrorHandler", () => {
     [new ForbiddenError("Not yours"), 403],
     [new NotFoundError("Missing"), 404],
     [new ConflictError("Taken"), 409],
+    [new InvalidContentError("Lesson content is invalid"), 500],
   ])("maps %s to %i", async (error, status) => {
     const response = await post(createThrowingApplication(error));
     const body = (await response.json()) as ErrorResponse;

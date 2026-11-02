@@ -9,4 +9,6 @@ export type AssessmentAttemptRepository = Repository<
   AssessmentAttempt,
   NewAssessmentAttempt,
   AssessmentAttemptChanges
->;
+> & {
+  hasPassedForLesson(userId: string, lessonId: string): Promise<boolean>;
+};

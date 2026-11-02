@@ -3,6 +3,7 @@ model Lesson {
   unitId             String              @database.Uuid
   title              String
   summary            String
+  notePrompt         String?
   kind               LessonKind
   position           Int
   unit               Unit                @relation(fields: [unitId], references: [id], onDelete: Cascade)
@@ -13,6 +14,7 @@ model Lesson {
   caseStudies        CaseStudy[]
   progress           LessonProgress[]
   mastery            UserMastery[]
+  notes              LessonNote[]
 
   @@unique([unitId, position])
   @@map("lesson")

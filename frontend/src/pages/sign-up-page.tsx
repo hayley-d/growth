@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 
-import { type SignUpRequest, signUpRequestSchema } from "@shared/schemas/auth";
+import { type SignUpRequest, signUpRequestSchema } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { FormField } from "@/components/molecules/form-field";
 import { useSignUpMutation } from "@/lib/mutations";

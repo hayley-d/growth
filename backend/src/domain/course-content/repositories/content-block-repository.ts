@@ -5,4 +5,10 @@ import type {
   NewContentBlock,
 } from "@/domain/course-content/content-block";
 
-export type ContentBlockRepository = Repository<ContentBlock, NewContentBlock, ContentBlockChanges>;
+export type ContentBlockRepository = Repository<
+  ContentBlock,
+  NewContentBlock,
+  ContentBlockChanges
+> & {
+  listByLessonId(lessonId: string): Promise<ContentBlock[]>;
+};

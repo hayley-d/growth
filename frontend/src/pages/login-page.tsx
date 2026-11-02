@@ -1,7 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Link, useNavigate } from "@tanstack/react-router";
 
-import { signInRequestSchema } from "@shared/schemas/auth";
+import { signInRequestSchema } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { FormField } from "@/components/molecules/form-field";
 import { useSignInMutation } from "@/lib/mutations";

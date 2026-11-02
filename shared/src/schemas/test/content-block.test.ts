@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { contentBlockBodySchema, treeKeysSchema } from "@shared/schemas/content-block";
+import { contentBlockBodySchema, treeKeysSchema } from "@shared/schemas";
 
 describe("treeKeysSchema", () => {
   it("rejects duplicate keys", () => {
