@@ -6,6 +6,7 @@ export const toLesson = (row: LessonRow): Lesson => ({
   unitId: row.unitId,
   title: row.title,
   summary: row.summary,
+  notePrompt: row.notePrompt,
   kind: row.kind,
   position: row.position,
 });

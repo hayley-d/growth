@@ -3,7 +3,7 @@ import {
   type SignInRequest,
   type SignUpRequest,
   sessionResponseSchema,
-} from "@shared/schemas/auth";
+} from "@shared/schemas";
 import { authClient } from "@/lib/auth-client";
 import { rejectInvalidResponse, ServiceError } from "@/services/service-error";
 

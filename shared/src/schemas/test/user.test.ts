@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { toMeResponse, updateUserProfileRequestSchema } from "@shared/schemas/user";
+import { toMeResponse, updateUserProfileRequestSchema } from "@shared/schemas";
 
 describe("updateUserProfileRequestSchema", () => {
   it("leaves out fields that weren't sent", () => {

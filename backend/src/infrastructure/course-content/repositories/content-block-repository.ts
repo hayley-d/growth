@@ -14,6 +14,7 @@ import {
   toContentBlockCreateData,
   toContentBlockUpdateData,
 } from "@/infrastructure/course-content/mappers/content-block-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type ContentBlockModel = {
@@ -36,5 +37,16 @@ export class PrismaContentBlockRepository
       toCreateData: toContentBlockCreateData,
       toUpdateData: toContentBlockUpdateData,
     });
+  }
+
+  listByLessonId(lessonId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.contentBlock.findMany({
+          where: { lessonId },
+          orderBy: [{ position: "asc" }],
+        })
+      ).map(toContentBlock),
+    );
   }
 }

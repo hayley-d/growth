@@ -1,0 +1,12 @@
+model LessonNote {
+  userId    String
+  lessonId  String   @database.Uuid
+  body      String
+  updatedAt DateTime @updatedAt @database.Timestamptz(3)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lesson    Lesson   @relation(fields: [lessonId], references: [id], onDelete: Cascade)
+
+  @@id([userId, lessonId])
+  @@index([lessonId])
+  @@map("lessonNote")
+}

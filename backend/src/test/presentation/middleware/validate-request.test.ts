@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { describe, expect, it } from "vitest";
 
-import { paginationQuerySchema } from "@shared/schemas/common";
+import { paginationQuerySchema } from "@shared/schemas";
 import { validate } from "@/presentation/middleware/validate-request";
 
 describe("validate", () => {

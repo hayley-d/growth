@@ -5,6 +5,7 @@ export type Lesson = {
   unitId: string;
   title: string;
   summary: string;
+  notePrompt: string | null;
   kind: LessonKind;
   position: number;
 };
@@ -13,6 +14,7 @@ export type NewLesson = {
   unitId: string;
   title: string;
   summary: string;
+  notePrompt?: string | null;
   kind: LessonKind;
   position: number;
 };

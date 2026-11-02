@@ -1,4 +1,4 @@
-import { type Health, healthSchema } from "@shared/schemas/health";
+import { type Health, healthSchema } from "@shared/schemas";
 import { uris } from "@/services/health-service/health.urls";
 import { networkService } from "@/services/network.service";
 import { rejectAxios, rejectInvalidResponse } from "@/services/service-error";

@@ -1,7 +1,7 @@
 import { Hono } from "hono";
 import { describe, expect, it, vi } from "vitest";
 
-import type { ErrorResponse } from "@shared/schemas/error";
+import type { ErrorResponse } from "@shared/schemas";
 import type { GetAlgorithmSnippet } from "@/application/course-content/queries/get-algorithm-snippet";
 import type { Logger } from "@/application/logging/logger";
 import { NotFoundError } from "@/domain/errors";

@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { generatedQuestionSchema, learnerAnswerSchema } from "@shared/schemas/assessment";
+import { generatedQuestionSchema, learnerAnswerSchema } from "@shared/schemas";
 
 describe("learnerAnswerSchema", () => {
   it("parses a multiple choice answer", () => {

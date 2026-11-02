@@ -1,5 +1,5 @@
 import { algorithmCodes } from "@shared/avl";
-import { type ListAlgorithmsResponse, toListAlgorithmsResponse } from "@shared/schemas/algorithm";
+import { type ListAlgorithmsResponse, toListAlgorithmsResponse } from "@shared/schemas";
 import type { Algorithm } from "@/domain/course-content/algorithm";
 import type { AlgorithmRepository } from "@/domain/course-content/repositories/algorithm-repository";
 

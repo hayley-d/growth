@@ -13,6 +13,7 @@ model User {
   sessions      Session[]
   accounts      Account[]
   profile       UserProfile?
+  lessonNotes        LessonNote[]
   assessmentAttempts AssessmentAttempt[]
   lessonProgress     LessonProgress[]
   mastery            UserMastery[]

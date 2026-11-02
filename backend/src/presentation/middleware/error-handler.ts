@@ -3,7 +3,7 @@ import { HTTPException } from "hono/http-exception";
 import type { ContentfulStatusCode } from "hono/utils/http-status";
 import { ZodError } from "zod";
 
-import type { ErrorIssue, ErrorResponse } from "@shared/schemas/error";
+import type { ErrorIssue, ErrorResponse } from "@shared/schemas";
 import { requestContext } from "@/application/context/request-context";
 import type { Logger } from "@/application/logging/logger";
 import { DomainError, type DomainErrorKind } from "@/domain/errors";
@@ -14,6 +14,7 @@ const statusByKind: Record<DomainErrorKind, ContentfulStatusCode> = {
   forbidden: 403,
   "not-found": 404,
   conflict: 409,
+  internal: 500,
 };
 
 const toIssues = (error: ZodError): ErrorIssue[] =>

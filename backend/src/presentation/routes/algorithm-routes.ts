@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 
-import { algorithmParamsSchema, algorithmSnippetQuerySchema } from "@shared/schemas/algorithm";
+import { algorithmParamsSchema, algorithmSnippetQuerySchema } from "@shared/schemas";
 import type { AlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { validate } from "@/presentation/middleware/validate-request";
 

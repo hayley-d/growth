@@ -6,7 +6,7 @@ import {
   paginationQuerySchema,
   toPaginatedResponse,
   toSkipTake,
-} from "@shared/schemas/common";
+} from "@shared/schemas";
 
 describe("paginationQuerySchema", () => {
   it("fills in defaults", () => {

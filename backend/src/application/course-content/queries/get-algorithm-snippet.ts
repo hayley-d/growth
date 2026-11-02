@@ -3,7 +3,7 @@ import {
   type AlgorithmSnippetQuery,
   type AlgorithmSnippetResponse,
   toAlgorithmSnippetResponse,
-} from "@shared/schemas/algorithm";
+} from "@shared/schemas";
 import { requestContext } from "@/application/context/request-context";
 import { defaultCodeLanguageCode } from "@/domain/course-content/code-language";
 import type { AlgorithmRepository } from "@/domain/course-content/repositories/algorithm-repository";

@@ -5,7 +5,7 @@ import {
   algorithmSnippetQuerySchema,
   toAlgorithmSnippetResponse,
   toListAlgorithmsResponse,
-} from "@shared/schemas/algorithm";
+} from "@shared/schemas";
 
 describe("algorithmSnippetQuerySchema", () => {
   it("allows the language to be left out", () => {

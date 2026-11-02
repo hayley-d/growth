@@ -1,9 +1,10 @@
 import { describe, expect, it, vi } from "vitest";
 
-import type { ErrorResponse } from "@shared/schemas/error";
+import type { ErrorResponse } from "@shared/schemas";
 import type { Logger } from "@/application/logging/logger";
 import { NotFoundError } from "@/domain/errors";
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
+import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
 const createStubLogger = (): Logger => ({
@@ -22,6 +23,17 @@ const createTestApp = (logger: Logger) =>
       listAlgorithms: async () => ({ data: { algorithms: [] } }),
       getAlgorithmSnippet: async () => {
         throw new NotFoundError("Algorithm not found");
+      },
+    }),
+    lessonController: createLessonController({
+      getLesson: async () => {
+        throw new NotFoundError("Lesson not found");
+      },
+      getLessonNote: async () => {
+        throw new NotFoundError("Lesson not found");
+      },
+      saveLessonNote: async () => {
+        throw new NotFoundError("Lesson not found");
       },
     }),
   });

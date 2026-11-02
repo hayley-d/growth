@@ -1,4 +1,4 @@
-import { type ColourTheme, colourThemeSchema } from "@shared/schemas/user";
+import { type ColourTheme, colourThemeSchema } from "@shared/schemas";
 
 export type ColourScheme = ColourTheme;
 

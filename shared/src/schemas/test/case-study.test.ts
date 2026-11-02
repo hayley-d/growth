@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { caseStudyTaskSchema } from "@shared/schemas/case-study";
+import { caseStudyTaskSchema } from "@shared/schemas";
 
 describe("caseStudyTaskSchema", () => {
   it("parses a task with a goal", () => {
