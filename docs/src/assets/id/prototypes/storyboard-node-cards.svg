@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Cards instead of circles. Each node is a card, and the state word stays when the colour bar is grey.</title>
   <rect width="960" height="680" fill="#f3efe6"/>
   <text x="36" y="42" font-size="22" fill="#1c1c1c">Cards instead of circles</text>
   <text x="36" y="68" font-size="14" fill="#4e4942">Each node is a card. The state word stays when the colour bar is grey.</text>

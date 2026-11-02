@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>A plain tree and a side list. The drawing is only keys, and state, height, and balance live in a list beside it.</title>
   <rect width="960" height="640" fill="#f3efe6"/>
   <text x="36" y="42" font-size="22" fill="#1c1c1c">A plain tree and a side list</text>
   <text x="36" y="68" font-size="14" fill="#4e4942">The drawing is only keys. State, height, and balance live in a list beside it.</text>
