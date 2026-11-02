@@ -1,4 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" font-family="ui-sans-serif, system-ui, sans-serif">
+  <title>Words beside the node. The state is written out and still reads when the colour is a grey wash.</title>
   <rect width="960" height="620" fill="#f3efe6"/>
   <text x="36" y="42" font-size="22" fill="#1c1c1c">Words beside the node</text>
   <text x="36" y="68" font-size="14" fill="#4e4942">The state is written out. The word still reads when the colour is a grey wash.</text>
