@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 
-import { type AvlNode, insertKey, layoutTree, removeKey, toKeys } from "@shared/avl";
+import {
+  type AvlNode,
+  createRandom,
+  insertKey,
+  layoutTree,
+  randomTree,
+  removeKey,
+  toKeys,
+} from "@shared/avl";
 import { TreeEdge } from "@/components/atoms/tree-edge";
 import { TreeNodeCircle } from "@/components/atoms/tree-node-circle";
 import { useMediaQuery } from "@/lib/use-media-query";
@@ -44,25 +52,11 @@ const nodeColours = [
 
 const toNodeColour = (key: number) => nodeColours[key % nodeColours.length] ?? nodeColours[0];
 
-const createRandom = (seed: number) => {
-  let state = seed;
-  return () => {
-    state = (state * 1103515245 + 12345) % 2147483648;
-    return state / 2147483648;
-  };
-};
-
 const insertRandomKey = (root: AvlNode | null, random: () => number) => {
   const keys = toKeys(root);
   const unusedKeys = allKeys.filter((key) => !keys.includes(key));
   const key = unusedKeys[Math.floor(random() * unusedKeys.length)];
   return key === undefined ? root : insertKey(root, key);
-};
-
-const buildTree = (size: number, random: () => number) => {
-  let root: AvlNode | null = null;
-  for (let count = 0; count < size; count += 1) root = insertRandomKey(root, random);
-  return root;
 };
 
 const toPoints = (root: AvlNode | null): NodePoint[] => {
@@ -200,7 +194,7 @@ export function GrowingAvlTree({
   const size = Math.min(Math.max(maxSize, minSize + 1), largestKey);
   const prefersReducedMotion = useMediaQuery("(prefers-reduced-motion: reduce)");
   const isVisible = usePageVisible();
-  const [staticTree] = useState(() => buildTree(size, createRandom(seed)));
+  const [staticTree] = useState(() => randomTree({ size, seed }));
   const cycledTree = useAvlCycle(seed, delay, size, isVisible && !prefersReducedMotion);
   const root = prefersReducedMotion ? staticTree : cycledTree;
   const targets = useMemo(() => toPoints(root), [root]);
