@@ -72,7 +72,7 @@ The site lives under `/growth`, set by `base` in `docs/astro.config.mjs`. Starli
 ```ts
 import { z } from "zod";
 
-import { createUserSchema } from "@shared/schemas/user";
+import { createUserSchema } from "@shared/schemas";
 import { UserRepository } from "@/domain/users/user-repository";
 ```
 

@@ -78,6 +78,24 @@ The pieces:
 - **Routes.** `presentation/routes/algorithm-routes.ts` takes the controller and returns a `new Hono()` with the paths and validators. `create-application.ts` mounts it at `/api/algorithms`.
 - **Wiring.** `main.ts` makes the Prisma repositories, the use cases and the controller, and passes the controller to `createApplication`.
 
+### Lessons
+
+All three endpoints need a signed-in learner. The use cases live in `application/lesson/`.
+
+| Endpoint | What it returns |
+| --- | --- |
+| `GET /api/lessons/:id` | The lesson, its unit, its status, the previous and next lesson ids, and its steps |
+| `GET /api/lessons/:id/note` | The learner's note, or an empty body and a `null` `updatedAt` when there isn't one yet |
+| `PUT /api/lessons/:id/note` | Saves the note. It creates the note the first time and updates it after that |
+
+A lesson is locked unless it is the first lesson on the path, or the lesson right before it is completed, or the learner passed that lesson's test (a passed `lesson_test` or `checkpoint` attempt). "Before" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all three endpoints. A missing lesson returns 404. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`. Nothing marks a lesson completed yet, so for now only the first lesson opens.
+
+The status is `completed` when the learner's own progress says so, and `current` otherwise. A passed test only opens the next lesson.
+
+Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
+
+The note is saved as typed, with no trimming. `PUT` returns 400 over 2000 characters, and 400 for a lesson with no `notePrompt`. `GET` on such a lesson returns the empty note.
+
 ## Request flow
 
 1. `secureHeaders` adds security headers to every response, like `x-content-type-options: nosniff`.
@@ -110,6 +128,7 @@ throw new NotFoundError("Tree not found");
 | `ForbiddenError`    | 403    |
 | `NotFoundError`     | 404    |
 | `ConflictError`     | 409    |
+| `InvalidContentError` | 500  |
 | `ZodError`          | 400    |
 | malformed JSON      | 400    |
 | body over 100kb     | 413    |
@@ -117,7 +136,7 @@ throw new NotFoundError("Tree not found");
 
 The domain errors don't know about HTTP. Only the error handler in `presentation/middleware` picks the status code.
 
-Every error body follows `errorResponseSchema` from `@shared/schemas/error`:
+Every error body follows `errorResponseSchema` from `@shared/schemas`:
 
 ```json
 { "message": "Validation failed", "issues": [{ "path": ["name"], "message": "Required", "code": "invalid_type" }], "requestId": "..." }
@@ -158,7 +177,7 @@ Add any new cleanup (a cache client, say) to the `cleanups` list in `main.ts`.
 
 ## Pagination
 
-`@shared/schemas/common` has the pieces for list endpoints:
+`@shared/schemas` has the pieces for list endpoints:
 
 - `paginationQuerySchema` parses `?page=` and `?pageSize=`. They default to 1 and 20, and `pageSize` can be at most 100.
 - `toSkipTake(query)` turns the parsed query into Prisma's `{ skip, take }`.
@@ -176,8 +195,10 @@ The tables follow the team's ERD, which has three modules: `course-content`, `as
 | --- | --- |
 | `course-content` | `learningStyle`, `codeLanguage`, `unit`, `lesson`, `contentBlock`, `caseStudy`, `algorithm`, `codeSnippet`, `codeLine` |
 | `assessment` | `question`, `answerOption`, `hint`, `dailyChallenge`, `assessmentAttempt`, `attemptAnswer` |
-| `user` | `user`, `userProfile`, `lessonProgress`, `userMastery`, `dailyActivity` |
+| `user` | `user`, `userProfile`, `lessonProgress`, `lessonNote`, `userMastery`, `dailyActivity` |
 | `auth` | `user`, `session`, `account`, `verification` |
+
+`lessonNote` holds one note per learner and lesson. Its key is `(userId, lessonId)`, and a CHECK constraint keeps `body` at 2000 characters or less. Notes are deleted with their user or their lesson. `lesson.notePrompt` is the question the notes step asks. A lesson with no prompt, like a checkpoint, has no notes step.
 
 Better Auth owns four tables. Their models all live in one file, `auth/models/auth.prisma`, because that's the file `bun run auth:generate` writes to. The generator merges into the file: it adds models and fields Better Auth needs and keeps everything else, including our `@database.Timestamptz(3)` and the `profile` relation on `User`. Run it after you upgrade Better Auth or add a plugin, add `@database.Timestamptz(3)` to any new date field, then create a migration. If it prints "Your schema is already up to date", nothing changed. Don't split the file: the generator only writes one file, and pointed at a new one it writes a whole schema with its own datasource and a copy of every model.
 
@@ -201,7 +222,7 @@ infrastructure/user/
     index.ts
 ```
 
-Every table has its own repository, named after the table. Each module uses the same name in every layer: the contract in `shared/src/schemas/<module>.ts`, the entity in `domain/<module>/<table>.ts`, the repository interface in `domain/<module>/repositories/<table>-repository.ts`, and the Prisma repository in `infrastructure/<module>/repositories/<table>-repository.ts`.
+Every table has its own repository, named after the table. Each module uses the same name in every layer: the contract in `shared/src/schemas/src/<module>.ts`, the entity in `domain/<module>/<table>.ts`, the repository interface in `domain/<module>/repositories/<table>-repository.ts`, and the Prisma repository in `infrastructure/<module>/repositories/<table>-repository.ts`.
 
 Every repository extends one base class, `PrismaRepository` in `infrastructure/database/prisma-repository.ts`. It does `findById`, `list`, `create`, `update` and `delete` once, wraps each in `withPrismaErrors`, and maps rows to domain entities. A repository only tells it which Prisma model to use and how to map it, then adds finders for its unique columns:
 

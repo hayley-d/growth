@@ -96,7 +96,7 @@ If the request fails, `rejectAxios` turns it into a `ServiceError` with a status
 
 To add a service, copy `health-service`, rename it, and export it from `services/index.ts`.
 
-`auth-service` is the one service that doesn't use `networkService`. It calls Better Auth's `authClient` instead, but follows the same rules: failures become a `ServiceError`, and the session is checked with `sessionResponseSchema` from `@shared/schemas/auth` before anything uses it.
+`auth-service` is the one service that doesn't use `networkService`. It calls Better Auth's `authClient` instead, but follows the same rules: failures become a `ServiceError`, and the session is checked with `sessionResponseSchema` from `@shared/schemas` before anything uses it.
 
 ## Queries and mutations
 
