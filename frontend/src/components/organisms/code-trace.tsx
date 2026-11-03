@@ -1,7 +1,7 @@
 import { type AlgorithmCode, algorithmOf, type Step, type StepVariables } from "@shared/avl";
 import { CallStack } from "@/components/molecules/call-stack";
 import { CodeListing } from "@/components/molecules/code-listing";
-import { LanguagePicker } from "@/components/molecules/language-picker";
+import { CodingLanguagePicker } from "@/components/molecules/coding-language-picker";
 import { VariablesTable } from "@/components/molecules/variables-table";
 import { codeLanguages, findCodeLanguage, functionNameFor } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
@@ -54,7 +54,7 @@ export function CodeTrace({
             "Code"
           )}
         </p>
-        <LanguagePicker
+        <CodingLanguagePicker
           languages={codeLanguages}
           value={language}
           learnerLanguage={learnerLanguage}

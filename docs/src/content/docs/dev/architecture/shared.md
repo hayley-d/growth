@@ -127,7 +127,31 @@ To open a frame, wrap the work in `withinCall(recorder, algorithm, node, () => .
 
 The backend seeds one `algorithm` row per code, and every code snippet needs a line for every key of its algorithm. To add a step, add the key to the list, write its message, emit it, and add its line to every snippet for that algorithm. The seed fails until you do.
 
-When you mark a snippet line, put a decision step on the line that decides, not the line inside it. `insert.go-left` goes on `if key < node.key`, and `insert.compare` on the line that compares. That way the arrow moves the way a learner reads the code.
+### Every line that runs is a step
+
+The code trace works like a debugger, so the arrow never skips a line that runs. The engine records a step for:
+
+- every `if` and `while`, whether it comes out true or false. The message gives the answer, like "Is 5 smaller than 30? Yes."
+- every line that calls another function, before the call starts
+- every line that does something or returns
+
+So each algorithm has one shape of code, and every snippet follows it. This is insert in pseudocode, with the step on each line:
+
+```
+function insert(node, key)
+  if node is empty                         insert.check-empty
+    return new Node(key)                   insert.create-node
+  if key < node.key                        insert.compare
+    node.left = insert(node.left, key)     insert.go-left
+  else if key > node.key                   insert.check-bigger
+    node.right = insert(node.right, key)   insert.go-right
+  else
+    return node                            insert.duplicate
+  updateHeight(node)                       insert.update-height
+  return rebalance(node)                   insert.rebalance
+```
+
+Lines that only hold syntax, like `else`, `}` or `function`, have no step. When you write a snippet in another language, keep the same lines in the same order. If a language needs two things on one line, give that line both keys (`// @step rotate-right.check-pivot rotate-right.pick-pivot`), and the arrow stays there for both steps. If you add a check to an algorithm, add a step for it too, or the arrow will skip it.
 
 ## Search
 

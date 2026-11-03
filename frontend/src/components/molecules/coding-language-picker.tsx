@@ -3,7 +3,7 @@ import { useId } from "react";
 import type { CodeLanguageOption } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
-type LanguagePickerProperties = {
+type CodingLanguagePickerProperties = {
   languages: readonly CodeLanguageOption[];
   value: string;
   learnerLanguage?: string;
@@ -11,13 +11,13 @@ type LanguagePickerProperties = {
   className?: string;
 };
 
-export function LanguagePicker({
+export function CodingLanguagePicker({
   languages,
   value,
   learnerLanguage,
   onChange,
   className,
-}: LanguagePickerProperties) {
+}: CodingLanguagePickerProperties) {
   const name = useId();
 
   return (

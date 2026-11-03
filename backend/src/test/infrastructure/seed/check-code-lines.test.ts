@@ -21,7 +21,13 @@ const linesFor = (codeSnippetId: string, stepKeys: readonly string[]): CodeLine[
 const rustGap = {
   algorithm: "search",
   language: "rust",
-  missing: ["search.go-left", "search.go-right", "search.not-found"],
+  missing: [
+    "search.check-empty",
+    "search.check-smaller",
+    "search.go-left",
+    "search.go-right",
+    "search.not-found",
+  ],
   unknown: ["search.give-up"],
 };
 
@@ -140,7 +146,7 @@ describe("verifyCodeLines", () => {
       ...linesFor("search-rust", ["search.compare", "search.found"]),
     ];
     await expect(verifyCodeLines(createDependencies(codeLines), logger)).rejects.toThrow(
-      "search (rust): search.go-left, search.go-right, search.not-found",
+      "search (rust): search.check-empty, search.check-smaller, search.go-left, search.go-right, search.not-found",
     );
     expect(logger.info).not.toHaveBeenCalled();
   });

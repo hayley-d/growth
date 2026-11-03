@@ -17,7 +17,7 @@ describe("StepRecorder", () => {
         tree: root,
         nodeStates: { 20: "active" },
         callStack: [],
-        message: "Compare 10 with 20.",
+        message: "Is 10 equal to 20? No.",
         variables: { key: 10, node: 20 },
       },
     ]);
@@ -148,7 +148,7 @@ describe("StepRecorder", () => {
 
   it("returns the result with the steps", () => {
     const recorder = new StepRecorder(null);
-    recorder.emit("levelorder.done", { visited: 0 });
+    recorder.emit("levelorder.check-queue", { queued: 0, visited: 0 });
     expect(recorder.finish([1, 2])).toEqual({ result: [1, 2], steps: recorder.steps });
   });
 });
