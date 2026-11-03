@@ -88,10 +88,13 @@ describe("traceTraversal", () => {
 
   it("goes left, visits, then goes right for in-order on a single node", () => {
     expect(traceTraversal(build([1]), "inorder").steps.map((step) => step.stepKey)).toEqual([
+      "inorder.check-empty",
       "inorder.go-left",
+      "inorder.check-empty",
       "inorder.empty",
       "inorder.visit",
       "inorder.go-right",
+      "inorder.check-empty",
       "inorder.empty",
     ]);
   });
@@ -101,21 +104,31 @@ describe("traceTraversal", () => {
       traceTraversal(build([2, 1, 3]), "levelorder").steps.map((step) => step.stepKey),
     ).toEqual([
       "levelorder.enqueue-root",
+      "levelorder.check-queue",
       "levelorder.dequeue",
       "levelorder.visit",
+      "levelorder.check-left",
       "levelorder.enqueue-left",
+      "levelorder.check-right",
       "levelorder.enqueue-right",
+      "levelorder.check-queue",
       "levelorder.dequeue",
       "levelorder.visit",
+      "levelorder.check-left",
+      "levelorder.check-right",
+      "levelorder.check-queue",
       "levelorder.dequeue",
       "levelorder.visit",
-      "levelorder.done",
+      "levelorder.check-left",
+      "levelorder.check-right",
+      "levelorder.check-queue",
     ]);
   });
 
   it("finishes straight away on an empty tree", () => {
     expect(traceTraversal(null, "levelorder").steps.map((step) => step.stepKey)).toEqual([
-      "levelorder.done",
+      "levelorder.enqueue-root",
+      "levelorder.check-queue",
     ]);
   });
 });

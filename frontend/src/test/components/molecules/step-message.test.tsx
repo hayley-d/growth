@@ -3,7 +3,7 @@ import { render } from "vitest-browser-react";
 
 import { StepMessage } from "@/components/molecules/step-message";
 
-const message = "5 is smaller than 30, so go left.";
+const message = "Insert 5 into the left subtree of 30.";
 
 it("shows the message and where the step is", async () => {
   const screen = await render(<StepMessage message={message} stepNumber={2} stepCount={29} />);

@@ -35,6 +35,8 @@ const visitDepthFirst = (
   nodes: AvlNode[],
   recorder?: StepRecorder,
 ): AvlNode[] => {
+  if (node) recorder?.focus(node.key);
+  recorder?.emit(`${order}.check-empty`, { node: node?.key ?? null });
   if (!node) {
     recorder?.emit(`${order}.empty`, { node: null });
     return nodes;
@@ -58,36 +60,26 @@ const visitDepthFirst = (
 const collectLevelOrder = (root: AvlNode | null, recorder?: StepRecorder): AvlNode[] => {
   const nodes: AvlNode[] = [];
   const queue: AvlNode[] = root ? [root] : [];
-  if (root) {
-    recorder?.emit("levelorder.enqueue-root", {
-      node: root.key,
-      queued: 1,
-    });
-  }
+  recorder?.emit("levelorder.enqueue-root", { node: root?.key ?? null, queued: queue.length });
+  recorder?.emit("levelorder.check-queue", { queued: queue.length, visited: nodes.length });
   let node = queue.shift();
   while (node) {
     recorder?.focus(node.key);
-    recorder?.emit("levelorder.dequeue", {
-      node: node.key,
-      queued: queue.length,
-    });
+    recorder?.emit("levelorder.dequeue", { node: node.key, queued: queue.length });
     visitNode(node, "levelorder", nodes, recorder);
+    recorder?.emit("levelorder.check-left", { node: node.key, child: node.left?.key ?? null });
     if (node.left) {
       queue.push(node.left);
-      recorder?.emit("levelorder.enqueue-left", {
-        node: node.left.key,
-        queued: queue.length,
-      });
+      recorder?.emit("levelorder.enqueue-left", { node: node.left.key, queued: queue.length });
     }
+    recorder?.emit("levelorder.check-right", { node: node.key, child: node.right?.key ?? null });
     if (node.right) {
       queue.push(node.right);
       recorder?.emit("levelorder.enqueue-right", { node: node.right.key, queued: queue.length });
     }
+    recorder?.emit("levelorder.check-queue", { queued: queue.length, visited: nodes.length });
     node = queue.shift();
   }
-  recorder?.emit("levelorder.done", {
-    visited: nodes.length,
-  });
   return nodes;
 };
 

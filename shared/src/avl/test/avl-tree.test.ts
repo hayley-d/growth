@@ -132,10 +132,15 @@ describe("traceInsert", () => {
   it("walks down, creates the node, then updates and checks each ancestor", () => {
     const traced = traceInsert(build([20, 10, 30]), 40);
     expect(stepKeysOf(traced.steps)).toEqual([
+      "insert.check-empty",
       "insert.compare",
+      "insert.check-bigger",
       "insert.go-right",
+      "insert.check-empty",
       "insert.compare",
+      "insert.check-bigger",
       "insert.go-right",
+      "insert.check-empty",
       "insert.create-node",
       "insert.update-height",
       "update-height.compute-height",
@@ -150,7 +155,7 @@ describe("traceInsert", () => {
       "rebalance.check",
       "rebalance.balanced",
     ]);
-    expect(traced.steps[1]?.message).toBe("40 is bigger than 20, so go right.");
+    expect(traced.steps[3]?.message).toBe("Insert 40 into the right subtree of 20.");
   });
 
   it("keeps the call stack on each step", () => {
@@ -158,16 +163,16 @@ describe("traceInsert", () => {
     const stackOf = (index: number) =>
       traced.steps[index]?.callStack.map((frame) => `${frame.algorithm}(${frame.node})`);
     expect(stackOf(0)).toEqual(["insert(20)"]);
-    expect(stackOf(4)).toEqual(["insert(20)", "insert(30)", "insert(null)"]);
-    expect(stackOf(5)).toEqual(["insert(20)", "insert(30)"]);
-    expect(stackOf(6)).toEqual(["insert(20)", "insert(30)", "update-height(30)"]);
-    expect(stackOf(9)).toEqual(["insert(20)", "insert(30)", "rebalance(30)"]);
-    expect(traced.steps[5]?.message).toBe("Back at 30. Update its height and balance factor.");
+    expect(stackOf(8)).toEqual(["insert(20)", "insert(30)", "insert(null)"]);
+    expect(stackOf(10)).toEqual(["insert(20)", "insert(30)"]);
+    expect(stackOf(11)).toEqual(["insert(20)", "insert(30)", "update-height(30)"]);
+    expect(stackOf(14)).toEqual(["insert(20)", "insert(30)", "rebalance(30)"]);
+    expect(traced.steps[10]?.message).toBe("Back at 30. Update its height and balance factor.");
   });
 
   it.each([
-    ["left right", [30, 10], 20, "rebalance.finish-left-right", "rotate-right.pick-pivot"],
-    ["right left", [10, 30], 20, "rebalance.finish-right-left", "rotate-left.pick-pivot"],
+    ["left right", [30, 10], 20, "rebalance.finish-left-right", "rotate-right.check-pivot"],
+    ["right left", [10, 30], 20, "rebalance.finish-right-left", "rotate-left.check-pivot"],
   ])(
     "steps back into rebalance before the second rotation of the %s case",
     (_name, keys, key, finishKey, nextKey) => {
@@ -194,12 +199,16 @@ describe("traceInsert", () => {
     const traced = traceInsert(build([10, 20]), 30);
     const caseStep = traced.steps.find((step) => step.stepKey === "rebalance.case-right-right");
     expect(caseStep?.nodeStates[10]).toBe("unbalanced");
-    expect(stepKeysOf(traced.steps).slice(-5)).toEqual([
+    expect(stepKeysOf(traced.steps).slice(-9)).toEqual([
+      "rebalance.check-side",
+      "rebalance.check-right-child",
       "rebalance.case-right-right",
+      "rotate-left.check-pivot",
       "rotate-left.pick-pivot",
       "rotate-left.move-inner-subtree",
       "rotate-left.lift-pivot",
       "rotate-left.update-heights",
+      "rotate-left.done",
     ]);
     expect(traced.steps.at(-1)?.tree?.key).toBe(20);
   });
@@ -208,13 +217,19 @@ describe("traceInsert", () => {
     const root = build([2, 1, 3]);
     const traced = traceInsert(root, 2);
     expect(toKeys(traced.result)).toEqual([1, 2, 3]);
-    expect(stepKeysOf(traced.steps)).toEqual(["insert.compare", "insert.duplicate"]);
+    expect(stepKeysOf(traced.steps)).toEqual([
+      "insert.check-empty",
+      "insert.compare",
+      "insert.check-bigger",
+      "insert.duplicate",
+    ]);
   });
 
   it("creates the root of an empty tree", () => {
     const traced = traceInsert(null, 5);
-    expect(stepKeysOf(traced.steps)).toEqual(["insert.create-node"]);
-    expect(traced.steps[0]?.tree?.key).toBe(5);
+    expect(stepKeysOf(traced.steps)).toEqual(["insert.check-empty", "insert.create-node"]);
+    expect(traced.steps[0]?.tree).toBeNull();
+    expect(traced.steps[1]?.tree?.key).toBe(5);
   });
 });
 
@@ -231,14 +246,19 @@ describe("traceRemove", () => {
   it("copies the in-order successor into a node with two children", () => {
     const traced = traceRemove(build([20, 10, 30, 25, 40]), 20);
     const steps = stepKeysOf(traced.steps);
-    expect(steps.slice(0, 4)).toEqual([
+    expect(steps.slice(0, 8)).toEqual([
+      "delete.check-empty",
       "delete.compare",
+      "delete.check-bigger",
+      "delete.check-children",
       "delete.find-successor",
       "delete.copy-successor",
-      "delete.compare",
+      "delete.remove-successor",
+      "delete.check-empty",
     ]);
-    expect(traced.steps[1]?.nodeStates[20]).toBe("deleting");
-    expect(traced.steps[1]?.variables).toEqual({ key: 20, successor: 25 });
+    expect(traced.steps[4]?.nodeStates[20]).toBe("deleting");
+    expect(traced.steps[4]?.variables).toEqual({ key: 20, successor: 25 });
+    expect(traced.steps[3]?.variables).toEqual({ key: 20, children: 2 });
   });
 
   it("replaces a leaf with nothing", () => {
@@ -264,10 +284,12 @@ describe("traceRotateLeft and traceRotateRight", () => {
     expect(traced.result?.right?.left?.key).toBe(40);
     expect(traced.result?.height).toBe(4);
     expect(stepKeysOf(traced.steps)).toEqual([
+      "rotate-left.check-pivot",
       "rotate-left.pick-pivot",
       "rotate-left.move-inner-subtree",
       "rotate-left.lift-pivot",
       "rotate-left.update-heights",
+      "rotate-left.done",
     ]);
     expect(traced.steps.at(-1)?.tree?.right?.key).toBe(50);
   });
@@ -280,7 +302,7 @@ describe("traceRotateLeft and traceRotateRight", () => {
 
   it("explains why a node with no pivot can't rotate", () => {
     const traced = traceRotateRight(build([10, 20]), 10);
-    expect(stepKeysOf(traced.steps)).toEqual(["rotate-right.no-pivot"]);
+    expect(stepKeysOf(traced.steps)).toEqual(["rotate-right.check-pivot", "rotate-right.no-pivot"]);
     expect(traced.result).toEqual(build([10, 20]));
   });
 

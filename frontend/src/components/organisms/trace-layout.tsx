@@ -23,74 +23,66 @@ export function TraceLayout({ tree, code, message, controls, className }: TraceL
   const [tab, setTab] = useState<TraceTab>("tree");
   const baseId = useId();
 
-  const footer = (
-    <>
-      <div className="border-t bg-muted/40 px-4 py-4 sm:px-6">{message}</div>
-      {controls ? <div className="border-t px-4 py-3 sm:px-6">{controls}</div> : null}
-    </>
-  );
-
-  if (isWide) {
-    return (
-      <div className={cn("overflow-hidden rounded-2xl border bg-card", className)}>
-        <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] divide-x">
-          <section aria-label="Tree" className="flex min-w-0 items-center justify-center p-6">
-            {tree}
-          </section>
-          <section aria-label="Code" className="min-w-0 p-6">
-            {code}
-          </section>
-        </div>
-        {footer}
-      </div>
-    );
-  }
-
   return (
     <div className={cn("overflow-hidden rounded-2xl border bg-card", className)}>
-      <div role="tablist" aria-label="Show" className="flex gap-1 p-3 pb-0">
-        {tabs.map((option) => {
-          const isSelected = option.id === tab;
-          return (
-            <button
-              key={option.id}
-              type="button"
-              role="tab"
-              id={`${baseId}-${option.id}-tab`}
-              aria-controls={`${baseId}-${option.id}-panel`}
-              aria-selected={isSelected}
-              tabIndex={isSelected ? 0 : -1}
-              onClick={() => setTab(option.id)}
-              onKeyDown={(event) => {
-                if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
-                event.preventDefault();
-                setTab(tab === "tree" ? "code" : "tree");
-              }}
-              className={cn(
-                "min-h-11 flex-1 rounded-full text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:transition-none",
-                isSelected
-                  ? "bg-foreground text-background"
-                  : "bg-muted text-muted-foreground hover:text-foreground",
-              )}
-            >
-              {option.label}
-            </button>
-          );
-        })}
-      </div>
-      {tabs.map((option) => (
-        <div
-          key={option.id}
-          role="tabpanel"
-          id={`${baseId}-${option.id}-panel`}
-          aria-labelledby={`${baseId}-${option.id}-tab`}
-          hidden={option.id !== tab}
-          className="min-w-0 p-4"
-        >
-          {option.id === "tree" ? tree : code}
+      {isWide ? null : (
+        <div role="tablist" aria-label="Show" className="flex gap-1 p-3 pb-0">
+          {tabs.map((option) => {
+            const isSelected = option.id === tab;
+            return (
+              <button
+                key={option.id}
+                type="button"
+                role="tab"
+                id={`${baseId}-${option.id}-tab`}
+                aria-controls={`${baseId}-${option.id}-panel`}
+                aria-selected={isSelected}
+                tabIndex={isSelected ? 0 : -1}
+                onClick={() => setTab(option.id)}
+                onKeyDown={(event) => {
+                  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                  event.preventDefault();
+                  const nextTab = tab === "tree" ? "code" : "tree";
+                  setTab(nextTab);
+                  document.getElementById(`${baseId}-${nextTab}-tab`)?.focus();
+                }}
+                className={cn(
+                  "min-h-11 flex-1 rounded-full text-sm font-semibold transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:transition-none",
+                  isSelected
+                    ? "bg-foreground text-background"
+                    : "bg-muted text-muted-foreground hover:text-foreground",
+                )}
+              >
+                {option.label}
+              </button>
+            );
+          })}
         </div>
-      ))}
-      {footer}
+      )}
+      <div className={cn(isWide && "grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] divide-x")}>
+        {tabs.map((option) => (
+          <section
+            key={option.id}
+            {...(isWide
+              ? { "aria-label": option.label }
+              : {
+                  role: "tabpanel",
+                  id: `${baseId}-${option.id}-panel`,
+                  "aria-labelledby": `${baseId}-${option.id}-tab`,
+                  hidden: option.id !== tab,
+                })}
+            className={cn(
+              "min-w-0",
+              isWide ? "p-6" : "p-4",
+              isWide && option.id === "tree" && "flex items-center justify-center",
+            )}
+          >
+            {option.id === "tree" ? tree : code}
+          </section>
+        ))}
+      </div>
+      <div className="border-t bg-muted/40 px-4 py-4 sm:px-6">{message}</div>
+      {controls ? <div className="border-t px-4 py-3 sm:px-6">{controls}</div> : null}
     </div>
   );
 }
