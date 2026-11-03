@@ -98,6 +98,16 @@ To add a service, copy `health-service`, rename it, and export it from `services
 
 `auth-service` is the one service that doesn't use `networkService`. It calls Better Auth's `authClient` instead, but follows the same rules: failures become a `ServiceError`, and the session is checked with `sessionResponseSchema` from `@shared/schemas` before anything uses it.
 
+## Code trace
+
+The code trace shows the code that is running next to the tree, like a debugger. It's built from props only, so a lesson or the playground can drive it with any list of steps.
+
+- `TraceLayout` (`organisms/trace-layout.tsx`) puts the tree and the code side by side from `md` up. Below that, Tree and Code tabs switch between them. The message and the step controls sit under both, so they show on either tab.
+- `CodeTrace` (`organisms/code-trace.tsx`) takes one step: `stepKey`, `variables` and `callStack`, picked from a `Step`. It shows the snippet for the step's algorithm (`algorithmOf(stepKey)`, so `rotate-right.lift-pivot` shows the `rotate-right` snippet), the variables and the call stack, plus the language picker. The step player passes `steps[index]`, and `steps[index - 1].variables` as `previousVariables` so changed values get a dot.
+- The running line has a lime band and a dot in the gutter, and `aria-current="step"`. The band slides between lines, and jumps with reduced motion. Long lines scroll inside the code box, never the page.
+- `StepMessage` (`molecules/step-message.tsx`) shows the step's sentence and "Step n of m". The Listen button only shows when you pass `onListen`, so the page decides how to read it out.
+- Snippets come from `useAlgorithmSnippetsQuery(codes, language)` in `lib/queries/algorithm.queries.ts`, one query per algorithm, because one insert runs several. Leave out the language to get the learner's. A missing snippet (404) isn't retried. `lib/code-languages.ts` lists the three languages, how each names functions (`updateHeight` or `update_height`) and how it writes an empty value (`empty`, `null` or `None`).
+
 ## Queries and mutations
 
 Components don't call services directly. They use hooks from `lib/queries` and `lib/mutations`, one file per feature.
