@@ -82,12 +82,14 @@ it("calls back with the language the learner picks", async () => {
   const onLanguageChange = vi.fn();
   const screen = await renderTrace(compareStep, { onLanguageChange });
 
-  await screen.getByRole("radio", { name: "Java" }).click();
+  await screen.getByRole("button", { name: "Code language: Pseudocode" }).click();
+
+  await expect
+    .element(page.getByRole("menuitemradio", { name: "Pseudocode (your language)" }))
+    .toHaveAttribute("aria-checked", "true");
+  await page.getByRole("menuitemradio", { name: "Java" }).click();
 
   expect(onLanguageChange).toHaveBeenCalledWith("java");
-  await expect
-    .element(screen.getByRole("radio", { name: "Pseudocode (your language)" }))
-    .toBeChecked();
 });
 
 it("marks no line for a step key the snippet has no line for", async () => {

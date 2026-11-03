@@ -1,5 +1,12 @@
-import { useId } from "react";
+import { ChevronDown } from "lucide-react";
 
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuRadioGroup,
+  DropdownMenuRadioItem,
+  DropdownMenuTrigger,
+} from "@/components/atoms/dropdown-menu";
 import { type CodeLanguageOption, findCodeLanguage } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
@@ -18,44 +25,48 @@ export function CodingLanguagePicker({
   onChange,
   className,
 }: CodingLanguagePickerProperties) {
-  const name = useId();
-  const selected = findCodeLanguage(value).code;
+  const selected = findCodeLanguage(value);
 
   return (
-    <fieldset className={cn("inline-flex rounded-full bg-muted p-1", className)}>
-      <legend className="sr-only">Code language</legend>
-      {languages.map((language) => {
-        const isSelected = language.code === selected;
-        const isLearners = language.code === learnerLanguage;
-
-        return (
-          <label
-            key={language.code}
-            className={cn(
-              "relative flex min-h-11 cursor-pointer items-center gap-1.5 rounded-full px-3 text-sm font-medium transition-colors has-focus-visible:ring-2 has-focus-visible:ring-ring motion-reduce:transition-none sm:px-4",
-              isSelected
-                ? "bg-background text-foreground shadow-sm"
-                : "text-muted-foreground hover:text-foreground",
-            )}
-          >
-            <input
-              type="radio"
-              name={name}
+    <DropdownMenu>
+      <DropdownMenuTrigger
+        aria-label={`Code language: ${selected.name}`}
+        className={cn(
+          "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-muted pr-3 pl-4 text-sm font-medium transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:transition-none",
+          className,
+        )}
+      >
+        {selected.name}
+        {selected.code === learnerLanguage ? (
+          <span aria-hidden="true" className="size-1.5 rounded-full bg-secondary" />
+        ) : null}
+        <ChevronDown aria-hidden="true" className="size-4 text-muted-foreground" />
+      </DropdownMenuTrigger>
+      <DropdownMenuContent align="end" className="w-48">
+        <DropdownMenuRadioGroup
+          aria-label="Code language"
+          value={selected.code}
+          onValueChange={onChange}
+        >
+          {languages.map((language) => (
+            <DropdownMenuRadioItem
+              key={language.code}
               value={language.code}
-              checked={isSelected}
-              onChange={() => onChange(language.code)}
-              className="sr-only"
-            />
-            {language.name}
-            {isLearners ? (
-              <>
-                <span aria-hidden="true" className="size-1.5 rounded-full bg-secondary" />
-                <span className="sr-only"> (your language)</span>
-              </>
-            ) : null}
-          </label>
-        );
-      })}
-    </fieldset>
+              className="min-h-11 cursor-pointer"
+            >
+              {language.name}
+              {language.code === learnerLanguage ? (
+                <>
+                  <span className="ml-auto text-xs text-muted-foreground" aria-hidden="true">
+                    Yours
+                  </span>
+                  <span className="sr-only"> (your language)</span>
+                </>
+              ) : null}
+            </DropdownMenuRadioItem>
+          ))}
+        </DropdownMenuRadioGroup>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

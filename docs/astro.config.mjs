@@ -64,6 +64,7 @@ export default defineConfig({
                       label: "Playground",
                       items: [
                         { label: "Code trace", slug: "id/storyboards/playground/code-trace" },
+                        { label: "Step player", slug: "id/storyboards/playground/step-player" },
                       ],
                     },
                   ],
