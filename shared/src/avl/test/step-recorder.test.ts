@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { type AvlNode, insertKey, StepRecorder } from "@shared/avl";
+import { type AvlNode, insertKey, StepRecorder, withinCall } from "@shared/avl";
 
 const build = (keys: number[]) =>
   keys.reduce<AvlNode | null>((root, key) => insertKey(root, key), null);
@@ -16,10 +16,51 @@ describe("StepRecorder", () => {
         stepKey: "search.compare",
         tree: root,
         nodeStates: { 20: "active" },
+        callStack: [],
         message: "Compare 10 with 20.",
         variables: { key: 10, node: 20 },
       },
     ]);
+  });
+
+  it("records the calls that are open when a step is emitted", () => {
+    const recorder = new StepRecorder(build([20, 10]));
+    recorder.call("insert", 20);
+    recorder.emit("insert.compare", { key: 5, node: 20 });
+    recorder.call("insert", 10);
+    recorder.emit("insert.compare", { key: 5, node: 10 });
+    recorder.endCall();
+    recorder.emit("insert.update-height", { node: 20 });
+    expect(recorder.steps.map((step) => step.callStack)).toEqual([
+      [{ algorithm: "insert", node: 20 }],
+      [
+        { algorithm: "insert", node: 20 },
+        { algorithm: "insert", node: 10 },
+      ],
+      [{ algorithm: "insert", node: 20 }],
+    ]);
+  });
+
+  it("shares one frozen call stack between steps where no call changed", () => {
+    const recorder = new StepRecorder(build([20]));
+    recorder.call("search", 20);
+    recorder.emit("search.compare", { key: 20, node: 20 });
+    recorder.emit("search.found", { key: 20, node: 20 });
+    const [first, second] = recorder.steps;
+    expect(first?.callStack).toBe(second?.callStack);
+    expect(Object.isFrozen(first?.callStack)).toBe(true);
+  });
+
+  it("closes the call around withinCall and returns its result", () => {
+    const recorder = new StepRecorder(build([20]));
+    const result = withinCall(recorder, "search", 20, () => {
+      recorder.emit("search.compare", { key: 20, node: 20 });
+      return "done";
+    });
+    recorder.emit("search.found", { key: 20, node: 20 });
+    expect(result).toBe("done");
+    expect(recorder.steps.map((step) => step.callStack.length)).toEqual([1, 0]);
+    expect(withinCall(undefined, "search", 20, () => 7)).toBe(7);
   });
 
   it("turns the active node into a visited one when the focus moves", () => {

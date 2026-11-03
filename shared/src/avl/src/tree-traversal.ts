@@ -1,5 +1,5 @@
 import type { AvlNode } from "@shared/avl/src/avl-tree";
-import { type SteppedResult, StepRecorder } from "@shared/avl/src/step-recorder";
+import { type SteppedResult, StepRecorder, withinCall } from "@shared/avl/src/step-recorder";
 
 export type TraversalOrder = "preorder" | "inorder" | "postorder" | "levelorder";
 
@@ -20,6 +20,16 @@ const visitNode = (
 };
 
 const collectDepthFirst = (
+  node: AvlNode | null,
+  order: DepthFirstOrder,
+  nodes: AvlNode[],
+  recorder?: StepRecorder,
+): AvlNode[] =>
+  withinCall(recorder, order, node?.key ?? null, () =>
+    visitDepthFirst(node, order, nodes, recorder),
+  );
+
+const visitDepthFirst = (
   node: AvlNode | null,
   order: DepthFirstOrder,
   nodes: AvlNode[],
@@ -83,7 +93,7 @@ const collectLevelOrder = (root: AvlNode | null, recorder?: StepRecorder): AvlNo
 
 const collect = (root: AvlNode | null, order: TraversalOrder, recorder?: StepRecorder) =>
   order === "levelorder"
-    ? collectLevelOrder(root, recorder)
+    ? withinCall(recorder, "levelorder", root?.key ?? null, () => collectLevelOrder(root, recorder))
     : collectDepthFirst(root, order, [], recorder);
 
 export class TreeTraversal implements Iterable<AvlNode> {

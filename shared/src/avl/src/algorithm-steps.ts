@@ -35,6 +35,8 @@ export const stepKeysByAlgorithm = {
     "insert.go-left",
     "insert.go-right",
     "insert.duplicate",
+    "insert.update-height",
+    "insert.rebalance",
   ],
   delete: [
     "delete.not-found",
@@ -44,6 +46,8 @@ export const stepKeysByAlgorithm = {
     "delete.replace-with-child",
     "delete.find-successor",
     "delete.copy-successor",
+    "delete.update-height",
+    "delete.rebalance",
   ],
   search: [
     "search.compare",
@@ -61,6 +65,8 @@ export const stepKeysByAlgorithm = {
     "rebalance.case-left-right",
     "rebalance.case-right-right",
     "rebalance.case-right-left",
+    "rebalance.finish-left-right",
+    "rebalance.finish-right-left",
   ],
   "update-height": ["update-height.compute-height", "update-height.compute-balance"],
   preorder: depthFirstSteps("preorder"),

@@ -1,4 +1,4 @@
-import { type SteppedResult, StepRecorder } from "@shared/avl/src/step-recorder";
+import { type SteppedResult, StepRecorder, withinCall } from "@shared/avl/src/step-recorder";
 
 export type AvlNode = {
   key: number;
@@ -34,17 +34,22 @@ const updateNode = (
   const updated = withChildren(node, left, right);
   recorder?.replace(updated);
   recorder?.focus(updated.key);
-  recorder?.emit("update-height.compute-height", { node: updated.key, height: updated.height });
-  recorder?.emit("update-height.compute-balance", {
-    node: updated.key,
-    balance: balanceOf(updated),
-    leftHeight: heightOf(left),
-    rightHeight: heightOf(right),
+  return withinCall(recorder, "update-height", updated.key, () => {
+    recorder?.emit("update-height.compute-height", { node: updated.key, height: updated.height });
+    recorder?.emit("update-height.compute-balance", {
+      node: updated.key,
+      balance: balanceOf(updated),
+      leftHeight: heightOf(left),
+      rightHeight: heightOf(right),
+    });
+    return updated;
   });
-  return updated;
 };
 
-const rotateRightAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
+const rotateRightAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
+  withinCall(recorder, "rotate-right", node.key, () => rotateRightAtBody(node, recorder));
+
+const rotateRightAtBody = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
   const pivot = node.left;
   recorder?.focus(node.key);
   if (!pivot) {
@@ -65,7 +70,10 @@ const rotateRightAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
   return rotated;
 };
 
-const rotateLeftAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
+const rotateLeftAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
+  withinCall(recorder, "rotate-left", node.key, () => rotateLeftAtBody(node, recorder));
+
+const rotateLeftAtBody = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
   const pivot = node.right;
   recorder?.focus(node.key);
   if (!pivot) {
@@ -86,7 +94,10 @@ const rotateLeftAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
   return rotated;
 };
 
-const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
+const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
+  withinCall(recorder, "rebalance", node.key, () => rebalanceAtBody(node, recorder));
+
+const rebalanceAtBody = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
   const balance = balanceOf(node);
   recorder?.focus(node.key);
   recorder?.emit("rebalance.check", { node: node.key, balance });
@@ -104,6 +115,8 @@ const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
       recorder?.enter("left");
       left = rotateLeftAt(left, recorder);
       recorder?.leave();
+      recorder?.focus(node.key);
+      recorder?.emit("rebalance.finish-left-right", { node: node.key });
     } else {
       recorder?.emit("rebalance.case-left-left", caseVariables);
     }
@@ -123,6 +136,8 @@ const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
       recorder?.enter("right");
       right = rotateRightAt(right, recorder);
       recorder?.leave();
+      recorder?.focus(node.key);
+      recorder?.emit("rebalance.finish-right-left", { node: node.key });
     } else {
       recorder?.emit("rebalance.case-right-right", caseVariables);
     }
@@ -132,7 +147,24 @@ const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode => {
   return node;
 };
 
-const insertInto = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode => {
+const climb = (
+  algorithm: "insert" | "delete",
+  node: AvlNode,
+  left: AvlNode | null,
+  right: AvlNode | null,
+  recorder?: StepRecorder,
+): AvlNode => {
+  recorder?.focus(node.key);
+  recorder?.emit(`${algorithm}.update-height`, { node: node.key });
+  const updated = updateNode(node, left, right, recorder);
+  recorder?.emit(`${algorithm}.rebalance`, { node: updated.key });
+  return rebalanceAt(updated, recorder);
+};
+
+const insertInto = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode =>
+  withinCall(recorder, "insert", node?.key ?? null, () => insertStep(node, key, recorder));
+
+const insertStep = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode => {
   if (!node) {
     const created: AvlNode = { key, height: 1, left: null, right: null };
     recorder?.replace(created);
@@ -148,14 +180,14 @@ const insertInto = (node: AvlNode | null, key: number, recorder?: StepRecorder):
     recorder?.enter("left");
     const left = insertInto(node.left, key, recorder);
     recorder?.leave();
-    return rebalanceAt(updateNode(node, left, node.right, recorder), recorder);
+    return climb("insert", node, left, node.right, recorder);
   }
   if (key > node.key) {
     recorder?.emit("insert.go-right", { key, node: node.key });
     recorder?.enter("right");
     const right = insertInto(node.right, key, recorder);
     recorder?.leave();
-    return rebalanceAt(updateNode(node, node.left, right, recorder), recorder);
+    return climb("insert", node, node.left, right, recorder);
   }
   recorder?.emit("insert.duplicate", { key, node: node.key });
   return node;
@@ -163,7 +195,10 @@ const insertInto = (node: AvlNode | null, key: number, recorder?: StepRecorder):
 
 const smallestKey = (node: AvlNode): number => (node.left ? smallestKey(node.left) : node.key);
 
-const removeFrom = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode | null => {
+const removeFrom = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode | null =>
+  withinCall(recorder, "delete", node?.key ?? null, () => removeStep(node, key, recorder));
+
+const removeStep = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode | null => {
   if (!node) {
     recorder?.emit("delete.not-found", { key });
     return null;
@@ -175,14 +210,14 @@ const removeFrom = (node: AvlNode | null, key: number, recorder?: StepRecorder):
     recorder?.enter("left");
     const left = removeFrom(node.left, key, recorder);
     recorder?.leave();
-    return rebalanceAt(updateNode(node, left, node.right, recorder), recorder);
+    return climb("delete", node, left, node.right, recorder);
   }
   if (key > node.key) {
     recorder?.emit("delete.go-right", { key, node: node.key });
     recorder?.enter("right");
     const right = removeFrom(node.right, key, recorder);
     recorder?.leave();
-    return rebalanceAt(updateNode(node, node.left, right, recorder), recorder);
+    return climb("delete", node, node.left, right, recorder);
   }
   if (!node.left || !node.right) {
     const child = node.left ?? node.right;
@@ -202,7 +237,7 @@ const removeFrom = (node: AvlNode | null, key: number, recorder?: StepRecorder):
   recorder?.enter("right");
   const right = removeFrom(node.right, successorKey, recorder);
   recorder?.leave();
-  return rebalanceAt(updateNode(copied, node.left, right, recorder), recorder);
+  return climb("delete", copied, node.left, right, recorder);
 };
 
 type RotationTarget = { node: AvlNode; path: ("left" | "right")[] };

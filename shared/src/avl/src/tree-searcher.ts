@@ -1,5 +1,5 @@
 import type { AvlNode } from "@shared/avl/src/avl-tree";
-import { type SteppedResult, StepRecorder } from "@shared/avl/src/step-recorder";
+import { type SteppedResult, StepRecorder, withinCall } from "@shared/avl/src/step-recorder";
 
 export type SearchMove = "left" | "right";
 
@@ -54,5 +54,8 @@ export class TreeSearcher {
 
 export const traceSearch = (root: AvlNode | null, key: number): SteppedResult<AvlNode | null> => {
   const recorder = new StepRecorder(root);
-  return recorder.finish(search(root, key, recorder).found);
+  const result = withinCall(recorder, "search", root?.key ?? null, () =>
+    search(root, key, recorder),
+  );
+  return recorder.finish(result.found);
 };
