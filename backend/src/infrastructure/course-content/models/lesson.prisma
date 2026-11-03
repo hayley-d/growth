@@ -6,6 +6,8 @@ model Lesson {
   notePrompt         String?
   kind               LessonKind
   position           Int
+  objectives         String[]            @default([])
+  isRetired          Boolean             @default(false)
   unit               Unit                @relation(fields: [unitId], references: [id], onDelete: Cascade)
   contentBlocks      ContentBlock[]
   questions          Question[]          @relation("questionLesson")

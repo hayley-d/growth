@@ -4,5 +4,4 @@ import type { Lesson, LessonChanges, NewLesson } from "@/domain/course-content/l
 export type LessonRepository = Repository<Lesson, NewLesson, LessonChanges> & {
   findByUnitIdAndPosition(unitId: string, position: number): Promise<Lesson | null>;
   listAll(): Promise<Lesson[]>;
-  upsertByUnitIdAndPosition(lesson: NewLesson): Promise<Lesson>;
 };

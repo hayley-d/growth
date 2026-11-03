@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { makeGetLesson } from "@/application/lesson/queries/get-lesson";
 import type { Logger } from "@/application/logging/logger";
 import type { ContentBlock } from "@/domain/course-content/content-block";
-import { ForbiddenError, InvalidContentError } from "@/domain/errors";
+import { ForbiddenError, InvalidContentError, NotFoundError } from "@/domain/errors";
 import { asLearner, createAccessDependencies } from "@/test/application/lesson/lesson-fakes";
 
 const unit = { id: "unit-1", title: "Unit one", position: 1 };
@@ -77,6 +77,12 @@ describe("makeGetLesson", () => {
   it("rejects a locked lesson", async () => {
     await expect(asLearner(() => createGetLesson()({ id: "lesson-2" }))).rejects.toBeInstanceOf(
       ForbiddenError,
+    );
+  });
+
+  it("treats a retired lesson as not found", async () => {
+    await expect(asLearner(() => createGetLesson()({ id: "retired-1" }))).rejects.toBeInstanceOf(
+      NotFoundError,
     );
   });
 
