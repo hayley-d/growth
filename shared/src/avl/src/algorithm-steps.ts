@@ -86,3 +86,9 @@ export type StepKey = (typeof stepKeysByAlgorithm)[AlgorithmCode][number];
 
 export const isAlgorithmCode = (code: string): code is AlgorithmCode =>
   (algorithmCodes as readonly string[]).includes(code);
+
+export const algorithmOf = (stepKey: StepKey): AlgorithmCode => {
+  const code = stepKey.slice(0, stepKey.indexOf("."));
+  if (!isAlgorithmCode(code)) throw new Error(`Unknown algorithm in step key ${stepKey}`);
+  return code;
+};
