@@ -14,7 +14,7 @@ shared/src/
     src/
       algorithm-steps.ts  the algorithm codes and every step key each one can emit
       step-messages.ts    the sentence for each step key, built from that step's variables
-      step-recorder.ts    Step and StepRecorder: snapshots of the tree as an operation runs
+      step-recorder.ts    Step, CallFrame, StepRecorder and withinCall: snapshots of the tree and the call stack as an operation runs
       avl-tree.ts         insert, remove, rotations, rebalance, layout, and their trace* versions
       tree-traversal.ts   TreeTraversal and traceTraversal: walk a tree one node at a time
       tree-searcher.ts    TreeSearcher and traceSearch: find a key and the path to it
@@ -89,6 +89,7 @@ Each step is a snapshot:
   stepKey: "insert.go-right",
   tree: root,
   nodeStates: { 20: "active", 10: "visited" },
+  callStack: [{ algorithm: "insert", node: 20 }],
   message: "40 is bigger than 20, so go right.",
   variables: { key: 40, node: 20 },
 }
@@ -98,6 +99,7 @@ Each step is a snapshot:
 - `nodeStates` gives a node one of `active`, `visited`, `deleting`, `unbalanced` or `new`. It only names keys that are in that step's tree, and steps share one frozen object until a state changes.
 - `message` is shown on screen and read out by text-to-speech. It comes from `step-messages.ts`, which has one function per step key. Each function takes that step's variables, so the engine only passes variables and the wording lives in one file.
 - `stepKey` names the point in the algorithm. The code trace uses it to find the line to highlight.
+- `callStack` lists the calls that are open, outermost first. Each frame is the algorithm and the key of the node it was called on, or `null` for an empty child, so `insert(20) › insert(30) › rebalance(30)`. The code trace shows it so a jump into another function makes sense. Steps share one frozen array until a call opens or closes.
 
 How long each state lasts:
 
@@ -110,7 +112,9 @@ How long each state lasts:
 
 States are keyed by node key. For a few steps of a delete with two children, the copied successor and the old successor leaf have the same key, so they show the same state. That ends when the leaf is removed.
 
-Insert and delete also run `update-height`, `rebalance` and the rotations as they unwind, so their steps include those keys too.
+Insert and delete also run `update-height`, `rebalance` and the rotations as they unwind, so their steps include those keys too. Before each of those calls there is a step of its own, `insert.update-height` and then `insert.rebalance` (or the `delete.` ones), so the code trace stops on the line that makes the call instead of jumping into the other function. In a double rotation, `rebalance.finish-left-right` or `rebalance.finish-right-left` comes back to `rebalance` between the two turns.
+
+To open a frame, wrap the work in `withinCall(recorder, algorithm, node, () => ...)`. It works with no recorder too, so the plain functions don't change.
 
 ### Step keys
 
@@ -122,6 +126,8 @@ Insert and delete also run `update-height`, `rebalance` and the rotations as the
 - A test runs the engine on many random trees and checks that every listed key gets emitted, so the list never holds a dead key.
 
 The backend seeds one `algorithm` row per code, and every code snippet needs a line for every key of its algorithm. To add a step, add the key to the list, write its message, emit it, and add its line to every snippet for that algorithm. The seed fails until you do.
+
+When you mark a snippet line, put a decision step on the line that decides, not the line inside it. `insert.go-left` goes on `if key < node.key`, and `insert.compare` on the line that compares. That way the arrow moves the way a learner reads the code.
 
 ## Search
 

@@ -137,17 +137,50 @@ describe("traceInsert", () => {
       "insert.compare",
       "insert.go-right",
       "insert.create-node",
+      "insert.update-height",
       "update-height.compute-height",
       "update-height.compute-balance",
+      "insert.rebalance",
       "rebalance.check",
       "rebalance.balanced",
+      "insert.update-height",
       "update-height.compute-height",
       "update-height.compute-balance",
+      "insert.rebalance",
       "rebalance.check",
       "rebalance.balanced",
     ]);
     expect(traced.steps[1]?.message).toBe("40 is bigger than 20, so go right.");
   });
+
+  it("keeps the call stack on each step", () => {
+    const traced = traceInsert(build([20, 10, 30]), 40);
+    const stackOf = (index: number) =>
+      traced.steps[index]?.callStack.map((frame) => `${frame.algorithm}(${frame.node})`);
+    expect(stackOf(0)).toEqual(["insert(20)"]);
+    expect(stackOf(4)).toEqual(["insert(20)", "insert(30)", "insert(null)"]);
+    expect(stackOf(5)).toEqual(["insert(20)", "insert(30)"]);
+    expect(stackOf(6)).toEqual(["insert(20)", "insert(30)", "update-height(30)"]);
+    expect(stackOf(9)).toEqual(["insert(20)", "insert(30)", "rebalance(30)"]);
+    expect(traced.steps[5]?.message).toBe("Back at 30. Update its height and balance factor.");
+  });
+
+  it.each([
+    ["left right", [30, 10], 20, "rebalance.finish-left-right", "rotate-right.pick-pivot"],
+    ["right left", [10, 30], 20, "rebalance.finish-right-left", "rotate-left.pick-pivot"],
+  ])(
+    "steps back into rebalance before the second rotation of the %s case",
+    (_name, keys, key, finishKey, nextKey) => {
+      const steps = traceInsert(build(keys), key).steps;
+      const index = steps.findIndex((step) => step.stepKey === finishKey);
+      expect(index).toBeGreaterThan(0);
+      expect(steps[index]?.callStack.at(-1)?.algorithm).toBe("rebalance");
+      expect(steps[index + 1]?.stepKey).toBe(nextKey);
+      expect(steps[index + 1]?.callStack.at(-1)?.algorithm).toBe(
+        nextKey.startsWith("rotate-right") ? "rotate-right" : "rotate-left",
+      );
+    },
+  );
 
   it("shows the new node in the whole tree as soon as it is created", () => {
     const traced = traceInsert(build([20, 10, 30]), 40);

@@ -30,12 +30,19 @@ const leftSubtreeMessage = ({ node }: NodeOnly) => `Go to the left subtree of ${
 
 const rightSubtreeMessage = ({ node }: NodeOnly) => `Go to the right subtree of ${node}.`;
 
+const updateOnWayUpMessage = ({ node }: NodeOnly) =>
+  `Back at ${node}. Update its height and balance factor.`;
+
+const rebalanceOnWayUpMessage = ({ node }: NodeOnly) => `Now make sure ${node} is still balanced.`;
+
 export const stepMessages = {
   "insert.create-node": ({ key }: KeyOnly) => `This spot is empty, so ${key} goes here.`,
   "insert.compare": compareMessage,
   "insert.go-left": goLeftMessage,
   "insert.go-right": goRightMessage,
   "insert.duplicate": ({ key }: KeyAtNode) => `${key} is already in the tree, so nothing changes.`,
+  "insert.update-height": updateOnWayUpMessage,
+  "insert.rebalance": rebalanceOnWayUpMessage,
   "delete.not-found": ({ key }: KeyOnly) => `${key} isn't in the tree, so nothing changes.`,
   "delete.compare": compareMessage,
   "delete.go-left": goLeftMessage,
@@ -48,6 +55,8 @@ export const stepMessages = {
     `${key} has two children. Its in-order successor is ${successor}, the smallest key in its right subtree.`,
   "delete.copy-successor": ({ successor }: { key: number; successor: number }) =>
     `Copy ${successor} into this node, then remove the old ${successor} from the right subtree.`,
+  "delete.update-height": updateOnWayUpMessage,
+  "delete.rebalance": rebalanceOnWayUpMessage,
   "search.compare": compareMessage,
   "search.found": ({ key }: KeyAtNode) => `${key} matches, so the search is over.`,
   "search.go-left": goLeftMessage,
@@ -80,6 +89,10 @@ export const stepMessages = {
     `${node} is right heavy and its right child ${child} leans right too. This is the right-right case: rotate ${node} left.`,
   "rebalance.case-right-left": ({ node, child }: RebalanceCase) =>
     `${node} is right heavy and its right child ${child} leans left. This is the right-left case: rotate ${child} right, then ${node} left.`,
+  "rebalance.finish-left-right": ({ node }: NodeOnly) =>
+    `The left child now leans left, so rotate ${node} right.`,
+  "rebalance.finish-right-left": ({ node }: NodeOnly) =>
+    `The right child now leans right, so rotate ${node} left.`,
   "update-height.compute-height": ({ node, height }: { node: number; height: number }) =>
     `${node} now has height ${height}: one more than its taller child.`,
   "update-height.compute-balance": ({
