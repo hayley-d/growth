@@ -60,6 +60,12 @@ export default defineConfig({
                         { label: "Lesson 2: Pre-order", slug: "id/storyboards/lessons/pre-order" },
                       ],
                     },
+                    {
+                      label: "Playground",
+                      items: [
+                        { label: "Code trace", slug: "id/storyboards/playground/code-trace" },
+                      ],
+                    },
                   ],
                 },
                 { label: "Motivation", slug: "id/motivation" },
