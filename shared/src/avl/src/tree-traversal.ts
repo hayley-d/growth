@@ -25,37 +25,28 @@ const collectDepthFirst = (
   nodes: AvlNode[],
   recorder?: StepRecorder,
 ): AvlNode[] =>
-  withinCall(recorder, order, node?.key ?? null, () =>
-    visitDepthFirst(node, order, nodes, recorder),
-  );
-
-const visitDepthFirst = (
-  node: AvlNode | null,
-  order: DepthFirstOrder,
-  nodes: AvlNode[],
-  recorder?: StepRecorder,
-): AvlNode[] => {
-  if (node) recorder?.focus(node.key);
-  recorder?.emit(`${order}.check-empty`, { node: node?.key ?? null });
-  if (!node) {
-    recorder?.emit(`${order}.empty`, { node: null });
+  withinCall(recorder, order, node?.key ?? null, () => {
+    if (node) recorder?.focus(node.key);
+    recorder?.emit(`${order}.check-empty`, { node: node?.key ?? null });
+    if (!node) {
+      recorder?.emit(`${order}.empty`, { node: null });
+      return nodes;
+    }
+    if (order === "preorder") visitNode(node, order, nodes, recorder);
+    recorder?.focus(node.key);
+    recorder?.emit(`${order}.go-left`, {
+      node: node.key,
+    });
+    collectDepthFirst(node.left, order, nodes, recorder);
+    if (order === "inorder") visitNode(node, order, nodes, recorder);
+    recorder?.focus(node.key);
+    recorder?.emit(`${order}.go-right`, {
+      node: node.key,
+    });
+    collectDepthFirst(node.right, order, nodes, recorder);
+    if (order === "postorder") visitNode(node, order, nodes, recorder);
     return nodes;
-  }
-  if (order === "preorder") visitNode(node, order, nodes, recorder);
-  recorder?.focus(node.key);
-  recorder?.emit(`${order}.go-left`, {
-    node: node.key,
   });
-  collectDepthFirst(node.left, order, nodes, recorder);
-  if (order === "inorder") visitNode(node, order, nodes, recorder);
-  recorder?.focus(node.key);
-  recorder?.emit(`${order}.go-right`, {
-    node: node.key,
-  });
-  collectDepthFirst(node.right, order, nodes, recorder);
-  if (order === "postorder") visitNode(node, order, nodes, recorder);
-  return nodes;
-};
 
 const collectLevelOrder = (root: AvlNode | null, recorder?: StepRecorder): AvlNode[] => {
   const nodes: AvlNode[] = [];

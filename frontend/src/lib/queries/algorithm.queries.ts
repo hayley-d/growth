@@ -15,7 +15,7 @@ const retryUnlessMissing = (failureCount: number, error: Error) =>
   !(error instanceof ServiceError && error.status === 404) &&
   retryUnlessUnauthorized(failureCount, error);
 
-export const useAlgorithmSnippetsQuery = (codes: readonly AlgorithmCode[], language?: string) =>
+export const useAlgorithmSnippetQueries = (codes: readonly AlgorithmCode[], language?: string) =>
   useQueries({
     queries: codes.map((code) => ({
       queryKey: algorithmQueryKeys.snippet(code, language),

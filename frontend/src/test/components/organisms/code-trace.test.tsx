@@ -148,3 +148,30 @@ it("scrolls long lines inside the panel, not the page", async () => {
 
   expect(document.documentElement.scrollWidth).toBeLessThanOrEqual(window.innerWidth);
 });
+
+it("says when the step has no line in the code", async () => {
+  const screen = await renderTrace({
+    stepKey: "insert.check-empty",
+    variables: { key: 5, node: 30 },
+    callStack: [{ algorithm: "insert", node: 30 }],
+  });
+
+  await expect
+    .element(screen.getByText("This step has no line in the Pseudocode code."))
+    .toBeVisible();
+  expect(
+    screen
+      .getByRole("list", { name: "insert in Pseudocode" })
+      .element()
+      .querySelector('[aria-current="step"]'),
+  ).toBeNull();
+});
+
+it("shows no note when the step has a line", async () => {
+  const screen = await renderTrace(compareStep);
+
+  await expect.element(screen.getByRole("list", { name: "insert in Pseudocode" })).toBeVisible();
+  await expect
+    .element(screen.getByText("This step has no line in the Pseudocode code."))
+    .not.toBeInTheDocument();
+});

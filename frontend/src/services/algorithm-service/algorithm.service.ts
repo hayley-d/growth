@@ -1,10 +1,11 @@
+import type { AlgorithmCode } from "@shared/avl";
 import { type AlgorithmSnippetResponse, algorithmSnippetResponseSchema } from "@shared/schemas";
 import { uris } from "@/services/algorithm-service/algorithm.urls";
 import { networkService } from "@/services/network.service";
 import { rejectAxios, rejectInvalidResponse } from "@/services/service-error";
 
 export const getAlgorithmSnippet = async (
-  code: string,
+  code: AlgorithmCode,
   language?: string,
 ): Promise<AlgorithmSnippetResponse> => {
   const { data } = await networkService

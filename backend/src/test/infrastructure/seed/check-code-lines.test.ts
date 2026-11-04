@@ -80,6 +80,26 @@ describe("checkCodeLines", () => {
       gaps: [rustGap],
     });
   });
+
+  it("checks a snippet against every step key the engine lists for its algorithm", async () => {
+    const insertSnippet = {
+      id: "insert-java",
+      algorithmId: "insert-id",
+      codeLanguageId: "java-id",
+      source: "",
+    };
+    await expect(checkCodeLines(createDependencies([], [insertSnippet]))).resolves.toEqual({
+      snippetsChecked: 1,
+      gaps: [
+        {
+          algorithm: "insert",
+          language: "java",
+          missing: [...stepKeysByAlgorithm.insert],
+          unknown: [],
+        },
+      ],
+    });
+  });
 });
 
 describe("describeMissingCodeLines", () => {

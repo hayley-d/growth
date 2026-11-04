@@ -153,6 +153,8 @@ function insert(node, key)
 
 Lines that only hold syntax, like `else`, `}` or `function`, have no step. When you write a snippet in another language, keep the same lines in the same order. If a language needs two things on one line, give that line both keys (`// @step rotate-right.check-pivot rotate-right.pick-pivot`), and the arrow stays there for both steps. If you add a check to an algorithm, add a step for it too, or the arrow will skip it.
 
+Rebalance asks which side is heavy with one step, `rebalance.check-side`. Write that as one `if balance > 1 … else …` in every snippet, not as two `if` lines, because the engine records one step for it whichever side is heavy.
+
 ## Search
 
 ```ts
