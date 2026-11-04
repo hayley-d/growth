@@ -57,7 +57,10 @@ export default defineConfig({
                     {
                       label: "Lessons",
                       items: [
-                        { label: "Lesson 2: Pre-order", slug: "id/storyboards/lessons/pre-order" },
+                        {
+                          label: "Lessons 2 to 4: Depth-first traversals",
+                          slug: "id/storyboards/lessons/depth-first-traversals",
+                        },
                       ],
                     },
                   ],
