@@ -61,6 +61,24 @@ it("moves focus to the new tab when the arrow keys change it", async () => {
   await expect.element(treeTab).toHaveFocus();
 });
 
+it("jumps to the first and last tab with Home and End", async () => {
+  await page.viewport(375, 800);
+  const screen = await renderLayout();
+  const treeTab = screen.getByRole("tab", { name: "Tree" });
+  const codeTab = screen.getByRole("tab", { name: "Code" });
+
+  await treeTab.click();
+  await userEvent.keyboard("{End}");
+
+  await expect.element(codeTab).toHaveAttribute("aria-selected", "true");
+  await expect.element(codeTab).toHaveFocus();
+
+  await userEvent.keyboard("{Home}");
+
+  await expect.element(treeTab).toHaveAttribute("aria-selected", "true");
+  await expect.element(treeTab).toHaveFocus();
+});
+
 function Counter({ name }: { name: string }) {
   const [count, setCount] = useState(0);
   return (

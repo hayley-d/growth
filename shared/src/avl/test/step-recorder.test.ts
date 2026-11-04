@@ -25,12 +25,13 @@ describe("StepRecorder", () => {
 
   it("records the calls that are open when a step is emitted", () => {
     const recorder = new StepRecorder(build([20, 10]));
-    recorder.call("insert", 20);
-    recorder.emit("insert.compare", { key: 5, node: 20 });
-    recorder.call("insert", 10);
-    recorder.emit("insert.compare", { key: 5, node: 10 });
-    recorder.endCall();
-    recorder.emit("insert.update-height", { node: 20 });
+    withinCall(recorder, "insert", 20, () => {
+      recorder.emit("insert.compare", { key: 5, node: 20 });
+      withinCall(recorder, "insert", 10, () => {
+        recorder.emit("insert.compare", { key: 5, node: 10 });
+      });
+      recorder.emit("insert.update-height", { node: 20 });
+    });
     expect(recorder.steps.map((step) => step.callStack)).toEqual([
       [{ algorithm: "insert", node: 20 }],
       [
@@ -43,9 +44,10 @@ describe("StepRecorder", () => {
 
   it("shares one frozen call stack between steps where no call changed", () => {
     const recorder = new StepRecorder(build([20]));
-    recorder.call("search", 20);
-    recorder.emit("search.compare", { key: 20, node: 20 });
-    recorder.emit("search.found", { key: 20, node: 20 });
+    withinCall(recorder, "search", 20, () => {
+      recorder.emit("search.compare", { key: 20, node: 20 });
+      recorder.emit("search.found", { key: 20, node: 20 });
+    });
     const [first, second] = recorder.steps;
     expect(first?.callStack).toBe(second?.callStack);
     expect(Object.isFrozen(first?.callStack)).toBe(true);
@@ -61,6 +63,19 @@ describe("StepRecorder", () => {
     expect(result).toBe("done");
     expect(recorder.steps.map((step) => step.callStack.length)).toEqual([1, 0]);
     expect(withinCall(undefined, "search", 20, () => 7)).toBe(7);
+  });
+
+  it("closes the call when the work inside withinCall throws", () => {
+    const recorder = new StepRecorder(build([20, 10]));
+    withinCall(recorder, "insert", 20, () => {
+      expect(() =>
+        withinCall(recorder, "insert", 10, () => {
+          throw new Error("stop");
+        }),
+      ).toThrow("stop");
+      recorder.emit("insert.update-height", { node: 20 });
+    });
+    expect(recorder.steps[0]?.callStack).toEqual([{ algorithm: "insert", node: 20 }]);
   });
 
   it("turns the active node into a visited one when the focus moves", () => {

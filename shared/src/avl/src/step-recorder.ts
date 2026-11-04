@@ -69,14 +69,13 @@ export class StepRecorder {
     this.path.pop();
   }
 
-  call(algorithm: AlgorithmCode, node: number | null): void {
-    this.frames.push(Object.freeze({ algorithm, node }));
-    this.stackChanged = true;
-  }
-
-  endCall(): void {
-    this.frames.pop();
-    this.stackChanged = true;
+  within<Result>(algorithm: AlgorithmCode, node: number | null, run: () => Result): Result {
+    this.call(algorithm, node);
+    try {
+      return run();
+    } finally {
+      this.endCall();
+    }
   }
 
   replace(subtree: AvlNode | null): void {
@@ -130,6 +129,16 @@ export class StepRecorder {
     return { result, steps: this.steps };
   }
 
+  private call(algorithm: AlgorithmCode, node: number | null): void {
+    this.frames.push(Object.freeze({ algorithm, node }));
+    this.stackChanged = true;
+  }
+
+  private endCall(): void {
+    this.frames.pop();
+    this.stackChanged = true;
+  }
+
   private demote(key: number | null, from: NodeState): void {
     if (key !== null && this.states.get(key) === from) this.set(key, "visited");
   }
@@ -146,9 +155,4 @@ export const withinCall = <Result>(
   algorithm: AlgorithmCode,
   node: number | null,
   run: () => Result,
-): Result => {
-  recorder?.call(algorithm, node);
-  const result = run();
-  recorder?.endCall();
-  return result;
-};
+): Result => (recorder ? recorder.within(algorithm, node, run) : run());

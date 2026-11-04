@@ -4,6 +4,9 @@ import type { CallFrame } from "@shared/avl";
 import { findCodeLanguage, functionNameFor } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
+const indentStep = 14;
+const maxIndent = 8;
+
 type CallStackProperties = {
   frames: readonly CallFrame[];
   language: string;
@@ -27,25 +30,25 @@ export function CallStack({ frames, language, className }: CallStackProperties) 
       ) : (
         <ol className="flex flex-col">
           {frames
-            .map((frame, depth) => ({ ...frame, depth }))
-            .map((frame) => {
-              const index = frame.depth;
+            .map((frame, index) => ({ frame, index }))
+            .map(({ frame, index }) => {
               const isOpen = index === frames.length - 1;
               const name = functionNameFor(frame.algorithm, language);
               const argument = frame.node ?? emptyValue;
+              const indent = Math.min(index, maxIndent) * indentStep;
 
               return (
                 <li
-                  key={frame.depth}
+                  key={`${index}-${frame.algorithm}`}
                   aria-current={isOpen ? "step" : undefined}
                   className="relative flex h-7 items-center gap-2 font-mono text-[13px]"
-                  style={{ paddingLeft: `${index * 14}px` }}
+                  style={{ paddingLeft: `${indent}px` }}
                 >
                   {index > 0 ? (
                     <span
                       aria-hidden="true"
                       className="absolute -top-2.25 h-[1.4375rem] w-2.5 rounded-bl-md border-b-2 border-l-2 border-[color-mix(in_oklch,var(--color-primary),var(--color-foreground)_35%)]"
-                      style={{ left: `${(index - 1) * 14 + 4}px` }}
+                      style={{ left: `${Math.max(0, indent - indentStep) + 4}px` }}
                     />
                   ) : null}
                   <span

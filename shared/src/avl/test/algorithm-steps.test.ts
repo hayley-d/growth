@@ -90,4 +90,10 @@ describe("algorithmOf", () => {
   it.each(algorithmCodes)("gives %s back for every one of its keys", (code) => {
     for (const stepKey of stepKeysByAlgorithm[code]) expect(algorithmOf(stepKey)).toBe(code);
   });
+
+  it("throws for a key with no dot instead of guessing the algorithm", () => {
+    expect(() => algorithmOf("inserts" as StepKey)).toThrow(
+      "Unknown algorithm in step key inserts",
+    );
+  });
 });

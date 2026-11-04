@@ -18,6 +18,13 @@ const tabs: { id: TraceTab; label: string }[] = [
   { id: "code", label: "Code" },
 ];
 
+const nextTabFor = (key: string, current: TraceTab): TraceTab | null => {
+  if (key === "Home") return "tree";
+  if (key === "End") return "code";
+  if (key === "ArrowLeft" || key === "ArrowRight") return current === "tree" ? "code" : "tree";
+  return null;
+};
+
 export function TraceLayout({ tree, code, message, controls, className }: TraceLayoutProperties) {
   const isWide = useMediaQuery("(min-width: 48rem)");
   const [tab, setTab] = useState<TraceTab>("tree");
@@ -40,9 +47,9 @@ export function TraceLayout({ tree, code, message, controls, className }: TraceL
                 tabIndex={isSelected ? 0 : -1}
                 onClick={() => setTab(option.id)}
                 onKeyDown={(event) => {
-                  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
+                  const nextTab = nextTabFor(event.key, tab);
+                  if (!nextTab) return;
                   event.preventDefault();
-                  const nextTab = tab === "tree" ? "code" : "tree";
                   setTab(nextTab);
                   document.getElementById(`${baseId}-${nextTab}-tab`)?.focus();
                 }}

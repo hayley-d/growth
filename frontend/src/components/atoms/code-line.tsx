@@ -1,5 +1,8 @@
 import { cn } from "@/lib/utils";
 
+export const codeLineHeight = 28;
+export const codeListPadding = 12;
+
 type CodeLineProperties = {
   number: number;
   text: string;
@@ -10,8 +13,9 @@ export function CodeLine({ number, text, isCurrent }: CodeLineProperties) {
   return (
     <li
       aria-current={isCurrent ? "step" : undefined}
+      style={{ height: codeLineHeight }}
       className={cn(
-        "relative flex h-7 items-center pr-6 whitespace-pre",
+        "relative flex items-center pr-6 whitespace-pre",
         isCurrent && "font-semibold text-accent-foreground",
       )}
     >

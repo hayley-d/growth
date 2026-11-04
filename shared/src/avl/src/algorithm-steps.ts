@@ -109,7 +109,8 @@ export const isAlgorithmCode = (code: string): code is AlgorithmCode =>
   (algorithmCodes as readonly string[]).includes(code);
 
 export const algorithmOf = (stepKey: StepKey): AlgorithmCode => {
-  const code = stepKey.slice(0, stepKey.indexOf("."));
+  const dot = stepKey.indexOf(".");
+  const code = dot === -1 ? "" : stepKey.slice(0, dot);
   if (!isAlgorithmCode(code)) throw new Error(`Unknown algorithm in step key ${stepKey}`);
   return code;
 };

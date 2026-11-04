@@ -7,16 +7,21 @@ export type CodeLanguageOption = {
   caseStyle: "camel" | "snake";
 };
 
+const pseudocodeLanguage: CodeLanguageOption = {
+  code: "pseudocode",
+  name: "Pseudocode",
+  emptyValue: "empty",
+  caseStyle: "camel",
+};
+
 export const codeLanguages: readonly CodeLanguageOption[] = [
-  { code: "pseudocode", name: "Pseudocode", emptyValue: "empty", caseStyle: "camel" },
+  pseudocodeLanguage,
   { code: "java", name: "Java", emptyValue: "null", caseStyle: "camel" },
   { code: "rust", name: "Rust", emptyValue: "None", caseStyle: "snake" },
 ];
 
-const fallbackLanguage = codeLanguages[0] as CodeLanguageOption;
-
 export const findCodeLanguage = (code: string): CodeLanguageOption =>
-  codeLanguages.find((language) => language.code === code) ?? fallbackLanguage;
+  codeLanguages.find((language) => language.code === code) ?? pseudocodeLanguage;
 
 export const functionNameFor = (algorithm: AlgorithmCode, language: string): string => {
   const words = algorithm.split("-");

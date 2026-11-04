@@ -1,6 +1,6 @@
 import { useId } from "react";
 
-import type { CodeLanguageOption } from "@/lib/code-languages";
+import { type CodeLanguageOption, findCodeLanguage } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
 type CodingLanguagePickerProperties = {
@@ -19,12 +19,13 @@ export function CodingLanguagePicker({
   className,
 }: CodingLanguagePickerProperties) {
   const name = useId();
+  const selected = findCodeLanguage(value).code;
 
   return (
     <fieldset className={cn("inline-flex rounded-full bg-muted p-1", className)}>
       <legend className="sr-only">Code language</legend>
       {languages.map((language) => {
-        const isSelected = language.code === value;
+        const isSelected = language.code === selected;
         const isLearners = language.code === learnerLanguage;
 
         return (
