@@ -36,4 +36,12 @@ export class PrismaLessonRepository
       (await this.client.lesson.findMany({ orderBy: this.options.orderBy })).map(toLesson),
     );
   }
+
+  upsertByUnitIdAndPosition(lesson: NewLesson) {
+    return this.upsertOne(
+      { unitId_position: { unitId: lesson.unitId, position: lesson.position } },
+      lesson,
+      lesson,
+    );
+  }
 }

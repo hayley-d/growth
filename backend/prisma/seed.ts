@@ -5,15 +5,23 @@ import {
   PrismaCodeLineRepository,
   PrismaCodeSnippetRepository,
   PrismaLearningStyleRepository,
+  PrismaLessonRepository,
+  PrismaUnitRepository,
 } from "@/infrastructure/course-content/repositories";
 import { prismaClient } from "@/infrastructure/database/prisma-client";
 import { createPinoLogger } from "@/infrastructure/logging/pino-logger";
 import { verifyCodeLines } from "@/infrastructure/seed/check-code-lines";
-import { algorithms, codeLanguages, learningStyles } from "@/infrastructure/seed/reference-data";
+import {
+  algorithms,
+  codeLanguages,
+  learningStyles,
+  units,
+} from "@/infrastructure/seed/reference-data";
 import { seedAdmin } from "@/infrastructure/seed/seed-admin";
 import { seedAlgorithms } from "@/infrastructure/seed/seed-algorithms";
 import { seedCodeLanguages } from "@/infrastructure/seed/seed-code-languages";
 import { seedLearningStyles } from "@/infrastructure/seed/seed-learning-styles";
+import { seedUnits } from "@/infrastructure/seed/seed-units";
 
 const logger = createPinoLogger(environment.LOG_LEVEL);
 
@@ -29,6 +37,14 @@ try {
     await seedCodeLanguages(codeLanguageRepository, codeLanguages),
   );
   logger.info("Seeded algorithms", await seedAlgorithms(algorithmRepository, algorithms));
+  logger.info(
+    "Seeded units and lessons",
+    await seedUnits(
+      new PrismaUnitRepository(prismaClient),
+      new PrismaLessonRepository(prismaClient),
+      units,
+    ),
+  );
   await seedAdmin({
     databaseUrl: environment.DATABASE_URL,
     enabled: environment.SEED_DEV_ADMIN,

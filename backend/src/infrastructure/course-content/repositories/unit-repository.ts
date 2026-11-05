@@ -29,4 +29,8 @@ export class PrismaUnitRepository
   findByPosition(position: number) {
     return this.findOne({ position });
   }
+
+  upsertByPosition(unit: NewUnit) {
+    return this.upsertOne({ position: unit.position }, unit, unit);
+  }
 }

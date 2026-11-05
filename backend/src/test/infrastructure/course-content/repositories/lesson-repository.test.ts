@@ -27,4 +27,19 @@ describe("PrismaLessonRepository", () => {
     });
     expect(found).toEqual(row);
   });
+
+  it("upserts a lesson by its unit and position", async () => {
+    const lesson = { upsert: vi.fn().mockResolvedValue(row) };
+    const client = { lesson } as unknown as PrismaClient;
+    const { id: _id, ...newLesson } = row;
+
+    const saved = await new PrismaLessonRepository(client).upsertByUnitIdAndPosition(newLesson);
+
+    expect(lesson.upsert).toHaveBeenCalledWith({
+      where: { unitId_position: { unitId: row.unitId, position: row.position } },
+      create: newLesson,
+      update: newLesson,
+    });
+    expect(saved).toEqual(row);
+  });
 });
