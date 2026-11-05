@@ -19,6 +19,8 @@ type CodePanelProperties = {
 const emptyBoxClassName =
   "flex items-center justify-center rounded-xl border border-dashed px-6 text-center text-sm text-muted-foreground";
 
+const codeBoxStyle = { height: codeListingHeight };
+
 export function CodePanel({
   stepKey,
   snippet,
@@ -29,7 +31,7 @@ export function CodePanel({
 }: CodePanelProperties) {
   if (!stepKey || !functionName) {
     return (
-      <p className={cn(emptyBoxClassName, className)} style={{ height: codeListingHeight }}>
+      <p className={cn(emptyBoxClassName, className)} style={codeBoxStyle}>
         Pick an operation to see its code run.
       </p>
     );
@@ -41,7 +43,7 @@ export function CodePanel({
         role="status"
         aria-label="Loading the code"
         className={cn("flex flex-col gap-3 rounded-xl border bg-muted/60 p-5", className)}
-        style={{ height: codeListingHeight }}
+        style={codeBoxStyle}
       >
         {[70, 45, 85, 55, 30].map((width) => (
           <span
@@ -56,7 +58,7 @@ export function CodePanel({
 
   if (!snippet) {
     return (
-      <p className={cn(emptyBoxClassName, className)} style={{ height: codeListingHeight }}>
+      <p className={cn(emptyBoxClassName, className)} style={codeBoxStyle}>
         There's no {languageName} code for {functionName} yet.
       </p>
     );

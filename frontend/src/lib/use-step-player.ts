@@ -14,45 +14,66 @@ const isTypingTarget = (target: EventTarget | null) => {
   return role !== null && ignoredRoles.has(role);
 };
 
+const clampIndex = (target: number, count: number) =>
+  Math.min(Math.max(target, 0), Math.max(count - 1, 0));
+
+type PlayerState<Item> = {
+  steps: readonly Item[];
+  index: number;
+  isPlaying: boolean;
+};
+
 export function useStepPlayer<Item>(steps: readonly Item[]) {
   const speed = usePlaybackStore((state) => state.speed);
-  const [current, setCurrent] = useState({ steps, index: 0, isPlaying: false });
+  const [current, setCurrent] = useState<PlayerState<Item>>({
+    steps,
+    index: 0,
+    isPlaying: false,
+  });
 
   const isFresh = current.steps === steps;
-  const index = isFresh ? Math.min(current.index, Math.max(steps.length - 1, 0)) : 0;
+  if (!isFresh) {
+    setCurrent({ steps, index: 0, isPlaying: false });
+  }
+
+  const index = isFresh ? clampIndex(current.index, steps.length) : 0;
   const isPlaying = isFresh && current.isPlaying;
-  const lastIndex = steps.length - 1;
   const isFirst = index <= 0;
-  const isLast = index >= lastIndex;
+  const isLast = index >= steps.length - 1;
 
-  const jumpTo = useCallback(
-    (target: number) => {
-      const clamped = Math.max(0, Math.min(target, steps.length - 1));
-      setCurrent({ steps, index: clamped, isPlaying: false });
-    },
-    [steps],
-  );
+  const moveTo = useCallback((target: (previous: PlayerState<Item>) => number) => {
+    setCurrent((previous) => ({
+      steps: previous.steps,
+      index: clampIndex(target(previous), previous.steps.length),
+      isPlaying: false,
+    }));
+  }, []);
 
-  const first = useCallback(() => jumpTo(0), [jumpTo]);
-  const last = useCallback(() => jumpTo(steps.length - 1), [jumpTo, steps.length]);
-  const back = useCallback(() => jumpTo(index - 1), [jumpTo, index]);
-  const forward = useCallback(() => jumpTo(index + 1), [jumpTo, index]);
+  const jumpTo = useCallback((target: number) => moveTo(() => target), [moveTo]);
+  const first = useCallback(() => moveTo(() => 0), [moveTo]);
+  const last = useCallback(() => moveTo((previous) => previous.steps.length - 1), [moveTo]);
+  const back = useCallback(() => moveTo((previous) => previous.index - 1), [moveTo]);
+  const forward = useCallback(() => moveTo((previous) => previous.index + 1), [moveTo]);
 
   const toggle = useCallback(() => {
-    if (steps.length < 2) return;
-    if (isPlaying) {
-      setCurrent({ steps, index, isPlaying: false });
-      return;
-    }
-    setCurrent({ steps, index: isLast ? 0 : index, isPlaying: true });
-  }, [steps, index, isPlaying, isLast]);
+    setCurrent((previous) => {
+      const lastIndex = previous.steps.length - 1;
+      if (lastIndex < 1) return previous;
+      if (previous.isPlaying) return { ...previous, isPlaying: false };
+      return {
+        steps: previous.steps,
+        index: previous.index >= lastIndex ? 0 : previous.index,
+        isPlaying: true,
+      };
+    });
+  }, []);
 
   useEffect(() => {
     if (!isPlaying) return;
     const timer = window.setInterval(() => {
       setCurrent((previous) => {
         if (!previous.isPlaying) return previous;
-        const nextIndex = Math.min(previous.index + 1, previous.steps.length - 1);
+        const nextIndex = clampIndex(previous.index + 1, previous.steps.length);
         return {
           steps: previous.steps,
           index: nextIndex,
@@ -67,17 +88,28 @@ export function useStepPlayer<Item>(steps: readonly Item[]) {
     (event: KeyboardEvent<HTMLElement>) => {
       if (event.altKey || event.ctrlKey || event.metaKey) return;
       if (isTypingTarget(event.target)) return;
-      const actions: Record<string, () => void> = {
-        " ": toggle,
-        ArrowLeft: back,
-        ArrowRight: forward,
-        Home: first,
-        End: last,
-      };
-      const action = actions[event.key];
-      if (!action) return;
-      event.preventDefault();
-      action();
+      switch (event.key) {
+        case " ":
+          event.preventDefault();
+          if (!event.repeat) toggle();
+          return;
+        case "ArrowLeft":
+          event.preventDefault();
+          back();
+          return;
+        case "ArrowRight":
+          event.preventDefault();
+          forward();
+          return;
+        case "Home":
+          event.preventDefault();
+          first();
+          return;
+        case "End":
+          event.preventDefault();
+          last();
+          return;
+      }
     },
     [toggle, back, forward, first, last],
   );

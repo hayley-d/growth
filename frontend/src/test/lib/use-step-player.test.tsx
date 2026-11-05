@@ -2,17 +2,23 @@ import type { KeyboardEvent } from "react";
 import { afterEach, beforeEach, expect, it, vi } from "vitest";
 import { renderHook } from "vitest-browser-react";
 
+import { traceInsert } from "@shared/avl";
 import { baseStepDuration, useStepPlayer } from "@/lib/use-step-player";
 import { usePlaybackStore } from "@/stores/playback-store";
 
 const makeSteps = (count: number) =>
   Array.from({ length: count }, (_, position) => Object.freeze({ number: position + 1 }));
 
-const keyEvent = (key: string, target: EventTarget = document.createElement("button")) => {
+const keyEvent = (
+  key: string,
+  target: EventTarget = document.createElement("button"),
+  repeat = false,
+) => {
   const preventDefault = vi.fn();
   const event = {
     key,
     target,
+    repeat,
     altKey: false,
     ctrlKey: false,
     metaKey: false,
@@ -56,17 +62,57 @@ it("steps forward and back and stops at both ends", async () => {
   expect(result.current.stepCount).toBe(3);
 });
 
-it("shows exactly the earlier snapshot after stepping back", async () => {
-  const steps = makeSteps(3);
+it("shows the same unchanged traced step after going forward and back", async () => {
+  const { steps } = traceInsert(traceInsert(traceInsert(null, 20).result, 10).result, 5);
   const { result, act } = await renderHook(() => useStepPlayer(steps));
 
   await act(() => result.current.forward());
-  const seen = result.current.step;
+  const seen = structuredClone(result.current.step);
   await act(() => result.current.forward());
   await act(() => result.current.back());
 
-  expect(result.current.step).toBe(seen);
   expect(result.current.step).toBe(steps[1]);
+  expect(result.current.step).toEqual(seen);
+});
+
+it("counts two steps pressed before a render", async () => {
+  const steps = makeSteps(4);
+  const { result, act } = await renderHook(() => useStepPlayer(steps));
+
+  await act(() => {
+    result.current.forward();
+    result.current.forward();
+  });
+
+  expect(result.current.index).toBe(2);
+});
+
+it("keeps its place when rendered again with the same steps", async () => {
+  const steps = makeSteps(4);
+  const { result, act, rerender } = await renderHook(
+    (current?: readonly { number: number }[]) => useStepPlayer(current ?? []),
+    { initialProps: steps },
+  );
+
+  await act(() => result.current.jumpTo(2));
+  await rerender(steps);
+
+  expect(result.current.index).toBe(2);
+});
+
+it("starts from the first step when an earlier run comes back", async () => {
+  const firstRun = makeSteps(5);
+  const { result, act, rerender } = await renderHook(
+    (current?: readonly { number: number }[]) => useStepPlayer(current ?? []),
+    { initialProps: firstRun },
+  );
+
+  await act(() => result.current.jumpTo(3));
+  await rerender(makeSteps(2));
+  await rerender(firstRun);
+
+  expect(result.current.index).toBe(0);
+  expect(result.current.isPlaying).toBe(false);
 });
 
 it("plays on its own and stops on the last step", async () => {
@@ -184,4 +230,15 @@ it("leaves keys alone in inputs and radio groups", async () => {
 
   expect(result.current.index).toBe(0);
   expect(fromRadio.preventDefault).not.toHaveBeenCalled();
+});
+
+it("ignores a held Space key", async () => {
+  const steps = makeSteps(4);
+  const { result, act } = await renderHook(() => useStepPlayer(steps));
+
+  const held = keyEvent(" ", document.createElement("button"), true);
+  await act(() => result.current.handleKeyDown(held.event));
+
+  expect(result.current.isPlaying).toBe(false);
+  expect(held.preventDefault).toHaveBeenCalled();
 });

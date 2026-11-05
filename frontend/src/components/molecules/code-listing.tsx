@@ -5,7 +5,10 @@ import { cn } from "@/lib/utils";
 
 const visibleLines = 11;
 
-export const codeListingHeight = visibleLines * codeLineHeight + codeListPadding * 2;
+const codeListBorder = 1;
+
+export const codeListingHeight =
+  visibleLines * codeLineHeight + codeListPadding * 2 + codeListBorder * 2;
 
 type CodeListingProperties = {
   lines: readonly string[];

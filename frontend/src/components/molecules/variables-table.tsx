@@ -4,6 +4,12 @@ import type { StepVariables } from "@shared/avl";
 import { formatVariable } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
+const variableRowHeight = 32;
+
+const visibleVariableRows = 4;
+
+const variablesMinimumHeight = visibleVariableRows * variableRowHeight + (visibleVariableRows - 1);
+
 type VariablesTableProperties = {
   variables: StepVariables;
   previousVariables?: StepVariables;
@@ -28,7 +34,7 @@ export function VariablesTable({
       >
         Variables
       </h3>
-      <div className="min-h-33">
+      <div style={{ minHeight: variablesMinimumHeight }}>
         {entries.length === 0 ? (
           <p className="text-sm text-muted-foreground">No variables at this step.</p>
         ) : (
@@ -47,10 +53,17 @@ export function VariablesTable({
 
                 return (
                   <tr key={name} className="border-b border-dashed last:border-b-0">
-                    <th scope="row" className="h-8 pr-4 text-left font-medium">
+                    <th
+                      scope="row"
+                      className="pr-4 text-left font-medium"
+                      style={{ height: variableRowHeight }}
+                    >
                       {name}
                     </th>
-                    <td className="h-8 text-right font-mono tabular-nums">
+                    <td
+                      className="text-right font-mono tabular-nums"
+                      style={{ height: variableRowHeight }}
+                    >
                       <span className="inline-flex items-center gap-2">
                         {isChanged ? (
                           <>

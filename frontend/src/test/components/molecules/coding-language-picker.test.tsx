@@ -36,3 +36,18 @@ it("marks the learner's language", async () => {
     .element(page.getByRole("menuitemradio", { name: "Rust (your language)" }))
     .toBeVisible();
 });
+
+it("says on the closed picker when it shows the learner's language", async () => {
+  const screen = await render(
+    <CodingLanguagePicker
+      languages={codeLanguages}
+      value="rust"
+      learnerLanguage="rust"
+      onChange={vi.fn()}
+    />,
+  );
+
+  await expect
+    .element(screen.getByRole("button", { name: "Code language: Rust (your language)" }))
+    .toBeInTheDocument();
+});

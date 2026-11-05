@@ -30,7 +30,7 @@ export function CodingLanguagePicker({
   return (
     <DropdownMenu>
       <DropdownMenuTrigger
-        aria-label={`Code language: ${selected.name}`}
+        aria-label={`Code language: ${selected.name}${selected.code === learnerLanguage ? " (your language)" : ""}`}
         className={cn(
           "inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-full bg-muted pr-3 pl-4 text-sm font-medium transition-colors hover:bg-muted/70 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none motion-reduce:transition-none",
           className,

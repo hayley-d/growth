@@ -5,7 +5,7 @@ export const playbackSpeeds = [0.5, 1, 2] as const;
 
 export type PlaybackSpeed = (typeof playbackSpeeds)[number];
 
-export const isPlaybackSpeed = (value: unknown): value is PlaybackSpeed =>
+const isPlaybackSpeed = (value: unknown): value is PlaybackSpeed =>
   playbackSpeeds.some((speed) => speed === value);
 
 type PlaybackState = {

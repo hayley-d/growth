@@ -82,7 +82,7 @@ it("calls back with the language the learner picks", async () => {
   const onLanguageChange = vi.fn();
   const screen = await renderTrace(compareStep, { onLanguageChange });
 
-  await screen.getByRole("button", { name: "Code language: Pseudocode" }).click();
+  await screen.getByRole("button", { name: "Code language: Pseudocode (your language)" }).click();
 
   await expect
     .element(page.getByRole("menuitemradio", { name: "Pseudocode (your language)" }))

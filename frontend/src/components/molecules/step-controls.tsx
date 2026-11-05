@@ -7,18 +7,22 @@ import {
   Pause,
   Play,
 } from "lucide-react";
-import { useEffect, useId, useRef } from "react";
+import { memo, useEffect, useId, useRef } from "react";
 
 import { phaseLabel, type StepPhase, stepPhases } from "@/lib/step-phases";
 import type { StepPlayer } from "@/lib/use-step-player";
 import { cn } from "@/lib/utils";
-import { type PlaybackSpeed, playbackSpeeds, usePlaybackStore } from "@/stores/playback-store";
+import { playbackSpeeds, usePlaybackStore } from "@/stores/playback-store";
 
 type StepControlsProperties = {
   player: Omit<StepPlayer, "step">;
   phases: readonly StepPhase[];
   className?: string;
 };
+
+type DotState = "done" | "current" | "pending";
+
+const fallbackPhase: StepPhase = "walk";
 
 const phaseColour: Record<StepPhase, string> = {
   walk: "bg-phase-walk",
@@ -34,22 +38,36 @@ const phaseShape: Record<StepPhase, string> = {
   rotate: "[clip-path:polygon(50%_0,100%_100%,0_100%)]",
 };
 
+const dotStateOf = (stepIndex: number, index: number): DotState => {
+  if (stepIndex === index) return "current";
+  return stepIndex < index ? "done" : "pending";
+};
+
 export function StepControls({ player, phases, className }: StepControlsProperties) {
-  const { index, stepCount, isPlaying, isFirst, isLast } = player;
+  const { index, stepCount, isPlaying, isFirst, isLast, jumpTo } = player;
   const lineReference = useRef<HTMLDivElement>(null);
-  const shownPhases = stepPhases.filter((option) => phases.includes(option.phase));
-  const dots = phases.map((phase, position) => ({ stepNumber: position + 1, phase }));
+  const dots = Array.from({ length: stepCount }, (_, stepIndex) => ({
+    stepIndex,
+    phase: phases[stepIndex] ?? fallbackPhase,
+  }));
+  const shownPhases = stepPhases.filter((option) => dots.some((dot) => dot.phase === option.phase));
 
   useEffect(() => {
+    if (stepCount === 0) return;
     const line = lineReference.current;
     const current = line?.querySelector<HTMLElement>(`[data-step="${index}"]`);
-    if (!line || !current || line.scrollWidth <= line.clientWidth) return;
+    if (!line || !current) return;
+    const focused = document.activeElement;
+    if (focused instanceof HTMLElement && focused !== current && line.contains(focused)) {
+      current.focus({ preventScroll: true });
+    }
+    if (line.scrollWidth <= line.clientWidth) return;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     line.scrollTo({
       left: current.offsetLeft + current.offsetWidth / 2 - line.clientWidth / 2,
       behavior: reduceMotion ? "auto" : "smooth",
     });
-  }, [index]);
+  }, [index, stepCount]);
 
   if (stepCount === 0) return null;
 
@@ -66,57 +84,17 @@ export function StepControls({ player, phases, className }: StepControlsProperti
         ref={lineReference}
         className="relative -mx-2 overflow-x-auto overscroll-x-contain [scrollbar-width:thin]"
       >
-        <div className="flex min-w-full px-2 py-1">
-          {dots.map(({ stepNumber, phase }) => {
-            const stepIndex = stepNumber - 1;
-            const isCurrent = stepIndex === index;
-            const isDone = stepIndex < index;
-            const isFirstDot = stepIndex === 0;
-            const isLastDot = stepIndex === stepCount - 1;
-            return (
-              <button
-                key={stepNumber}
-                type="button"
-                data-step={stepIndex}
-                onClick={() => player.jumpTo(stepIndex)}
-                aria-label={`Step ${stepNumber} of ${stepCount}, ${phaseLabel(phase)}`}
-                aria-current={isCurrent ? "step" : undefined}
-                className={cn(
-                  "group relative grid h-11 w-11 flex-none cursor-pointer items-center rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:w-auto md:flex-[1_0_1rem]",
-                  isFirstDot
-                    ? "justify-items-start pl-2"
-                    : isLastDot
-                      ? "justify-items-end pr-2"
-                      : "justify-items-center",
-                )}
-              >
-                <span
-                  aria-hidden="true"
-                  className={cn(
-                    "absolute top-1/2 h-0.75 -translate-y-1/2",
-                    isFirstDot ? "left-3.5" : "left-0",
-                    isLastDot ? "right-3.5" : "right-0",
-                    phaseColour[phase],
-                    isDone || isCurrent ? "opacity-100" : "opacity-35",
-                  )}
-                />
-                <span aria-hidden="true" className="relative grid size-3 place-items-center">
-                  {isCurrent ? (
-                    <span className="absolute top-1/2 left-1/2 size-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-card ring-2 ring-foreground" />
-                  ) : null}
-                  <span
-                    className={cn(
-                      "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 transition-opacity group-hover:opacity-100 motion-reduce:transition-none",
-                      isCurrent ? "size-4" : "size-3",
-                      phaseColour[phase],
-                      phaseShape[phase],
-                      isDone || isCurrent ? "opacity-100" : "opacity-45",
-                    )}
-                  />
-                </span>
-              </button>
-            );
-          })}
+        <div className="flex min-w-full px-2 pt-6 pb-1">
+          {dots.map((dot) => (
+            <StepDot
+              key={dot.stepIndex}
+              stepIndex={dot.stepIndex}
+              stepCount={stepCount}
+              phase={dot.phase}
+              state={dotStateOf(dot.stepIndex, index)}
+              onJump={jumpTo}
+            />
+          ))}
         </div>
       </div>
 
@@ -175,6 +153,105 @@ export function StepControls({ player, phases, className }: StepControlsProperti
   );
 }
 
+type StepDotProperties = {
+  stepIndex: number;
+  stepCount: number;
+  phase: StepPhase;
+  state: DotState;
+  onJump: (stepIndex: number) => void;
+};
+
+const StepDot = memo(function StepDot({
+  stepIndex,
+  stepCount,
+  phase,
+  state,
+  onJump,
+}: StepDotProperties) {
+  const stepNumber = stepIndex + 1;
+  const isCurrent = state === "current";
+  const isFirstDot = stepIndex === 0;
+  const isLastDot = stepIndex === stepCount - 1;
+
+  return (
+    <button
+      type="button"
+      data-step={stepIndex}
+      tabIndex={isCurrent ? 0 : -1}
+      onClick={() => onJump(stepIndex)}
+      aria-label={`Step ${stepNumber} of ${stepCount}, ${phaseLabel(phase)}`}
+      aria-current={isCurrent ? "step" : undefined}
+      className={cn(
+        "relative grid h-11 w-11 flex-none cursor-pointer items-center rounded-lg focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none md:w-auto md:flex-[1_0_1rem]",
+        isFirstDot
+          ? "justify-items-start pl-2"
+          : isLastDot
+            ? "justify-items-end pr-2"
+            : "justify-items-center",
+      )}
+    >
+      <span
+        aria-hidden="true"
+        className={cn(
+          "absolute top-1/2 h-0.75 -translate-y-1/2",
+          isFirstDot ? "left-3.5" : "left-0",
+          isLastDot ? "right-3.5" : "right-0",
+          phaseColour[phase],
+          state === "pending" ? "opacity-35" : "opacity-100",
+        )}
+      />
+      {isCurrent ? (
+        <StepPin
+          stepNumber={stepNumber}
+          stepCount={stepCount}
+          isFirstDot={isFirstDot}
+          isLastDot={isLastDot}
+        />
+      ) : null}
+      <span aria-hidden="true" className="relative grid size-3 place-items-center">
+        {isCurrent ? (
+          <span className="absolute top-1/2 left-1/2 size-7 -translate-x-1/2 -translate-y-1/2 rounded-full bg-card ring-2 ring-foreground" />
+        ) : null}
+        <span
+          className={cn(
+            "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2",
+            isCurrent ? "size-4" : "size-3",
+            phaseColour[phase],
+            phaseShape[phase],
+          )}
+        />
+      </span>
+    </button>
+  );
+});
+
+type StepPinProperties = {
+  stepNumber: number;
+  stepCount: number;
+  isFirstDot: boolean;
+  isLastDot: boolean;
+};
+
+function StepPin({ stepNumber, stepCount, isFirstDot, isLastDot }: StepPinProperties) {
+  return (
+    <span
+      aria-hidden="true"
+      className={cn(
+        "pointer-events-none absolute bottom-[calc(50%+1.125rem)] z-10 whitespace-nowrap rounded-md bg-foreground px-2 py-0.5 font-mono text-xs font-semibold text-background tabular-nums",
+        isFirstDot ? "left-0" : isLastDot ? "right-0" : "left-1/2 -translate-x-1/2",
+      )}
+    >
+      {stepNumber} of {stepCount}
+      <span
+        className={cn(
+          "absolute -bottom-1 size-2 -translate-x-1/2 rotate-45 bg-foreground",
+          isFirstDot ? "left-3.5" : isLastDot ? "right-3.5 translate-x-1/2" : "left-1/2",
+        )}
+      />
+    </span>
+  );
+}
+
 type ControlButtonProperties = {
   label: string;
   icon: LucideIcon;
@@ -194,13 +271,13 @@ function ControlButton({
     <button
       type="button"
       aria-label={label}
-      onClick={onClick}
-      disabled={disabled}
+      aria-disabled={disabled}
+      onClick={disabled ? undefined : onClick}
       className={cn(
-        "inline-flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none disabled:cursor-default disabled:opacity-40 motion-reduce:transition-none",
+        "inline-flex size-11 cursor-pointer items-center justify-center rounded-full transition-colors focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none aria-disabled:cursor-default aria-disabled:opacity-40 motion-reduce:transition-none",
         isPrimary
-          ? "bg-foreground text-background hover:bg-foreground/85"
-          : "text-foreground hover:bg-muted disabled:hover:bg-transparent",
+          ? "bg-foreground text-background hover:bg-foreground/85 aria-disabled:hover:bg-foreground"
+          : "text-foreground hover:bg-muted aria-disabled:hover:bg-transparent",
       )}
     >
       <Icon aria-hidden="true" className={isPrimary ? "size-5 fill-current" : "size-5"} />
@@ -216,7 +293,7 @@ function SpeedPicker() {
   return (
     <fieldset className="inline-flex rounded-full bg-muted p-1 sm:justify-self-end">
       <legend className="sr-only">Playback speed</legend>
-      {playbackSpeeds.map((option: PlaybackSpeed) => {
+      {playbackSpeeds.map((option) => {
         const isSelected = option === speed;
         return (
           <label

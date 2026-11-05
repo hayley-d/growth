@@ -2,12 +2,16 @@ import { type AlgorithmCode, algorithmOf, type StepKey } from "@shared/avl";
 
 export type StepPhase = "walk" | "height" | "rebalance" | "rotate";
 
-export const stepPhases: readonly { phase: StepPhase; label: string }[] = [
-  { phase: "walk", label: "Walk the tree" },
-  { phase: "height", label: "Update height" },
-  { phase: "rebalance", label: "Rebalance" },
-  { phase: "rotate", label: "Rotate" },
-];
+const phaseLabels: Record<StepPhase, string> = {
+  walk: "Walk the tree",
+  height: "Update height",
+  rebalance: "Rebalance",
+  rotate: "Rotate",
+};
+
+export const stepPhases: readonly { phase: StepPhase; label: string }[] = (
+  Object.keys(phaseLabels) as StepPhase[]
+).map((phase) => ({ phase, label: phaseLabels[phase] }));
 
 const phaseByAlgorithm: Record<AlgorithmCode, StepPhase> = {
   insert: "walk",
@@ -25,5 +29,4 @@ const phaseByAlgorithm: Record<AlgorithmCode, StepPhase> = {
 
 export const phaseOf = (stepKey: StepKey): StepPhase => phaseByAlgorithm[algorithmOf(stepKey)];
 
-export const phaseLabel = (phase: StepPhase): string =>
-  stepPhases.find((option) => option.phase === phase)?.label ?? phase;
+export const phaseLabel = (phase: StepPhase): string => phaseLabels[phase];
