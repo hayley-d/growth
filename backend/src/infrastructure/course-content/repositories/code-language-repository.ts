@@ -10,6 +10,7 @@ import type {
   PrismaClient,
 } from "@/generated/prisma/client";
 import { toCodeLanguage } from "@/infrastructure/course-content/mappers/code-language-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type CodeLanguageModel = {
@@ -40,5 +41,11 @@ export class PrismaCodeLanguageRepository
 
   upsertByCode(codeLanguage: NewCodeLanguage) {
     return this.upsertOne({ code: codeLanguage.code }, codeLanguage, codeLanguage);
+  }
+
+  listAll() {
+    return withPrismaErrors(async () =>
+      (await this.client.codeLanguage.findMany({ orderBy: { name: "asc" } })).map(toCodeLanguage),
+    );
   }
 }

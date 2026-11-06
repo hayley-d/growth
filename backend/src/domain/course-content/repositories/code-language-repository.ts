@@ -12,4 +12,5 @@ export type CodeLanguageRepository = Repository<
 > & {
   findByCode(code: string): Promise<CodeLanguage | null>;
   upsertByCode(codeLanguage: NewCodeLanguage): Promise<CodeLanguage>;
+  listAll(): Promise<CodeLanguage[]>;
 };

@@ -14,6 +14,7 @@ const createInMemoryRepository = (initial: CodeLanguage[] = []) => {
     findById: async (id) => rows.get(id) ?? null,
     findByCode,
     list: async () => ({ items: [...rows.values()], total: rows.size }),
+    listAll: async () => [...rows.values()],
     create: async (codeLanguage) => {
       const row = { id: crypto.randomUUID(), ...codeLanguage };
       rows.set(row.id, row);

@@ -10,6 +10,7 @@ import type {
   PrismaClient,
 } from "@/generated/prisma/client";
 import { toLearningStyle } from "@/infrastructure/course-content/mappers/learning-style-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type LearningStyleModel = {
@@ -45,5 +46,11 @@ export class PrismaLearningStyleRepository
 
   upsertByName(learningStyle: NewLearningStyle) {
     return this.upsertOne({ name: learningStyle.name }, learningStyle, learningStyle);
+  }
+
+  listAll() {
+    return withPrismaErrors(async () =>
+      (await this.client.learningStyle.findMany({ orderBy: { name: "asc" } })).map(toLearningStyle),
+    );
   }
 }

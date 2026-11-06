@@ -4,6 +4,7 @@ export * from "@shared/schemas/src/auth";
 export * from "@shared/schemas/src/case-study";
 export * from "@shared/schemas/src/common";
 export * from "@shared/schemas/src/content-block";
+export * from "@shared/schemas/src/course-content";
 export * from "@shared/schemas/src/error";
 export * from "@shared/schemas/src/health";
 export * from "@shared/schemas/src/lesson";

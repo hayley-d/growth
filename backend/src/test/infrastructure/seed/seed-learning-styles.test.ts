@@ -14,6 +14,7 @@ const createInMemoryRepository = (initial: LearningStyle[] = []) => {
     findById: async (id) => rows.get(id) ?? null,
     findByName,
     list: async () => ({ items: [...rows.values()], total: rows.size }),
+    listAll: async () => [...rows.values()],
     create: async (learningStyle) => {
       const row = { id: crypto.randomUUID(), ...learningStyle };
       rows.set(row.id, row);
