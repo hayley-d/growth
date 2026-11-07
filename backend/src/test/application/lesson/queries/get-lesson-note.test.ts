@@ -50,6 +50,12 @@ describe("makeGetLessonNote", () => {
     );
   });
 
+  it("rejects a retired lesson", async () => {
+    await expect(
+      asLearner(() => createGetLessonNote()({ id: "retired-1" })),
+    ).rejects.toBeInstanceOf(NotFoundError);
+  });
+
   it("rejects a locked lesson", async () => {
     await expect(asLearner(() => createGetLessonNote()({ id: "lesson-2" }))).rejects.toBeInstanceOf(
       ForbiddenError,

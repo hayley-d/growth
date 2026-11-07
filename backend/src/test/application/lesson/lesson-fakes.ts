@@ -15,6 +15,8 @@ export const lessons: Lesson[] = [
     notePrompt: "Explain it in your own words",
     kind: "lesson",
     position: 1,
+    objectives: [],
+    isRetired: false,
   },
   {
     id: "lesson-2",
@@ -24,6 +26,8 @@ export const lessons: Lesson[] = [
     notePrompt: "What changed?",
     kind: "lesson",
     position: 2,
+    objectives: [],
+    isRetired: false,
   },
   {
     id: "checkpoint-1",
@@ -33,6 +37,19 @@ export const lessons: Lesson[] = [
     notePrompt: null,
     kind: "checkpoint",
     position: 1,
+    objectives: [],
+    isRetired: false,
+  },
+  {
+    id: "retired-1",
+    unitId: "unit-1",
+    title: "Retired lesson",
+    summary: "Gone",
+    notePrompt: null,
+    kind: "lesson",
+    position: -1,
+    objectives: [],
+    isRetired: true,
   },
 ];
 
@@ -47,7 +64,7 @@ export const createAccessDependencies = ({
 }: AccessOptions = {}): LessonAccessDependencies => ({
   lessonRepository: {
     findById: async (id) => lessons.find((lesson) => lesson.id === id) ?? null,
-    listAll: async () => lessons,
+    listAll: async () => lessons.filter((lesson) => !lesson.isRetired),
   },
   lessonProgressRepository: {
     findById: async ({ userId: progressUserId, lessonId }) => {

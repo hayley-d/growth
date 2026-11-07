@@ -9,6 +9,9 @@ model Question {
   generatorKey     String?
   generatorOptions Json?
   explanation      String
+  tree             String?
+  answer           Json?
+  isRetired        Boolean          @default(false)
   lesson           Lesson           @relation("questionLesson", fields: [lessonId], references: [id], onDelete: Cascade)
   reviewLesson     Lesson           @relation("questionReviewLesson", fields: [reviewLessonId], references: [id], onDelete: Restrict)
   answerOptions    AnswerOption[]

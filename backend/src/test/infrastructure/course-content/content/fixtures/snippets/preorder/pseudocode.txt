@@ -1,0 +1,5 @@
+preorder(node):
+  if node is empty: return // @step preorder.empty
+  visit(node) // @step preorder.visit
+  preorder(node.left) // @step preorder.go-left
+  preorder(node.right) // @step preorder.go-right

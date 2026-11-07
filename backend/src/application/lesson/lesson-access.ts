@@ -35,7 +35,7 @@ export const makeResolveLessonAccess =
   }: LessonAccessDependencies) =>
   async (userId: string, lessonId: string): Promise<LessonAccess> => {
     const lesson = await lessonRepository.findById(lessonId);
-    if (!lesson) throw new NotFoundError("Lesson not found", { lessonId });
+    if (!lesson || lesson.isRetired) throw new NotFoundError("Lesson not found", { lessonId });
 
     const neighbours = getLessonNeighbours(await lessonRepository.listAll(), lessonId);
     if (!neighbours) throw new NotFoundError("Lesson not found", { lessonId });
