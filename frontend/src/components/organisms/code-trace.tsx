@@ -45,19 +45,7 @@ export function CodeTrace({
 
   return (
     <div className={cn("flex min-w-0 flex-col gap-4", className)}>
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p className="flex items-center gap-2 text-sm text-muted-foreground">
-          {functionName ? (
-            <>
-              Running
-              <code className="rounded-md bg-primary/25 px-2 py-0.5 font-mono font-semibold text-foreground">
-                {functionName}
-              </code>
-            </>
-          ) : (
-            "Code"
-          )}
-        </p>
+      <div className="flex justify-end">
         <CodingLanguagePicker
           languages={codeLanguages}
           value={language}

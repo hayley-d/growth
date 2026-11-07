@@ -3,6 +3,13 @@ import { useCallback, useEffect, useRef } from "react";
 import { CodeLine, codeLineHeight, codeListPadding } from "@/components/atoms/code-line";
 import { cn } from "@/lib/utils";
 
+const visibleLines = 11;
+
+const codeListBorder = 1;
+
+export const codeListingHeight =
+  visibleLines * codeLineHeight + codeListPadding * 2 + codeListBorder * 2;
+
 type CodeListingProperties = {
   lines: readonly string[];
   currentLine: number | null;
@@ -45,9 +52,10 @@ export function CodeListing({ lines, currentLine, label, className }: CodeListin
     <div
       ref={scrollReference}
       className={cn(
-        "max-h-80 overflow-auto rounded-xl border bg-muted/60 font-mono text-[13px] leading-7",
+        "overflow-auto rounded-xl border bg-muted/60 font-mono text-[13px] leading-7",
         className,
       )}
+      style={{ height: codeListingHeight }}
     >
       <div className="relative w-max min-w-full">
         {hasCurrent ? (

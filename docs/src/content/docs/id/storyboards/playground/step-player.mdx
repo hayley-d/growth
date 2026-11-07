@@ -1,0 +1,132 @@
+---
+title: "Step player"
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+The step player sits under the tree and the code trace in the playground and in lessons.
+It moves through an operation one step at a time, plays steps on its own, and sets the speed.
+
+## A: Media bar
+
+This prototype has one row of buttons like a video player.
+
+<Steps>
+
+1. The learner presses forward to move one step, or play to watch the steps go by.
+
+2. The learner picks a speed of 0.5×, 1× or 2×, and reads which step they are on.
+
+   ![Desktop frame at step 23 of 37. The tree is on the left with 20 ringed in red, and the rebalance code is on the right with the arrow on line 4. Under the message bar is one row of buttons: first, back, play, forward and last, then a 0.5×, 1× and 2× speed picker and "Step 23 of 37".](../../../../../assets/id/prototypes/player/media-bar-desktop.png)
+
+   *Figure 1: A · Media bar on a desktop*
+
+3. On a phone, the same row fits under the message, and the speed is one button that cycles through 0.5×, 1× and 2×.
+
+   ![Phone frame on the Tree tab at step 23. Under the message are the five step buttons and a "1×" speed button, with "Step 23 of 37" under them.](../../../../../assets/id/prototypes/player/media-bar-phone.png)
+
+   *Figure 2: A · Media bar on a phone*
+
+</Steps>
+
+## B: Scrubber
+
+This prototype is a line with a dot for every step. Each dot's colour and shape shows what the
+code is doing. A circle for insert, a square for update height, a diamond for rebalance and a
+triangle for rotate. A pin above the line marks the step the learner is on.
+
+<Steps>
+
+1. The learner sees the whole operation as one line, and where the rotation comes.
+
+2. The learner taps any dot to jump to that step, or uses back, play and forward.
+
+   ![Desktop frame at step 23. Under the message bar is a line of 37 dots. A dark pin reading "23 of 37" sits over a diamond. The dots before it are solid and the ones after it are faded. A key under the line names the four shapes. Back, play and forward buttons and the speed picker are under the key.](../../../../../assets/id/prototypes/player/scrubber-desktop.png)
+
+   *Figure 3: B · Scrubber on a desktop*
+
+3. On a phone, every dot keeps a full-size tap target and the line scrolls sideways. It stays centred on the pin as the steps play.
+
+   ![Phone frame on the Tree tab at step 23. The dot line shows about eight dots, with the "23 of 37" pin in the middle. The shape key, the step buttons and the speed picker are under it.](../../../../../assets/id/prototypes/player/scrubber-phone.png)
+
+   *Figure 4: B · Scrubber on a phone*
+
+</Steps>
+
+## C: Debugger toolbar
+
+This prototype is a toolbar above the code.
+Into moves one step. Over skips a whole call, and Out finishes the call the learner is in.
+
+<Steps>
+
+1. The learner steps into the code one line at a time.
+
+2. The learner steps over a call they already understand, or steps out of the one they are in.
+
+   ![Desktop frame at step 23. A toolbar above the tree and code has Restart, Back, Over, Into, Out and Play, then "depth 3" and "Step 23 of 37". The speed picker is under the message bar.](../../../../../assets/id/prototypes/player/debugger-toolbar-desktop.png)
+
+   *Figure 5: C · Debugger toolbar on a desktop*
+
+3. On a phone, the words drop off and only the icons are left.
+
+   ![Phone frame on the Tree tab at step 23. The toolbar under the tabs shows six icons with no words, then "depth 3 Step 23 of 37". The speed picker is under the message.](../../../../../assets/id/prototypes/player/debugger-toolbar-phone.png)
+
+   *Figure 6: C · Debugger toolbar on a phone*
+
+</Steps>
+
+## D: Thumb buttons
+
+This prototype puts two big Back and Next buttons where the learner's thumbs are, with play
+between them. The speed, first and last are in a menu behind a ⋯ button.
+
+<Steps>
+
+1. The learner presses Next to move one step, or the round play button to watch.
+
+2. The learner sees how far through they are on the progress bar.
+
+   ![Phone frame on the Tree tab at step 23. Under the message are a wide Back button, a round play button and a wide dark Next button. Under them are "Step 23 of 37", a progress bar and a ⋯ button.](../../../../../assets/id/prototypes/player/thumb-buttons-phone.png)
+
+   *Figure 7: D · Thumb buttons on a phone*
+
+3. On a desktop, the same buttons stretch across the panel.
+
+   ![Desktop frame at step 23. The Back and Next buttons stretch across the full width under the message bar, with the play button between them and the progress bar under them.](../../../../../assets/id/prototypes/player/thumb-buttons-desktop.png)
+
+   *Figure 8: D · Thumb buttons on a desktop*
+
+</Steps>
+
+## E: Chapters
+
+This prototype groups the steps into chapters that say what is happening.
+
+<Steps>
+
+1. The learner reads the chapter names to see the plan for the whole operation.
+
+2. The learner taps a chapter to jump to its start, and follows the dots for the steps inside it.
+
+   ![Desktop frame at step 23. A row of chapter pills sits under the message bar. The first three have ticks and "Check 20" is filled in. Under them are back and play, seven dots with the sixth one highlighted, and forward. The text under them says "Check 20: step 6 of 7 · 23 of 37 overall".](../../../../../assets/id/prototypes/player/chapters-desktop.png)
+
+   *Figure 9: E · Chapters on a desktop*
+
+3. On a phone, the chapter row scrolls sideways and stays on the current chapter.
+
+   ![Phone frame on the Tree tab at step 23. The chapter row is scrolled so that "Check 20" is in view, with "Rotate 20 right" and "Check 30" after it. The dots, buttons and speed picker are under it.](../../../../../assets/id/prototypes/player/chapters-phone.png)
+
+   *Figure 10: E · Chapters on a phone*
+
+</Steps>
+
+## Decision
+
+<Aside type="tip" title="We picked B, the Scrubber">
+</Aside>
+
+### Why we chose the Scrubber
+
+- The learner can jump to any step they want with a single action.
+- Each phase has its own colour so you can easily tell the operations apart. Additionally, each operation has its own shape to accomodate users who are colour blind.
