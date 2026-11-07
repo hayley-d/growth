@@ -31,4 +31,11 @@ describe("PrismaCodeLanguageRepository", () => {
       update: { code: "python", name: "Python" },
     });
   });
+
+  it("lists every code language by name", async () => {
+    const codeLanguage = { findMany: vi.fn().mockResolvedValue([row]) };
+    const client = { codeLanguage } as unknown as PrismaClient;
+    await expect(new PrismaCodeLanguageRepository(client).listAll()).resolves.toEqual([row]);
+    expect(codeLanguage.findMany).toHaveBeenCalledWith({ orderBy: { name: "asc" } });
+  });
 });

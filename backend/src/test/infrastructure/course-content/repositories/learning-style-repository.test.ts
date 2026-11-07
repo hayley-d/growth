@@ -23,4 +23,11 @@ describe("PrismaLearningStyleRepository", () => {
       update: newLearningStyle,
     });
   });
+
+  it("lists every learning style by name", async () => {
+    const learningStyle = { findMany: vi.fn().mockResolvedValue([row]) };
+    const client = { learningStyle } as unknown as PrismaClient;
+    await expect(new PrismaLearningStyleRepository(client).listAll()).resolves.toEqual([row]);
+    expect(learningStyle.findMany).toHaveBeenCalledWith({ orderBy: { name: "asc" } });
+  });
 });

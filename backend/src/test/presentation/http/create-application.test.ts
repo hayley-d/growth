@@ -4,7 +4,9 @@ import type { ErrorResponse } from "@shared/schemas";
 import type { Logger } from "@/application/logging/logger";
 import { NotFoundError } from "@/domain/errors";
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
+import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
+import { createUserController } from "@/presentation/controllers/user-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
 const createStubLogger = (): Logger => ({
@@ -36,6 +38,11 @@ const createTestApp = (logger: Logger) =>
         throw new NotFoundError("Lesson not found");
       },
     }),
+    userController: createUserController({ updateProfile: vi.fn() }),
+    courseContentController: createCourseContentController({
+      listLearningStyles: async () => ({ data: { learningStyles: [] } }),
+      listCodeLanguages: async () => ({ data: { codeLanguages: [] } }),
+    }),
   });
 
 describe("createApplication", () => {
@@ -57,6 +64,24 @@ describe("createApplication", () => {
     const response = await createTestApp(createStubLogger()).request("/api/algorithms");
     expect(response.status).toBe(200);
     expect(await response.json()).toEqual({ data: { algorithms: [] } });
+  });
+
+  it.each([
+    ["/api/learning-styles", { data: { learningStyles: [] } }],
+    ["/api/code-languages", { data: { codeLanguages: [] } }],
+  ])("mounts %s", async (path, expected) => {
+    const response = await createTestApp(createStubLogger()).request(path);
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(expected);
+  });
+
+  it("returns 401 for the profile update when signed out", async () => {
+    const response = await createTestApp(createStubLogger()).request("/api/me/profile", {
+      method: "PATCH",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ textToSpeech: true }),
+    });
+    expect(response.status).toBe(401);
   });
 
   it("generates a request id and sends it back", async () => {

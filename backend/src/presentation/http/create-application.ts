@@ -6,7 +6,9 @@ import { secureHeaders } from "hono/secure-headers";
 import type { AuthHandler, GetSession } from "@/application/auth/session";
 import type { Logger } from "@/application/logging/logger";
 import type { AlgorithmController } from "@/presentation/controllers/algorithm-controller";
+import type { CourseContentController } from "@/presentation/controllers/course-content-controller";
 import type { LessonController } from "@/presentation/controllers/lesson-controller";
+import type { UserController } from "@/presentation/controllers/user-controller";
 import { createAuthMiddleware } from "@/presentation/middleware/auth-middleware";
 import { createErrorHandler } from "@/presentation/middleware/error-handler";
 import { notFoundHandler } from "@/presentation/middleware/not-found-handler";
@@ -14,8 +16,10 @@ import { requestContextMiddleware } from "@/presentation/middleware/request-cont
 import { createRequestLogger } from "@/presentation/middleware/request-logger";
 import { createAlgorithmRoutes } from "@/presentation/routes/algorithm-routes";
 import { createAuthRoutes } from "@/presentation/routes/auth-routes";
+import { createCourseContentRoutes } from "@/presentation/routes/course-content-routes";
 import { healthRoutes } from "@/presentation/routes/health-routes";
 import { createLessonRoutes } from "@/presentation/routes/lesson-routes";
+import { createUserRoutes } from "@/presentation/routes/user-routes";
 
 type ApplicationDependencies = {
   logger: Logger;
@@ -23,6 +27,8 @@ type ApplicationDependencies = {
   getSession: GetSession;
   algorithmController: AlgorithmController;
   lessonController: LessonController;
+  userController: UserController;
+  courseContentController: CourseContentController;
 };
 
 export const createApplication = ({
@@ -31,6 +37,8 @@ export const createApplication = ({
   getSession,
   algorithmController,
   lessonController,
+  userController,
+  courseContentController,
 }: ApplicationDependencies) => {
   const application = new Hono();
   application.use(secureHeaders());
@@ -49,6 +57,8 @@ export const createApplication = ({
   application.route("/api/health", healthRoutes);
   application.route("/api/algorithms", createAlgorithmRoutes(algorithmController));
   application.route("/api/lessons", createLessonRoutes(lessonController));
+  application.route("/api/me", createUserRoutes(userController));
+  application.route("/api", createCourseContentRoutes(courseContentController));
   application.notFound(notFoundHandler);
   application.onError(createErrorHandler(logger));
   return application;
