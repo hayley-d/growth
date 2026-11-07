@@ -12,7 +12,10 @@ import {
   questionId,
   unitId,
 } from "@/infrastructure/course-content/content/content-id";
-import type { WrittenQuestionData } from "@/infrastructure/course-content/content/content-schema";
+import type {
+  GeneratedQuestionData,
+  WrittenQuestionData,
+} from "@/infrastructure/course-content/content/content-schema";
 
 export type UnitRow = {
   id: string;
@@ -65,10 +68,15 @@ export type QuestionRows = {
   hints: HintRow[];
 };
 
+export type QuestionSource = {
+  file: string;
+  key: string;
+};
+
 export type ContentRows = QuestionRows & {
   units: UnitRow[];
   lessons: LessonRow[];
-  questionFiles: Map<string, string>;
+  questionSources: Map<string, QuestionSource>;
 };
 
 const writtenOptions = (question: WrittenQuestionData) => {
@@ -79,19 +87,29 @@ const writtenOptions = (question: WrittenQuestionData) => {
   return [];
 };
 
+const baseRow = (
+  lessonKey: string,
+  question: WrittenQuestionData | GeneratedQuestionData,
+): Pick<
+  QuestionRow,
+  "id" | "lessonId" | "reviewLessonId" | "type" | "difficulty" | "bloomsLevel"
+> => ({
+  id: questionId(lessonKey, question.key),
+  lessonId: lessonId(lessonKey),
+  reviewLessonId: lessonId(question.reviewLesson),
+  type: question.type,
+  difficulty: question.difficulty,
+  bloomsLevel: question.bloomsLevel,
+});
+
 const lessonQuestionRows = (lesson: CheckedLesson): QuestionRows => {
   const lessonKey = lesson.data.key;
-  const owningLessonId = lessonId(lessonKey);
 
   const written = lesson.questions.map((question) => {
-    const id = questionId(lessonKey, question.key);
+    const base = baseRow(lessonKey, question);
+    const { id } = base;
     const row: QuestionRow = {
-      id,
-      lessonId: owningLessonId,
-      reviewLessonId: lessonId(question.reviewLesson),
-      type: question.type,
-      difficulty: question.difficulty,
-      bloomsLevel: question.bloomsLevel,
+      ...base,
       prompt: question.prompt,
       generatorKey: null,
       generatorOptions: null,
@@ -112,12 +130,7 @@ const lessonQuestionRows = (lesson: CheckedLesson): QuestionRows => {
   });
 
   const generated: QuestionRow[] = lesson.generated.map((question) => ({
-    id: questionId(lessonKey, question.key),
-    lessonId: owningLessonId,
-    reviewLessonId: lessonId(question.reviewLesson),
-    type: question.type,
-    difficulty: question.difficulty,
-    bloomsLevel: question.bloomsLevel,
+    ...baseRow(lessonKey, question),
     prompt: null,
     generatorKey: question.generatorKey,
     generatorOptions: question.generatorOptions ?? null,
@@ -154,13 +167,18 @@ export const toContentRows = (content: CheckedContent): ContentRows => {
     questions: questionRows.flatMap((rows) => rows.questions),
     answerOptions: questionRows.flatMap((rows) => rows.answerOptions),
     hints: questionRows.flatMap((rows) => rows.hints),
-    questionFiles: new Map(
-      content.lessons.flatMap((lesson) =>
-        lesson.questions.map((question) => [
-          questionId(lesson.data.key, question.key),
-          `${dirname(lesson.file)}/questions.ts`,
-        ]),
-      ),
+    questionSources: new Map(
+      content.lessons.flatMap((lesson) => {
+        const source = (file: string) => (question: { key: string }) =>
+          [
+            questionId(lesson.data.key, question.key),
+            { file: `${dirname(lesson.file)}/${file}`, key: question.key },
+          ] as const;
+        return [
+          ...lesson.questions.map(source("questions.ts")),
+          ...lesson.generated.map(source("generated.ts")),
+        ];
+      }),
     ),
   };
 };

@@ -28,7 +28,13 @@ import {
   FrontmatterError,
   parseFrontmatter,
 } from "@/infrastructure/course-content/content/frontmatter";
-import type { BlockFile, RawContent } from "@/infrastructure/course-content/content/read-content";
+import { groupBy } from "@/infrastructure/course-content/content/group-by";
+import type {
+  BlockFile,
+  ContentModule,
+  LessonFolder,
+  RawContent,
+} from "@/infrastructure/course-content/content/read-content";
 import {
   parseSnippet,
   type SnippetLine,
@@ -118,6 +124,13 @@ const parseWith = <Schema extends z.ZodType>(
   return null;
 };
 
+const parseOptionalList = <Schema extends z.ZodType<unknown[]>>(
+  schema: Schema,
+  module: ContentModule | null,
+  report: Report,
+): z.output<Schema> | [] =>
+  module ? (parseWith(schema, module.file, module.data, report) ?? []) : [];
+
 const checkSequence = (
   positions: readonly number[],
   file: string,
@@ -191,6 +204,20 @@ const checkBlocks = (lessonFile: string, blocks: BlockData[], report: Report) =>
   }
 };
 
+const checkReviewLesson = (
+  file: string,
+  question: { key: string; reviewLesson: string },
+  lessonKeys: ReadonlySet<string>,
+  report: Report,
+) => {
+  if (!lessonKeys.has(question.reviewLesson)) {
+    report(
+      file,
+      `Question "${question.key}" reviews lesson "${question.reviewLesson}", which doesn't exist`,
+    );
+  }
+};
+
 const checkWrittenQuestion = (
   file: string,
   question: WrittenQuestionData,
@@ -198,9 +225,7 @@ const checkWrittenQuestion = (
   report: Report,
 ) => {
   const label = `Question "${question.key}"`;
-  if (!lessonKeys.has(question.reviewLesson)) {
-    report(file, `${label} reviews lesson "${question.reviewLesson}", which doesn't exist`);
-  }
+  checkReviewLesson(file, question, lessonKeys, report);
   const treeKeys =
     question.tree === undefined ? null : readTreeKeys(question.tree, file, `${label} tree`, report);
 
@@ -251,9 +276,11 @@ export const checkContent = (raw: RawContent, { complete }: ContentCheckOptions)
     problems.push({ file, message });
   };
 
-  const units = raw.units
-    ? (parseWith(unitsContentSchema, raw.units.file, raw.units.data, report) ?? [])
-    : [];
+  for (const { file, reason } of raw.unreadableFiles) {
+    report(file, `Could not be loaded: ${reason}`);
+  }
+
+  const units = parseOptionalList(unitsContentSchema, raw.units, report);
   if (!raw.units) report(unitsFile, "units.ts is missing");
   const unitFile = raw.units?.file ?? unitsFile;
   for (const key of findDuplicates(units.map((unit) => unit.key))) {
@@ -266,31 +293,21 @@ export const checkContent = (raw: RawContent, { complete }: ContentCheckOptions)
     report,
   );
 
-  const lessons: CheckedLesson[] = [];
+  const checkedFolders: { folder: LessonFolder; lesson: CheckedLesson }[] = [];
   for (const folder of raw.lessons) {
     const data = parseWith(lessonContentSchema, folder.lesson.file, folder.lesson.data, report);
     const blocks = folder.blocks.flatMap((block) => parseBlock(block, report) ?? []);
-    const questions = folder.questions
-      ? (parseWith(
-          writtenQuestionsContentSchema,
-          folder.questions.file,
-          folder.questions.data,
-          report,
-        ) ?? [])
-      : [];
-    const generated = folder.generated
-      ? (parseWith(
-          generatedQuestionsContentSchema,
-          folder.generated.file,
-          folder.generated.data,
-          report,
-        ) ?? [])
-      : [];
+    const questions = parseOptionalList(writtenQuestionsContentSchema, folder.questions, report);
+    const generated = parseOptionalList(generatedQuestionsContentSchema, folder.generated, report);
     if (data) {
       checkBlocks(folder.lesson.file, blocks, report);
-      lessons.push({ file: folder.lesson.file, data, blocks, questions, generated });
+      checkedFolders.push({
+        folder,
+        lesson: { file: folder.lesson.file, data, blocks, questions, generated },
+      });
     }
   }
+  const lessons = checkedFolders.map(({ lesson }) => lesson);
 
   const unitKeys = new Set(units.map((unit) => unit.key));
   const lessonKeys = new Set(lessons.map((lesson) => lesson.data.key));
@@ -315,9 +332,7 @@ export const checkContent = (raw: RawContent, { complete }: ContentCheckOptions)
     );
   }
 
-  for (const folder of raw.lessons) {
-    const lesson = lessons.find((candidate) => candidate.file === folder.lesson.file);
-    if (!lesson) continue;
+  for (const { folder, lesson } of checkedFolders) {
     const questionKeys = [
       ...lesson.questions.map((question) => question.key),
       ...lesson.generated.map((question) => question.key),
@@ -331,12 +346,7 @@ export const checkContent = (raw: RawContent, { complete }: ContentCheckOptions)
     }
     const generatedFile = folder.generated?.file ?? lesson.file;
     for (const question of lesson.generated) {
-      if (!lessonKeys.has(question.reviewLesson)) {
-        report(
-          generatedFile,
-          `Question "${question.key}" reviews lesson "${question.reviewLesson}", which doesn't exist`,
-        );
-      }
+      checkReviewLesson(generatedFile, question, lessonKeys, report);
     }
   }
 
@@ -367,6 +377,9 @@ export const checkContent = (raw: RawContent, { complete }: ContentCheckOptions)
     for (const stepKey of parsed.duplicates) {
       report(snippet.file, `Step "${stepKey}" is marked more than once`);
     }
+    for (const lineNumber of parsed.emptyMarkers) {
+      report(snippet.file, `Line ${lineNumber} has an @step marker with no step key`);
+    }
     const { missing, unknown } = findCodeLineGaps(algorithm, parsed.lines);
     if (missing.length > 0) {
       report(snippet.file, `No @step marker for: ${missing.join(", ")}`);
@@ -395,17 +408,23 @@ export const checkContent = (raw: RawContent, { complete }: ContentCheckOptions)
       report(caseStudy.file, `Lesson "${caseStudy.data.lesson}" doesn't exist`);
     }
   }
-  for (const key of lessonKeys) {
-    const positions = caseStudies
-      .filter((caseStudy) => caseStudy.data.lesson === key)
-      .map((caseStudy) => caseStudy.data.position);
-    if (positions.length > 0) {
-      checkSequence(positions, "case-studies", `Case study positions in lesson "${key}"`, report);
-    }
+  for (const [key, group] of groupBy(caseStudies, (caseStudy) => caseStudy.data.lesson)) {
+    checkSequence(
+      group.map((caseStudy) => caseStudy.data.position),
+      "case-studies",
+      `Case study positions in lesson "${key}"`,
+      report,
+    );
   }
 
   for (const file of raw.strayFiles) {
     report(file, "This folder has no lesson.ts, so the file would never be loaded");
+  }
+  for (const file of raw.unknownFiles) {
+    report(
+      file,
+      "The loader doesn't read this file. Use lesson.ts, questions.ts, generated.ts or blocks/<name>.md or .ts",
+    );
   }
 
   if (complete) {

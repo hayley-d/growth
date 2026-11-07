@@ -316,7 +316,9 @@ Every `.ts` file ends with `export default ... satisfies <Type>`, with the types
 
 Written questions come in two kinds. `multiple_choice` lists `options`, with exactly one correct. `text` lists `accepted` answers, and each becomes a correct option. `build_tree`, `order_nodes` and `predict_rotation` have a `tree` (made with `encodeTree` from `@shared/avl`) and an `answer` that matches `learnerAnswerSchema`. A generated question only names its `generatorKey`, type, difficulty, Bloom's level and review lesson. It is stored with an empty explanation and no prompt, because the generator writes those when the question is asked.
 
-A snippet marks the line for each step with a trailing comment, like `if (key < node.key) { // @step insert.compare-left`. One line can carry several keys. The loader strips the markers from the stored source and turns them into `codeLine` rows. Every step the algorithm can emit needs exactly one marker.
+A snippet marks the line for each step with a trailing comment, like `if (key < node.key) { // @step insert.compare-left`. One line can carry several keys. The loader strips the markers from the stored source and turns them into `codeLine` rows. Every step the algorithm can emit needs exactly one marker. A marker with no key is a problem.
+
+The loader reports a file it can't load, like a `.ts` file with a syntax error, and keeps checking the others, so you see every problem at once. It also reports a file in a lesson folder that it would never read, like `blocks/intro.mdx` or `notes.txt`.
 
 **Keys.** Units, lessons, questions and options have a readable `key`. The loader turns each key into a fixed UUID (`content-id.ts`), so the same file always gives the same row. Folder names and positions don't affect ids, so you can rename folders and reorder lessons. Learners' progress and notes stay on the right lesson. Never reuse a key for something different: make a new key instead.
 
@@ -325,14 +327,21 @@ A snippet marks the line for each step with a trailing comment, like `if (key < 
 | Removed from the files | What the loader does |
 | --- | --- |
 | Lesson | Sets `isRetired`, and moves it to position -1, -2 and so on in its unit. The lesson API returns 404 for it and the path skips it. Notes and progress stay in the database |
-| Question | Sets `isRetired`. Question pickers must skip retired questions |
+| Question | Sets `isRetired`. Question pickers must skip retired questions: use `listActiveByLessonId` on the question repository |
 | Answer option nobody answered | Deletes it |
 | Answer option someone answered | Fails. Retire the question and add a new one with a new key |
 | Unit | Fails. Units are never removed |
+| Snippet file | Deletes the snippet and its code lines. The files are the only source of snippets |
 
-Blocks, hints, code lines and case studies have nothing pointing at them, so they are deleted and written again on every load.
+Changing what learners already answered fails too. You can't change the text of an answered option, or the type of an answered question. Retire the question and add a new one with a new key. You can fix which option is correct, because each attempt stores its own result.
 
-**How it runs.** `read-content.ts` reads the files and is the only part that touches the disk. `check-content.ts` checks them without a database and lists every problem with its file. `write-content.ts` writes everything in one transaction, so a failure leaves the database as it was. Before it writes, it moves every position out of the way, because Postgres checks the unique `(unitId, position)` key one row at a time and a swap would clash otherwise.
+Blocks, hints, code lines and case studies are deleted and written again on every load, so their ids change each time. Keep it that way: nothing may point at these tables. If a feature needs to, give that table keys and write it like lessons first.
+
+**How it runs.** `read-content.ts` reads the files and is the only part that touches the disk. `check-content.ts` checks them without a database and lists every problem with its file. `write-content.ts` writes everything in one transaction, so a failure leaves the database as it was. It takes a Postgres advisory lock first, so two loads at once (a seed and `content:load`, say) run one after the other. It reads what's in the database and `plan-content-write.ts` works out what changed, so only new and changed questions and options are written, and a load with nothing new writes almost nothing. Before it writes, it moves every position out of the way, because Postgres checks the unique `(unitId, position)` key one row at a time and a swap would clash otherwise. The transaction has 60 seconds. If it runs out, nothing is written and the error says to raise `contentTransactionOptions.timeout`.
+
+Units and lessons seeded before the loader (#61) had random ids. The `adopt_seeded_content_ids` migration gives them their key ids, matched by position and title, and progress, notes and attempts move with them because every foreign key to them is `ON UPDATE CASCADE`. It does nothing on a database without those rows.
+
+`write-content.database.test.ts` runs the writer against the real Postgres in `DATABASE_URL`. Each test runs inside a transaction that it rolls back, so your local data is never changed.
 
 `content.test.ts` checks the real `prisma/content/` folder in CI. Its second test, "is a complete course", also needs at least 14 generated questions so the daily challenge doesn't repeat for two weeks. That test fails until the lessons are written. `content:load` and the seed skip that rule, so a half-written course still deploys.
 

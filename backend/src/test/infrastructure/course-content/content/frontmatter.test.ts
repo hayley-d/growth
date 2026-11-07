@@ -20,6 +20,18 @@ describe("parseFrontmatter", () => {
     expect(parseFrontmatter("---\nposition: 1\n---").body).toBe("");
   });
 
+  it("ignores a byte order mark at the start", () => {
+    expect(parseFrontmatter("\uFEFF---\nposition: 1\n---\nBody")).toEqual({
+      data: { position: 1 },
+      body: "Body",
+    });
+  });
+
+  it("says when the frontmatter is empty", () => {
+    expect(() => parseFrontmatter("---\n---\nBody")).toThrow("The frontmatter is empty");
+    expect(() => parseFrontmatter("---\n  \n---\nBody")).toThrow("The frontmatter is empty");
+  });
+
   it("rejects a file with no frontmatter", () => {
     expect(() => parseFrontmatter("# Just markdown")).toThrow(FrontmatterError);
   });

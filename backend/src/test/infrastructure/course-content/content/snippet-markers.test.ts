@@ -25,7 +25,28 @@ describe("parseSnippet", () => {
 
   it("leaves ordinary comments alone", () => {
     const text = "x = 1 // a normal comment\n// @steps is not a marker";
-    expect(parseSnippet(text)).toEqual({ source: text, lines: [], duplicates: [] });
+    expect(parseSnippet(text)).toEqual({
+      source: text,
+      lines: [],
+      duplicates: [],
+      emptyMarkers: [],
+    });
+  });
+
+  it("reads a marker with no space or a tab after the slashes", () => {
+    const parsed = parseSnippet("a //@step search.found\nb //\t@step search.missing");
+    expect(parsed.lines).toEqual([
+      { stepKey: "search.found", lineNumber: 1 },
+      { stepKey: "search.missing", lineNumber: 2 },
+    ]);
+    expect(parsed.source).toBe("a\nb");
+  });
+
+  it("strips a marker with no key and reports its line", () => {
+    const parsed = parseSnippet("a\nb // @step   ");
+    expect(parsed.lines).toEqual([]);
+    expect(parsed.emptyMarkers).toEqual([2]);
+    expect(parsed.source).toBe("a\nb");
   });
 
   it("keeps line numbers when Windows line endings are used", () => {

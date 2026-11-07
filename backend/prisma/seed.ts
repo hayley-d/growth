@@ -1,6 +1,7 @@
 import { fileURLToPath } from "node:url";
 
 import { environment } from "@/infrastructure/config/environment";
+import { reportContentProblems } from "@/infrastructure/course-content/content/load-content";
 import {
   PrismaAlgorithmRepository,
   PrismaCodeLanguageRepository,
@@ -48,6 +49,8 @@ try {
     },
     logger,
   );
+} catch (error) {
+  if (!reportContentProblems(error)) throw error;
 } finally {
   await prismaClient.$disconnect();
 }

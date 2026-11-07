@@ -123,6 +123,8 @@ const validRaw = (): RawContent =>
       },
     ],
     strayFiles: [],
+    unknownFiles: [],
+    unreadableFiles: [],
   });
 
 type Mutable = {
@@ -136,6 +138,8 @@ type Mutable = {
   snippets: { file: string; algorithm: string; language: string; text: string }[];
   caseStudies: { data: Record<string, unknown> }[];
   strayFiles: string[];
+  unknownFiles: string[];
+  unreadableFiles: { file: string; reason: string }[];
 };
 
 const problemsAfter = (change: (raw: Mutable) => void, complete = false): ContentProblem[] => {
@@ -472,6 +476,44 @@ describe("checkContent", () => {
     });
     expect(problems).toEqual([
       { file: "02-draft/questions.ts", message: expect.stringContaining("no lesson.ts") },
+    ]);
+  });
+
+  it("reports files the loader doesn't read", () => {
+    const problems = problemsAfter((raw) => {
+      raw.unknownFiles.push("01-intro/blocks/03-extra.mdx");
+    });
+    expect(problems).toEqual([
+      {
+        file: "01-intro/blocks/03-extra.mdx",
+        message: expect.stringContaining("The loader doesn't read this file"),
+      },
+    ]);
+  });
+
+  it("reports every file that couldn't be loaded", () => {
+    const problems = problemsAfter((raw) => {
+      raw.unreadableFiles.push(
+        { file: "case-studies/broken.ts", reason: "Unexpected token" },
+        { file: "02-other/lesson.ts", reason: "Expected }" },
+      );
+    });
+    expect(problems).toEqual([
+      { file: "case-studies/broken.ts", message: "Could not be loaded: Unexpected token" },
+      { file: "02-other/lesson.ts", message: "Could not be loaded: Expected }" },
+    ]);
+  });
+
+  it("rejects an @step marker with no step key", () => {
+    const problems = problemsAfter((raw) => {
+      const [snippet] = raw.snippets;
+      if (snippet) snippet.text = `${preorderSnippet}\nnothing // @step`;
+    });
+    expect(problems).toEqual([
+      {
+        file: "snippets/preorder/java.java",
+        message: "Line 5 has an @step marker with no step key",
+      },
     ]);
   });
 

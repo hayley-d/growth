@@ -20,3 +20,10 @@ export const loadContent = async ({ client, root, logger }: LoadContentOptions) 
   logger.info("Loaded course content", result);
   return result;
 };
+
+export const reportContentProblems = (error: unknown) => {
+  if (!(error instanceof ContentProblemsError)) return false;
+  console.error(error.message);
+  process.exitCode = 1;
+  return true;
+};

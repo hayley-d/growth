@@ -60,4 +60,17 @@ describe("PrismaQuestionRepository", () => {
       data: expect.objectContaining({ answer: row.answer, tree: row.tree }),
     });
   });
+
+  it("lists a lesson's questions without the retired ones", async () => {
+    const question = { findMany: vi.fn().mockResolvedValue([row]) };
+    const client = { question } as unknown as PrismaClient;
+
+    const questions = await new PrismaQuestionRepository(client).listActiveByLessonId(row.lessonId);
+
+    expect(question.findMany).toHaveBeenCalledWith({
+      where: { lessonId: row.lessonId, isRetired: false },
+      orderBy: [{ lessonId: "asc" }, { difficulty: "asc" }],
+    });
+    expect(questions).toEqual([row]);
+  });
 });

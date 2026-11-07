@@ -1,8 +1,10 @@
 import { fileURLToPath } from "node:url";
 
 import { environment } from "@/infrastructure/config/environment";
-import { ContentProblemsError } from "@/infrastructure/course-content/content/check-content";
-import { loadContent } from "@/infrastructure/course-content/content/load-content";
+import {
+  loadContent,
+  reportContentProblems,
+} from "@/infrastructure/course-content/content/load-content";
 import { prismaClient } from "@/infrastructure/database/prisma-client";
 import { createPinoLogger } from "@/infrastructure/logging/pino-logger";
 
@@ -15,9 +17,7 @@ try {
     logger,
   });
 } catch (error) {
-  if (!(error instanceof ContentProblemsError)) throw error;
-  console.error(error.message);
-  process.exitCode = 1;
+  if (!reportContentProblems(error)) throw error;
 } finally {
   await prismaClient.$disconnect();
 }

@@ -1,7 +1,7 @@
 import { fileURLToPath } from "node:url";
 import { describe, expect, it, vi } from "vitest";
 
-import type { PrismaClient } from "@/generated/prisma/client";
+import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import {
   type CheckedContent,
   ContentProblemsError,
@@ -10,6 +10,7 @@ import {
 import { lessonId, questionId, unitId } from "@/infrastructure/course-content/content/content-id";
 import { readContent } from "@/infrastructure/course-content/content/read-content";
 import {
+  contentLockKey,
   contentTransactionOptions,
   positionShift,
   writeContent,
@@ -37,13 +38,18 @@ const createTransaction = (results: FindManyResults = {}) => {
     return {
       findMany: record("findMany", () => results[name] ?? []),
       upsert: record("upsert", () => ({ id: `${name}-id` })),
-      update: record("update", () => ({})),
+      create: record("create", () => ({ id: `${name}-id` })),
+      update: record("update", () => ({ id: `${name}-id` })),
       updateMany: record("updateMany", () => ({ count: 0 })),
       deleteMany: record("deleteMany", () => ({ count: 0 })),
       createMany: record("createMany", () => ({ count: 0 })),
     };
   };
   const transaction = {
+    $executeRaw: vi.fn(async (...argument: unknown[]) => {
+      calls.push("$executeRaw");
+      return argument.length;
+    }),
     learningStyle: model("learningStyle"),
     codeLanguage: model("codeLanguage"),
     algorithm: model("algorithm"),
@@ -76,6 +82,12 @@ const run = async (results: FindManyResults = seededLookups) => {
 };
 
 describe("writeContentInTransaction", () => {
+  it("takes the content lock before reading anything", async () => {
+    const { transaction, calls } = await run();
+    expect(calls[0]).toBe("$executeRaw");
+    expect(transaction.$executeRaw.mock.calls[0]?.[1]).toBe(contentLockKey);
+  });
+
   it("moves positions out of the way before writing units and lessons", async () => {
     const { transaction, calls } = await run();
     const shift = { data: { position: { decrement: positionShift } } };
@@ -105,8 +117,8 @@ describe("writeContentInTransaction", () => {
   it("uses the same ids on every run", async () => {
     const first = await run();
     const second = await run();
-    expect(second.transaction.question.upsert.mock.calls).toEqual(
-      first.transaction.question.upsert.mock.calls,
+    expect(second.transaction.question.createMany.mock.calls).toEqual(
+      first.transaction.question.createMany.mock.calls,
     );
   });
 
@@ -118,7 +130,10 @@ describe("writeContentInTransaction", () => {
         { id: lessonId("binary-tree"), unitId: unitId("traversal"), position: 1, isRetired: false },
         { id: "gone", unitId: unitId("traversal"), position: 2, isRetired: false },
       ],
-      question: [{ id: questionId("binary-tree", "root") }, { id: "old-question" }],
+      question: [
+        { id: questionId("binary-tree", "root"), isRetired: false, _count: { attemptAnswers: 0 } },
+        { id: "old-question", isRetired: false, _count: { attemptAnswers: 0 } },
+      ],
     });
     expect(transaction.lesson.update).toHaveBeenCalledWith({
       where: { id: "gone" },
@@ -139,16 +154,16 @@ describe("writeContentInTransaction", () => {
         expect.objectContaining({ type: "text", learningStyleId: null, position: 1 }),
       ]),
     });
-    expect(transaction.question.upsert).toHaveBeenCalledWith(
-      expect.objectContaining({
-        where: { id: questionId("binary-tree", "pre-order-easy") },
-        update: expect.objectContaining({
+    expect(transaction.question.createMany).toHaveBeenCalledWith({
+      data: expect.arrayContaining([
+        expect.objectContaining({
+          id: questionId("binary-tree", "pre-order-easy"),
           prompt: null,
           explanation: "",
           generatorKey: "traversal-order",
         }),
-      }),
-    );
+      ]),
+    });
     expect(transaction.codeLine.createMany).toHaveBeenCalledWith({
       data: expect.arrayContaining([
         { codeSnippetId: "codeSnippet-id", stepKey: "preorder.visit", lineNumber: 3 },
@@ -160,10 +175,13 @@ describe("writeContentInTransaction", () => {
       retiredLessons: 0,
       contentBlocks: 3,
       questions: 4,
+      questionsWritten: 4,
       retiredQuestions: 0,
       answerOptions: 4,
+      answerOptionsWritten: 4,
       hints: 6,
       codeSnippets: 1,
+      codeSnippetsWritten: 1,
       codeLines: 4,
       caseStudies: 1,
     });
@@ -196,6 +214,18 @@ describe("writeContentInTransaction", () => {
 });
 
 describe("writeContent", () => {
+  it("explains a transaction timeout", async () => {
+    const timeout = new Prisma.PrismaClientKnownRequestError("Transaction already closed", {
+      code: "P2028",
+      clientVersion: "test",
+    });
+    const client = { $transaction: vi.fn().mockRejectedValue(timeout) } as unknown as PrismaClient;
+
+    await expect(writeContent(client, await loadFixtures())).rejects.toThrow(
+      /took longer than 60 seconds, so nothing was written/,
+    );
+  });
+
   it("runs everything in one transaction with a long timeout", async () => {
     const { transaction } = createTransaction(seededLookups);
     const $transaction = vi.fn(async (callback: (client: unknown) => unknown) =>

@@ -1,23 +1,30 @@
-import type { Prisma, PrismaClient } from "@/generated/prisma/client";
+import { Prisma, type PrismaClient } from "@/generated/prisma/client";
 import {
   type CheckedContent,
-  type ContentProblem,
   ContentProblemsError,
 } from "@/infrastructure/course-content/content/check-content";
 import { lessonId } from "@/infrastructure/course-content/content/content-id";
 import {
   type ContentRows,
+  type QuestionRow,
   toContentRows,
 } from "@/infrastructure/course-content/content/content-rows";
 import { learningStyleNames } from "@/infrastructure/course-content/content/content-schema";
 import {
   type ContentSnapshot,
+  type ContentWritePlan,
+  checkLookups,
+  type Lookups,
   planContentWrite,
+  type RetiredLesson,
+  requireId,
 } from "@/infrastructure/course-content/content/plan-content-write";
 import { toJsonInput, toNullableJsonInput } from "@/infrastructure/database/json-input";
 import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 
 export const positionShift = 1_000_000;
+
+export const contentLockKey = 108_000_108;
 
 export const contentTransactionOptions = { maxWait: 10_000, timeout: 60_000 };
 
@@ -27,87 +34,68 @@ export type ContentWriteResult = {
   retiredLessons: number;
   contentBlocks: number;
   questions: number;
+  questionsWritten: number;
   retiredQuestions: number;
   answerOptions: number;
+  answerOptionsWritten: number;
   hints: number;
   codeSnippets: number;
+  codeSnippetsWritten: number;
   codeLines: number;
   caseStudies: number;
 };
 
 type Transaction = Prisma.TransactionClient;
 
-type Lookups = {
-  learningStyleIds: Map<string, string>;
-  codeLanguageIds: Map<string, string>;
-  algorithmIds: Map<string, string>;
-};
-
-const failWith = (problems: ContentProblem[]): never => {
-  throw new ContentProblemsError(problems);
-};
-
-const loadLookups = async (transaction: Transaction, content: CheckedContent): Promise<Lookups> => {
+const loadLookups = async (transaction: Transaction): Promise<Lookups> => {
   const [learningStyles, codeLanguages, algorithms] = await Promise.all([
     transaction.learningStyle.findMany({ select: { id: true, name: true } }),
     transaction.codeLanguage.findMany({ select: { id: true, code: true } }),
     transaction.algorithm.findMany({ select: { id: true, code: true } }),
   ]);
-  const lookups: Lookups = {
+  return {
     learningStyleIds: new Map(learningStyles.map((style) => [style.name, style.id])),
     codeLanguageIds: new Map(codeLanguages.map((language) => [language.code, language.id])),
     algorithmIds: new Map(algorithms.map((algorithm) => [algorithm.code, algorithm.id])),
   };
-
-  const problems: ContentProblem[] = [];
-  for (const lesson of content.lessons) {
-    for (const block of lesson.blocks) {
-      if (block.style && !lookups.learningStyleIds.has(learningStyleNames[block.style])) {
-        problems.push({
-          file: lesson.file,
-          message: `Learning style "${learningStyleNames[block.style]}" isn't in the database. Run the seed first`,
-        });
-      }
-    }
-  }
-  for (const snippet of content.snippets) {
-    if (!lookups.algorithmIds.has(snippet.algorithm)) {
-      problems.push({
-        file: snippet.file,
-        message: `Algorithm "${snippet.algorithm}" isn't in the database. Run the seed first`,
-      });
-    }
-    if (!lookups.codeLanguageIds.has(snippet.language)) {
-      problems.push({
-        file: snippet.file,
-        message: `Code language "${snippet.language}" isn't in the database. Run the seed first`,
-      });
-    }
-  }
-  if (problems.length > 0) failWith(problems);
-  return lookups;
 };
 
 const loadSnapshot = async (transaction: Transaction): Promise<ContentSnapshot> => {
+  const answeredCount = { _count: { select: { attemptAnswers: true } } } as const;
   const [units, lessons, questions, answerOptions] = await Promise.all([
     transaction.unit.findMany({ select: { id: true, title: true } }),
     transaction.lesson.findMany({
       select: { id: true, unitId: true, position: true, isRetired: true },
     }),
-    transaction.question.findMany({ select: { id: true } }),
-    transaction.answerOption.findMany({
+    transaction.question.findMany({
       select: {
         id: true,
-        questionId: true,
-        text: true,
-        _count: { select: { attemptAnswers: true } },
+        lessonId: true,
+        reviewLessonId: true,
+        type: true,
+        difficulty: true,
+        bloomsLevel: true,
+        prompt: true,
+        generatorKey: true,
+        generatorOptions: true,
+        explanation: true,
+        tree: true,
+        answer: true,
+        isRetired: true,
+        ...answeredCount,
       },
+    }),
+    transaction.answerOption.findMany({
+      select: { id: true, questionId: true, text: true, isCorrect: true, ...answeredCount },
     }),
   ]);
   return {
     units,
     lessons,
-    questionIds: questions.map((question) => question.id),
+    questions: questions.map(({ _count, ...question }) => ({
+      ...question,
+      answered: _count.attemptAnswers > 0,
+    })),
     answerOptions: answerOptions.map(({ _count, ...option }) => ({
       ...option,
       answered: _count.attemptAnswers > 0,
@@ -115,10 +103,12 @@ const loadSnapshot = async (transaction: Transaction): Promise<ContentSnapshot> 
   };
 };
 
-const writeCourse = async (transaction: Transaction, rows: ContentRows) => {
+const moveAllPositionsAside = async (transaction: Transaction) => {
   await transaction.unit.updateMany({ data: { position: { decrement: positionShift } } });
   await transaction.lesson.updateMany({ data: { position: { decrement: positionShift } } });
+};
 
+const writeUnitsAndLessons = async (transaction: Transaction, rows: ContentRows) => {
   for (const { id, ...unit } of rows.units) {
     await transaction.unit.upsert({ where: { id }, create: { id, ...unit }, update: unit });
   }
@@ -128,22 +118,36 @@ const writeCourse = async (transaction: Transaction, rows: ContentRows) => {
   }
 };
 
-const writeQuestions = async (transaction: Transaction, rows: ContentRows) => {
-  for (const { id, generatorOptions, answer, ...question } of rows.questions) {
-    const data = {
-      ...question,
-      generatorOptions: toNullableJsonInput(generatorOptions),
-      answer: toNullableJsonInput(answer),
-      isRetired: false,
-    };
-    await transaction.question.upsert({ where: { id }, create: { id, ...data }, update: data });
+const retireLessons = async (transaction: Transaction, retiredLessons: RetiredLesson[]) => {
+  for (const { id, position } of retiredLessons) {
+    await transaction.lesson.update({ where: { id }, data: { isRetired: true, position } });
   }
-  for (const { id, ...option } of rows.answerOptions) {
-    await transaction.answerOption.upsert({
-      where: { id },
-      create: { id, ...option },
-      update: option,
-    });
+};
+
+const toQuestionData = ({ generatorOptions, answer, ...question }: QuestionRow) => ({
+  ...question,
+  generatorOptions: toNullableJsonInput(generatorOptions),
+  answer: toNullableJsonInput(answer),
+  isRetired: false,
+});
+
+const writeQuestions = async (
+  transaction: Transaction,
+  rows: ContentRows,
+  plan: ContentWritePlan,
+) => {
+  await transaction.answerOption.deleteMany({ where: { id: { in: plan.deletedAnswerOptionIds } } });
+  await transaction.question.createMany({ data: plan.newQuestions.map(toQuestionData) });
+  for (const { id, ...question } of plan.changedQuestions.map(toQuestionData)) {
+    await transaction.question.update({ where: { id }, data: question });
+  }
+  await transaction.question.updateMany({
+    where: { id: { in: plan.retiredQuestionIds } },
+    data: { isRetired: true },
+  });
+  await transaction.answerOption.createMany({ data: plan.newAnswerOptions });
+  for (const { id, ...option } of plan.changedAnswerOptions) {
+    await transaction.answerOption.update({ where: { id }, data: option });
   }
   await transaction.hint.deleteMany({
     where: { questionId: { in: rows.questions.map((question) => question.id) } },
@@ -160,7 +164,7 @@ const writeContentBlocks = async (
     lesson.blocks.map((block) => ({
       lessonId: lessonId(lesson.data.key),
       learningStyleId: block.style
-        ? (lookups.learningStyleIds.get(learningStyleNames[block.style]) ?? null)
+        ? requireId(lookups.learningStyleIds, learningStyleNames[block.style])
         : null,
       type: block.type,
       body: toJsonInput(block.body),
@@ -180,26 +184,50 @@ const writeSnippets = async (
   content: CheckedContent,
   lookups: Lookups,
 ) => {
+  const existing = await transaction.codeSnippet.findMany({
+    select: { id: true, algorithmId: true, codeLanguageId: true, source: true },
+  });
   const keptSnippetIds: string[] = [];
-  let codeLines = 0;
+  const rewritten: { id: string; lines: CheckedContent["snippets"][number]["lines"] }[] = [];
+
   for (const snippet of content.snippets) {
-    const algorithmId = lookups.algorithmIds.get(snippet.algorithm) ?? "";
-    const codeLanguageId = lookups.codeLanguageIds.get(snippet.language) ?? "";
-    const { id } = await transaction.codeSnippet.upsert({
-      where: { algorithmId_codeLanguageId: { algorithmId, codeLanguageId } },
-      create: { algorithmId, codeLanguageId, source: snippet.source },
-      update: { source: snippet.source },
-      select: { id: true },
-    });
+    const algorithmId = requireId(lookups.algorithmIds, snippet.algorithm);
+    const codeLanguageId = requireId(lookups.codeLanguageIds, snippet.language);
+    const stored = existing.find(
+      (candidate) =>
+        candidate.algorithmId === algorithmId && candidate.codeLanguageId === codeLanguageId,
+    );
+    if (stored?.source === snippet.source) {
+      keptSnippetIds.push(stored.id);
+      continue;
+    }
+    const { id } = stored
+      ? await transaction.codeSnippet.update({
+          where: { id: stored.id },
+          data: { source: snippet.source },
+          select: { id: true },
+        })
+      : await transaction.codeSnippet.create({
+          data: { algorithmId, codeLanguageId, source: snippet.source },
+          select: { id: true },
+        });
     keptSnippetIds.push(id);
-    await transaction.codeLine.deleteMany({ where: { codeSnippetId: id } });
-    await transaction.codeLine.createMany({
-      data: snippet.lines.map((line) => ({ codeSnippetId: id, ...line })),
-    });
-    codeLines += snippet.lines.length;
+    rewritten.push({ id, lines: snippet.lines });
   }
+
   await transaction.codeSnippet.deleteMany({ where: { id: { notIn: keptSnippetIds } } });
-  return codeLines;
+  await transaction.codeLine.deleteMany({
+    where: { codeSnippetId: { in: rewritten.map((snippet) => snippet.id) } },
+  });
+  await transaction.codeLine.createMany({
+    data: rewritten.flatMap(({ id, lines }) =>
+      lines.map((line) => ({ codeSnippetId: id, ...line })),
+    ),
+  });
+  return {
+    codeSnippetsWritten: rewritten.length,
+    codeLines: content.snippets.reduce((total, snippet) => total + snippet.lines.length, 0),
+  };
 };
 
 const writeCaseStudies = async (transaction: Transaction, content: CheckedContent) => {
@@ -220,25 +248,19 @@ export const writeContentInTransaction = async (
   transaction: Transaction,
   content: CheckedContent,
 ): Promise<ContentWriteResult> => {
-  const lookups = await loadLookups(transaction, content);
+  await transaction.$executeRaw`SELECT pg_advisory_xact_lock(${contentLockKey}::bigint)`;
+  const lookups = await loadLookups(transaction);
   const rows = toContentRows(content);
   const plan = planContentWrite(rows, await loadSnapshot(transaction));
-  if (plan.problems.length > 0) failWith(plan.problems);
+  const problems = [...checkLookups(content, lookups), ...plan.problems];
+  if (problems.length > 0) throw new ContentProblemsError(problems);
 
-  await writeCourse(transaction, rows);
-  for (const { id, position } of plan.retiredLessons) {
-    await transaction.lesson.update({ where: { id }, data: { isRetired: true, position } });
-  }
+  await moveAllPositionsAside(transaction);
+  await writeUnitsAndLessons(transaction, rows);
+  await retireLessons(transaction, plan.retiredLessons);
   const contentBlocks = await writeContentBlocks(transaction, content, lookups);
-
-  await transaction.answerOption.deleteMany({ where: { id: { in: plan.deletedAnswerOptionIds } } });
-  await writeQuestions(transaction, rows);
-  await transaction.question.updateMany({
-    where: { id: { in: plan.retiredQuestionIds } },
-    data: { isRetired: true },
-  });
-
-  const codeLines = await writeSnippets(transaction, content, lookups);
+  await writeQuestions(transaction, rows, plan);
+  const snippets = await writeSnippets(transaction, content, lookups);
   await writeCaseStudies(transaction, content);
 
   return {
@@ -247,19 +269,33 @@ export const writeContentInTransaction = async (
     retiredLessons: plan.retiredLessons.length,
     contentBlocks,
     questions: rows.questions.length,
+    questionsWritten: plan.newQuestions.length + plan.changedQuestions.length,
     retiredQuestions: plan.retiredQuestionIds.length,
     answerOptions: rows.answerOptions.length,
+    answerOptionsWritten: plan.newAnswerOptions.length + plan.changedAnswerOptions.length,
     hints: rows.hints.length,
     codeSnippets: content.snippets.length,
-    codeLines,
+    ...snippets,
     caseStudies: content.caseStudies.length,
   };
 };
 
-export const writeContent = (client: PrismaClient, content: CheckedContent) =>
-  withPrismaErrors(() =>
-    client.$transaction(
-      (transaction) => writeContentInTransaction(transaction, content),
-      contentTransactionOptions,
-    ),
-  );
+const isTransactionTimeout = (error: unknown) =>
+  error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2028";
+
+export const writeContent = async (client: PrismaClient, content: CheckedContent) => {
+  try {
+    return await withPrismaErrors(() =>
+      client.$transaction(
+        (transaction) => writeContentInTransaction(transaction, content),
+        contentTransactionOptions,
+      ),
+    );
+  } catch (error) {
+    if (!isTransactionTimeout(error)) throw error;
+    throw new Error(
+      `The content load took longer than ${contentTransactionOptions.timeout / 1000} seconds, so nothing was written. Raise contentTransactionOptions.timeout in write-content.ts`,
+      { cause: error },
+    );
+  }
+};
