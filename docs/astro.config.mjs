@@ -63,6 +63,12 @@ export default defineConfig({
                         },
                       ],
                     },
+                    {
+                      label: "Playground",
+                      items: [
+                        { label: "Code trace", slug: "id/storyboards/playground/code-trace" },
+                      ],
+                    },
                   ],
                 },
                 { label: "Motivation", slug: "id/motivation" },

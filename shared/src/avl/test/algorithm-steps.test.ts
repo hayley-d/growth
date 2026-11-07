@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import {
   type AvlNode,
   algorithmCodes,
+  algorithmOf,
   insertKey,
   isAlgorithmCode,
   type StepKey,
@@ -77,5 +78,22 @@ describe("stepKeysByAlgorithm", () => {
 
     const catalogued = Object.values(stepKeysByAlgorithm).flat();
     expect(catalogued.filter((stepKey) => !emitted.has(stepKey))).toEqual([]);
+  });
+});
+
+describe("algorithmOf", () => {
+  it("reads the algorithm from the start of a step key", () => {
+    expect(algorithmOf("rotate-right.lift-pivot")).toBe("rotate-right");
+    expect(algorithmOf("update-height.compute-balance")).toBe("update-height");
+  });
+
+  it.each(algorithmCodes)("gives %s back for every one of its keys", (code) => {
+    for (const stepKey of stepKeysByAlgorithm[code]) expect(algorithmOf(stepKey)).toBe(code);
+  });
+
+  it("throws for a key with no dot instead of guessing the algorithm", () => {
+    expect(() => algorithmOf("inserts" as StepKey)).toThrow(
+      "Unknown algorithm in step key inserts",
+    );
   });
 });

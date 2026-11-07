@@ -14,7 +14,7 @@ shared/src/
     src/
       algorithm-steps.ts  the algorithm codes and every step key each one can emit
       step-messages.ts    the sentence for each step key, built from that step's variables
-      step-recorder.ts    Step and StepRecorder: snapshots of the tree as an operation runs
+      step-recorder.ts    Step, CallFrame, StepRecorder and withinCall: snapshots of the tree and the call stack as an operation runs
       avl-tree.ts         insert, remove, rotations, rebalance, layout, and their trace* versions
       tree-traversal.ts   TreeTraversal and traceTraversal: walk a tree one node at a time
       tree-searcher.ts    TreeSearcher and traceSearch: find a key and the path to it
@@ -89,6 +89,7 @@ Each step is a snapshot:
   stepKey: "insert.go-right",
   tree: root,
   nodeStates: { 20: "active", 10: "visited" },
+  callStack: [{ algorithm: "insert", node: 20 }],
   message: "40 is bigger than 20, so go right.",
   variables: { key: 40, node: 20 },
 }
@@ -98,6 +99,7 @@ Each step is a snapshot:
 - `nodeStates` gives a node one of `active`, `visited`, `deleting`, `unbalanced` or `new`. It only names keys that are in that step's tree, and steps share one frozen object until a state changes.
 - `message` is shown on screen and read out by text-to-speech. It comes from `step-messages.ts`, which has one function per step key. Each function takes that step's variables, so the engine only passes variables and the wording lives in one file.
 - `stepKey` names the point in the algorithm. The code trace uses it to find the line to highlight.
+- `callStack` lists the calls that are open, outermost first. Each frame is the algorithm and the key of the node it was called on, or `null` for an empty child, so `insert(20) › insert(30) › rebalance(30)`. The code trace shows it so a jump into another function makes sense. Steps share one frozen array until a call opens or closes.
 
 How long each state lasts:
 
@@ -110,7 +112,9 @@ How long each state lasts:
 
 States are keyed by node key. For a few steps of a delete with two children, the copied successor and the old successor leaf have the same key, so they show the same state. That ends when the leaf is removed.
 
-Insert and delete also run `update-height`, `rebalance` and the rotations as they unwind, so their steps include those keys too.
+Insert and delete also run `update-height`, `rebalance` and the rotations as they unwind, so their steps include those keys too. Before each of those calls there is a step of its own, `insert.update-height` and then `insert.rebalance` (or the `delete.` ones), so the code trace stops on the line that makes the call instead of jumping into the other function. In a double rotation, `rebalance.finish-left-right` or `rebalance.finish-right-left` comes back to `rebalance` between the two turns.
+
+To open a frame, wrap the work in `withinCall(recorder, algorithm, node, () => ...)`. It works with no recorder too, so the plain functions don't change.
 
 ### Step keys
 
@@ -122,6 +126,34 @@ Insert and delete also run `update-height`, `rebalance` and the rotations as the
 - A test runs the engine on many random trees and checks that every listed key gets emitted, so the list never holds a dead key.
 
 The backend seeds one `algorithm` row per code, and every code snippet needs a line for every key of its algorithm. To add a step, add the key to the list, write its message, emit it, and add its line to every snippet for that algorithm. The seed fails until you do.
+
+### Every line that runs is a step
+
+The code trace works like a debugger, so the arrow never skips a line that runs. The engine records a step for:
+
+- every `if` and `while`, whether it comes out true or false. The message gives the answer, like "Is 5 smaller than 30? Yes."
+- every line that calls another function, before the call starts
+- every line that does something or returns
+
+So each algorithm has one shape of code, and every snippet follows it. This is insert in pseudocode, with the step on each line:
+
+```
+function insert(node, key)
+  if node is empty                         insert.check-empty
+    return new Node(key)                   insert.create-node
+  if key < node.key                        insert.compare
+    node.left = insert(node.left, key)     insert.go-left
+  else if key > node.key                   insert.check-bigger
+    node.right = insert(node.right, key)   insert.go-right
+  else
+    return node                            insert.duplicate
+  updateHeight(node)                       insert.update-height
+  return rebalance(node)                   insert.rebalance
+```
+
+Lines that only hold syntax, like `else`, `}` or `function`, have no step. When you write a snippet in another language, keep the same lines in the same order. If a language needs two things on one line, give that line both keys (`// @step rotate-right.check-pivot rotate-right.pick-pivot`), and the arrow stays there for both steps. If you add a check to an algorithm, add a step for it too, or the arrow will skip it.
+
+Rebalance asks which side is heavy with one step, `rebalance.check-side`. Write that as one `if balance > 1 … else …` in every snippet, not as two `if` lines, because the engine records one step for it whichever side is heavy.
 
 ## Search
 

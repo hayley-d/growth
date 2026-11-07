@@ -45,27 +45,36 @@ describe("traceSearch", () => {
     const traced = traceSearch(root, 15);
     expect(traced.result?.key).toBe(15);
     expect(traced.steps.map((step) => step.stepKey)).toEqual([
+      "search.check-empty",
       "search.compare",
+      "search.check-smaller",
       "search.go-left",
+      "search.check-empty",
       "search.compare",
+      "search.check-smaller",
       "search.go-right",
+      "search.check-empty",
       "search.compare",
       "search.found",
     ]);
-    expect(traced.steps[1]?.message).toBe("15 is smaller than 20, so go left.");
+    expect(traced.steps[2]?.message).toBe("Is 15 smaller than 20? Yes.");
     expect(traced.steps.at(-1)?.nodeStates).toEqual({ 20: "visited", 10: "visited", 15: "active" });
   });
 
   it("reports a missing key after the last move", () => {
     const traced = traceSearch(root, 12);
     expect(traced.result).toBeNull();
-    expect(traced.steps.map((step) => step.stepKey).slice(-2)).toEqual([
+    expect(traced.steps.map((step) => step.stepKey).slice(-3)).toEqual([
       "search.go-left",
+      "search.check-empty",
       "search.not-found",
     ]);
   });
 
   it("reports a missing key straight away in an empty tree", () => {
-    expect(traceSearch(null, 1).steps.map((step) => step.stepKey)).toEqual(["search.not-found"]);
+    expect(traceSearch(null, 1).steps.map((step) => step.stepKey)).toEqual([
+      "search.check-empty",
+      "search.not-found",
+    ]);
   });
 });

@@ -21,7 +21,13 @@ const linesFor = (codeSnippetId: string, stepKeys: readonly string[]): CodeLine[
 const rustGap = {
   algorithm: "search",
   language: "rust",
-  missing: ["search.go-left", "search.go-right", "search.not-found"],
+  missing: [
+    "search.check-empty",
+    "search.check-smaller",
+    "search.go-left",
+    "search.go-right",
+    "search.not-found",
+  ],
   unknown: ["search.give-up"],
 };
 
@@ -72,6 +78,26 @@ describe("checkCodeLines", () => {
     await expect(checkCodeLines(createDependencies(codeLines))).resolves.toEqual({
       snippetsChecked: 2,
       gaps: [rustGap],
+    });
+  });
+
+  it("checks a snippet against every step key the engine lists for its algorithm", async () => {
+    const insertSnippet = {
+      id: "insert-java",
+      algorithmId: "insert-id",
+      codeLanguageId: "java-id",
+      source: "",
+    };
+    await expect(checkCodeLines(createDependencies([], [insertSnippet]))).resolves.toEqual({
+      snippetsChecked: 1,
+      gaps: [
+        {
+          algorithm: "insert",
+          language: "java",
+          missing: [...stepKeysByAlgorithm.insert],
+          unknown: [],
+        },
+      ],
     });
   });
 });
@@ -140,7 +166,7 @@ describe("verifyCodeLines", () => {
       ...linesFor("search-rust", ["search.compare", "search.found"]),
     ];
     await expect(verifyCodeLines(createDependencies(codeLines), logger)).rejects.toThrow(
-      "search (rust): search.go-left, search.go-right, search.not-found",
+      "search (rust): search.check-empty, search.check-smaller, search.go-left, search.go-right, search.not-found",
     );
     expect(logger.info).not.toHaveBeenCalled();
   });
