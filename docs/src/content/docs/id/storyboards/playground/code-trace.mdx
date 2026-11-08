@@ -1,0 +1,111 @@
+---
+title: "Code trace"
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+The code trace panel sits next to the tree in the playground and in lessons. 
+As a step plays, it shows the line of code that is running and the variables. 
+
+## A: Debugger
+
+This prototype looks like the debugger in a code editor. The tree is on the left, 
+the code is on the right with a variables table under it, and one message bar 
+runs along the bottom.
+
+<Steps>
+
+1. The learner presses play and sees the tree on the left and the code on the right.
+
+2. The learner follows the arrow to the line that is running, and reads the variables in the table under the code.
+
+3. The learner reads the step's message in the bar along the bottom, and presses Listen to hear it.
+
+   ![Frame at step 1 of 23. The tree 30, 20, 40, 10 is on the left with 30 marked active. The pseudocode is on the right with an arrow on line 4, "compare key with node.key". A table under the code shows key 5 and node 30. The bar along the bottom says "Compare 5 with 30." with a Listen button.](../../../../../assets/id/prototypes/code-trace/debugger-1.png)
+
+   *Figure 1: A · Debugger*
+
+</Steps>
+
+## B: Narrator first
+
+This prototype has a large message card, with the variables inside it as chips. The tree and the code sit underneath it.
+
+<Steps>
+
+1. The learner reads the step's message at the top.
+
+2. The learner looks down at the tree and the code to see the step happen.
+
+   ![Frame at step 3. A large card at the top says "Compare 5 with 20." with chips for key 5 and node 20, and a Listen button. The tree is under it on the left with 20 active. The code is on the right with the arrow on line 4.](../../../../../assets/id/prototypes/code-trace/narrator-first-1.png)
+
+   *Figure 2: B · Narrator first*
+
+</Steps>
+
+## C: Inline values
+
+The variables are written at the end of the line in faint text, 
+and the message hangs under the line as a speech bubble.
+
+<Steps>
+
+1. The learner follows the arrow to the line that is running, and reads the variables written at the end of it.
+
+2. The learner reads the message in the bubble under the line, and presses Listen to hear it.
+
+   ![Frame at step 3. The arrow is on line 4, with "key = 5, node = 20" written at the end of the line. A speech bubble under the line says "Compare 5 with 20." with a Listen button. The tree is on the left.](../../../../../assets/id/prototypes/code-trace/inline-values-1.png)
+
+   *Figure 3: C · Inline values*
+
+</Steps>
+
+## D: Variables on the tree
+
+This prototype draws the variables that point at nodes as tags on the tree. The key being inserted sits in the corner.
+
+<Steps>
+
+1. The learner sees a "node" tag on the node the code is working on, and the key to insert in the corner.
+
+2. The learner reads what each tag means in the key under the tree, and reads the message under it.
+
+   ![Frame at step 3. The tree has a purple "node" tag on 20 and a dashed "key = 5" chip in the top corner. Under the tree is a key for node, pivot and child, and the message "Compare 5 with 20." with a Listen button. The code is on the right.](../../../../../assets/id/prototypes/code-trace/variables-on-the-tree-1.png)
+
+   *Figure 4: D · Variables on the tree*
+
+</Steps>
+
+## E: Trail
+
+This prototype shows where the learner came from. The last three lines keep a fading mark, the variables table shows what changed, and a log lists every message so far.
+
+<Steps>
+
+1. The learner sees the line that is running and a fading mark on the line before it.
+
+2. The learner sees which variables changed in the table.
+
+3. The learner reads the newest message at the top of the log, with the earlier ones under it.
+
+   ![Frame at step 4. The arrow is on line 8, "node.left = insert(node.left, key)", and line 4 has a mark that says "1 step ago". Under the tree, a log lists "5 is smaller than 20, so go left." in bold with three earlier messages under it.](../../../../../assets/id/prototypes/code-trace/trail-1.png)
+
+   *Figure 5: E · Trail*
+
+</Steps>
+
+## Decision
+
+<Aside type="tip" title="We picked A, the Debugger">
+</Aside>
+
+### Why we chose the Debugger
+
+- It best links each line of code to what it does in the tree. The tree and the code sit side by side, so the learner sees how the code and the change to the tree go together.
+- It doesn't overwhelm the learner with extra information. Each part has one job.
+- The arrow and the highlighted line show exactly where the learner is in the operation, whether that's an insert, a height update, a rebalance or a delete.
+- The values are always shown under the code, so the learner can check them whenever they're unsure.
+- The message explains each step in plain words, for learners who aren't yet comfortable reading code.
+- The Listen button reads the message aloud, for learners who learn best by listening and for learners with a visual impairment.
+- The highlight can be adapted for learners with a visual impairment, such as colour blindness. The arrow marks the line too, so it never relies on colour alone.
+

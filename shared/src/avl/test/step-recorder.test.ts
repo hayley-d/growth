@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { type AvlNode, insertKey, StepRecorder } from "@shared/avl";
+import { type AvlNode, insertKey, StepRecorder, withinCall } from "@shared/avl";
 
 const build = (keys: number[]) =>
   keys.reduce<AvlNode | null>((root, key) => insertKey(root, key), null);
@@ -16,10 +16,66 @@ describe("StepRecorder", () => {
         stepKey: "search.compare",
         tree: root,
         nodeStates: { 20: "active" },
-        message: "Compare 10 with 20.",
+        callStack: [],
+        message: "Is 10 equal to 20? No.",
         variables: { key: 10, node: 20 },
       },
     ]);
+  });
+
+  it("records the calls that are open when a step is emitted", () => {
+    const recorder = new StepRecorder(build([20, 10]));
+    withinCall(recorder, "insert", 20, () => {
+      recorder.emit("insert.compare", { key: 5, node: 20 });
+      withinCall(recorder, "insert", 10, () => {
+        recorder.emit("insert.compare", { key: 5, node: 10 });
+      });
+      recorder.emit("insert.update-height", { node: 20 });
+    });
+    expect(recorder.steps.map((step) => step.callStack)).toEqual([
+      [{ algorithm: "insert", node: 20 }],
+      [
+        { algorithm: "insert", node: 20 },
+        { algorithm: "insert", node: 10 },
+      ],
+      [{ algorithm: "insert", node: 20 }],
+    ]);
+  });
+
+  it("shares one frozen call stack between steps where no call changed", () => {
+    const recorder = new StepRecorder(build([20]));
+    withinCall(recorder, "search", 20, () => {
+      recorder.emit("search.compare", { key: 20, node: 20 });
+      recorder.emit("search.found", { key: 20, node: 20 });
+    });
+    const [first, second] = recorder.steps;
+    expect(first?.callStack).toBe(second?.callStack);
+    expect(Object.isFrozen(first?.callStack)).toBe(true);
+  });
+
+  it("closes the call around withinCall and returns its result", () => {
+    const recorder = new StepRecorder(build([20]));
+    const result = withinCall(recorder, "search", 20, () => {
+      recorder.emit("search.compare", { key: 20, node: 20 });
+      return "done";
+    });
+    recorder.emit("search.found", { key: 20, node: 20 });
+    expect(result).toBe("done");
+    expect(recorder.steps.map((step) => step.callStack.length)).toEqual([1, 0]);
+    expect(withinCall(undefined, "search", 20, () => 7)).toBe(7);
+  });
+
+  it("closes the call when the work inside withinCall throws", () => {
+    const recorder = new StepRecorder(build([20, 10]));
+    withinCall(recorder, "insert", 20, () => {
+      expect(() =>
+        withinCall(recorder, "insert", 10, () => {
+          throw new Error("stop");
+        }),
+      ).toThrow("stop");
+      recorder.emit("insert.update-height", { node: 20 });
+    });
+    expect(recorder.steps[0]?.callStack).toEqual([{ algorithm: "insert", node: 20 }]);
   });
 
   it("turns the active node into a visited one when the focus moves", () => {
@@ -107,7 +163,7 @@ describe("StepRecorder", () => {
 
   it("returns the result with the steps", () => {
     const recorder = new StepRecorder(null);
-    recorder.emit("levelorder.done", { visited: 0 });
+    recorder.emit("levelorder.check-queue", { queued: 0, visited: 0 });
     expect(recorder.finish([1, 2])).toEqual({ result: [1, 2], steps: recorder.steps });
   });
 });

@@ -1,4 +1,4 @@
-import type { StepKey } from "@shared/avl/src/algorithm-steps";
+import type { AlgorithmCode, StepKey } from "@shared/avl/src/algorithm-steps";
 import type { AvlNode } from "@shared/avl/src/avl-tree";
 import { describeStep, type StepMessageVariables } from "@shared/avl/src/step-messages";
 
@@ -6,10 +6,16 @@ export type NodeState = "active" | "visited" | "deleting" | "unbalanced" | "new"
 
 export type StepVariables = Record<string, number | string | boolean | null>;
 
+export type CallFrame = Readonly<{
+  algorithm: AlgorithmCode;
+  node: number | null;
+}>;
+
 export type Step = {
   stepKey: StepKey;
   tree: AvlNode | null;
   nodeStates: Readonly<Record<number, NodeState>>;
+  callStack: readonly CallFrame[];
   message: string;
   variables: StepVariables;
 };
@@ -47,6 +53,9 @@ export class StepRecorder {
   private newKey: number | null = null;
   private snapshot: Readonly<Record<number, NodeState>> = Object.freeze({});
   private changed = false;
+  private readonly frames: CallFrame[] = [];
+  private stackSnapshot: readonly CallFrame[] = Object.freeze([]);
+  private stackChanged = false;
 
   constructor(tree: AvlNode | null) {
     this.tree = tree;
@@ -58,6 +67,15 @@ export class StepRecorder {
 
   leave(): void {
     this.path.pop();
+  }
+
+  within<Result>(algorithm: AlgorithmCode, node: number | null, run: () => Result): Result {
+    this.call(algorithm, node);
+    try {
+      return run();
+    } finally {
+      this.endCall();
+    }
   }
 
   replace(subtree: AvlNode | null): void {
@@ -93,10 +111,15 @@ export class StepRecorder {
       this.snapshot = Object.freeze(Object.fromEntries(this.states));
       this.changed = false;
     }
+    if (this.stackChanged) {
+      this.stackSnapshot = Object.freeze([...this.frames]);
+      this.stackChanged = false;
+    }
     this.steps.push({
       stepKey,
       tree: this.tree,
       nodeStates: this.snapshot,
+      callStack: this.stackSnapshot,
       message: describeStep(stepKey, variables),
       variables,
     });
@@ -104,6 +127,16 @@ export class StepRecorder {
 
   finish<Result>(result: Result): SteppedResult<Result> {
     return { result, steps: this.steps };
+  }
+
+  private call(algorithm: AlgorithmCode, node: number | null): void {
+    this.frames.push(Object.freeze({ algorithm, node }));
+    this.stackChanged = true;
+  }
+
+  private endCall(): void {
+    this.frames.pop();
+    this.stackChanged = true;
   }
 
   private demote(key: number | null, from: NodeState): void {
@@ -116,3 +149,10 @@ export class StepRecorder {
     this.changed = true;
   }
 }
+
+export const withinCall = <Result>(
+  recorder: StepRecorder | undefined,
+  algorithm: AlgorithmCode,
+  node: number | null,
+  run: () => Result,
+): Result => (recorder ? recorder.within(algorithm, node, run) : run());
