@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 680" font-family="ui-sans-serif, system-ui, sans-serif">
-  <title>Cards instead of circles. Each node is a card, and the state word stays when the colour bar is grey.</title>
+  <title>Cards instead of circles. A node is represented as a coloured or grey card.</title>
   <rect width="960" height="680" fill="#f3efe6"/>
   <text x="36" y="42" font-size="22" fill="#1c1c1c">Cards instead of circles</text>
-  <text x="36" y="68" font-size="14" fill="#4e4942">Each node is a card. The state word stays when the colour bar is grey.</text>
+  <text x="36" y="68" font-size="14" fill="#4e4942">A node is represented as a coloured or grey card.</text>
 
   <text x="36" y="104" font-size="13" font-weight="600" fill="#4e4942">With colour</text>
   <g stroke="#6e685f" stroke-width="2" fill="none">
@@ -48,7 +48,7 @@
     <text x="256" y="412">bf 2</text>
   </g>
 
-  <text x="620" y="104" font-size="13" font-weight="600" fill="#4e4942">Colour removed</text>
+  <text x="620" y="104" font-size="13" font-weight="600" fill="#4e4942">Grey</text>
   <g font-size="12" fill="#1c1c1c">
     <rect x="620" y="124" width="168" height="72" fill="#f7f7f7" stroke="#222"/>
     <rect x="620" y="124" width="8" height="72" fill="#bdbdbd"/>
@@ -76,7 +76,7 @@
   </g>
 
   <line x1="36" y1="470" x2="924" y2="470" stroke="#d9d1c3"/>
-  <text x="48" y="502" font-size="13" font-weight="600" fill="#4e4942">Height and balance factor</text>
+  <text x="48" y="502" font-size="13" font-weight="600" fill="#4e4942">Height and balance indicators</text>
   <text x="48" y="530" font-size="12" fill="#4e4942">Shown</text>
   <g font-size="12" fill="#1c1c1c">
     <rect x="48" y="544" width="150" height="84" fill="#fffdf8" stroke="#6e685f"/>
