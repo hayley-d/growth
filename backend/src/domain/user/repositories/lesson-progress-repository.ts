@@ -11,4 +11,6 @@ export type LessonProgressRepository = Repository<
   NewLessonProgress,
   LessonProgressChanges,
   LessonProgressKey
->;
+> & {
+  listByUserId(userId: string): Promise<LessonProgress[]>;
+};

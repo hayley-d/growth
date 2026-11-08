@@ -7,6 +7,7 @@ import type { AuthHandler, GetSession } from "@/application/auth/session";
 import type { Logger } from "@/application/logging/logger";
 import type { AlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import type { CourseContentController } from "@/presentation/controllers/course-content-controller";
+import type { LearningPathController } from "@/presentation/controllers/learning-path-controller";
 import type { LessonController } from "@/presentation/controllers/lesson-controller";
 import type { UserController } from "@/presentation/controllers/user-controller";
 import { createAuthMiddleware } from "@/presentation/middleware/auth-middleware";
@@ -18,6 +19,7 @@ import { createAlgorithmRoutes } from "@/presentation/routes/algorithm-routes";
 import { createAuthRoutes } from "@/presentation/routes/auth-routes";
 import { createCourseContentRoutes } from "@/presentation/routes/course-content-routes";
 import { healthRoutes } from "@/presentation/routes/health-routes";
+import { createLearningPathRoutes } from "@/presentation/routes/learning-path-routes";
 import { createLessonRoutes } from "@/presentation/routes/lesson-routes";
 import { createUserRoutes } from "@/presentation/routes/user-routes";
 
@@ -29,6 +31,7 @@ type ApplicationDependencies = {
   lessonController: LessonController;
   userController: UserController;
   courseContentController: CourseContentController;
+  learningPathController: LearningPathController;
 };
 
 export const createApplication = ({
@@ -39,6 +42,7 @@ export const createApplication = ({
   lessonController,
   userController,
   courseContentController,
+  learningPathController,
 }: ApplicationDependencies) => {
   const application = new Hono();
   application.use(secureHeaders());
@@ -57,6 +61,7 @@ export const createApplication = ({
   application.route("/api/health", healthRoutes);
   application.route("/api/algorithms", createAlgorithmRoutes(algorithmController));
   application.route("/api/lessons", createLessonRoutes(lessonController));
+  application.route("/api/learning-path", createLearningPathRoutes(learningPathController));
   application.route("/api/me", createUserRoutes(userController));
   application.route("/api", createCourseContentRoutes(courseContentController));
   application.notFound(notFoundHandler);

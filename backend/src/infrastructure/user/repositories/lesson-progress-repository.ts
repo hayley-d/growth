@@ -10,6 +10,7 @@ import type {
   Prisma,
   PrismaClient,
 } from "@/generated/prisma/client";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 import { toLessonProgress } from "@/infrastructure/user/mappers/lesson-progress-mapper";
 
@@ -39,5 +40,16 @@ export class PrismaLessonProgressRepository
       toCreateData: (lessonProgress) => lessonProgress,
       toUpdateData: (changes) => changes,
     });
+  }
+
+  listByUserId(userId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.lessonProgress.findMany({
+          where: { userId },
+          orderBy: this.options.orderBy,
+        })
+      ).map(toLessonProgress),
+    );
   }
 }

@@ -2,6 +2,7 @@ import type { UnitRepository } from "@/domain/course-content/repositories/unit-r
 import type { NewUnit, Unit, UnitChanges } from "@/domain/course-content/unit";
 import type { Prisma, PrismaClient, Unit as UnitRow } from "@/generated/prisma/client";
 import { toUnit } from "@/infrastructure/course-content/mappers/unit-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type UnitModel = {
@@ -28,6 +29,12 @@ export class PrismaUnitRepository
 
   findByPosition(position: number) {
     return this.findOne({ position });
+  }
+
+  listAll() {
+    return withPrismaErrors(async () =>
+      (await this.client.unit.findMany({ orderBy: this.options.orderBy })).map(toUnit),
+    );
   }
 
   upsertByPosition(unit: NewUnit) {

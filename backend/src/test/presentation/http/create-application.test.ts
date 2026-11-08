@@ -5,6 +5,7 @@ import type { Logger } from "@/application/logging/logger";
 import { NotFoundError } from "@/domain/errors";
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
+import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createUserController } from "@/presentation/controllers/user-controller";
 import { createApplication } from "@/presentation/http/create-application";
@@ -43,6 +44,7 @@ const createTestApp = (logger: Logger) =>
       listLearningStyles: async () => ({ data: { learningStyles: [] } }),
       listCodeLanguages: async () => ({ data: { codeLanguages: [] } }),
     }),
+    learningPathController: createLearningPathController({ getLearningPath: vi.fn() }),
   });
 
 describe("createApplication", () => {
@@ -81,6 +83,11 @@ describe("createApplication", () => {
       headers: { "content-type": "application/json" },
       body: JSON.stringify({ textToSpeech: true }),
     });
+    expect(response.status).toBe(401);
+  });
+
+  it("returns 401 for the learning path when signed out", async () => {
+    const response = await createTestApp(createStubLogger()).request("/api/learning-path");
     expect(response.status).toBe(401);
   });
 
