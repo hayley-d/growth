@@ -2,14 +2,14 @@ name: Release source
 
 on:
   pull_request:
-    branches: [master]
+    types: [opened, synchronize, reopened, edited]
 
 jobs:
   source:
     name: Source is staging
     runs-on: ubuntu-latest
     steps:
-      - if: github.head_ref != 'staging' || github.event.pull_request.head.repo.full_name != github.repository
+      - if: github.base_ref == 'master' && (github.head_ref != 'staging' || github.event.pull_request.head.repo.full_name != github.repository)
         run: |
           echo "Only staging can go into master."
           exit 1
