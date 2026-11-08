@@ -11,7 +11,7 @@ export default {
     "Explain in-order in your own words. Why does in-order give the keys of a search tree from smallest to biggest?",
   objectives: [
     "List the nodes of a tree in in-order",
-    "Say which line of the pre-order code moves to make in-order",
+    "Say how the in-order code differs from the pre-order code",
     "Explain why the in-order of a search tree gives its keys in sorted order",
   ],
 } satisfies LessonContent;
