@@ -1,8 +1,8 @@
 import type { AvlNode } from "@shared/avl/src/avl-tree";
 
-const heightOf = (node: AvlNode | null) => node?.height ?? 0;
+export const heightOf = (node: AvlNode | null) => node?.height ?? 0;
 
-const balanceOf = (node: AvlNode) => heightOf(node.left) - heightOf(node.right);
+export const balanceOf = (node: AvlNode) => heightOf(node.left) - heightOf(node.right);
 
 export const findUnbalanced = (node: AvlNode | null): AvlNode[] => {
   if (!node) return [];

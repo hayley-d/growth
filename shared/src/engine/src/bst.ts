@@ -1,6 +1,5 @@
 import type { AvlNode } from "@shared/avl/src/avl-tree";
-
-const heightOf = (node: AvlNode | null) => node?.height ?? 0;
+import { heightOf } from "@shared/engine/src/balance";
 
 const withChildren = (node: AvlNode, left: AvlNode | null, right: AvlNode | null): AvlNode => ({
   key: node.key,

@@ -1,7 +1,7 @@
 import { type AvlNode, insertKey, toKeys } from "@shared/avl/src/avl-tree";
 
-const largestKey = 99;
-const allKeys = Array.from({ length: largestKey }, (_, index) => index + 1);
+export const largestKey = 99;
+export const allKeys = Array.from({ length: largestKey }, (_, index) => index + 1);
 
 export const createRandom = (seed: number) => {
   let state = seed;
