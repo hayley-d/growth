@@ -1,8 +1,6 @@
 import type { NewAlgorithm } from "@/domain/course-content/algorithm";
 import type { NewCodeLanguage } from "@/domain/course-content/code-language";
 import type { NewLearningStyle } from "@/domain/course-content/learning-style";
-import type { NewLesson } from "@/domain/course-content/lesson";
-import type { NewUnit } from "@/domain/course-content/unit";
 
 export const learningStyles: NewLearningStyle[] = [
   {
@@ -41,95 +39,4 @@ export const algorithms: NewAlgorithm[] = [
   { code: "inorder", name: "In-order traversal" },
   { code: "postorder", name: "Post-order traversal" },
   { code: "levelorder", name: "Level-order traversal" },
-];
-
-export type SeedLesson = Omit<NewLesson, "unitId">;
-
-export type SeedUnit = NewUnit & { lessons: SeedLesson[] };
-
-export const units: SeedUnit[] = [
-  {
-    title: "Binary trees and traversals",
-    position: 1,
-    lessons: [
-      {
-        title: "What is a binary tree",
-        summary: "Meet nodes, children and the shape of a binary tree.",
-        kind: "lesson",
-        position: 1,
-      },
-      {
-        title: "Pre-order",
-        summary: "Visit the node first, then its left and right subtrees.",
-        kind: "lesson",
-        position: 2,
-      },
-      {
-        title: "In-order",
-        summary: "Visit the left subtree, then the node, then the right subtree.",
-        kind: "lesson",
-        position: 3,
-      },
-      {
-        title: "Post-order",
-        summary: "Visit both subtrees first and the node last.",
-        kind: "lesson",
-        position: 4,
-      },
-      {
-        title: "Level-order",
-        summary: "Visit the tree one level at a time, from the top down.",
-        kind: "lesson",
-        position: 5,
-      },
-      {
-        title: "Traversal checkpoint",
-        summary: "A short quiz to check you can tell the four traversals apart.",
-        kind: "checkpoint",
-        position: 6,
-      },
-    ],
-  },
-  {
-    title: "AVL trees",
-    position: 2,
-    lessons: [
-      {
-        title: "Height and balance factor",
-        summary: "Work out how tall each node is and when a tree is out of balance.",
-        kind: "lesson",
-        position: 1,
-      },
-      {
-        title: "Single rotations",
-        summary: "Fix a left-left or right-right imbalance with one rotation.",
-        kind: "lesson",
-        position: 2,
-      },
-      {
-        title: "Double rotations",
-        summary: "Fix a left-right or right-left imbalance with two rotations.",
-        kind: "lesson",
-        position: 3,
-      },
-      {
-        title: "Inserting into an AVL tree",
-        summary: "Insert a key, then rebalance on the way back up.",
-        kind: "lesson",
-        position: 4,
-      },
-      {
-        title: "Deleting from an AVL tree",
-        summary: "Remove a key, then rebalance every node that went out of balance.",
-        kind: "lesson",
-        position: 5,
-      },
-      {
-        title: "AVL final challenge",
-        summary: "A final quiz that puts insertion, deletion and rotations together.",
-        kind: "checkpoint",
-        position: 6,
-      },
-    ],
-  },
 ];

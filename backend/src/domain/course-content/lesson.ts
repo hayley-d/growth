@@ -8,6 +8,8 @@ export type Lesson = {
   notePrompt: string | null;
   kind: LessonKind;
   position: number;
+  objectives: string[];
+  isRetired: boolean;
 };
 
 export type NewLesson = {
@@ -17,6 +19,8 @@ export type NewLesson = {
   notePrompt?: string | null;
   kind: LessonKind;
   position: number;
+  objectives?: string[];
+  isRetired?: boolean;
 };
 
 export type LessonChanges = Partial<NewLesson>;

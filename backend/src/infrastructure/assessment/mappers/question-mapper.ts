@@ -13,6 +13,9 @@ export const toQuestion = (row: QuestionRow): Question => ({
   generatorKey: row.generatorKey,
   generatorOptions: row.generatorOptions,
   explanation: row.explanation,
+  tree: row.tree,
+  answer: row.answer,
+  isRetired: row.isRetired,
 });
 
 export const toQuestionCreateData = (question: NewQuestion) => ({
@@ -21,6 +24,7 @@ export const toQuestionCreateData = (question: NewQuestion) => ({
     question.generatorOptions === undefined
       ? undefined
       : toNullableJsonInput(question.generatorOptions),
+  answer: question.answer === undefined ? undefined : toNullableJsonInput(question.answer),
 });
 
 export const toQuestionUpdateData = (changes: QuestionChanges) => ({
@@ -29,4 +33,5 @@ export const toQuestionUpdateData = (changes: QuestionChanges) => ({
     changes.generatorOptions === undefined
       ? undefined
       : toNullableJsonInput(changes.generatorOptions),
+  answer: changes.answer === undefined ? undefined : toNullableJsonInput(changes.answer),
 });

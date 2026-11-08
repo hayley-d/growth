@@ -6,6 +6,7 @@ import {
   toQuestionCreateData,
   toQuestionUpdateData,
 } from "@/infrastructure/assessment/mappers/question-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type QuestionModel = {
@@ -28,5 +29,16 @@ export class PrismaQuestionRepository
       toCreateData: toQuestionCreateData,
       toUpdateData: toQuestionUpdateData,
     });
+  }
+
+  listActiveByLessonId(lessonId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.question.findMany({
+          where: { lessonId, isRetired: false },
+          orderBy: this.options.orderBy,
+        })
+      ).map(toQuestion),
+    );
   }
 }
