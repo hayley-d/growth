@@ -4,6 +4,12 @@ import type { StepVariables } from "@shared/avl";
 import { formatVariable } from "@/lib/code-languages";
 import { cn } from "@/lib/utils";
 
+const variableRowHeight = 32;
+
+const visibleVariableRows = 4;
+
+const variablesMinimumHeight = visibleVariableRows * variableRowHeight + (visibleVariableRows - 1);
+
 type VariablesTableProperties = {
   variables: StepVariables;
   previousVariables?: StepVariables;
@@ -28,44 +34,53 @@ export function VariablesTable({
       >
         Variables
       </h3>
-      {entries.length === 0 ? (
-        <p className="text-sm text-muted-foreground">No variables at this step.</p>
-      ) : (
-        <table className="w-full text-sm">
-          <caption className="sr-only">Variables at this step</caption>
-          <thead className="sr-only">
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Value</th>
-            </tr>
-          </thead>
-          <tbody>
-            {entries.map(([name, value]) => {
-              const isChanged =
-                previousVariables !== undefined && previousVariables[name] !== value;
+      <div style={{ minHeight: variablesMinimumHeight }}>
+        {entries.length === 0 ? (
+          <p className="text-sm text-muted-foreground">No variables at this step.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <caption className="sr-only">Variables at this step</caption>
+            <thead className="sr-only">
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              {entries.map(([name, value]) => {
+                const isChanged =
+                  previousVariables !== undefined && previousVariables[name] !== value;
 
-              return (
-                <tr key={name} className="border-b border-dashed last:border-b-0">
-                  <th scope="row" className="py-1.5 pr-4 text-left font-medium">
-                    {name}
-                  </th>
-                  <td className="py-1.5 text-right font-mono tabular-nums">
-                    <span className="inline-flex items-center gap-2">
-                      {isChanged ? (
-                        <>
-                          <span aria-hidden="true" className="size-2 rounded-full bg-secondary" />
-                          <span className="sr-only">changed to </span>
-                        </>
-                      ) : null}
-                      {formatVariable(value, language)}
-                    </span>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      )}
+                return (
+                  <tr key={name} className="border-b border-dashed last:border-b-0">
+                    <th
+                      scope="row"
+                      className="pr-4 text-left font-medium"
+                      style={{ height: variableRowHeight }}
+                    >
+                      {name}
+                    </th>
+                    <td
+                      className="text-right font-mono tabular-nums"
+                      style={{ height: variableRowHeight }}
+                    >
+                      <span className="inline-flex items-center gap-2">
+                        {isChanged ? (
+                          <>
+                            <span aria-hidden="true" className="size-2 rounded-full bg-secondary" />
+                            <span className="sr-only">changed to </span>
+                          </>
+                        ) : null}
+                        {formatVariable(value, language)}
+                      </span>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
     </section>
   );
 }
