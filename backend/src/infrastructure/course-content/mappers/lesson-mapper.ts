@@ -9,4 +9,6 @@ export const toLesson = (row: LessonRow): Lesson => ({
   notePrompt: row.notePrompt,
   kind: row.kind,
   position: row.position,
+  objectives: row.objectives,
+  isRetired: row.isRetired,
 });

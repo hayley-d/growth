@@ -31,32 +31,17 @@ backend/src/
 
 Dependencies only point inward.
 
-- `domain` imports nothing outside itself, except the tree rules in `@shared/avl`.
+- `domain` only imports the tree rules in `@shared/avl`.
 - `application` imports `domain` and `@shared/`.
 - `infrastructure` implements the repository interfaces declared in `domain`.
 - `presentation` calls use cases from `application`.
-- `main.ts` wires concrete infrastructure into the use cases and starts the server.
+- `main.ts` starts the server.
 
-The AVL functions live in `shared/src/avl`, so the frontend and the backend use one copy of the tree rules. The rest of `@shared/` is the HTTP contract, and `application` maps it to domain types.
+The AVL functions live in `shared/src/avl`, so the frontend and the backend use one copy of the tree rules. The rest of `@shared/` is the shared schemas that define request and response shapes.
 
-Prisma types never leave `infrastructure`. Repositories use the mappers in `infrastructure/<module>/mappers/` to turn database rows into domain entities.
+Repositories use the mappers in `infrastructure/<module>/mappers/` to turn database rows into entities defined in the `domain` layer.
 
-Use cases come in two kinds. Commands change something, like starting an attempt. Queries only read, like getting a lesson. If an action does both, it's a command.
-
-Biome checks this for you. Import something from the wrong layer and you get an error like this:
-
-```
-× The domain layer must not import from application.
-```
-
-| Layer            | Can't import                                                                               |
-| ---------------- | ------------------------------------------------------------------------------------------ |
-| `domain`         | application, infrastructure, presentation, Prisma, `@shared/` (except `@shared/avl`), Hono |
-| `application`    | infrastructure, presentation, Prisma, Hono                                                 |
-| `infrastructure` | presentation                                                                               |
-| `presentation`   | infrastructure, Prisma                                                                     |
-
-If you hit one of these, the code is in the wrong layer. Move it, don't change the rule.
+`Application` layer contains commands and queries. Commands write and queries read. 
 
 ## Use cases, controllers and routes
 
@@ -88,7 +73,7 @@ All three endpoints need a signed-in learner. The use cases live in `application
 | `GET /api/lessons/:id/note` | The learner's note, or an empty body and a `null` `updatedAt` when there isn't one yet |
 | `PUT /api/lessons/:id/note` | Saves the note. It creates the note the first time and updates it after that |
 
-A lesson is locked unless it is the first lesson on the path, or the lesson right before it is completed, or the learner passed that lesson's test (a passed `lesson_test` or `checkpoint` attempt). "Before" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all three endpoints. A missing lesson returns 404. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`. Nothing marks a lesson completed yet, so for now only the first lesson opens.
+A lesson is locked unless it is the first lesson on the path, or the lesson right before it is completed, or the learner passed that lesson's test (a passed `lesson_test` or `checkpoint` attempt). "Before" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all three endpoints. A missing or retired lesson returns 404, and a retired lesson is never anyone's previous or next lesson. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`. Nothing marks a lesson completed yet, so for now only the first lesson opens.
 
 The status is `completed` when the learner's own progress says so, and `current` otherwise. A passed test only opens the next lesson.
 
@@ -158,53 +143,14 @@ return withPrismaErrors(() => prismaClient.tree.create({ data }));
 - `P2011`, a missing required value, becomes `BadRequestError`.
 - `P2039` with Postgres code `23514`, a CHECK constraint failure, becomes `BadRequestError`, which names the constraint.
 
-## Logging
-
-The logger is pino. `application/logging/logger.ts` defines the `Logger` type and `infrastructure/logging/pino-logger.ts` builds it. `main.ts` creates it once and passes it into `createApplication({ logger })`. Never import the pino logger in `presentation`. Take the logger as a parameter, like `createErrorHandler(logger)` does.
-
-Every log line written during a request includes its `requestId`, read from `requestContext` in `application/context`. Passwords, tokens and auth headers are redacted.
-
-`bun run dev` pipes the output through `pino-pretty`, so it's readable in the terminal. Set `LOG_LEVEL` in `.env` to make it more or less chatty.
-
-## Shutdown
-
-`main.ts` registers two things:
-
-- `registerProcessErrorHandlers` logs unhandled rejections. It also logs uncaught exceptions and exits.
-- `registerGracefulShutdown` runs on `SIGTERM` or `SIGINT`. It stops taking requests, disconnects Prisma and exits. If that takes longer than 10 seconds, it forces the exit.
-
-Add any new cleanup (a cache client, say) to the `cleanups` list in `main.ts`.
-
-## Pagination
-
-`@shared/schemas` has the pieces for list endpoints:
-
-- `paginationQuerySchema` parses `?page=` and `?pageSize=`. They default to 1 and 20, and `pageSize` can be at most 100.
-- `toSkipTake(query)` turns the parsed query into Prisma's `{ skip, take }`.
-- `toPaginatedResponse(items, total, query)` builds `{ items, page, pageSize, total, totalPages }`.
-- `paginatedResponseSchema(itemSchema)` is the matching response schema for the frontend.
-- `idParamSchema` validates a `:id` route param as a UUID.
-
 ## Prisma
 
-The schema is split over several files under `backend/src/infrastructure`, and `backend/prisma.config.ts` points Prisma at that folder. The generator and datasource live in `infrastructure/database/schema.prisma`. Each module has a `models/` folder with one `.prisma` file per table and an `enums.prisma` for its enums. Prisma reads them all as one schema, so a model can point at a model in another module. The client is generated into `backend/src/generated/prisma`, which is ignored by git. It connects through the `@prisma/adapter-pg` driver adapter.
+The schema is split over multiple files under `backend/src/infrastructure`. 
+Each module has a `models/` folder with one `.prisma` file per table and an `enums.prisma` for its enums. 
 
-The tables follow the team's ERD, which has three modules: `course-content`, `assessment` and `user`. Only a small example is built so far:
-
-| Module | Tables |
-| --- | --- |
-| `course-content` | `learningStyle`, `codeLanguage`, `unit`, `lesson`, `contentBlock`, `caseStudy`, `algorithm`, `codeSnippet`, `codeLine` |
-| `assessment` | `question`, `answerOption`, `hint`, `dailyChallenge`, `assessmentAttempt`, `attemptAnswer` |
-| `user` | `user`, `userProfile`, `lessonProgress`, `lessonNote`, `userMastery`, `dailyActivity` |
-| `auth` | `user`, `session`, `account`, `verification` |
-
-`lessonNote` holds one note per learner and lesson. Its key is `(userId, lessonId)`, and a CHECK constraint keeps `body` at 2000 characters or less. Notes are deleted with their user or their lesson. `lesson.notePrompt` is the question the notes step asks. A lesson with no prompt, like a checkpoint, has no notes step.
-
-Better Auth owns four tables. Their models all live in one file, `auth/models/auth.prisma`, because that's the file `bun run auth:generate` writes to. The generator merges into the file: it adds models and fields Better Auth needs and keeps everything else, including our `@database.Timestamptz(3)` and the `profile` relation on `User`. Run it after you upgrade Better Auth or add a plugin, add `@database.Timestamptz(3)` to any new date field, then create a migration. If it prints "Your schema is already up to date", nothing changed. Don't split the file: the generator only writes one file, and pointed at a new one it writes a whole schema with its own datasource and a copy of every model.
+Better Auth owns four tables. Their models all live in one file, `auth/models/auth.prisma`, because that's the file `bun run auth:generate` writes to. Don't split the file, the generator only writes one file.
 
 Our own user columns (`colourTheme`, `learningStyleId`, …) live in `userProfile`, not in `user`. Better Auth's `additionalFields` can't type a column as `uuid` or add a foreign key, and a separate table keeps Better Auth's table to what Better Auth writes. `userProfile.userId` is a normal foreign key to `user.id`, which is `TEXT` because Better Auth makes the ids.
-
-Every other table in the ERD is added by whoever builds the feature that needs it. The `user` example shows each step, so copy it.
 
 A module folder looks like this:
 
@@ -222,7 +168,7 @@ infrastructure/user/
     index.ts
 ```
 
-Every table has its own repository, named after the table. Each module uses the same name in every layer: the contract in `shared/src/schemas/src/<module>.ts`, the entity in `domain/<module>/<table>.ts`, the repository interface in `domain/<module>/repositories/<table>-repository.ts`, and the Prisma repository in `infrastructure/<module>/repositories/<table>-repository.ts`.
+Every table has its own repository, named after the table. Each module uses the same name in every layer.
 
 Every repository extends one base class, `PrismaRepository` in `infrastructure/database/prisma-repository.ts`. It does `findById`, `list`, `create`, `update` and `delete` once, wraps each in `withPrismaErrors`, and maps rows to domain entities. A repository only tells it which Prisma model to use and how to map it, then adds finders for its unique columns:
 
@@ -251,48 +197,66 @@ export class PrismaUserProfileRepository
 }
 ```
 
-`UserProfileModel` lists the Prisma types for the table, so TypeScript checks the domain types, sort columns and finders against the real schema. When nothing needs converting, pass `(entity) => entity` and `(changes) => changes`, like `learning-style-repository.ts` does. The key doesn't have to be called `id`: here it's `userId`, and the method is still `findById`. A table with a two-column key uses the key object as its id, for example `findById({ userId, lessonId })`. The domain side matches: `UserProfileRepository` is `Repository<UserProfile, NewUserProfile, UserProfileChanges>` from `domain/common/repository.ts`. Add a finder for each other unique column with `this.findOne({ column })`.
+The base class only lists a whole table, a page at a time. For a filtered list add a method that calls `this.client.<model>.findMany({ where, orderBy })` inside `withPrismaErrors` and maps the rows with the mapper.
 
-The base class only lists a whole table, a page at a time. For a filtered list, like `listByCodeSnippetId`, add a method that calls `this.client.<model>.findMany({ where, orderBy })` inside `withPrismaErrors` and maps the rows with the mapper.
-
-`PrismaUserRepository` is the one exception. Better Auth creates, updates and deletes users, so that repository only reads: `findById`, `findByEmail` and `list`. Change a user through Better Auth's API, never through Prisma.
-
-Tables and columns are camelCase in the database, the same as Better Auth's own tables, so its generator never fights our names. In the schema, models are PascalCase and mapped to a camelCase table with `@@map` (`UserProfile` is `userProfile`). Fields are camelCase and need no `@map`. Ids are UUIDs, except in Better Auth's tables, where they're `TEXT`.
-
-Every user gets a profile when they sign up. A `databaseHooks.user.create.after` hook in `infrastructure/auth/auth.ts` creates it with the defaults. Better Auth runs that hook after the user is saved, so if it fails the user exists without a profile. The hook logs the error and the sign-up still succeeds. That should only happen when the database is down.
-
-A profile points at a learning style and a code language. Both start empty and are filled in once the learner picks them. Neither can be deleted while a profile still uses it.
-
-There are three code languages: Java, Rust and Pseudocode. Every algorithm needs a snippet in each. We started with seven, and the migration `remove_unused_code_languages` removed C, C++, Python and JavaScript. It clears them from learners' profiles first, so those learners fall back to pseudocode until they pick again.
+`PrismaUserRepository` is the one exception. Better Auth creates, updates and deletes users, so that repository only reads: `findById`, `findByEmail` and `list`. Change a user through Better Auth's API, not through Prisma.
 
 ### Adding a table
 
-1. Add the model in `infrastructure/<module>/models/<table>.prisma`, matching the ERD.
-2. Create a migration with `bun run prisma:migrate --name <what-changed>`, then run `bun run prisma:generate`. For a rule Prisma can't express, like a CHECK, use `--create-only` and add the SQL to the migration by hand.
+1. Add the model in `infrastructure/<module>/models/<table>.prisma`.
+2. Create a migration with `bun run prisma:migrate --name <what-changed>`, then run `bun run prisma:generate`.
 3. Add the entity and repository interface in `domain/<module>/`.
 4. Add the mapper in `infrastructure/<module>/mappers/`.
 5. Add a repository that extends `PrismaRepository`, and export it from `repositories/index.ts`.
-6. Test whatever is special about it: mappers, finders, keys. The base class is already tested.
-7. If the table differs from the ERD, change the ERD too.
+6. Add tests 
 
-Two branches that both add a migration will clash. Before you merge, rebase onto `staging`, delete your migration folder and create it again, so it builds on the migrations already there.
+### Course content files
 
-### Emails
+Lessons, questions, code snippets and case studies are written as files in `backend/prisma/content/`. `bun run content:load` loads them into the database, and `bun run prisma:seed` does the same as one of its steps.
 
-The shared request schema trims and lowercases emails, so `Ada@x.com` and `ada@x.com` are the same account. Anything that writes or looks up a user's email without going through that schema must lowercase it first.
+```
+backend/prisma/content/
+  units.ts                    the units: key, position, title
+  02-pre-order/               one folder per lesson; the name is only for people
+    lesson.ts                 key, unit, position, title, summary, kind, notePrompt, objectives
+    blocks/
+      01-what-is-it.md        a text block: frontmatter, then the markdown
+      01-what-is-it-visual.ts any other block, or a styled one
+    questions.ts              written questions, with their answers and hints
+    generated.ts              questions a generator makes
+  snippets/<algorithm>/<language>.<ext>
+  case-studies/<key>.ts
+```
 
-### Seeding
+A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position.
 
-`bun run prisma:seed` runs `backend/prisma/seed.ts`. That file only wires up the steps in `infrastructure/seed/`:
+Written questions come in two kinds. `multiple_choice` lists `options`, with exactly one correct. `text` lists `accepted` answers, and each becomes a correct option. `build_tree`, `order_nodes` and `predict_rotation` have a `tree` and an `answer` that matches `learnerAnswerSchema`. A generated question only names its `generatorKey`, type, difficulty, Bloom's level and review lesson. It is stored with an empty explanation and no prompt, because the generator writes those when the question is asked.
 
-- `seed-learning-styles.ts`, `seed-code-languages.ts` and `seed-algorithms.ts` add the rows from `reference-data.ts`. They look each row up by its unique `name` or `code` and skip it if nothing changed. Otherwise they upsert it (`upsertByName`, `upsertByCode`), so two runs at once can't add the same row twice. They run on every database and log how many rows were created, updated and unchanged.
-- `seed-units.ts` adds the units and their lessons from `units` in `reference-data.ts`. A unit is the same unit by its `position`, and a lesson by its unit and `position`. A step is skipped when the title, summary and kind already match, otherwise it upserts (`upsertByPosition`, `upsertByUnitIdAndPosition`). It only writes the title, summary, kind and position. Lesson content and questions are added by later steps. The unit titles, the unit split and the lesson summaries are placeholders. Replace them when Course content (07) is agreed. Lesson titles come from the project board.
-- `check-code-lines.ts` runs last, through `verifyCodeLines`. For each algorithm, it checks that every snippet has a line for every step key the engine can emit (see the Shared page). If one is missing, the seed fails and lists each algorithm, language and missing key. A line for a key the engine never emits only logs a warning. With no snippets in the database yet, it logs "No code snippets to check yet".
-- `seed-admin.ts` creates the dev admin, but only when `SEED_DEV_ADMIN=true` and the database is on localhost (`localhost`, `127.0.0.1` or `[::1]`). Both checks are needed, because a tunnel to a remote database also looks like localhost. Otherwise it logs that it skipped.
+A snippet marks the line for each step with a trailing comment, like `if (key < node.key) { // @step insert.compare-left`. One line can carry several keys. The loader strips the markers from the stored source and turns them into `codeLine` rows. Every step the algorithm can emit needs exactly one marker. A marker with no key is a problem.
 
-The `name` or `code` is what makes a row the same row. If you rename one in `reference-data.ts`, the seed adds a new row and leaves the old one behind, and learners' profiles still point at the old one. Rename it with a migration instead.
+Units, lessons, questions and options have a readable `key`. The loader turns each key into a fixed UUID (`content-id.ts`), so the same file always gives the same row. Folder names and positions don't affect ids, so you can rename folders and reorder lessons. Learners' progress and notes stay on the right lesson. Never reuse a key for something different: make a new key instead.
 
-A later feature that needs rows in every database adds its own step here and calls it from `seed.ts`. Each step takes the domain repository interfaces, so its tests use in-memory fakes.
+**Removing things.**
+| Removed from the files | What the loader does |
+| --- | --- |
+| Lesson | Sets `isRetired`, and moves it to position -1, -2 and so on in its unit. The lesson API returns 404 for it and the path skips it. Notes and progress stay in the database |
+| Question | Sets `isRetired`. Question pickers must skip retired questions: use `listActiveByLessonId` on the question repository |
+| Answer option nobody answered | Deletes it |
+| Answer option someone answered | Fails. Retire the question and add a new one with a new key |
+| Unit | Fails. Units are never removed |
+| Snippet file | Deletes the snippet and its code lines. The files are the only source of snippets |
+
+Changing what learners already answered fails too. You can't change the text of an answered option, or the type of an answered question. Retire the question and add a new one with a new key. You can fix which option is correct, because each attempt stores its own result.
+
+Blocks, hints, code lines and case studies are deleted and written again on every load, so their ids change each time. Keep it that way: nothing may point at these tables. If a feature needs to, give that table keys and write it like lessons first.
+
+**How it runs.** `read-content.ts` reads the files and is the only part that touches the disk. `check-content.ts` checks them without a database and lists every problem with its file. `write-content.ts` writes everything in one transaction, so a failure leaves the database as it was. It takes a Postgres advisory lock first, so two loads at once (a seed and `content:load`, say) run one after the other. It reads what's in the database and `plan-content-write.ts` works out what changed, so only new and changed questions and options are written, and a load with nothing new writes almost nothing. Before it writes, it moves every position out of the way, because Postgres checks the unique `(unitId, position)` key one row at a time and a swap would clash otherwise. The transaction has 60 seconds. If it runs out, nothing is written and the error says to raise `contentTransactionOptions.timeout`.
+
+Units and lessons seeded before the loader (#61) had random ids. The `adopt_seeded_content_ids` migration gives them their key ids, matched by position and title, and progress, notes and attempts move with them because every foreign key to them is `ON UPDATE CASCADE`. It does nothing on a database without those rows.
+
+`write-content.database.test.ts` runs the writer against the real Postgres in `DATABASE_URL`. Each test runs inside a transaction that it rolls back, so your local data is never changed.
+
+`content.test.ts` checks the real `prisma/content/` folder in CI. The course needs at least 14 generated questions so the daily challenge doesn't repeat for two weeks. `content:load` and the seed skip that rule, so a half-written course still deploys. Once the lessons have their generated questions, add a test to `content.test.ts` that checks the folder with `complete: true`.
 
 ## Testing
 

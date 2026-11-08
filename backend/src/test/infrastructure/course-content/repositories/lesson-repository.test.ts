@@ -8,8 +8,11 @@ const row = {
   unitId: "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a80",
   title: "Insertion",
   summary: "Insert a key into an AVL tree.",
+  notePrompt: null,
   kind: "lesson" as const,
   position: 1,
+  objectives: ["Insert a key and rebalance"],
+  isRetired: false,
 };
 
 describe("PrismaLessonRepository", () => {
@@ -28,18 +31,16 @@ describe("PrismaLessonRepository", () => {
     expect(found).toEqual(row);
   });
 
-  it("upserts a lesson by its unit and position", async () => {
-    const lesson = { upsert: vi.fn().mockResolvedValue(row) };
+  it("lists only lessons that are not retired, in course order", async () => {
+    const lesson = { findMany: vi.fn().mockResolvedValue([row]) };
     const client = { lesson } as unknown as PrismaClient;
-    const { id: _id, ...newLesson } = row;
 
-    const saved = await new PrismaLessonRepository(client).upsertByUnitIdAndPosition(newLesson);
+    const listed = await new PrismaLessonRepository(client).listAll();
 
-    expect(lesson.upsert).toHaveBeenCalledWith({
-      where: { unitId_position: { unitId: row.unitId, position: row.position } },
-      create: newLesson,
-      update: newLesson,
+    expect(lesson.findMany).toHaveBeenCalledWith({
+      where: { isRetired: false },
+      orderBy: [{ unit: { position: "asc" } }, { position: "asc" }],
     });
-    expect(saved).toEqual(row);
+    expect(listed).toEqual([row]);
   });
 });

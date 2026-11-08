@@ -18,6 +18,9 @@ export type Question = {
   generatorKey: string | null;
   generatorOptions: unknown | null;
   explanation: string;
+  tree: string | null;
+  answer: unknown | null;
+  isRetired: boolean;
 };
 
 export type NewQuestion = {
@@ -30,6 +33,9 @@ export type NewQuestion = {
   generatorKey?: string | null;
   generatorOptions?: unknown | null;
   explanation: string;
+  tree?: string | null;
+  answer?: unknown | null;
+  isRetired?: boolean;
 };
 
 export type QuestionChanges = Partial<NewQuestion>;

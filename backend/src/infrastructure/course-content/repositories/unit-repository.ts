@@ -36,8 +36,4 @@ export class PrismaUnitRepository
       (await this.client.unit.findMany({ orderBy: this.options.orderBy })).map(toUnit),
     );
   }
-
-  upsertByPosition(unit: NewUnit) {
-    return this.upsertOne({ position: unit.position }, unit, unit);
-  }
 }

@@ -24,6 +24,8 @@ const lesson = (id: string, unitId: string, position: number): Lesson => ({
   notePrompt: "Prompt",
   kind: "lesson",
   position,
+  objectives: [],
+  isRetired: false,
 });
 
 const lessons: Lesson[] = [
