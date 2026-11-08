@@ -230,6 +230,19 @@ backend/prisma/content/
 
 A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position.
 
+Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in `shared/src/schemas/src/content-block.ts`:
+
+| Type | Body |
+| --- | --- |
+| `diagram` | a tree from `startingKeys`, with highlighted nodes and a caption |
+| `animation` | insert, delete and search steps run on a tree |
+| `playground` | a tree the learner works on, with the operations they may use and an optional goal |
+| `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing |
+| `copy_tree` | a tree copied into an empty one, a node at a time, in pre-order |
+| `expression_tree` | a maths expression as a tree (`{ value }` or `{ operator, left, right }`, operators `+ - × ÷`), stepped through in pre-, in- or post-order |
+
+A position holds one core block. When a step needs text and a picture, write the text at one position and the picture at the next, so every learner sees both. `02-pre-order/blocks/` is the example. The frontend doesn't draw `copy_tree` or `expression_tree` yet.
+
 Written questions come in two kinds. `multiple_choice` lists `options`, with exactly one correct. `text` lists `accepted` answers, and each becomes a correct option. `build_tree`, `order_nodes` and `predict_rotation` have a `tree` and an `answer` that matches `learnerAnswerSchema`. A generated question only names its `generatorKey`, type, difficulty, Bloom's level and review lesson. It is stored with an empty explanation and no prompt, because the generator writes those when the question is asked.
 
 A snippet marks the line for each step with a trailing comment, like `if (key < node.key) { // @step insert.compare-left`. One line can carry several keys. The loader strips the markers from the stored source and turns them into `codeLine` rows. Every step the algorithm can emit needs exactly one marker. A marker with no key is a problem.

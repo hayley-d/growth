@@ -7,6 +7,6 @@ export default {
   body: {
     algorithmCode: "preorder",
     startingKeys: [20, 10, 30],
-    operation: { operation: "search", key: 10 },
+    operation: { operation: "traverse" },
   },
 } satisfies BlockContent;

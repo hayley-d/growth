@@ -1,0 +1,6 @@
+void preorder(Node node) {
+    if (node == null) return; // @step preorder.check-empty preorder.empty
+    visit(node); // @step preorder.visit
+    preorder(node.left); // @step preorder.go-left
+    preorder(node.right); // @step preorder.go-right
+}

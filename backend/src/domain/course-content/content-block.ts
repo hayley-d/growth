@@ -1,4 +1,11 @@
-export type ContentBlockType = "text" | "diagram" | "animation" | "playground" | "code_trace";
+export type ContentBlockType =
+  | "text"
+  | "diagram"
+  | "animation"
+  | "playground"
+  | "code_trace"
+  | "copy_tree"
+  | "expression_tree";
 
 export type ContentBlock = {
   id: string;

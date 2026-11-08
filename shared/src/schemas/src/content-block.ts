@@ -84,13 +84,62 @@ export const playgroundBlockBodySchema = z.object({
 
 export type PlaygroundBlockBody = z.infer<typeof playgroundBlockBodySchema>;
 
+export const traverseStepSchema = z.object({
+  operation: z.literal("traverse"),
+});
+
+export type TraverseStep = z.infer<typeof traverseStepSchema>;
+
+export const codeTraceOperationSchema = z.discriminatedUnion("operation", [
+  operationStepSchema,
+  traverseStepSchema,
+]);
+
+export type CodeTraceOperation = z.infer<typeof codeTraceOperationSchema>;
+
 export const codeTraceBlockBodySchema = z.object({
   algorithmCode: z.string().min(1),
   startingKeys: treeKeysSchema,
-  operation: operationStepSchema,
+  operation: codeTraceOperationSchema,
 });
 
 export type CodeTraceBlockBody = z.infer<typeof codeTraceBlockBodySchema>;
+
+export const copyTreeBlockBodySchema = z.object({
+  startingKeys: treeKeysSchema,
+  caption: z.string(),
+});
+
+export type CopyTreeBlockBody = z.infer<typeof copyTreeBlockBodySchema>;
+
+export const expressionOperatorSchema = z.enum(["+", "-", "×", "÷"]);
+
+export type ExpressionOperator = z.infer<typeof expressionOperatorSchema>;
+
+export type ExpressionNode =
+  | { value: number }
+  | { operator: ExpressionOperator; left: ExpressionNode; right: ExpressionNode };
+
+export const expressionNodeSchema: z.ZodType<ExpressionNode> = z.union([
+  z.object({ value: z.number() }),
+  z.object({
+    operator: expressionOperatorSchema,
+    get left() {
+      return expressionNodeSchema;
+    },
+    get right() {
+      return expressionNodeSchema;
+    },
+  }),
+]);
+
+export const expressionTreeBlockBodySchema = z.object({
+  expression: expressionNodeSchema,
+  order: z.enum(["preorder", "inorder", "postorder"]),
+  caption: z.string(),
+});
+
+export type ExpressionTreeBlockBody = z.infer<typeof expressionTreeBlockBodySchema>;
 
 export const contentBlockBodySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("text"), body: textBlockBodySchema }),
@@ -98,6 +147,8 @@ export const contentBlockBodySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("animation"), body: animationBlockBodySchema }),
   z.object({ type: z.literal("playground"), body: playgroundBlockBodySchema }),
   z.object({ type: z.literal("code_trace"), body: codeTraceBlockBodySchema }),
+  z.object({ type: z.literal("copy_tree"), body: copyTreeBlockBodySchema }),
+  z.object({ type: z.literal("expression_tree"), body: expressionTreeBlockBodySchema }),
 ]);
 
 export type ContentBlockBody = z.infer<typeof contentBlockBodySchema>;
