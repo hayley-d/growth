@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { codeLanguages, learningStyles } from "@/infrastructure/seed/reference-data";
+import { algorithmCodes } from "@shared/avl";
+import { algorithms, codeLanguages, learningStyles } from "@/infrastructure/seed/reference-data";
 
 describe("reference data", () => {
   it("has the four VARK learning styles in order, each with a description", () => {
@@ -12,11 +13,16 @@ describe("reference data", () => {
     );
   });
 
-  it("has seven code languages with unique lower case codes", () => {
-    const codes = codeLanguages.map((codeLanguage) => codeLanguage.code);
+  it("has Java, Rust and Pseudocode as the code languages", () => {
+    expect(codeLanguages.map((codeLanguage) => codeLanguage.code)).toEqual([
+      "java",
+      "rust",
+      "pseudocode",
+    ]);
+  });
 
-    expect(codes).toHaveLength(7);
-    expect(new Set(codes).size).toBe(7);
-    expect(codes.every((code) => code === code.toLowerCase())).toBe(true);
+  it("has one algorithm for each algorithm the engine can step through, in the same order", () => {
+    expect(algorithms.map((algorithm) => algorithm.code)).toEqual([...algorithmCodes]);
+    expect(algorithms.every((algorithm) => algorithm.name.length > 0)).toBe(true);
   });
 });

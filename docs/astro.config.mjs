@@ -5,6 +5,11 @@ import starlightSidebarTopics from "starlight-sidebar-topics";
 export default defineConfig({
   site: "https://hayley-d.github.io",
   base: "/growth",
+  vite: {
+    ssr: {
+      external: ["satteri"],
+    },
+  },
   integrations: [
     starlight({
       title: "Growth",
@@ -47,6 +52,17 @@ export default defineConfig({
                 { label: "Learning styles", slug: "id/learning-styles" },
                 { label: "Content design", slug: "id/content" },
                 { label: "Presentation design", slug: "id/presentation" },
+                {
+                  label: "Storyboards",
+                  items: [
+                    {
+                      label: "Lessons",
+                      items: [
+                        { label: "Lesson 2: Pre-order", slug: "id/storyboards/lessons/pre-order" },
+                      ],
+                    },
+                  ],
+                },
                 { label: "Motivation", slug: "id/motivation" },
                 { label: "Assessment", slug: "id/assessment" },
                 { label: "Scaffolding", slug: "id/scaffolding" },

@@ -2,6 +2,7 @@ import type { Algorithm, AlgorithmChanges, NewAlgorithm } from "@/domain/course-
 import type { AlgorithmRepository } from "@/domain/course-content/repositories/algorithm-repository";
 import type { Algorithm as AlgorithmRow, Prisma, PrismaClient } from "@/generated/prisma/client";
 import { toAlgorithm } from "@/infrastructure/course-content/mappers/algorithm-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type AlgorithmModel = {
@@ -28,5 +29,15 @@ export class PrismaAlgorithmRepository
 
   findByCode(code: string) {
     return this.findOne({ code });
+  }
+
+  listAll() {
+    return withPrismaErrors(async () =>
+      (await this.client.algorithm.findMany({ orderBy: this.options.orderBy })).map(toAlgorithm),
+    );
+  }
+
+  upsertByCode(algorithm: NewAlgorithm) {
+    return this.upsertOne({ code: algorithm.code }, algorithm, algorithm);
   }
 }

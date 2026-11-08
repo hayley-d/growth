@@ -5,11 +5,13 @@ import { secureHeaders } from "hono/secure-headers";
 
 import type { AuthHandler, GetSession } from "@/application/auth/session";
 import type { Logger } from "@/application/logging/logger";
+import type { AlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { createAuthMiddleware } from "@/presentation/middleware/auth-middleware";
 import { createErrorHandler } from "@/presentation/middleware/error-handler";
 import { notFoundHandler } from "@/presentation/middleware/not-found-handler";
 import { requestContextMiddleware } from "@/presentation/middleware/request-context-middleware";
 import { createRequestLogger } from "@/presentation/middleware/request-logger";
+import { createAlgorithmRoutes } from "@/presentation/routes/algorithm-routes";
 import { createAuthRoutes } from "@/presentation/routes/auth-routes";
 import { healthRoutes } from "@/presentation/routes/health-routes";
 
@@ -17,9 +19,15 @@ type ApplicationDependencies = {
   logger: Logger;
   authHandler: AuthHandler;
   getSession: GetSession;
+  algorithmController: AlgorithmController;
 };
 
-export const createApplication = ({ logger, authHandler, getSession }: ApplicationDependencies) => {
+export const createApplication = ({
+  logger,
+  authHandler,
+  getSession,
+  algorithmController,
+}: ApplicationDependencies) => {
   const application = new Hono();
   application.use(secureHeaders());
   application.use(requestContextMiddleware);
@@ -35,6 +43,7 @@ export const createApplication = ({ logger, authHandler, getSession }: Applicati
   );
   application.route("/api/auth", createAuthRoutes(authHandler));
   application.route("/api/health", healthRoutes);
+  application.route("/api/algorithms", createAlgorithmRoutes(algorithmController));
   application.notFound(notFoundHandler);
   application.onError(createErrorHandler(logger));
   return application;

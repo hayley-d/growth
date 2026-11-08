@@ -1,3 +1,4 @@
+import type { NewAlgorithm } from "@/domain/course-content/algorithm";
 import type { NewCodeLanguage } from "@/domain/course-content/code-language";
 import type { NewLearningStyle } from "@/domain/course-content/learning-style";
 
@@ -22,10 +23,20 @@ export const learningStyles: NewLearningStyle[] = [
 
 export const codeLanguages: NewCodeLanguage[] = [
   { code: "java", name: "Java" },
-  { code: "cpp", name: "C++" },
-  { code: "c", name: "C" },
   { code: "rust", name: "Rust" },
-  { code: "python", name: "Python" },
-  { code: "javascript", name: "JavaScript" },
   { code: "pseudocode", name: "Pseudocode" },
+];
+
+export const algorithms: NewAlgorithm[] = [
+  { code: "insert", name: "Insert" },
+  { code: "delete", name: "Delete" },
+  { code: "search", name: "Search" },
+  { code: "rotate-left", name: "Rotate left" },
+  { code: "rotate-right", name: "Rotate right" },
+  { code: "rebalance", name: "Rebalance" },
+  { code: "update-height", name: "Update height and balance" },
+  { code: "preorder", name: "Pre-order traversal" },
+  { code: "inorder", name: "In-order traversal" },
+  { code: "postorder", name: "Post-order traversal" },
+  { code: "levelorder", name: "Level-order traversal" },
 ];

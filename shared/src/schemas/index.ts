@@ -1,3 +1,4 @@
+export * from "@shared/schemas/algorithm";
 export * from "@shared/schemas/assessment";
 export * from "@shared/schemas/auth";
 export * from "@shared/schemas/case-study";
