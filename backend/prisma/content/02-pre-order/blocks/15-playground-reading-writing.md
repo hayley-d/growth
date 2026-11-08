@@ -1,9 +1,9 @@
 ---
 position: 15
 style: reading-writing
-transcript: "Write it first. Write the whole pre-order on paper before you tap anything. Then tap to check your list."
+transcript: "Explain one tap. Write one sentence that explains why 57 comes after 1, and not straight after 21."
 ---
 
-## Write it first
+## Explain one tap
 
-Write the whole pre-order on paper before you tap anything. Then tap to check your list.
+Write one sentence that explains why 57 comes after 1, and not straight after 21.

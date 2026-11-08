@@ -1,11 +1,11 @@
 ---
 position: 9
 style: auditory
-transcript: "Count along. Step slowly and say each visit out loud. Count on your fingers: 8 is one, 4 is two, 2 is three, 6 is four. You only hear 12 on five."
+transcript: "Hear the stack go deep. When 2 is visited, say the whole stack out loud: \"preorder 2, preorder 4, preorder 8.\" Three calls, one for each level. The stack is as tall as the path from the root."
 ---
 
-## Count along
+## Hear the stack go deep
 
-Step slowly and say each visit out loud. Count on your fingers: 8 is one, 4 is two, 2 is three, 6 is four.
+When 2 is visited, say the whole stack out loud: "preorder 2, preorder 4, preorder 8."
 
-You only hear 12 on five.
+Three calls, one for each level. The stack is as tall as the path from the root.

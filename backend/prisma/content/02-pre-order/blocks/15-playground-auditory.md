@@ -1,9 +1,9 @@
 ---
 position: 15
 style: auditory
-transcript: "Say it before you tap. For each node, say \"me, left, right\" out loud before you tap. Saying it stops you jumping to the right side too soon."
+transcript: "Check by ear. When you're done, read your answer out loud. Listen for the jump back up the tree, from 1 to 57. That's where the left side ends."
 ---
 
-## Say it before you tap
+## Check by ear
 
-For each node, say "me, left, right" out loud before you tap. Saying it stops you jumping to the right side too soon.
+When you're done, read your answer out loud. Listen for the jump back up the tree, from 1 to 57. That's where the left side ends.

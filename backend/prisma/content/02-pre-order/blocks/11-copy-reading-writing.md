@@ -1,11 +1,19 @@
 ---
 position: 11
 style: reading-writing
-transcript: "List the moves. Write the copy as a list of moves, one per line, like add 8 and add 4 under 8. Use pre-order. Check that every parent is added before its children."
+transcript: "Who hangs where. New node, Parent. 8, none, it's the root. 4, 8. 2, 4. 6, 4. 12, 8. 10, 12. 14, 12. Write what would break if 2 came before 4."
 ---
 
-## List the moves
+## Who hangs where
 
-Write the copy as a list of moves, one per line, like `add 8` and `add 4 under 8`. Use pre-order.
+| New node | Parent |
+| --- | --- |
+| 8 | none, it's the root |
+| 4 | 8 |
+| 2 | 4 |
+| 6 | 4 |
+| 12 | 8 |
+| 10 | 12 |
+| 14 | 12 |
 
-Check that every parent is added before its children.
+Write what would break if 2 came before 4.

@@ -1,11 +1,19 @@
 ---
 position: 9
 style: reading-writing
-transcript: "Predict first. Before you step, write the order you expect. Then step through and tick each key as it's visited. Circle any key you put in the wrong place."
+transcript: "Stack height. Key, Visited, Calls on the stack. 8, 1st, 1. 4, 2nd, 2. 2, 3rd, 3. 6, 4th, 3. 12, 5th, 2. 10, 6th, 3. 14, 7th, 3. Write why the stack is never taller than 3 for this tree."
 ---
 
-## Predict first
+## Stack height
 
-Before you step, write the order you expect. Then step through and tick each key as it's visited.
+| Key | Visited | Calls on the stack |
+| --- | --- | --- |
+| 8 | 1st | 1 |
+| 4 | 2nd | 2 |
+| 2 | 3rd | 3 |
+| 6 | 4th | 3 |
+| 12 | 5th | 2 |
+| 10 | 6th | 3 |
+| 14 | 7th | 3 |
 
-Circle any key you put in the wrong place.
+Write why the stack is never taller than 3 for this tree.

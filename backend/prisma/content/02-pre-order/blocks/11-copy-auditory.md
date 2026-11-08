@@ -1,11 +1,11 @@
 ---
 position: 11
 style: auditory
-transcript: "Why the parent comes first. Say the copy like directions: \"Put 8 down. Hang 4 under 8. Hang 2 under 4.\" You can't say \"hang 2 under 4\" until 4 is there. Pre-order always says the parent first."
+transcript: "Narrate the copy. As the copy grows, say each new node's parent: \"4, under 8. 2, under 4. 6, under 4. 12, under 8. 10, under 12. 14, under 12.\" Every parent you name is already there."
 ---
 
-## Why the parent comes first
+## Narrate the copy
 
-Say the copy like directions: "Put 8 down. Hang 4 under 8. Hang 2 under 4."
+As the copy grows, say each new node's parent: "4, under 8. 2, under 4. 6, under 4. 12, under 8. 10, under 12. 14, under 12."
 
-You can't say "hang 2 under 4" until 4 is there. Pre-order always says the parent first.
+Every parent you name is already there.

@@ -5,15 +5,15 @@ export default {
   position: 9,
   style: "kinesthetic",
   transcript:
-    "A tree with 8 at the root. 4 is on its left, with children 2 and 6. 12 is on its right, with children 10 and 14. Before you watch the trace, tap the nodes in pre-order yourself. The answer is 8, 4, 2, 6, 12, 10, 14.",
+    "A tree with 62 at the root. 31 is on its left, with children 15 and 47. 80 is on its right, with children 73 and 90. Tap the first node in pre-order. The answer is 62, 31, 15, 47, 80, 73, 90.",
   body: {
-    startingKeys: [8, 4, 12, 2, 6, 10, 14],
+    startingKeys: [62, 31, 80, 15, 47, 73, 90],
     allowedOperations: ["traverse"],
-    instructions: "Before you watch the trace, tap the nodes in pre-order yourself.",
+    instructions: "Tap the first node in pre-order.",
     goal: {
       kind: "traversal",
       order: "preorder",
-      keys: [8, 4, 2, 6, 12, 10, 14],
+      keys: [62, 31, 15, 47, 80, 73, 90],
     },
   },
 } satisfies BlockContent;

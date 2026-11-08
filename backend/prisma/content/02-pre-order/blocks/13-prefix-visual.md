@@ -1,17 +1,17 @@
 ---
 position: 13
 style: visual
-transcript: "See the order. Plus is at the top. Times and 4 are below it. 2 and 3 are below times. Pre-order reads it top down, left first: plus, times, 2, 3, 4."
+transcript: "Numbered in pre-order. Plus is visited first, times second, 2 third, 3 fourth and 4 fifth. Each number is when that node is visited."
 ---
 
-## See the order
+## Numbered in pre-order
 
 ```
-      +
-     / \
-    ×   4
-   / \
-  2   3
+      1:+
+     /   \
+   2:×   5:4
+   /  \
+ 3:2  4:3
 ```
 
-Pre-order reads it top down, left first: **+ → × → 2 → 3 → 4**.
+Each number is when that node is visited.

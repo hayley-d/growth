@@ -5,15 +5,23 @@ export default {
   position: 6,
   style: "visual",
   transcript:
-    "A tree with 20 at the root. 10 is on its left. 30 is on its right. The trace starts at 20. Watch it light up first.",
+    "A tree with 20 at the root. 10 is on its left. 30 is on its right. All done: 20 first, then 10, then 30.",
   body: {
     startingKeys: [20, 10, 30],
     highlights: [
       {
         key: 20,
-        state: "active",
+        state: "visited",
+      },
+      {
+        key: 10,
+        state: "visited",
+      },
+      {
+        key: 30,
+        state: "visited",
       },
     ],
-    caption: "The trace starts at 20. Watch it light up first.",
+    caption: "All done: 20 first, then 10, then 30.",
   },
 } satisfies BlockContent;

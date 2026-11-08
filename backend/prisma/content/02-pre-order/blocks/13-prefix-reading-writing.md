@@ -1,14 +1,11 @@
 ---
 position: 13
 style: reading-writing
-transcript: "Two ways to write it. Infix looks like 2 times 3 plus 4. Prefix looks like plus, times, 2, 3, 4. Write 1 plus 2, in brackets, times 3 in prefix. The answer is times, plus, 1, 2, 3."
+transcript: "Try one. Draw the tree for 8 minus 2 times 3, where the times is done first. Then write it in prefix. The answer is minus, 8, times, 2, 3."
 ---
 
-## Two ways to write it
+## Try one
 
-| Notation | Looks like |
-| --- | --- |
-| Infix | 2 × 3 + 4 |
-| Prefix | + × 2 3 4 |
+Draw the tree for 8 − 2 × 3, where the × is done first. Then write it in prefix.
 
-Write (1 + 2) × 3 in prefix. Answer: × + 1 2 3.
+Answer: − 8 × 2 3.

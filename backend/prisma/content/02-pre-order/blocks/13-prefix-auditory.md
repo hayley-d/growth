@@ -1,11 +1,11 @@
 ---
 position: 13
 style: auditory
-transcript: "Say it like a calculator. Read plus, times, 2, 3, 4 out loud as an instruction: Add, 2 times 3, and 4. Each operator you hear waits for the next two values."
+transcript: "No brackets needed. Say the prefix slowly: plus, times, 2, 3, 4. After \"times\" you need two values: 2 and 3. That finishes times. Plus still needs one more: 4. You never have to say a bracket."
 ---
 
-## Say it like a calculator
+## No brackets needed
 
-Read + × 2 3 4 out loud as an instruction: "Add ... 2 times 3 ... and 4."
+Say the prefix slowly: plus, times, 2, 3, 4. After "times" you need two values: 2 and 3. That finishes times.
 
-Each operator you hear waits for the next two values.
+Plus still needs one more: 4. You never have to say a bracket.

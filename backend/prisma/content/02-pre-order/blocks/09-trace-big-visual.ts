@@ -5,27 +5,39 @@ export default {
   position: 9,
   style: "visual",
   transcript:
-    "A tree with 8 at the root. 4 is on its left, with children 2 and 6. 12 is on its right, with children 10 and 14. Before the code reaches 12, preorder(4) has to finish 2 and 6.",
+    "A tree with 8 at the root. 4 is on its left, with children 2 and 6. 12 is on its right, with children 10 and 14. 8, then 4, 2, 6, then 12, 10, 14. Each subtree is a block of keys in a row.",
   body: {
     startingKeys: [8, 4, 12, 2, 6, 10, 14],
     highlights: [
       {
         key: 8,
-        state: "visited",
-      },
-      {
-        key: 4,
         state: "active",
       },
       {
+        key: 4,
+        state: "visited",
+      },
+      {
         key: 2,
-        state: "new",
+        state: "visited",
       },
       {
         key: 6,
-        state: "new",
+        state: "visited",
+      },
+      {
+        key: 12,
+        state: "visited",
+      },
+      {
+        key: 10,
+        state: "visited",
+      },
+      {
+        key: 14,
+        state: "visited",
       },
     ],
-    caption: "Before the code reaches 12, preorder(4) has to finish 2 and 6.",
+    caption: "8, then 4, 2, 6, then 12, 10, 14. Each subtree is a block of keys in a row.",
   },
 } satisfies BlockContent;

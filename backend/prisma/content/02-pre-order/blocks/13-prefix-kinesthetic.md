@@ -1,11 +1,11 @@
 ---
 position: 13
 style: kinesthetic
-transcript: "Build it with cards. Write plus, times, 2, 3 and 4 on five scraps of paper. Lay them out as the tree. Now pick them up in pre-order and lay them in a row. You should get plus, times, 2, 3, 4."
+transcript: "Work it out with your fingers. Point at each symbol in plus, times, 2, 3, 4, from right to left. Keep a running pile of numbers on your fingers. At times, swap the top two numbers, 2 and 3, for 6. At plus, swap 6 and 4 for 10. You end with one number: 10."
 ---
 
-## Build it with cards
+## Work it out with your fingers
 
-Write +, ×, 2, 3 and 4 on five scraps of paper. Lay them out as the tree.
+Point at each symbol in + × 2 3 4, from right to left. Keep a running pile of numbers on your fingers.
 
-Now pick them up in pre-order and lay them in a row. You should get + × 2 3 4.
+At ×, swap the top two numbers, 2 and 3, for 6. At +, swap 6 and 4 for 10. You end with one number: 10.

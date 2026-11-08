@@ -1,9 +1,11 @@
 ---
 position: 6
 style: auditory
-transcript: "What to listen for. As you step, say each line number out loud. You'll hear 3, the visit, straight after each new call starts. That's pre-order: the visit comes first in every call."
+transcript: "Say the stack. At each step, say the stack out loud, top first. You'll hear it grow and shrink: \"preorder 20.\" \"preorder 10, preorder 20.\" \"preorder 20.\" \"preorder 30, preorder 20.\" Then nothing."
 ---
 
-## What to listen for
+## Say the stack
 
-As you step, say each line number out loud. You'll hear 3, the visit, straight after each new call starts. That's pre-order: the visit comes first in every call.
+At each step, say the stack out loud, top first. You'll hear it grow and shrink:
+
+"preorder 20." "preorder 10, preorder 20." "preorder 20." "preorder 30, preorder 20." Then nothing.

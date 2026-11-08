@@ -1,11 +1,15 @@
 ---
 position: 6
 style: reading-writing
-transcript: "Keep a log. As you step, write two columns: the line that ran, and the stack, top first. Your last row should have an empty stack."
+transcript: "What each call does. Call, Visits, Then calls. preorder(20), 20, preorder(10), preorder(30). preorder(10), 10, two empty calls. preorder(30), 30, two empty calls. Write the visited list."
 ---
 
-## Keep a log
+## What each call does
 
-As you step, write two columns: the line that ran, and the stack, top first.
+| Call | Visits | Then calls |
+| --- | --- | --- |
+| preorder(20) | 20 | preorder(10), preorder(30) |
+| preorder(10) | 10 | two empty calls |
+| preorder(30) | 30 | two empty calls |
 
-Your last row should have an empty stack.
+Write the visited list.
