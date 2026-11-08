@@ -26,16 +26,9 @@ shared/src/
     src/
       step.ts             Step: one snapshot of a manual rotation
       bst.ts              insertBst and removeBst, with no rebalancing
-      balance.ts          findUnbalanced and isAvl
+      balance.ts          heightOf, balanceOf, findUnbalanced and isAvl
       rotate.ts           rotate: one left or right rotation, or a reason
-    test/                 one <file>.test.ts for each file in src/
-  engine/
-    index.ts              re-exports everything in src/
-    src/
-      step.ts             Step: one snapshot of a manual rotation
-      bst.ts              insertBst and removeBst, with no rebalancing
-      balance.ts          findUnbalanced and isAvl
-      rotate.ts           rotate: one left or right rotation, or a reason
+      generators/         generate: seeded assessment questions, one file per generator key
     test/                 one <file>.test.ts for each file in src/
 ```
 
@@ -52,6 +45,36 @@ shared/src/
 `rotate(tree, key, kind)` turns the node with that key once to the left or the right. It returns `{ ok: true, tree, steps }` or `{ ok: false, reason }`. A reason looks like `Node 30 has no left child`. A success has two steps, `rotate.select` and then `rotate.rotate-left` or `rotate.rotate-right`. Each step is `{ stepKey, tree, nodeStates, message, variables }`.
 
 Import it with `@shared/engine`. It is not exported from the shared barrel.
+
+### Generated questions
+
+`generate(key, { seed, difficulty, order? })` returns a `GeneratedQuestion`: the tree, the prompt, the answer, an explanation and three hints from vague to specific. The same key, seed and difficulty always give the same question, so the backend can run it again later to get the answer.
+
+```ts
+const question = generate("insert-result", { seed: 42, difficulty: 3 });
+```
+
+The seed must be a non-negative safe integer and the difficulty a whole number from 1 to 5. Anything else throws a `RangeError`.
+
+The keys are `traversal-order`, `insert-result`, `delete-result`, `predict-rotation`, `balance-factor`, `height` and `is-avl`. `order` only matters for `traversal-order`.
+
+Difficulty sets the tree size and the case:
+
+| Difficulty | Nodes | Insert and predict-rotation | Delete |
+| --- | --- | --- | --- |
+| 1 | 3-4 | no rotation | no rotation, node has at most one child |
+| 2 | 5-6 | single rotation | single rotation |
+| 3 | 7-9 | single rotation, or a double rotation at the root | the same |
+| 4 | 10-12 | double rotation | node with two children, no rotation after |
+| 5 | 12-15 | double rotation | node with two children, rotation after |
+
+- The generator builds a seeded random tree, then looks for a key that gives the wanted case. It tries the node counts in the window one after another. If nothing fits after 200 tries it throws, so a case that can't exist fails the tests and never turns into an easier question. A delete that rotates can't happen at 6 nodes, so difficulty 2 deletes use 5.
+- A question only counts a case with one rotation, so `predict-rotation` always has one answer.
+- When a delete replaces a node with its in-order successor, the rotation can happen at the spot of the deleted node, where the key is now the successor's. `predict-rotation` skips those cases, because the pivot would be a leaf in the picture the learner sees. `delete-result` keeps them and says "the node that took 45's place (it now holds 70)".
+- `balance-factor` asks about any node at difficulty 1, a node with children at 2 and 3, and from 4 shows the tree just after a plain search tree insert, before rebalancing. The prompt says so, and at difficulty 5 half the questions ask about the unbalanced node, so the answer is 2 or -2.
+- Hints never give a yes or no. The `is-avl` hints are the same for every tree, and the last `traversal-order` hint shows fewer than half the keys, and at least one.
+- Heights follow the engine: a leaf has height 1 and an empty tree has height 0. The `height` and `balance-factor` prompts say so.
+- Answers are in one fixed form: trees are `encodeTree` strings, and text lists are keys joined by `,` with no spaces. Cleaning up what a learner types is the grader's job, not the generator's.
 
 ## Traversal
 
