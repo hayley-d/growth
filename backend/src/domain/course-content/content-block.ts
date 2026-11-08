@@ -5,7 +5,8 @@ export type ContentBlockType =
   | "playground"
   | "code_trace"
   | "copy_tree"
-  | "expression_tree";
+  | "expression_tree"
+  | "number_line";
 
 export type ContentBlock = {
   id: string;

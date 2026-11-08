@@ -145,6 +145,13 @@ export const expressionTreeBlockBodySchema = z.object({
 
 export type ExpressionTreeBlockBody = z.infer<typeof expressionTreeBlockBodySchema>;
 
+export const numberLineBlockBodySchema = z.object({
+  startingKeys: treeKeysSchema,
+  caption: z.string(),
+});
+
+export type NumberLineBlockBody = z.infer<typeof numberLineBlockBodySchema>;
+
 export const contentBlockBodySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("text"), body: textBlockBodySchema }),
   z.object({ type: z.literal("diagram"), body: diagramBlockBodySchema }),
@@ -153,6 +160,7 @@ export const contentBlockBodySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("code_trace"), body: codeTraceBlockBodySchema }),
   z.object({ type: z.literal("copy_tree"), body: copyTreeBlockBodySchema }),
   z.object({ type: z.literal("expression_tree"), body: expressionTreeBlockBodySchema }),
+  z.object({ type: z.literal("number_line"), body: numberLineBlockBodySchema }),
 ]);
 
 export type ContentBlockBody = z.infer<typeof contentBlockBodySchema>;

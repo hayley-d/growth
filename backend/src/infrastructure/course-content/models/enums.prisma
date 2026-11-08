@@ -13,6 +13,7 @@ enum ContentBlockType {
   code_trace
   copy_tree
   expression_tree
+  number_line
 
   @@map("contentBlockType")
 }
