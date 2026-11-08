@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 640" font-family="ui-sans-serif, system-ui, sans-serif">
-  <title>A plain tree and a side list. The drawing is only keys, and state, height, and balance live in a list beside it.</title>
+  <title>A plain tree and a side list. A tree with circle nodes with a side list.</title>
   <rect width="960" height="640" fill="#f3efe6"/>
   <text x="36" y="42" font-size="22" fill="#1c1c1c">A plain tree and a side list</text>
-  <text x="36" y="68" font-size="14" fill="#4e4942">The drawing is only keys. State, height, and balance live in a list beside it.</text>
+  <text x="36" y="68" font-size="14" fill="#4e4942">A tree with circle nodes with a side list.</text>
 
   <g stroke="#6e685f" stroke-width="2">
     <line x1="150" y1="168" x2="90" y2="230"/>
@@ -67,7 +67,7 @@
     <text x="640" y="304">2</text>
   </g>
 
-  <text x="348" y="360" font-size="13" font-weight="600" fill="#4e4942">Colour removed</text>
+  <text x="348" y="360" font-size="13" font-weight="600" fill="#4e4942">Grey</text>
   <g font-size="13" fill="#1c1c1c">
     <text x="348" y="384">20</text>
     <text x="392" y="384">active</text>
@@ -93,7 +93,7 @@
 
   <line x1="36" y1="480" x2="924" y2="480" stroke="#d9d1c3"/>
   <text x="48" y="512" font-size="13" font-weight="600" fill="#4e4942">Height and balance factor hidden</text>
-  <text x="48" y="540" font-size="14" fill="#4e4942">The same list, with the h and bf columns left out. The tree drawing does not change.</text>
+  <text x="48" y="540" font-size="14" fill="#4e4942">The same node tree and list just without the h and bf columns.</text>
   <g font-size="13" fill="#1c1c1c">
     <text x="48" y="574">20</text>
     <text x="92" y="574">active</text>
