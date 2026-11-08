@@ -1,5 +1,6 @@
 import type { NodeState } from "@shared/engine";
 import { TreeNodeCircle } from "@/components/atoms/tree-node-circle";
+import { useSvgPlace } from "@/lib/use-svg-place";
 
 export const treeNodeRadius = 18;
 export const treeNodeLabelLine = 14;
@@ -20,6 +21,7 @@ type TreeNodeProperties = {
   showBalance: boolean;
   manual: boolean;
   selected: boolean;
+  instant: boolean;
   onSelect?: (nodeKey: number) => void;
 };
 
@@ -157,8 +159,10 @@ export function TreeNode({
   showBalance,
   manual,
   selected,
+  instant,
   onSelect,
 }: TreeNodeProperties) {
+  const placeRef = useSvgPlace(x, y, instant);
   const paint = state === undefined ? idlePaint : paints[state];
   const labels = [showHeight ? `h ${height}` : null, showBalance ? `bf ${balance}` : null].filter(
     (label): label is string => label !== null,
@@ -166,78 +170,80 @@ export function TreeNode({
   const hit = treeNodeRadius * 2;
 
   return (
-    <g>
-      <g aria-hidden={manual ? true : undefined}>
-        {state === "active" ? <Pointer x={x} y={y} /> : null}
-        <TreeNodeCircle
-          x={x}
-          y={y}
-          radius={treeNodeRadius}
-          fill={paint.fill}
-          stroke={paint.stroke}
-          strokeWidth={paint.strokeWidth}
-          strokeDasharray={paint.dashed ? "4 3" : undefined}
-        />
-        {state === "active" ? (
+    <g ref={placeRef}>
+      <g transform={`translate(${-x} ${-y})`}>
+        <g aria-hidden={manual ? true : undefined}>
+          {state === "active" ? <Pointer x={x} y={y} /> : null}
           <TreeNodeCircle
             x={x}
             y={y}
-            radius={treeNodeRadius + 5}
-            fill="none"
-            stroke="currentColor"
-            strokeWidth={3.5}
+            radius={treeNodeRadius}
+            fill={paint.fill}
+            stroke={paint.stroke}
+            strokeWidth={paint.strokeWidth}
+            strokeDasharray={paint.dashed ? "4 3" : undefined}
           />
-        ) : null}
-        {selected ? (
-          <TreeNodeCircle
-            x={x}
-            y={y}
-            radius={treeNodeRadius + 10}
-            fill="none"
-            stroke="var(--ring)"
-            strokeWidth={2}
-          />
-        ) : null}
-        <text
-          x={x}
-          y={y}
-          textAnchor="middle"
-          dominantBaseline="central"
-          fontSize="13"
-          fontWeight="600"
-          fill={paint.text}
-        >
-          {nodeKey}
-        </text>
-        {state === "visited" ? <Tick x={x} y={y} /> : null}
-        {state === "about to be deleted" ? <Cross x={x} y={y} /> : null}
-        {state === "unbalanced" ? <BalanceBadge x={x} y={y} balance={balance} /> : null}
-        {labels.map((label, index) => (
+          {state === "active" ? (
+            <TreeNodeCircle
+              x={x}
+              y={y}
+              radius={treeNodeRadius + 5}
+              fill="none"
+              stroke="currentColor"
+              strokeWidth={3.5}
+            />
+          ) : null}
+          {selected ? (
+            <TreeNodeCircle
+              x={x}
+              y={y}
+              radius={treeNodeRadius + 10}
+              fill="none"
+              stroke="var(--ring)"
+              strokeWidth={2}
+            />
+          ) : null}
           <text
-            key={label}
             x={x}
-            y={y + treeNodeRadius + treeNodeLabelGap + index * treeNodeLabelLine}
+            y={y}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize="11"
-            fill="currentColor"
+            fontSize="13"
+            fontWeight="600"
+            fill={paint.text}
           >
-            {label}
+            {nodeKey}
           </text>
-        ))}
+          {state === "visited" ? <Tick x={x} y={y} /> : null}
+          {state === "about to be deleted" ? <Cross x={x} y={y} /> : null}
+          {state === "unbalanced" ? <BalanceBadge x={x} y={y} balance={balance} /> : null}
+          {labels.map((label, index) => (
+            <text
+              key={label}
+              x={x}
+              y={y + treeNodeRadius + treeNodeLabelGap + index * treeNodeLabelLine}
+              textAnchor="middle"
+              dominantBaseline="central"
+              fontSize="11"
+              fill="currentColor"
+            >
+              {label}
+            </text>
+          ))}
+        </g>
+        {manual ? (
+          <foreignObject x={x - treeNodeRadius} y={y - treeNodeRadius} width={hit} height={hit}>
+            <button
+              type="button"
+              aria-label={accessibleName(nodeKey, balance, state)}
+              aria-pressed={selected}
+              onClick={() => onSelect?.(nodeKey)}
+              style={{ width: hit, height: hit }}
+              className="cursor-pointer rounded-full border-0 bg-transparent p-0 focus-visible:ring-[3px] focus-visible:ring-ring/50"
+            />
+          </foreignObject>
+        ) : null}
       </g>
-      {manual ? (
-        <foreignObject x={x - treeNodeRadius} y={y - treeNodeRadius} width={hit} height={hit}>
-          <button
-            type="button"
-            aria-label={accessibleName(nodeKey, balance, state)}
-            aria-pressed={selected}
-            onClick={() => onSelect?.(nodeKey)}
-            style={{ width: hit, height: hit }}
-            className="cursor-pointer rounded-full border-0 bg-transparent p-0 focus-visible:ring-[3px] focus-visible:ring-ring/50"
-          />
-        </foreignObject>
-      ) : null}
     </g>
   );
 }

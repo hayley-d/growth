@@ -141,3 +141,121 @@ it("names an empty tree", async () => {
 
   await expect.element(screen.getByRole("img", { name: "Empty tree" })).toBeVisible();
 });
+
+const textsOf = (container: HTMLElement) =>
+  [...container.querySelectorAll("text")].map((node) => node.textContent);
+
+const stubReducedMotion = (matches: boolean) => {
+  const original = window.matchMedia.bind(window);
+  window.matchMedia = (query: string) => {
+    const list = original(query);
+    return {
+      matches: query.includes("prefers-reduced-motion") ? matches : list.matches,
+      media: query,
+      onchange: null,
+      addListener: () => undefined,
+      removeListener: () => undefined,
+      addEventListener: () => undefined,
+      removeEventListener: () => undefined,
+      dispatchEvent: () => false,
+    } as MediaQueryList;
+  };
+  return () => {
+    window.matchMedia = original;
+  };
+};
+
+it("keeps a manual button on its node", async () => {
+  const screen = await renderTree({ root: build([20, 10]), manual: true });
+  const text = screen.getByText("20", { exact: true }).element().getBoundingClientRect();
+  const button = screen
+    .getByRole("button", { name: "20, balance factor 1" })
+    .element()
+    .getBoundingClientRect();
+
+  expect(Math.abs(text.x + text.width / 2 - (button.x + button.width / 2))).toBeLessThan(2);
+  expect(Math.abs(text.y + text.height / 2 - (button.y + button.height / 2))).toBeLessThan(2);
+});
+
+it("fades a deleted node out and drops a new one in", async () => {
+  const restore = stubReducedMotion(false);
+  try {
+    const screen = await renderTree({ root: build([20, 10, 30]) });
+    await screen.rerender(
+      <div className="h-96 w-full">
+        <TreeView root={build([20, 30, 40])} />
+      </div>,
+    );
+
+    expect(textsOf(screen.container)).toContain("10");
+    await expect.element(screen.getByText("10", { exact: true })).not.toBeInTheDocument();
+    await expect.element(screen.getByText("40", { exact: true })).toBeVisible();
+  } finally {
+    restore();
+  }
+});
+
+it("changes the tree straight away when reduced motion is on", async () => {
+  const restore = stubReducedMotion(true);
+  try {
+    const screen = await renderTree({ root: build([20, 10, 30]) });
+    await screen.rerender(
+      <div className="h-96 w-full">
+        <TreeView root={build([20, 30])} />
+      </div>,
+    );
+    await expect.poll(() => textsOf(screen.container).includes("10"), { timeout: 150 }).toBe(false);
+  } finally {
+    restore();
+  }
+});
+
+const leaning: AvlNode = {
+  key: 30,
+  height: 3,
+  right: null,
+  left: {
+    key: 20,
+    height: 2,
+    right: null,
+    left: { key: 10, height: 1, left: null, right: null },
+  },
+};
+
+const turned: AvlNode = {
+  key: 20,
+  height: 2,
+  left: { key: 10, height: 1, left: null, right: null },
+  right: { key: 30, height: 1, left: null, right: null },
+};
+
+it("keeps the link when a rotation swaps parent and child", async () => {
+  const restore = stubReducedMotion(false);
+  try {
+    const screen = await renderTree({ root: leaning });
+    await screen.rerender(
+      <div className="h-96 w-full">
+        <TreeView root={turned} />
+      </div>,
+    );
+    const base = [...screen.container.querySelectorAll("line")].filter(
+      (line) => line.getAttribute("stroke") === "currentColor",
+    );
+
+    expect(base).toHaveLength(2);
+  } finally {
+    restore();
+  }
+});
+
+it("lights the edge to each visited or active node", async () => {
+  const screen = await renderTree({
+    root: build([20, 10, 30]),
+    nodeStates: { 20: "active", 10: "visited" },
+  });
+  const lit = [...screen.container.querySelectorAll("line")].filter(
+    (line) => line.getAttribute("stroke") === "var(--primary)" && line.style.opacity !== "0",
+  );
+
+  expect(lit).toHaveLength(1);
+});

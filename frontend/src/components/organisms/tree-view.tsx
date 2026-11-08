@@ -1,12 +1,24 @@
+import { AnimatePresence, motion } from "motion/react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+
 import { type AvlNode, layoutTree } from "@shared/avl";
 import type { NodeState } from "@shared/engine";
-import { TreeEdge } from "@/components/atoms/tree-edge";
 import {
   TreeNode,
   treeNodeLabelHeight,
   treeNodePad,
   treeNodeRadius,
 } from "@/components/molecules/tree-node";
+import {
+  coverHoldMs,
+  edgeLink,
+  lightDelayMs,
+  lightOrder,
+  treeDropPx,
+  treeEdgeDrawSec,
+  treeGlideSec,
+} from "@/lib/tree-motion";
+import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
 type TreeViewProperties = {
@@ -20,10 +32,32 @@ type TreeViewProperties = {
   className?: string;
 };
 
+type PlacedNode = {
+  key: number;
+  x: number;
+  y: number;
+  parentKey: number | null;
+  cx: number;
+  cy: number;
+};
+
+type SnapshotEdgeProperties = {
+  x1: number;
+  y1: number;
+  x2: number;
+  y2: number;
+  dropStart: boolean;
+  lit: boolean;
+  delayMs: number;
+  instant: boolean;
+};
+
 const columnGap = 64;
 const rowGap = 40;
 
 const childHeight = (node: AvlNode | null) => node?.height ?? 0;
+
+const onPath = (state: NodeState | undefined) => state === "active" || state === "visited";
 
 const factsByKey = (root: AvlNode | null) => {
   const facts = new Map<number, { height: number; balance: number }>();
@@ -40,6 +74,81 @@ const factsByKey = (root: AvlNode | null) => {
   return facts;
 };
 
+const extent = (points: readonly { cx: number; cy: number }[], labelHeight: number) => {
+  if (points.length === 0) return { width: 120, height: 80 };
+  let maxCx = 0;
+  let maxCy = 0;
+  for (const point of points) {
+    if (point.cx > maxCx) maxCx = point.cx;
+    if (point.cy > maxCy) maxCy = point.cy;
+  }
+  return {
+    width: maxCx + treeNodePad + treeNodeRadius,
+    height: maxCy + treeNodePad + treeNodeRadius + labelHeight,
+  };
+};
+
+const sameExtent = (
+  left: readonly { cx: number; cy: number }[],
+  right: readonly { cx: number; cy: number }[],
+  labelHeight: number,
+) => {
+  const a = extent(left, labelHeight);
+  const b = extent(right, labelHeight);
+  return a.width === b.width && a.height === b.height;
+};
+
+function SnapshotEdge({
+  x1,
+  y1,
+  x2,
+  y2,
+  dropStart,
+  lit,
+  delayMs,
+  instant,
+}: SnapshotEdgeProperties) {
+  const glide = { duration: instant ? 0 : treeGlideSec, ease: "easeInOut" as const };
+  return (
+    <>
+      <motion.line
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        initial={
+          instant
+            ? false
+            : {
+                x1,
+                y1: dropStart ? y1 - treeDropPx : y1,
+                x2,
+                y2: dropStart ? y2 : y2 - treeDropPx,
+                opacity: 0,
+              }
+        }
+        animate={{ x1, y1, x2, y2, opacity: 1 }}
+        transition={glide}
+      />
+      <motion.line
+        stroke="var(--primary)"
+        strokeWidth="3"
+        strokeLinecap="round"
+        initial={false}
+        animate={{ x1, y1, x2, y2, pathLength: lit ? 1 : 0, opacity: lit ? 1 : 0 }}
+        transition={{
+          ...glide,
+          pathLength: {
+            duration: instant || !lit ? 0 : treeEdgeDrawSec,
+            delay: instant || !lit ? 0 : delayMs / 1000,
+            ease: "easeInOut",
+          },
+          opacity: { duration: 0 },
+        }}
+      />
+    </>
+  );
+}
+
 export function TreeView({
   root,
   nodeStates = {},
@@ -50,23 +159,69 @@ export function TreeView({
   onSelectKey,
   className,
 }: TreeViewProperties) {
+  const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
+  const [ready, setReady] = useState(false);
+  const instant = !ready || reduced;
   const layout = layoutTree(root);
   const facts = factsByKey(root);
   const labelHeight = treeNodeLabelHeight(showHeight, showBalance);
   const verticalStep = treeNodeRadius * 2 + rowGap + labelHeight;
-  const maxX = layout.reduce((max, position) => Math.max(max, position.x), 0);
-  const maxY = layout.reduce((max, position) => Math.max(max, position.y), 0);
-  const width = layout.length === 0 ? 120 : treeNodePad * 2 + treeNodeRadius * 2 + maxX * columnGap;
-  const height =
-    layout.length === 0
-      ? 80
-      : treeNodePad * 2 + treeNodeRadius * 2 + maxY * verticalStep + labelHeight;
-  const placed = layout.map((position) => ({
+  const placed: PlacedNode[] = layout.map((position) => ({
     ...position,
     cx: treeNodePad + treeNodeRadius + position.x * columnGap,
     cy: treeNodePad + treeNodeRadius + position.y * verticalStep,
   }));
   const byKey = new Map(placed.map((position) => [position.key, position]));
+  const lit = new Set(
+    placed.filter((position) => onPath(nodeStates[position.key])).map((position) => position.key),
+  );
+  const order = lightOrder(placed, lit);
+  const previousLit = useRef<Set<number>>(new Set());
+  const delays = lightDelayMs(order, previousLit.current, instant);
+  const signature = placed
+    .map((position) => `${position.key}:${position.cx}:${position.cy}`)
+    .join(";");
+  const litSignature = order.join(",");
+  const frame = useRef({ placed, order, instant });
+  frame.current = { placed, order, instant };
+  const previousPlaced = useRef(placed);
+  const [cover, setCover] = useState(placed);
+  const { width, height } = extent(cover, labelHeight);
+
+  useEffect(() => {
+    setReady(true);
+  }, []);
+
+  useEffect(() => {
+    const keys = litSignature === "" ? [] : litSignature.split(",").map(Number);
+    previousLit.current = new Set(keys);
+  }, [litSignature]);
+
+  useLayoutEffect(() => {
+    const next = frame.current.placed;
+    const currentSignature = next
+      .map((position) => `${position.key}:${position.cx}:${position.cy}`)
+      .join(";");
+    if (currentSignature !== signature) return;
+    const previous = previousPlaced.current;
+    const held = [...previous, ...next];
+    const lights = frame.current.order.filter((key) => !previousLit.current.has(key)).length;
+    setCover((current) => (sameExtent(current, held, labelHeight) ? current : held));
+    if (frame.current.instant) {
+      previousPlaced.current = next;
+      setCover((current) => (sameExtent(current, next, labelHeight) ? current : next));
+      return;
+    }
+    const hold = coverHoldMs(lights, false);
+    const id = window.setTimeout(() => {
+      previousPlaced.current = next;
+      setCover(next);
+    }, hold);
+    return () => {
+      window.clearTimeout(id);
+      previousPlaced.current = [...previousPlaced.current, ...next];
+    };
+  }, [labelHeight, signature]);
 
   return (
     <svg
@@ -77,39 +232,61 @@ export function TreeView({
       fontFamily="inherit"
       className={cn("block h-full w-full text-foreground", className)}
     >
-      {placed.map((position) => {
-        if (position.parentKey === null) return null;
-        const parent = byKey.get(position.parentKey);
-        if (!parent) return null;
-        return (
-          <TreeEdge
-            key={position.key}
-            fromX={parent.cx}
-            fromY={parent.cy}
-            toX={position.cx}
-            toY={position.cy}
-          />
-        );
-      })}
-      {placed.map((position) => {
-        const fact = facts.get(position.key);
-        return (
-          <TreeNode
-            key={position.key}
-            x={position.cx}
-            y={position.cy}
-            nodeKey={position.key}
-            height={fact?.height ?? 1}
-            balance={fact?.balance ?? 0}
-            state={nodeStates[position.key]}
-            showHeight={showHeight}
-            showBalance={showBalance}
-            manual={manual}
-            selected={selectedKey === position.key}
-            onSelect={onSelectKey}
-          />
-        );
-      })}
+      <AnimatePresence initial={false}>
+        {placed.map((position) => {
+          if (position.parentKey === null) return null;
+          const parent = byKey.get(position.parentKey);
+          if (!parent) return null;
+          const link = edgeLink(
+            { key: parent.key, x: parent.cx, y: parent.cy },
+            { key: position.key, x: position.cx, y: position.cy },
+          );
+          const glide = { duration: instant ? 0 : treeGlideSec, ease: "easeInOut" as const };
+          return (
+            <motion.g key={link.key} exit={{ opacity: 0 }} transition={glide}>
+              <SnapshotEdge
+                x1={link.x1}
+                y1={link.y1}
+                x2={link.x2}
+                y2={link.y2}
+                dropStart={link.dropStart}
+                lit={lit.has(position.key)}
+                delayMs={delays.get(position.key) ?? 0}
+                instant={instant}
+              />
+            </motion.g>
+          );
+        })}
+      </AnimatePresence>
+      <AnimatePresence initial={false}>
+        {placed.map((position) => {
+          const fact = facts.get(position.key);
+          return (
+            <motion.g
+              key={position.key}
+              initial={instant ? false : { opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: instant ? 0 : treeGlideSec, ease: "easeInOut" }}
+            >
+              <TreeNode
+                x={position.cx}
+                y={position.cy}
+                nodeKey={position.key}
+                height={fact?.height ?? 1}
+                balance={fact?.balance ?? 0}
+                state={nodeStates[position.key]}
+                showHeight={showHeight}
+                showBalance={showBalance}
+                manual={manual}
+                selected={selectedKey === position.key}
+                instant={instant}
+                onSelect={onSelectKey}
+              />
+            </motion.g>
+          );
+        })}
+      </AnimatePresence>
     </svg>
   );
 }
