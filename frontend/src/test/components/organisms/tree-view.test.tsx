@@ -210,6 +210,44 @@ it("changes the tree straight away when reduced motion is on", async () => {
   }
 });
 
+const leaning: AvlNode = {
+  key: 30,
+  height: 3,
+  right: null,
+  left: {
+    key: 20,
+    height: 2,
+    right: null,
+    left: { key: 10, height: 1, left: null, right: null },
+  },
+};
+
+const turned: AvlNode = {
+  key: 20,
+  height: 2,
+  left: { key: 10, height: 1, left: null, right: null },
+  right: { key: 30, height: 1, left: null, right: null },
+};
+
+it("keeps the link when a rotation swaps parent and child", async () => {
+  const restore = stubReducedMotion(false);
+  try {
+    const screen = await renderTree({ root: leaning });
+    await screen.rerender(
+      <div className="h-96 w-full">
+        <TreeView root={turned} />
+      </div>,
+    );
+    const base = [...screen.container.querySelectorAll("line")].filter(
+      (line) => line.getAttribute("stroke") === "currentColor",
+    );
+
+    expect(base).toHaveLength(2);
+  } finally {
+    restore();
+  }
+});
+
 it("lights the edge to each visited or active node", async () => {
   const screen = await renderTree({
     root: build([20, 10, 30]),

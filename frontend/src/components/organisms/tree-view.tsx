@@ -11,6 +11,7 @@ import {
 } from "@/components/molecules/tree-node";
 import {
   coverHoldMs,
+  edgeLink,
   lightDelayMs,
   lightOrder,
   treeDropPx,
@@ -45,6 +46,7 @@ type SnapshotEdgeProperties = {
   y1: number;
   x2: number;
   y2: number;
+  dropStart: boolean;
   lit: boolean;
   delayMs: number;
   instant: boolean;
@@ -96,7 +98,16 @@ const sameExtent = (
   return a.width === b.width && a.height === b.height;
 };
 
-function SnapshotEdge({ x1, y1, x2, y2, lit, delayMs, instant }: SnapshotEdgeProperties) {
+function SnapshotEdge({
+  x1,
+  y1,
+  x2,
+  y2,
+  dropStart,
+  lit,
+  delayMs,
+  instant,
+}: SnapshotEdgeProperties) {
   const glide = { duration: instant ? 0 : treeGlideSec, ease: "easeInOut" as const };
   return (
     <>
@@ -104,7 +115,17 @@ function SnapshotEdge({ x1, y1, x2, y2, lit, delayMs, instant }: SnapshotEdgePro
         stroke="currentColor"
         strokeWidth="2"
         strokeLinecap="round"
-        initial={instant ? false : { x1, y1, x2, y2: y2 - treeDropPx, opacity: 0 }}
+        initial={
+          instant
+            ? false
+            : {
+                x1,
+                y1: dropStart ? y1 - treeDropPx : y1,
+                x2,
+                y2: dropStart ? y2 : y2 - treeDropPx,
+                opacity: 0,
+              }
+        }
         animate={{ x1, y1, x2, y2, opacity: 1 }}
         transition={glide}
       />
@@ -216,14 +237,19 @@ export function TreeView({
           if (position.parentKey === null) return null;
           const parent = byKey.get(position.parentKey);
           if (!parent) return null;
+          const link = edgeLink(
+            { key: parent.key, x: parent.cx, y: parent.cy },
+            { key: position.key, x: position.cx, y: position.cy },
+          );
           const glide = { duration: instant ? 0 : treeGlideSec, ease: "easeInOut" as const };
           return (
-            <motion.g key={position.key} exit={{ opacity: 0 }} transition={glide}>
+            <motion.g key={link.key} exit={{ opacity: 0 }} transition={glide}>
               <SnapshotEdge
-                x1={parent.cx}
-                y1={parent.cy}
-                x2={position.cx}
-                y2={position.cy}
+                x1={link.x1}
+                y1={link.y1}
+                x2={link.x2}
+                y2={link.y2}
+                dropStart={link.dropStart}
                 lit={lit.has(position.key)}
                 delayMs={delays.get(position.key) ?? 0}
                 instant={instant}

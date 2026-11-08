@@ -11,6 +11,25 @@ export type LightPoint = {
   parentKey: number | null;
 };
 
+export type EdgeEnd = {
+  key: number;
+  x: number;
+  y: number;
+};
+
+export const edgeLink = (parent: EdgeEnd, child: EdgeEnd) => {
+  const start = child.key < parent.key ? child : parent;
+  const end = start === child ? parent : child;
+  return {
+    key: `${start.key}-${end.key}`,
+    x1: start.x,
+    y1: start.y,
+    x2: end.x,
+    y2: end.y,
+    dropStart: start.key === child.key,
+  };
+};
+
 export const lightOrder = (points: readonly LightPoint[], lit: ReadonlySet<number>): number[] => {
   const children = new Map<number | null, LightPoint[]>();
   for (const point of points) {
