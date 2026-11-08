@@ -7,6 +7,7 @@ export * from "@shared/schemas/src/content-block";
 export * from "@shared/schemas/src/course-content";
 export * from "@shared/schemas/src/error";
 export * from "@shared/schemas/src/health";
+export * from "@shared/schemas/src/learning-path";
 export * from "@shared/schemas/src/lesson";
 export * from "@shared/schemas/src/lesson-note";
 export * from "@shared/schemas/src/user";

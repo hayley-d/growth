@@ -19,6 +19,7 @@ const createInMemoryRepositories = (initialUnits: Unit[] = [], initialLessons: L
   const unitRepository: UnitRepository = {
     findById: async (id) => unitRows.get(id) ?? null,
     findByPosition,
+    listAll: async () => [...unitRows.values()],
     list: async () => ({ items: [...unitRows.values()], total: unitRows.size }),
     create: async (unit) => {
       const row = { id: crypto.randomUUID(), ...unit };
