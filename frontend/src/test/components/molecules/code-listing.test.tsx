@@ -44,3 +44,14 @@ it("scrolls to the current line once a hidden listing is shown", async () => {
 
   await expect.poll(() => box.scrollTop).toBeGreaterThan(0);
 });
+
+it("fits eleven lines without scrolling", async () => {
+  const elevenLines = lines.slice(0, 11);
+  const screen = await render(<CodeListing lines={elevenLines} currentLine={1} label="insert" />);
+  const box = screen
+    .getByRole("list", { name: "insert" })
+    .element()
+    .closest(".overflow-auto") as HTMLElement;
+
+  expect(box.scrollHeight).toBeLessThanOrEqual(box.clientHeight);
+});
