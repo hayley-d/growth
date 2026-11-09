@@ -312,6 +312,50 @@ describe("checkContent", () => {
     ]);
   });
 
+  it("rejects a traversal trace that isn't a traverse", () => {
+    const problems = problemsAfter((raw) => {
+      firstLesson(raw).blocks.push({
+        file: "01-intro/blocks/02-trace.ts",
+        format: "module",
+        data: {
+          type: "code_trace",
+          position: 2,
+          transcript: "Trace.",
+          body: {
+            algorithmCode: "preorder",
+            startingKeys: [1],
+            operation: { operation: "search", key: 1 },
+          },
+        },
+      });
+    });
+    expect(problems).toEqual([
+      { file: lessonFile, message: expect.stringContaining('must be "traverse"') },
+    ]);
+  });
+
+  it("rejects a traverse on an algorithm that isn't a traversal", () => {
+    const problems = problemsAfter((raw) => {
+      firstLesson(raw).blocks.push({
+        file: "01-intro/blocks/02-trace.ts",
+        format: "module",
+        data: {
+          type: "code_trace",
+          position: 2,
+          transcript: "Trace.",
+          body: {
+            algorithmCode: "insert",
+            startingKeys: [1],
+            operation: { operation: "traverse" },
+          },
+        },
+      });
+    });
+    expect(problems).toEqual([
+      { file: lessonFile, message: expect.stringContaining('can\'t be "traverse"') },
+    ]);
+  });
+
   it("needs a review lesson that exists", () => {
     const problems = problemsAfter((raw) => {
       firstQuestion(raw).reviewLesson = "nowhere";

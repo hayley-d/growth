@@ -66,6 +66,62 @@ describe("contentBlockBodySchema", () => {
     expect(result.type).toBe("code_trace");
   });
 
+  it("parses a traversal code trace block", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "code_trace",
+      body: {
+        algorithmCode: "preorder",
+        startingKeys: [20, 10, 30],
+        operation: { operation: "traverse" },
+      },
+    });
+    expect(result.type).toBe("code_trace");
+  });
+
+  it("parses a copy tree block", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "copy_tree",
+      body: { startingKeys: [20, 10, 30], caption: "Copy the tree." },
+    });
+    expect(result.type).toBe("copy_tree");
+  });
+
+  it("parses an expression tree block", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "expression_tree",
+      body: {
+        expression: {
+          operator: "+",
+          left: { operator: "×", left: { value: 2 }, right: { value: 3 } },
+          right: { value: 4 },
+        },
+        order: "preorder",
+        caption: "2 × 3 + 4",
+      },
+    });
+    expect(result.type).toBe("expression_tree");
+  });
+
+  it("rejects an operator with one value", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "expression_tree",
+      body: {
+        expression: { operator: "+", left: { value: 2 } },
+        order: "preorder",
+        caption: "Half a sum",
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("rejects an expression tree in level-order", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "expression_tree",
+      body: { expression: { value: 2 }, order: "levelorder", caption: "Two" },
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("rejects a body that doesn't match its type", () => {
     const result = contentBlockBodySchema.safeParse({
       type: "text",

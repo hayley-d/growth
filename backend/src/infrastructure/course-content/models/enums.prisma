@@ -11,6 +11,8 @@ enum ContentBlockType {
   animation
   playground
   code_trace
+  copy_tree
+  expression_tree
 
   @@map("contentBlockType")
 }

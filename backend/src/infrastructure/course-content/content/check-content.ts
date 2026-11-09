@@ -178,6 +178,13 @@ const parseBlock = (block: BlockFile, report: Report): BlockData | null => {
   }
 };
 
+const traversalAlgorithmCodes: readonly string[] = [
+  "preorder",
+  "inorder",
+  "postorder",
+  "levelorder",
+];
+
 const checkBlocks = (lessonFile: string, blocks: BlockData[], report: Report) => {
   const positions = [...new Set(blocks.map((block) => block.position))];
   checkSequence(positions, lessonFile, "Block positions", report);
@@ -195,10 +202,22 @@ const checkBlocks = (lessonFile: string, blocks: BlockData[], report: Report) =>
     }
   }
   for (const block of blocks) {
-    if (block.type === "code_trace" && !isAlgorithmCode(block.body.algorithmCode)) {
+    if (block.type !== "code_trace") continue;
+    const { algorithmCode, operation } = block.body;
+    if (!isAlgorithmCode(algorithmCode)) {
       report(
         lessonFile,
-        `Block at position ${block.position} uses unknown algorithm "${block.body.algorithmCode}". Use one of ${algorithmCodes.join(", ")}`,
+        `Block at position ${block.position} uses unknown algorithm "${algorithmCode}". Use one of ${algorithmCodes.join(", ")}`,
+      );
+      continue;
+    }
+    const isTraversal = traversalAlgorithmCodes.includes(algorithmCode);
+    if (isTraversal !== (operation.operation === "traverse")) {
+      report(
+        lessonFile,
+        isTraversal
+          ? `Block at position ${block.position} traces ${algorithmCode}, so its operation must be "traverse"`
+          : `Block at position ${block.position} traces ${algorithmCode}, so its operation can't be "traverse"`,
       );
     }
   }
