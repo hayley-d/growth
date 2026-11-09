@@ -59,6 +59,10 @@ export default defineConfig({
                       label: "Lessons",
                       items: [
                         {
+                          label: "Lesson 1: What is a binary tree",
+                          slug: "id/storyboards/lessons/binary-tree",
+                        },
+                        {
                           label: "Lessons 2 to 4: Depth-first traversals",
                           slug: "id/storyboards/lessons/depth-first-traversals",
                         },
