@@ -12,6 +12,7 @@
       "!**/node_modules",
       "!**/routeTree.gen.ts",
       "!**/src/generated",
+      "!**/docs/public/openapi.json",
       "!**/.astro"
     ]
   },
