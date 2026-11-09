@@ -1,16 +1,21 @@
 ---
 position: 2
 style: reading-writing
-transcript: "Line by line. Line, Code, Rule step. 2, if node is empty: return, Stop at a missing child. 3, visit(node), Step 1. 4, preorder(node.left), Step 2. 5, preorder(node.right), Step 3. Write what would go wrong if line 2 were missing."
+transcript: "Write the lines that run. Here's a small tree. 8 is at the root, with 4 on its left and 12 on its right. 4 has children 2 and 6. Write down each line of the code that runs, in order, starting with preorder of 8. Leave out the checks for empty nodes. The answer is: preorder of 8, visit 8, preorder of 4, visit 4, preorder of 2, visit 2, preorder of 6, visit 6, preorder of 12, visit 12."
 ---
 
-## Line by line
+## Write the lines that run
 
-| Line | Code | Rule step |
-| --- | --- | --- |
-| 2 | `if node is empty: return` | Stop at a missing child |
-| 3 | `visit(node)` | Step 1 |
-| 4 | `preorder(node.left)` | Step 2 |
-| 5 | `preorder(node.right)` | Step 3 |
+Here's a small tree:
 
-Write what would go wrong if line 2 were missing.
+```
+      8
+     / \
+    4   12
+   / \
+  2   6
+```
+
+Write down each line of the code that runs, in order, starting with `preorder(8)`. Leave out the checks for empty nodes.
+
+Answer: `preorder(8)`, `visit(8)`, `preorder(4)`, `visit(4)`, `preorder(2)`, `visit(2)`, `preorder(6)`, `visit(6)`, `preorder(12)`, `visit(12)`.

@@ -1,27 +1,14 @@
 import type { BlockContent } from "@/infrastructure/course-content/content/content-schema";
 
 export default {
-  type: "diagram",
+  type: "code_trace",
   position: 2,
   style: "visual",
   transcript:
-    "A tree with 8 at the root. 4 is on its left, with children 2 and 6. 12 is on its right, with children 10 and 14. Visit 8 first. Then the same three steps run on the subtrees under 4 and 12.",
+    "The code runs on a tree with 8 at the root, 4 on the left and 12 on the right. preorder(8) visits 8 at line 3, then calls preorder(4) at line 4 and waits on the stack. preorder(4) visits 4. 4 has no children, so its calls return straight away. preorder(8) carries on at line 5 and calls preorder(12), which visits 12. The visited list is 8, 4, 12.",
   body: {
-    startingKeys: [8, 4, 12, 2, 6, 10, 14],
-    highlights: [
-      {
-        key: 8,
-        state: "active",
-      },
-      {
-        key: 4,
-        state: "new",
-      },
-      {
-        key: 12,
-        state: "new",
-      },
-    ],
-    caption: "Visit 8 first. Then the same three steps run on the subtrees under 4 and 12.",
+    algorithmCode: "preorder",
+    startingKeys: [8, 4, 12],
+    operation: { operation: "traverse" },
   },
 } satisfies BlockContent;
