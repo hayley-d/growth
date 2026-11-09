@@ -4,11 +4,11 @@ import { makeListCodeLanguages } from "@/application/course-content/queries/list
 import { makeListLearningStyles } from "@/application/course-content/queries/list-learning-styles";
 import { makeGetLearningPath } from "@/application/learning-path/queries/get-learning-path";
 import { makeSaveLessonNote } from "@/application/lesson/commands/save-lesson-note";
+import { makeStartLesson } from "@/application/lesson/commands/start-lesson";
 import { makeGetLesson } from "@/application/lesson/queries/get-lesson";
 import { makeGetLessonNote } from "@/application/lesson/queries/get-lesson-note";
 import { makeUpdateProfile } from "@/application/user/commands/update-profile";
 import { makeGetMe } from "@/application/user/queries/get-me";
-import { PrismaAssessmentAttemptRepository } from "@/infrastructure/assessment/repositories";
 import { authHandler, getSession } from "@/infrastructure/auth/auth";
 import { environment } from "@/infrastructure/config/environment";
 import {
@@ -61,7 +61,6 @@ const algorithmController = createAlgorithmController({
 const lessonAccess = {
   lessonRepository: new PrismaLessonRepository(prismaClient),
   lessonProgressRepository: new PrismaLessonProgressRepository(prismaClient),
-  assessmentAttemptRepository: new PrismaAssessmentAttemptRepository(prismaClient),
 };
 const lessonNoteRepository = new PrismaLessonNoteRepository(prismaClient);
 
@@ -75,6 +74,7 @@ const lessonController = createLessonController({
   }),
   getLessonNote: makeGetLessonNote({ ...lessonAccess, lessonNoteRepository }),
   saveLessonNote: makeSaveLessonNote({ ...lessonAccess, lessonNoteRepository }),
+  startLesson: makeStartLesson(lessonAccess),
 });
 
 const userRepository = new PrismaUserRepository(prismaClient);

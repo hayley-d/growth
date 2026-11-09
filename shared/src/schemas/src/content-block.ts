@@ -55,6 +55,7 @@ export type PlaygroundGoal = z.infer<typeof playgroundGoalSchema>;
 
 export const textBlockBodySchema = z.object({
   markdown: z.string().min(1),
+  tree: treeKeysSchema.optional(),
 });
 
 export type TextBlockBody = z.infer<typeof textBlockBodySchema>;
@@ -101,6 +102,7 @@ export const codeTraceBlockBodySchema = z.object({
   algorithmCode: z.string().min(1),
   startingKeys: treeKeysSchema,
   operation: codeTraceOperationSchema,
+  markdown: z.string().min(1).optional(),
 });
 
 export type CodeTraceBlockBody = z.infer<typeof codeTraceBlockBodySchema>;
@@ -108,6 +110,7 @@ export type CodeTraceBlockBody = z.infer<typeof codeTraceBlockBodySchema>;
 export const copyTreeBlockBodySchema = z.object({
   startingKeys: treeKeysSchema,
   caption: z.string(),
+  markdown: z.string().min(1).optional(),
 });
 
 export type CopyTreeBlockBody = z.infer<typeof copyTreeBlockBodySchema>;
@@ -137,6 +140,7 @@ export const expressionTreeBlockBodySchema = z.object({
   expression: expressionNodeSchema,
   order: z.enum(["preorder", "inorder", "postorder"]),
   caption: z.string(),
+  markdown: z.string().min(1).optional(),
 });
 
 export type ExpressionTreeBlockBody = z.infer<typeof expressionTreeBlockBodySchema>;

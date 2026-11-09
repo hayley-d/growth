@@ -162,13 +162,21 @@ const parseBlock = (block: BlockFile, report: Report): BlockData | null => {
   try {
     const { data, body } = parseFrontmatter(block.text);
     if (typeof data !== "object" || data === null || Array.isArray(data)) {
-      report(block.file, "The frontmatter must hold position, transcript and an optional style");
+      report(
+        block.file,
+        "The frontmatter must hold position, transcript and an optional style and tree",
+      );
       return null;
     }
+    const { tree, ...placement } = data as Record<string, unknown>;
     return parseWith(
       blockContentSchema,
       block.file,
-      { ...data, type: "text", body: { markdown: body } },
+      {
+        ...placement,
+        type: "text",
+        body: tree === undefined ? { markdown: body } : { markdown: body, tree },
+      },
       report,
     );
   } catch (error) {

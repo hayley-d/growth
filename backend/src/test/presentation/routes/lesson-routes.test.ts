@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { ErrorResponse } from "@shared/schemas";
 import { requestContext } from "@/application/context/request-context";
 import type { Logger } from "@/application/logging/logger";
+import { ForbiddenError, NotFoundError } from "@/domain/errors";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createErrorHandler } from "@/presentation/middleware/error-handler";
 import { requestContextMiddleware } from "@/presentation/middleware/request-context-middleware";
@@ -21,6 +22,7 @@ const createStubLogger = (): Logger => ({
 
 const createApplication = (signedIn: boolean) => {
   const saveLessonNote = vi.fn().mockResolvedValue(noteResponse);
+  const startLesson = vi.fn().mockResolvedValue(undefined);
   const application = new Hono();
   application.use(requestContextMiddleware);
   application.use(async (_context, next) => {
@@ -34,11 +36,12 @@ const createApplication = (signedIn: boolean) => {
         getLesson: vi.fn(),
         getLessonNote: vi.fn().mockResolvedValue(noteResponse),
         saveLessonNote,
+        startLesson,
       }),
     ),
   );
   application.onError(createErrorHandler(createStubLogger()));
-  return { application, saveLessonNote };
+  return { application, saveLessonNote, startLesson };
 };
 
 const put = (application: Hono, body: unknown) =>
@@ -53,6 +56,7 @@ describe("lesson routes", () => {
     ["GET", `/api/lessons/${lessonId}`],
     ["GET", `/api/lessons/${lessonId}/note`],
     ["PUT", `/api/lessons/${lessonId}/note`],
+    ["POST", `/api/lessons/${lessonId}/start`],
   ])("returns 401 for %s %s when signed out", async (method, path) => {
     const { application } = createApplication(false);
     const response = await application.request(path, { method });
@@ -81,6 +85,28 @@ describe("lesson routes", () => {
     expect(response.status).toBe(400);
     expect(body.message).toBe("Validation failed");
     expect(saveLessonNote).not.toHaveBeenCalled();
+  });
+
+  it("starts a lesson with an empty 204", async () => {
+    const { application, startLesson } = createApplication(true);
+    const response = await application.request(`/api/lessons/${lessonId}/start`, {
+      method: "POST",
+    });
+    expect(response.status).toBe(204);
+    expect(await response.text()).toBe("");
+    expect(startLesson).toHaveBeenCalledWith({ id: lessonId });
+  });
+
+  it.each([
+    [new ForbiddenError("Lesson is locked"), 403],
+    [new NotFoundError("Lesson not found"), 404],
+  ])("returns the error status when starting fails with %s", async (error, status) => {
+    const { application, startLesson } = createApplication(true);
+    startLesson.mockRejectedValue(error);
+    const response = await application.request(`/api/lessons/${lessonId}/start`, {
+      method: "POST",
+    });
+    expect(response.status).toBe(status);
   });
 
   it("returns 400 for an id that is not a uuid", async () => {

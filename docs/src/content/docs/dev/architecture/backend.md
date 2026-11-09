@@ -65,17 +65,23 @@ The pieces:
 
 ### Lessons
 
-All three endpoints need a signed-in learner. The use cases live in `application/lesson/`.
+All four endpoints need a signed-in learner. The use cases live in `application/lesson/`.
 
 | Endpoint | What it returns |
 | --- | --- |
 | `GET /api/lessons/:id` | The lesson, its unit, its status, the previous and next lesson ids, and its steps |
 | `GET /api/lessons/:id/note` | The learner's note, or an empty body and a `null` `updatedAt` when there isn't one yet |
 | `PUT /api/lessons/:id/note` | Saves the note. It creates the note the first time and updates it after that |
+| `POST /api/lessons/:id/start` | Marks the lesson `started` and returns an empty 204. A completed lesson stays completed |
 
-A lesson is locked unless it is the first lesson on the path, or the lesson right before it is completed, or the learner passed that lesson's test (a passed `lesson_test` or `checkpoint` attempt). "Before" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all three endpoints. A missing or retired lesson returns 404, and a retired lesson is never anyone's previous or next lesson. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`. Nothing marks a lesson completed yet, so for now only the first lesson opens.
+The lesson endpoints and the learning path use one rule. The current lesson is the first one the learner hasn't completed. The current lesson and completed lessons are open, and every other lesson is locked. "First" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all four endpoints. A missing or retired lesson returns 404, and a retired lesson is never anyone's previous or next lesson. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`, built on `getLessonStatuses`. Only completed progress rows count. A passed test opens the next lesson because it completes the lesson it tests.
 
-The status is `completed` when the learner's own progress says so, and `current` otherwise. A passed test only opens the next lesson.
+Two use cases in `application/learning-path/` have no route. Assessment calls them.
+
+- `makeCompleteLesson({ userId, lessonId })` completes that lesson and every lesson before it (`completeThrough`), in one transaction. Lessons that were already completed keep their `completedAt`, so calling it twice changes nothing.
+- `makeCanTakeTest(userId, lessonId)` says whether the learner may take a lesson's test. Any lesson that exists and isn't retired is allowed, locked ones included, so a learner can test out of them.
+
+The status is `completed` when the learner's own progress says so, and `current` otherwise.
 
 Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
 
@@ -228,7 +234,7 @@ backend/prisma/content/
   case-studies/<key>.ts
 ```
 
-A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position.
+A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position. It can also hold a `tree`, a list of keys like `[8, 4, 12]`. The tree is drawn under the heading, before the rest of the text, so a task can show a real tree without needing a second block.
 
 Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in `shared/src/schemas/src/content-block.ts`:
 
@@ -237,11 +243,11 @@ Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in
 | `diagram` | a tree from `startingKeys`, with highlighted nodes and a caption |
 | `animation` | insert, delete and search steps run on a tree |
 | `playground` | a tree the learner works on, with the operations they may use and an optional goal |
-| `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing |
-| `copy_tree` | a tree copied into an empty one, a node at a time, in pre-order |
-| `expression_tree` | a maths expression as a tree (`{ value }` or `{ operator, left, right }`, operators `+ - × ÷`), stepped through in pre-, in- or post-order |
+| `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing. An optional `markdown` holds text shown above the trace, heading included |
+| `copy_tree` | a tree copied into an empty one, a node at a time, in pre-order. An optional `markdown` holds text shown above it, heading included |
+| `expression_tree` | a maths expression as a tree (`{ value }` or `{ operator, left, right }`, operators `+ - × ÷`), stepped through in pre-, in- or post-order. An optional `markdown` holds text shown above it, heading included |
 
-A position holds one core block. When a step needs text and a picture, write the text at one position and the picture at the next, so every learner sees both. `02-pre-order/blocks/` is the example. The frontend doesn't draw `copy_tree` or `expression_tree` yet.
+A position holds one core block. When a step needs text and a picture, write the text at one position and the picture at the next, so every learner sees both. `02-pre-order/blocks/` is the example. A code trace, copy tree or expression tree is the exception: put its text in its own `markdown`, so the learner reads it next to the Step button instead of a step earlier. The frontend doesn't draw `copy_tree` or `expression_tree` yet.
 
 Written questions come in two kinds. `multiple_choice` lists `options`, with exactly one correct. `text` lists `accepted` answers, and each becomes a correct option. `build_tree`, `order_nodes` and `predict_rotation` have a `tree` and an `answer` that matches `learnerAnswerSchema`. A generated question only names its `generatorKey`, type, difficulty, Bloom's level and review lesson. It is stored with an empty explanation and no prompt, because the generator writes those when the question is asked.
 

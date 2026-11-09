@@ -37,7 +37,9 @@ describe("makeGetLessonNote", () => {
 
   it("returns an empty note for a lesson with no notes step", async () => {
     const getLessonNote = makeGetLessonNote({
-      ...createAccessDependencies({ progress: { "lesson-2": "completed" } }),
+      ...createAccessDependencies({
+        progress: { "lesson-1": "completed", "lesson-2": "completed" },
+      }),
       lessonNoteRepository: createLessonNoteRepository([]),
     });
     const response = await asLearner(() => getLessonNote({ id: "checkpoint-1" }));

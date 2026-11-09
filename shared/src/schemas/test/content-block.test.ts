@@ -17,6 +17,22 @@ describe("contentBlockBodySchema", () => {
     expect(result.type).toBe("text");
   });
 
+  it("parses a text block with a tree", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "text",
+      body: { markdown: "Trace this tree.", tree: [8, 4, 12] },
+    });
+    expect(result.body).toEqual({ markdown: "Trace this tree.", tree: [8, 4, 12] });
+  });
+
+  it("rejects a text block tree with repeated keys", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "text",
+      body: { markdown: "Trace this tree.", tree: [8, 4, 8] },
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("parses a diagram block", () => {
     const result = contentBlockBodySchema.parse({
       type: "diagram",
@@ -78,12 +94,79 @@ describe("contentBlockBodySchema", () => {
     expect(result.type).toBe("code_trace");
   });
 
+  it("parses a code trace block with text", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "code_trace",
+      body: {
+        algorithmCode: "preorder",
+        startingKeys: [20, 10, 30],
+        operation: { operation: "traverse" },
+        markdown: "## Trace a small tree\n\nPress **Step**.",
+      },
+    });
+    expect(result.body).toMatchObject({ markdown: "## Trace a small tree\n\nPress **Step**." });
+  });
+
+  it("rejects a code trace block with empty text", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "code_trace",
+      body: {
+        algorithmCode: "preorder",
+        startingKeys: [20, 10, 30],
+        operation: { operation: "traverse" },
+        markdown: "",
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("parses a copy tree block", () => {
     const result = contentBlockBodySchema.parse({
       type: "copy_tree",
       body: { startingKeys: [20, 10, 30], caption: "Copy the tree." },
     });
     expect(result.type).toBe("copy_tree");
+  });
+
+  it("parses a copy tree block with text", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "copy_tree",
+      body: {
+        startingKeys: [20, 10, 30],
+        caption: "Copy the tree.",
+        markdown: "## Where pre-order is used",
+      },
+    });
+    expect(result.body).toMatchObject({ markdown: "## Where pre-order is used" });
+  });
+
+  it("rejects a copy tree block with empty text", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "copy_tree",
+      body: { startingKeys: [20, 10, 30], caption: "Copy the tree.", markdown: "" },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("parses an expression tree block with text", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "expression_tree",
+      body: {
+        expression: { value: 4 },
+        order: "preorder",
+        caption: "4",
+        markdown: "## Prefix expressions",
+      },
+    });
+    expect(result.body).toMatchObject({ markdown: "## Prefix expressions" });
+  });
+
+  it("rejects an expression tree block with empty text", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "expression_tree",
+      body: { expression: { value: 4 }, order: "preorder", caption: "4", markdown: "" },
+    });
+    expect(result.success).toBe(false);
   });
 
   it("parses an expression tree block", () => {
