@@ -101,6 +101,7 @@ export default defineConfig({
                 {
                   label: "Reference",
                   items: [
+                    { label: "API reference", slug: "dev/reference/api" },
                     { label: "Scripts and tooling", slug: "dev/reference/scripts" },
                     { label: "Branches and commits", slug: "dev/reference/git-workflow" },
                   ],
