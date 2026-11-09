@@ -38,9 +38,15 @@ export const signOutUser = async (): Promise<void> => {
   throwIfError(error, "Unable to sign out");
 };
 
+export const updateDisplayName = async (name: string): Promise<void> => {
+  const { error } = await authClient.updateUser({ name: name.trim() });
+  throwIfError(error, "Unable to save your display name");
+};
+
 export const authService = {
   getSession,
   signInWithEmail,
   signUpWithEmail,
   signOutUser,
+  updateDisplayName,
 };

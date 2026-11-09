@@ -8,6 +8,7 @@ import { validate } from "@/presentation/middleware/validate-request";
 export const createUserRoutes = (userController: UserController) =>
   new Hono()
     .use(requireAuth)
+    .get("/", (context) => userController.getMe(context))
     .patch("/profile", validate("json", updateUserProfileRequestSchema), (context) =>
       userController.updateProfile(context),
     );

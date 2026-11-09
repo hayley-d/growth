@@ -10,6 +10,7 @@ vi.mock("@/lib/auth-client", () => ({
     signIn: { email: vi.fn() },
     signUp: { email: vi.fn() },
     signOut: vi.fn(),
+    updateUser: vi.fn(),
   },
 }));
 
@@ -165,5 +166,27 @@ describe("signOutUser", () => {
     vi.mocked(authClient.signOut).mockResolvedValue({ error: null });
 
     await expect(authService.signOutUser()).resolves.toBeUndefined();
+  });
+});
+
+describe("updateDisplayName", () => {
+  it("sends the trimmed name", async () => {
+    vi.mocked(authClient.updateUser).mockResolvedValue({ data: { status: true }, error: null });
+
+    await authService.updateDisplayName("  Ada  ");
+
+    expect(authClient.updateUser).toHaveBeenCalledWith({ name: "Ada" });
+  });
+
+  it("throws the server message when the update fails", async () => {
+    vi.mocked(authClient.updateUser).mockResolvedValue({
+      data: null,
+      error: { message: "Name is too long", status: 400, statusText: "Bad Request" },
+    });
+
+    await expect(authService.updateDisplayName("Ada")).rejects.toMatchObject({
+      message: "Name is too long",
+      status: 400,
+    });
   });
 });

@@ -34,6 +34,7 @@ const createStubLogger = (): Logger => ({
 const createApplication = (
   signedIn: boolean,
   updateProfile = vi.fn().mockResolvedValue(meResponse),
+  getMe = vi.fn().mockResolvedValue(meResponse),
 ) => {
   const application = new Hono();
   application.use(requestContextMiddleware);
@@ -41,7 +42,7 @@ const createApplication = (
     if (signedIn) requestContext.setUserId("user-1");
     await next();
   });
-  application.route("/api/me", createUserRoutes(createUserController({ updateProfile })));
+  application.route("/api/me", createUserRoutes(createUserController({ getMe, updateProfile })));
   application.onError(createErrorHandler(createStubLogger()));
   return { application, updateProfile };
 };
@@ -54,6 +55,21 @@ const patch = (application: Hono, body: unknown) =>
   });
 
 describe("user routes", () => {
+  it("returns the me body when signed in", async () => {
+    const { application } = createApplication(true);
+    const response = await application.request("/api/me");
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual(meResponse);
+  });
+
+  it("returns 401 for the me body when signed out", async () => {
+    const getMe = vi.fn().mockResolvedValue(meResponse);
+    const { application } = createApplication(false, undefined, getMe);
+    const response = await application.request("/api/me");
+    expect(response.status).toBe(401);
+    expect(getMe).not.toHaveBeenCalled();
+  });
+
   it("returns 401 when signed out", async () => {
     const { application, updateProfile } = createApplication(false);
     const response = await patch(application, { textToSpeech: true });

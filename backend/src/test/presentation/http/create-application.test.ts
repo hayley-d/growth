@@ -39,7 +39,7 @@ const createTestApp = (logger: Logger) =>
         throw new NotFoundError("Lesson not found");
       },
     }),
-    userController: createUserController({ updateProfile: vi.fn() }),
+    userController: createUserController({ getMe: vi.fn(), updateProfile: vi.fn() }),
     courseContentController: createCourseContentController({
       listLearningStyles: async () => ({ data: { learningStyles: [] } }),
       listCodeLanguages: async () => ({ data: { codeLanguages: [] } }),
