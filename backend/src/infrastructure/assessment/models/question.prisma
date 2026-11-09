@@ -18,6 +18,7 @@ model Question {
   hints            Hint[]
   dailyChallenges  DailyChallenge[]
   attemptAnswers   AttemptAnswer[]
+  attemptQuestions AttemptQuestion[]
 
   @@index([lessonId])
   @@index([reviewLessonId])

@@ -1,5 +1,6 @@
 export * from "@shared/schemas/src/algorithm";
 export * from "@shared/schemas/src/assessment";
+export * from "@shared/schemas/src/attempt";
 export * from "@shared/schemas/src/auth";
 export * from "@shared/schemas/src/case-study";
 export * from "@shared/schemas/src/common";

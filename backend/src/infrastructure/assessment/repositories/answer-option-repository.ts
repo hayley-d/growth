@@ -10,6 +10,7 @@ import type {
   PrismaClient,
 } from "@/generated/prisma/client";
 import { toAnswerOption } from "@/infrastructure/assessment/mappers/answer-option-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type AnswerOptionModel = {
@@ -32,5 +33,13 @@ export class PrismaAnswerOptionRepository
       toCreateData: (answerOption) => answerOption,
       toUpdateData: (changes) => changes,
     });
+  }
+
+  listByQuestionId(questionId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.answerOption.findMany({ where: { questionId }, orderBy: { id: "asc" } })
+      ).map(toAnswerOption),
+    );
   }
 }

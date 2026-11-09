@@ -6,6 +6,7 @@ import { secureHeaders } from "hono/secure-headers";
 import type { AuthHandler, GetSession } from "@/application/auth/session";
 import type { Logger } from "@/application/logging/logger";
 import type { AlgorithmController } from "@/presentation/controllers/algorithm-controller";
+import type { AttemptController } from "@/presentation/controllers/attempt-controller";
 import type { CourseContentController } from "@/presentation/controllers/course-content-controller";
 import type { LearningPathController } from "@/presentation/controllers/learning-path-controller";
 import type { LessonController } from "@/presentation/controllers/lesson-controller";
@@ -16,6 +17,7 @@ import { notFoundHandler } from "@/presentation/middleware/not-found-handler";
 import { requestContextMiddleware } from "@/presentation/middleware/request-context-middleware";
 import { createRequestLogger } from "@/presentation/middleware/request-logger";
 import { createAlgorithmRoutes } from "@/presentation/routes/algorithm-routes";
+import { createAttemptRoutes } from "@/presentation/routes/attempt-routes";
 import { createAuthRoutes } from "@/presentation/routes/auth-routes";
 import { createCourseContentRoutes } from "@/presentation/routes/course-content-routes";
 import { healthRoutes } from "@/presentation/routes/health-routes";
@@ -29,6 +31,7 @@ type ApplicationDependencies = {
   getSession: GetSession;
   algorithmController: AlgorithmController;
   lessonController: LessonController;
+  attemptController: AttemptController;
   userController: UserController;
   courseContentController: CourseContentController;
   learningPathController: LearningPathController;
@@ -40,6 +43,7 @@ export const createApplication = ({
   getSession,
   algorithmController,
   lessonController,
+  attemptController,
   userController,
   courseContentController,
   learningPathController,
@@ -61,6 +65,7 @@ export const createApplication = ({
   application.route("/api/health", healthRoutes);
   application.route("/api/algorithms", createAlgorithmRoutes(algorithmController));
   application.route("/api/lessons", createLessonRoutes(lessonController));
+  application.route("/api", createAttemptRoutes(attemptController));
   application.route("/api/learning-path", createLearningPathRoutes(learningPathController));
   application.route("/api/me", createUserRoutes(userController));
   application.route("/api", createCourseContentRoutes(courseContentController));

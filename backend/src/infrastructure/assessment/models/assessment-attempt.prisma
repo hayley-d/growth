@@ -13,6 +13,7 @@ model AssessmentAttempt {
   lesson           Lesson?         @relation(fields: [lessonId], references: [id], onDelete: Restrict)
   dailyChallenge   DailyChallenge? @relation(fields: [dailyChallengeId], references: [id], onDelete: Restrict)
   answers          AttemptAnswer[]
+  questions        AttemptQuestion[]
 
   @@index([userId])
   @@index([lessonId])

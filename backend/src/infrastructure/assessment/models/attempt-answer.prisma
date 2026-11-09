@@ -15,7 +15,7 @@ model AttemptAnswer {
   question            Question          @relation(fields: [questionId], references: [id], onDelete: Restrict)
   answerOption        AnswerOption?     @relation(fields: [answerOptionId], references: [id], onDelete: Restrict)
 
-  @@index([assessmentAttemptId])
+  @@unique([assessmentAttemptId, questionId])
   @@index([questionId])
   @@index([answerOptionId])
   @@map("attemptAnswer")
