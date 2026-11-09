@@ -8,6 +8,7 @@ import { makeStartLesson } from "@/application/lesson/commands/start-lesson";
 import { makeGetLesson } from "@/application/lesson/queries/get-lesson";
 import { makeGetLessonNote } from "@/application/lesson/queries/get-lesson-note";
 import { makeUpdateProfile } from "@/application/user/commands/update-profile";
+import { makeGetMe } from "@/application/user/queries/get-me";
 import { authHandler, getSession } from "@/infrastructure/auth/auth";
 import { environment } from "@/infrastructure/config/environment";
 import {
@@ -76,9 +77,12 @@ const lessonController = createLessonController({
   startLesson: makeStartLesson(lessonAccess),
 });
 
+const userRepository = new PrismaUserRepository(prismaClient);
+
 const userController = createUserController({
+  getMe: makeGetMe({ userRepository, userProfileRepository }),
   updateProfile: makeUpdateProfile({
-    userRepository: new PrismaUserRepository(prismaClient),
+    userRepository,
     userProfileRepository,
     learningStyleRepository,
     codeLanguageRepository,
