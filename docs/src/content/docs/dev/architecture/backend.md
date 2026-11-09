@@ -76,7 +76,7 @@ All four endpoints need a signed-in learner. The use cases live in `application/
 
 The lesson endpoints and the learning path use one rule. The current lesson is the first one the learner hasn't completed. The current lesson and completed lessons are open, and every other lesson is locked. "First" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all four endpoints. A missing or retired lesson returns 404, and a retired lesson is never anyone's previous or next lesson. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`, built on `getLessonStatuses`. Only completed progress rows count. A passed test opens the next lesson because it completes the lesson it tests.
 
-Two use cases in `application/learning-path/` have no route. Assessment calls them.
+Two use cases in `application/learning-path/` have no route. The attempt use cases call them, see Tests below.
 
 - `makeCompleteLesson({ userId, lessonId })` completes that lesson and every lesson before it (`completeThrough`), in one transaction. Lessons that were already completed keep their `completedAt`, so calling it twice changes nothing.
 - `makeCanTakeTest(userId, lessonId)` says whether the learner may take a lesson's test. Any lesson that exists and isn't retired is allowed, locked ones included, so a learner can test out of them.
@@ -86,6 +86,31 @@ The status is `completed` when the learner's own progress says so, and `current`
 Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
 
 The note is saved as typed, with no trimming. `PUT` returns 400 over 2000 characters, and 400 for a lesson with no `notePrompt`. `GET` on such a lesson returns the empty note.
+
+### Tests
+
+A test is an attempt. All four endpoints need a signed-in learner. The use cases live in `application/assessment/`, and the schemas are in `shared/src/schemas/src/attempt.ts`.
+
+| Endpoint | What it does |
+| --- | --- |
+| `POST /api/lessons/:id/attempts` | Starts an attempt and returns it with its first question. If the learner already has an unfinished attempt for that lesson, it returns that one instead. It returns 201 for a new attempt and 200 for a resumed one. Two starts at the same moment make one attempt, and both get it |
+| `GET /api/attempts/:id` | The attempt, with its current question and the hints already unlocked, or with its result when it is finished. Use it to pick up after a reload |
+| `POST /api/attempts/:id/hints` | Body `{ questionId }`. Unlocks the next hint for the current question and counts it |
+| `POST /api/attempts/:id/answers` | Body `{ questionId, answer }`. Grades the answer and returns whether it was right, the correct answer, the explanation, the new rating and the next question. After the last answer it returns the result instead of a next question |
+
+Every response is `{ data }`. Use `attemptStateResponseSchema`, `requestHintResponseSchema` and `submitAnswerResponseSchema` to parse them.
+
+How an attempt works:
+
+- **Which questions.** An attempt has up to 5 questions, picked at random. A lesson test draws from its own lesson. A checkpoint draws from every lesson in its unit. The last checkpoint on the path is the final challenge, and it draws from every lesson. A lesson with no questions returns 409. If the pool has fewer than 5 questions, the attempt uses all of them. The kind is `lesson_test` for a lesson and `checkpoint` for a checkpoint.
+- **Where they are kept.** All the questions are made when the attempt starts and saved as `AttemptQuestion` rows. A generated question keeps its seed and the question it produced, so grading never depends on running the generator again. A generated question is made at the learner's current difficulty for its lesson, and a written question keeps its own difficulty.
+- **The answer stays on the server.** A question sent to the learner has no answer, no explanation and no `isCorrect`. The correct answer only comes back after the learner answers.
+- **The question id.** Hints and answers carry the `id` of the question the server sent. If it isn't the current unanswered question, the request returns 409. A question id that isn't in the attempt returns 404. This is why a double click or a retry can't answer the wrong question.
+- **Grading.** `application/assessment/grade-answer.ts` compares the answer with the accepted answers. A text answer is trimmed, lower cased and stripped of all spaces on both sides. A written text question can accept more than one answer, and the first one is shown as the correct answer.
+- **Hints.** A written question has the hints in the `Hint` table. A generated question has three. Each hint lowers the score for that answer, see `getScore`. After the last hint, the endpoint returns 409.
+- **Rating.** Each answer updates the rating, mastery and difficulty of the question's own lesson, with the Elo maths in `domain/assessment/elo-rating.ts`. The answer and the rating are saved in one transaction (`recordAnswer`).
+- **The end.** After the last answer the attempt is finished. The score is the percent of questions answered correctly, and 80 or more passes. The result has the score, `passed`, the points, the total rating change, the answers with their explanations, and the lessons to review for the questions the learner got wrong. A pass calls `makeCompleteLesson`, which also completes every lesson before it. If a crash left an attempt with every question answered but not finished, the next `GET` or answer finishes it.
+- **Errors.** Another learner's attempt returns 404. Answering a question twice, answering after the attempt is finished, and asking for a hint that doesn't exist return 409.
 
 ## Request flow
 

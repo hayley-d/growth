@@ -2,6 +2,7 @@ import type { Hint, HintChanges, NewHint } from "@/domain/assessment/hint";
 import type { HintRepository } from "@/domain/assessment/repositories/hint-repository";
 import type { Hint as HintRow, Prisma, PrismaClient } from "@/generated/prisma/client";
 import { toHint } from "@/infrastructure/assessment/mappers/hint-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type HintModel = {
@@ -24,5 +25,13 @@ export class PrismaHintRepository
       toCreateData: (hint) => hint,
       toUpdateData: (changes) => changes,
     });
+  }
+
+  listByQuestionId(questionId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.hint.findMany({ where: { questionId }, orderBy: { position: "asc" } })
+      ).map(toHint),
+    );
   }
 }

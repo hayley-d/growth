@@ -41,4 +41,21 @@ export class PrismaQuestionRepository
       ).map(toQuestion),
     );
   }
+
+  listActiveByLessonIds(lessonIds: readonly string[]) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.question.findMany({
+          where: { lessonId: { in: [...lessonIds] }, isRetired: false },
+          orderBy: [...this.options.orderBy, { id: "asc" }],
+        })
+      ).map(toQuestion),
+    );
+  }
+
+  listByIds(ids: readonly string[]) {
+    return withPrismaErrors(async () =>
+      (await this.client.question.findMany({ where: { id: { in: [...ids] } } })).map(toQuestion),
+    );
+  }
 }
