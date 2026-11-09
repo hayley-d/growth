@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import { makeSaveLessonNote } from "@/application/lesson/commands/save-lesson-note";
 import { BadRequestError, ForbiddenError, NotFoundError } from "@/domain/errors";
+import type { ProgressStatus } from "@/domain/user/lesson-progress";
 import {
   asLearner,
   createAccessDependencies,
@@ -9,9 +10,12 @@ import {
   userId,
 } from "@/test/application/lesson/lesson-fakes";
 
-const createSaveLessonNote = (notes = createLessonNoteRepository(), passed: string[] = []) =>
+const createSaveLessonNote = (
+  notes = createLessonNoteRepository(),
+  progress: Record<string, ProgressStatus> = {},
+) =>
   makeSaveLessonNote({
-    ...createAccessDependencies({ passedLessonIds: passed }),
+    ...createAccessDependencies({ progress }),
     lessonNoteRepository: notes,
   });
 
@@ -53,9 +57,9 @@ describe("makeSaveLessonNote", () => {
     ).rejects.toBeInstanceOf(ForbiddenError);
   });
 
-  it("opens the lesson after a passed test", async () => {
+  it("opens the lesson after a completed one", async () => {
     const response = await asLearner(() =>
-      createSaveLessonNote(createLessonNoteRepository(), ["lesson-1"])({
+      createSaveLessonNote(createLessonNoteRepository(), { "lesson-1": "completed" })({
         id: "lesson-2",
         body: "x",
       }),
@@ -66,7 +70,9 @@ describe("makeSaveLessonNote", () => {
   it("rejects a lesson with no notes step", async () => {
     const notes = createLessonNoteRepository();
     const save = makeSaveLessonNote({
-      ...createAccessDependencies({ progress: { "lesson-2": "completed" } }),
+      ...createAccessDependencies({
+        progress: { "lesson-1": "completed", "lesson-2": "completed" },
+      }),
       lessonNoteRepository: notes,
     });
     await expect(asLearner(() => save({ id: "checkpoint-1", body: "x" }))).rejects.toBeInstanceOf(

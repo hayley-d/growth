@@ -17,4 +17,7 @@ export const createLessonRoutes = (lessonController: LessonController) =>
       validate("param", idParamSchema),
       validate("json", saveLessonNoteRequestSchema),
       (context) => lessonController.saveNote(context),
+    )
+    .post("/:id/start", validate("param", idParamSchema), (context) =>
+      lessonController.start(context),
     );
