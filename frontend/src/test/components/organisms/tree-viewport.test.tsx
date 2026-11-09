@@ -73,6 +73,17 @@ it("puts the zoom controls in the top-right corner of the box", async () => {
   expect(box.right - controls.right).toBeLessThan(16);
 });
 
+it("keeps the tree below the zoom controls at 100%", async () => {
+  const screen = await render(
+    <TreeViewport className="h-64 w-64">
+      <div data-testid="tree" className="h-full w-full" />
+    </TreeViewport>,
+  );
+  const tree = screen.getByTestId("tree").element().getBoundingClientRect();
+  const controls = screen.getByRole("group", { name: "Zoom" }).element().getBoundingClientRect();
+  expect(tree.top).toBeGreaterThanOrEqual(controls.bottom);
+});
+
 it("pans when the mouse drags empty space", async () => {
   const { scroller, background } = await renderZoomed();
   const startLeft = scroller.scrollLeft;

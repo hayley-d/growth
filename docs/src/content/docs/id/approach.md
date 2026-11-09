@@ -24,8 +24,8 @@ step in the preparation phase is **Savvy start**, where we sketched storyboards 
 ideas of lessons, quizes and learning paths.  
 
 The second phase is the **interative design phase**. This is an iterative process where 
-we first designed a prototype of a lesson, quiz or learning path and then 
-reviewed the ideas with the team. Project planning also happens in this phase, we planned
+we first designed a storyboard of a lesson, quiz or learning path and then 
+reviewed the ideas with the team. A round doesn't have to pick one storyboard. It can join the best parts of several into a new one, and we review that too. The [playground storyboard](../storyboards/playground/playground/) shows this over three rounds. Project planning also happens in this phase, we planned
 what we were going to build and who was going to build the different items. Each item then
 become a ticket on our sprint board.
 

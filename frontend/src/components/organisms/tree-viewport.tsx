@@ -107,7 +107,7 @@ export function TreeViewport({ children, className }: TreeViewportProperties) {
         ref={scrollRef}
         onPointerDown={handlePointerDown}
         className={cn(
-          "flex h-full w-full overflow-auto overscroll-contain rounded-xl",
+          "flex h-full w-full overflow-auto overscroll-contain rounded-xl pt-16 pointer-fine:pt-14",
           canPan && "cursor-grab",
           panning && "cursor-grabbing select-none",
         )}
