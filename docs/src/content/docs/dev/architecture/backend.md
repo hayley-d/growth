@@ -237,11 +237,11 @@ Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in
 | `diagram` | a tree from `startingKeys`, with highlighted nodes and a caption |
 | `animation` | insert, delete and search steps run on a tree |
 | `playground` | a tree the learner works on, with the operations they may use and an optional goal |
-| `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing |
-| `copy_tree` | a tree copied into an empty one, a node at a time, in pre-order |
-| `expression_tree` | a maths expression as a tree (`{ value }` or `{ operator, left, right }`, operators `+ - × ÷`), stepped through in pre-, in- or post-order |
+| `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing. An optional `markdown` holds text shown above the trace, heading included |
+| `copy_tree` | a tree copied into an empty one, a node at a time, in pre-order. An optional `markdown` holds text shown above it, heading included |
+| `expression_tree` | a maths expression as a tree (`{ value }` or `{ operator, left, right }`, operators `+ - × ÷`), stepped through in pre-, in- or post-order. An optional `markdown` holds text shown above it, heading included |
 
-A position holds one core block. When a step needs text and a picture, write the text at one position and the picture at the next, so every learner sees both. `02-pre-order/blocks/` is the example. The frontend doesn't draw `copy_tree` or `expression_tree` yet.
+A position holds one core block. When a step needs text and a picture, write the text at one position and the picture at the next, so every learner sees both. `02-pre-order/blocks/` is the example. A code trace, copy tree or expression tree is the exception: put its text in its own `markdown`, so the learner reads it next to the Step button instead of a step earlier. The frontend doesn't draw `copy_tree` or `expression_tree` yet.
 
 Written questions come in two kinds. `multiple_choice` lists `options`, with exactly one correct. `text` lists `accepted` answers, and each becomes a correct option. `build_tree`, `order_nodes` and `predict_rotation` have a `tree` and an `answer` that matches `learnerAnswerSchema`. A generated question only names its `generatorKey`, type, difficulty, Bloom's level and review lesson. It is stored with an empty explanation and no prompt, because the generator writes those when the question is asked.
 

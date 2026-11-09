@@ -1,11 +1,11 @@
 ---
 position: 3
 style: kinesthetic
-transcript: "Guess, then step. Before you press Step, point at the line you think runs next. Then press Step and check. Keep going until you get three right in a row."
+transcript: "Make a card pile. Write preorder of 20, preorder of 10 and preorder of 30 on three scraps of paper. As you press Step, put a card on the pile when its call starts, and take the top card off when it finishes."
 ---
 
-## Guess, then step
+## Make a card pile
 
-Before you press **Step**, point at the line you think runs next. Then press **Step** and check.
+Write `preorder(20)`, `preorder(10)` and `preorder(30)` on three scraps of paper.
 
-Keep going until you get three right in a row.
+As you press **Step**, put a card on the pile when its call starts, and take the top card off when it finishes.
