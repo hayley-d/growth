@@ -17,6 +17,22 @@ describe("contentBlockBodySchema", () => {
     expect(result.type).toBe("text");
   });
 
+  it("parses a text block with a tree", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "text",
+      body: { markdown: "Trace this tree.", tree: [8, 4, 12] },
+    });
+    expect(result.body).toEqual({ markdown: "Trace this tree.", tree: [8, 4, 12] });
+  });
+
+  it("rejects a text block tree with repeated keys", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "text",
+      body: { markdown: "Trace this tree.", tree: [8, 4, 8] },
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("parses a diagram block", () => {
     const result = contentBlockBodySchema.parse({
       type: "diagram",

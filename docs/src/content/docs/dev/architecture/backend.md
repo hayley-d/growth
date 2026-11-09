@@ -228,7 +228,7 @@ backend/prisma/content/
   case-studies/<key>.ts
 ```
 
-A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position.
+A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position. It can also hold a `tree`, a list of keys like `[8, 4, 12]`. The tree is drawn under the heading, before the rest of the text, so a task can show a real tree without needing a second block.
 
 Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in `shared/src/schemas/src/content-block.ts`:
 

@@ -55,6 +55,7 @@ export type PlaygroundGoal = z.infer<typeof playgroundGoalSchema>;
 
 export const textBlockBodySchema = z.object({
   markdown: z.string().min(1),
+  tree: treeKeysSchema.optional(),
 });
 
 export type TextBlockBody = z.infer<typeof textBlockBodySchema>;

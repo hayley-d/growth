@@ -202,6 +202,35 @@ describe("checkContent", () => {
     });
   });
 
+  it("puts a tree from the frontmatter into the text block body", () => {
+    const raw = validRaw();
+    firstLesson(raw as unknown as Mutable).blocks[0] = {
+      file: "01-intro/blocks/01-text.md",
+      format: "markdown",
+      text: "---\nposition: 1\ntranscript: Trace it.\ntree: [8, 4, 12]\n---\nTrace this tree.",
+    };
+    const { problems, content } = checkContent(raw, { complete: false });
+    expect(problems).toEqual([]);
+    expect(content?.lessons[0]?.blocks[0]).toMatchObject({
+      type: "text",
+      body: { markdown: "Trace this tree.", tree: [8, 4, 12] },
+    });
+  });
+
+  it("rejects a text block tree with repeated keys", () => {
+    const problems = problemsAfter((raw) => {
+      firstLesson(raw).blocks[0] = {
+        file: "01-intro/blocks/01-text.md",
+        format: "markdown",
+        text: "---\nposition: 1\ntranscript: Trace it.\ntree: [8, 4, 8]\n---\nTrace this tree.",
+      };
+    });
+    expect(problems).toContainEqual({
+      file: "01-intro/blocks/01-text.md",
+      message: expect.stringContaining("Keys must not repeat"),
+    });
+  });
+
   it("rejects a markdown block with no frontmatter", () => {
     const problems = problemsAfter((raw) => {
       firstLesson(raw).blocks[0] = {
