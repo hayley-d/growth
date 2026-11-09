@@ -52,4 +52,28 @@ export class PrismaLessonProgressRepository
       ).map(toLessonProgress),
     );
   }
+
+  start(key: LessonProgressKey) {
+    return this.upsertOne({ userId_lessonId: key }, { ...key, status: "started" }, {});
+  }
+
+  completeAll(userId: string, lessonIds: readonly string[], completedAt: Date) {
+    return withPrismaErrors(async () => {
+      await this.client.$transaction([
+        this.client.lessonProgress.updateMany({
+          where: { userId, lessonId: { in: [...lessonIds] }, status: { not: "completed" } },
+          data: { status: "completed", completedAt },
+        }),
+        this.client.lessonProgress.createMany({
+          data: lessonIds.map((lessonId) => ({
+            userId,
+            lessonId,
+            status: "completed",
+            completedAt,
+          })),
+          skipDuplicates: true,
+        }),
+      ]);
+    });
+  }
 }

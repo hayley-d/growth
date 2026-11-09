@@ -29,21 +29,27 @@ describe("getLessonNeighbours", () => {
 });
 
 describe("canOpenLesson", () => {
-  const neighbours = { previousLessonId: "lesson-1", nextLessonId: null };
+  const opens = (completed: string[], lessonId: string) =>
+    canOpenLesson(lessons, new Set(completed), lessonId);
 
-  it("always opens the first lesson", () => {
-    expect(canOpenLesson({ previousLessonId: null, nextLessonId: null }, null)).toBe(true);
+  it("opens the first lesson for a new learner and locks the rest", () => {
+    expect(opens([], "lesson-1")).toBe(true);
+    expect(opens([], "lesson-2")).toBe(false);
   });
 
-  it("opens when the previous lesson is completed", () => {
-    expect(canOpenLesson(neighbours, { completed: true, testPassed: false })).toBe(true);
+  it("opens the current lesson and completed ones", () => {
+    expect(opens(["lesson-1"], "lesson-1")).toBe(true);
+    expect(opens(["lesson-1"], "lesson-2")).toBe(true);
+    expect(opens(["lesson-1"], "lesson-3")).toBe(false);
   });
 
-  it("opens when the previous lesson's test is passed", () => {
-    expect(canOpenLesson(neighbours, { completed: false, testPassed: true })).toBe(true);
+  it("keeps a completed lesson open after a gap and locks the lesson after it", () => {
+    expect(opens(["lesson-2"], "lesson-1")).toBe(true);
+    expect(opens(["lesson-2"], "lesson-2")).toBe(true);
+    expect(opens(["lesson-2"], "lesson-3")).toBe(false);
   });
 
-  it("stays locked when the previous lesson is neither completed nor passed", () => {
-    expect(canOpenLesson(neighbours, { completed: false, testPassed: false })).toBe(false);
+  it("does not open a lesson that is not on the path", () => {
+    expect(opens([], "unknown")).toBe(false);
   });
 });

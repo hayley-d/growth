@@ -38,6 +38,9 @@ const createTestApp = (logger: Logger) =>
       saveLessonNote: async () => {
         throw new NotFoundError("Lesson not found");
       },
+      startLesson: async () => {
+        throw new NotFoundError("Lesson not found");
+      },
     }),
     userController: createUserController({ updateProfile: vi.fn() }),
     courseContentController: createCourseContentController({

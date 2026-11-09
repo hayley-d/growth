@@ -2,7 +2,11 @@ import { requestContext } from "@/application/context/request-context";
 import type { LessonAccessDependencies } from "@/application/lesson/lesson-access";
 import type { Lesson } from "@/domain/course-content/lesson";
 import type { LessonNote, LessonNoteKey } from "@/domain/user/lesson-note";
-import type { ProgressStatus } from "@/domain/user/lesson-progress";
+import type {
+  LessonProgress,
+  LessonProgressKey,
+  ProgressStatus,
+} from "@/domain/user/lesson-progress";
 
 export const userId = "user-1";
 
@@ -53,28 +57,35 @@ export const lessons: Lesson[] = [
   },
 ];
 
-type AccessOptions = {
-  progress?: Record<string, ProgressStatus>;
-  passedLessonIds?: string[];
+export const createProgressRepository = (progress: Record<string, ProgressStatus> = {}) => {
+  const stored = new Map<string, LessonProgress>(
+    Object.entries(progress).map(([lessonId, status]) => [
+      lessonId,
+      { userId, lessonId, status, completedAt: null },
+    ]),
+  );
+  return {
+    stored,
+    findById: async ({ lessonId }: LessonProgressKey) => stored.get(lessonId) ?? null,
+    listByUserId: async () => [...stored.values()],
+    start: async (key: LessonProgressKey) => {
+      const row = stored.get(key.lessonId) ?? { ...key, status: "started", completedAt: null };
+      stored.set(key.lessonId, row);
+      return row;
+    },
+  };
 };
 
 export const createAccessDependencies = ({
   progress = {},
-  passedLessonIds = [],
-}: AccessOptions = {}): LessonAccessDependencies => ({
+}: {
+  progress?: Record<string, ProgressStatus>;
+} = {}): LessonAccessDependencies => ({
   lessonRepository: {
     findById: async (id) => lessons.find((lesson) => lesson.id === id) ?? null,
     listAll: async () => lessons.filter((lesson) => !lesson.isRetired),
   },
-  lessonProgressRepository: {
-    findById: async ({ userId: progressUserId, lessonId }) => {
-      const status = progress[lessonId];
-      return status ? { userId: progressUserId, lessonId, status, completedAt: null } : null;
-    },
-  },
-  assessmentAttemptRepository: {
-    hasPassedForLesson: async (_userId, lessonId) => passedLessonIds.includes(lessonId),
-  },
+  lessonProgressRepository: createProgressRepository(progress),
 });
 
 export const createLessonNoteRepository = (notes: LessonNote[] = []) => {

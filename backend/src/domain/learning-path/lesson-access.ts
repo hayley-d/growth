@@ -1,3 +1,4 @@
+import { getLessonStatuses } from "@/domain/learning-path/lesson-status";
 import type { PathLesson } from "@/domain/learning-path/path-lesson";
 
 export type LessonNeighbours = {
@@ -17,15 +18,13 @@ export function getLessonNeighbours(
   };
 }
 
-export type PreviousLessonResult = {
-  completed: boolean;
-  testPassed: boolean;
-};
-
 export function canOpenLesson(
-  neighbours: LessonNeighbours,
-  previous: PreviousLessonResult | null,
+  lessons: readonly PathLesson[],
+  completedLessonIds: ReadonlySet<string>,
+  lessonId: string,
 ): boolean {
-  if (neighbours.previousLessonId === null) return true;
-  return previous !== null && (previous.completed || previous.testPassed);
+  const entry = getLessonStatuses(lessons, completedLessonIds).find(
+    ({ lesson }) => lesson.id === lessonId,
+  );
+  return entry !== undefined && entry.status !== "locked";
 }

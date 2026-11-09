@@ -65,17 +65,23 @@ The pieces:
 
 ### Lessons
 
-All three endpoints need a signed-in learner. The use cases live in `application/lesson/`.
+All four endpoints need a signed-in learner. The use cases live in `application/lesson/`.
 
 | Endpoint | What it returns |
 | --- | --- |
 | `GET /api/lessons/:id` | The lesson, its unit, its status, the previous and next lesson ids, and its steps |
 | `GET /api/lessons/:id/note` | The learner's note, or an empty body and a `null` `updatedAt` when there isn't one yet |
 | `PUT /api/lessons/:id/note` | Saves the note. It creates the note the first time and updates it after that |
+| `POST /api/lessons/:id/start` | Marks the lesson `started` and returns an empty 204. A completed lesson stays completed |
 
-A lesson is locked unless it is the first lesson on the path, or the lesson right before it is completed, or the learner passed that lesson's test (a passed `lesson_test` or `checkpoint` attempt). "Before" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all three endpoints. A missing or retired lesson returns 404, and a retired lesson is never anyone's previous or next lesson. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`. Nothing marks a lesson completed yet, so for now only the first lesson opens.
+The lesson endpoints and the learning path use one rule. The current lesson is the first one the learner hasn't completed. The current lesson and completed lessons are open, and every other lesson is locked. "First" follows the unit order, then the lesson order, and crosses unit boundaries. A locked lesson returns 403 on all four endpoints. A missing or retired lesson returns 404, and a retired lesson is never anyone's previous or next lesson. The rule is `canOpenLesson` in `domain/learning-path/lesson-access.ts`, built on `getLessonStatuses`. Only completed progress rows count. A passed test opens the next lesson because it completes the lesson it tests.
 
-The status is `completed` when the learner's own progress says so, and `current` otherwise. A passed test only opens the next lesson.
+Two use cases in `application/learning-path/` have no route. Assessment calls them.
+
+- `makeCompleteLesson({ userId, lessonId })` completes that lesson and every lesson before it (`completeThrough`), in one transaction. Lessons that were already completed keep their `completedAt`, so calling it twice changes nothing.
+- `makeCanTakeTest(userId, lessonId)` says whether the learner may take a lesson's test. Any lesson that exists and isn't retired is allowed, locked ones included, so a learner can test out of them.
+
+The status is `completed` when the learner's own progress says so, and `current` otherwise.
 
 Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
 

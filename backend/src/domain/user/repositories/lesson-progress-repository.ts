@@ -13,4 +13,6 @@ export type LessonProgressRepository = Repository<
   LessonProgressKey
 > & {
   listByUserId(userId: string): Promise<LessonProgress[]>;
+  start(key: LessonProgressKey): Promise<LessonProgress>;
+  completeAll(userId: string, lessonIds: readonly string[], completedAt: Date): Promise<void>;
 };
