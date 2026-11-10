@@ -6,7 +6,10 @@ export type ContentBlockType =
   | "code_trace"
   | "copy_tree"
   | "expression_tree"
-  | "number_line";
+  | "number_line"
+  | "delete_tree"
+  | "heights"
+  | "traversal_quiz";
 
 export type ContentBlock = {
   id: string;

@@ -193,6 +193,22 @@ describe("contentBlockBodySchema", () => {
     expect(result.type).toBe("number_line");
   });
 
+  it("parses a delete tree block", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "delete_tree",
+      body: { startingKeys: [20, 10, 30], caption: "A small tree." },
+    });
+    expect(result.type).toBe("delete_tree");
+  });
+
+  it("parses a heights block", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "heights",
+      body: { startingKeys: [20, 10, 30], caption: "A small tree." },
+    });
+    expect(result.type).toBe("heights");
+  });
+
   it("rejects an operator with one value", () => {
     const result = contentBlockBodySchema.safeParse({
       type: "expression_tree",
@@ -209,6 +225,58 @@ describe("contentBlockBodySchema", () => {
     const result = contentBlockBodySchema.safeParse({
       type: "expression_tree",
       body: { expression: { value: 2 }, order: "levelorder", caption: "Two" },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("parses a traversal quiz block", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "traversal_quiz",
+      body: {
+        startingKeys: [20, 10, 30],
+        orders: ["preorder", "inorder", "postorder"],
+        markdown: "## Compare all three",
+      },
+    });
+    expect(result.type).toBe("traversal_quiz");
+  });
+
+  it("rejects a traversal quiz with no orders", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "traversal_quiz",
+      body: { startingKeys: [20, 10, 30], orders: [] },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("parses a delete tree block with text", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "delete_tree",
+      body: { startingKeys: [20, 10, 30], caption: "Delete", markdown: "## Deleting trees" },
+    });
+    expect(result.body).toMatchObject({ markdown: "## Deleting trees" });
+  });
+
+  it("rejects a delete tree block with empty text", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "delete_tree",
+      body: { startingKeys: [20, 10, 30], caption: "Delete", markdown: "" },
+    });
+    expect(result.success).toBe(false);
+  });
+
+  it("parses a heights block with text", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "heights",
+      body: { startingKeys: [20, 10, 30], caption: "Heights", markdown: "## Working out heights" },
+    });
+    expect(result.body).toMatchObject({ markdown: "## Working out heights" });
+  });
+
+  it("rejects a heights block with empty text", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "heights",
+      body: { startingKeys: [20, 10, 30], caption: "Heights", markdown: "" },
     });
     expect(result.success).toBe(false);
   });

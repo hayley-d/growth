@@ -1,0 +1,5 @@
+postorder(node):
+  if node is empty: return // @step postorder.check-empty postorder.empty
+  postorder(node.left) // @step postorder.go-left
+  postorder(node.right) // @step postorder.go-right
+  visit(node) // @step postorder.visit

@@ -152,6 +152,30 @@ export const numberLineBlockBodySchema = z.object({
 
 export type NumberLineBlockBody = z.infer<typeof numberLineBlockBodySchema>;
 
+export const deleteTreeBlockBodySchema = z.object({
+  startingKeys: treeKeysSchema,
+  caption: z.string(),
+  markdown: z.string().min(1).optional(),
+});
+
+export type DeleteTreeBlockBody = z.infer<typeof deleteTreeBlockBodySchema>;
+
+export const heightsBlockBodySchema = z.object({
+  startingKeys: treeKeysSchema,
+  caption: z.string(),
+  markdown: z.string().min(1).optional(),
+});
+
+export type HeightsBlockBody = z.infer<typeof heightsBlockBodySchema>;
+
+export const traversalQuizBlockBodySchema = z.object({
+  startingKeys: treeKeysSchema,
+  orders: z.array(traversalOrderSchema).min(1),
+  markdown: z.string().min(1).optional(),
+});
+
+export type TraversalQuizBlockBody = z.infer<typeof traversalQuizBlockBodySchema>;
+
 export const contentBlockBodySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("text"), body: textBlockBodySchema }),
   z.object({ type: z.literal("diagram"), body: diagramBlockBodySchema }),
@@ -161,6 +185,9 @@ export const contentBlockBodySchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("copy_tree"), body: copyTreeBlockBodySchema }),
   z.object({ type: z.literal("expression_tree"), body: expressionTreeBlockBodySchema }),
   z.object({ type: z.literal("number_line"), body: numberLineBlockBodySchema }),
+  z.object({ type: z.literal("delete_tree"), body: deleteTreeBlockBodySchema }),
+  z.object({ type: z.literal("heights"), body: heightsBlockBodySchema }),
+  z.object({ type: z.literal("traversal_quiz"), body: traversalQuizBlockBodySchema }),
 ]);
 
 export type ContentBlockBody = z.infer<typeof contentBlockBodySchema>;
