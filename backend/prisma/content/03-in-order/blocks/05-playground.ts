@@ -4,11 +4,11 @@ export default {
   type: "playground",
   position: 5,
   transcript:
-    "A tree with 28 at the root. 21 is on its left, with 1 below it. 57 is on its right, with children 47 and 59. Tap the nodes in in-order. The answer is 1, 21, 28, 47, 57, 59.",
+    "A tree with 36 at the root. 18 is on its left, with 9 below it. 64 is on its right, with children 52 and 71. Tap the nodes in in-order. The answer is 9, 18, 36, 52, 64, 71.",
   body: {
-    startingKeys: [28, 21, 57, 1, 47, 59],
+    startingKeys: [36, 18, 64, 9, 52, 71],
     allowedOperations: ["traverse"],
     instructions: "Tap the nodes in in-order.",
-    goal: { kind: "traversal", order: "inorder", keys: [1, 21, 28, 47, 57, 59] },
+    goal: { kind: "traversal", order: "inorder", keys: [9, 18, 36, 52, 64, 71] },
   },
 } satisfies BlockContent;

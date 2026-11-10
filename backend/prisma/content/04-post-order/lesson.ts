@@ -7,5 +7,11 @@ export default {
   title: "Post-order",
   summary: "Visit both subtrees first and the node last.",
   kind: "lesson",
-  objectives: ["List the nodes of a tree in post-order"],
+  notePrompt:
+    "Explain pre-order, in-order and post-order in your own words. Which line of the code moves, and why does postorder(8) stay on the stack while both of its subtrees run?",
+  objectives: [
+    "List the nodes of a tree in post-order",
+    "Explain why deleting a whole tree and working out heights use post-order",
+    "Compare pre-order, in-order and post-order on one tree",
+  ],
 } satisfies LessonContent;

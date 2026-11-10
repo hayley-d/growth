@@ -14,6 +14,9 @@ enum ContentBlockType {
   copy_tree
   expression_tree
   number_line
+  delete_tree
+  heights
+  traversal_quiz
 
   @@map("contentBlockType")
 }
