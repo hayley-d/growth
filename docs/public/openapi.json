@@ -1,0 +1,3886 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Growth API",
+    "version": "1.0.0",
+    "description": "The Growth backend. Every success body is wrapped in `data`, and every error has a `message` and a `requestId`. Signed-in endpoints read the session cookie that Better Auth sets."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:3000",
+      "description": "Local backend. The frontend proxies /api to it."
+    }
+  ],
+  "tags": [
+    {
+      "name": "Health",
+      "description": "Is the server up."
+    },
+    {
+      "name": "Auth",
+      "description": "Sign up, sign in and the session. Better Auth serves every path under /api/auth. Only the paths the frontend uses are listed here."
+    },
+    {
+      "name": "Course content",
+      "description": "Reference data and code snippets. Public."
+    },
+    {
+      "name": "Profile",
+      "description": "The signed-in learner's settings."
+    },
+    {
+      "name": "Learning path",
+      "description": "The units and lessons, with the learner's progress."
+    },
+    {
+      "name": "Lessons",
+      "description": "Open a lesson, keep a note and mark it started."
+    },
+    {
+      "name": "Tests",
+      "description": "Lesson tests, checkpoints and the final challenge. An attempt holds up to 5 questions chosen when it starts. The correct answer is only sent after the learner answers."
+    }
+  ],
+  "paths": {
+    "/api/health": {
+      "get": {
+        "operationId": "getHealth",
+        "tags": [
+          "Health"
+        ],
+        "summary": "Health check",
+        "responses": {
+          "200": {
+            "description": "The server is up.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Health"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/sign-up/email": {
+      "post": {
+        "operationId": "signUpWithEmail",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Create an account",
+        "description": "Creates the account and signs the learner in. A default profile is created with it. The response body is defined by Better Auth.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignUpRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Account created. The session cookie is set."
+          },
+          "400": {
+            "description": "The email is already used, or a field is invalid."
+          }
+        }
+      }
+    },
+    "/api/auth/sign-in/email": {
+      "post": {
+        "operationId": "signInWithEmail",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Sign in",
+        "description": "The request must come from the origin in BETTER_AUTH_URL, or Better Auth rejects it with INVALID_ORIGIN. The response body is defined by Better Auth.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SignInRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Signed in. The session cookie is set."
+          },
+          "401": {
+            "description": "Wrong email or password."
+          }
+        }
+      }
+    },
+    "/api/auth/sign-out": {
+      "post": {
+        "operationId": "signOut",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Sign out",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed out. The session cookie is cleared."
+          }
+        }
+      }
+    },
+    "/api/auth/get-session": {
+      "get": {
+        "operationId": "getSession",
+        "tags": [
+          "Auth"
+        ],
+        "summary": "Read the current session",
+        "description": "Returns null when nobody is signed in.",
+        "responses": {
+          "200": {
+            "description": "The session, or null.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Session"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/algorithms": {
+      "get": {
+        "operationId": "listAlgorithms",
+        "tags": [
+          "Course content"
+        ],
+        "summary": "List the algorithms",
+        "responses": {
+          "200": {
+            "description": "The algorithms.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListAlgorithmsResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/algorithms/{code}/snippet": {
+      "get": {
+        "operationId": "getAlgorithmSnippet",
+        "tags": [
+          "Course content"
+        ],
+        "summary": "Get an algorithm's code",
+        "description": "The language is `language` if it is given. If not, it is the signed-in learner's code language, and pseudocode when they have none or nobody is signed in.",
+        "parameters": [
+          {
+            "name": "code",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9-]+$"
+            }
+          },
+          {
+            "name": "language",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 64,
+              "pattern": "^[a-z0-9-]+$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The source and the line of each step.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AlgorithmSnippetResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/learning-styles": {
+      "get": {
+        "operationId": "listLearningStyles",
+        "tags": [
+          "Course content"
+        ],
+        "summary": "List the learning styles",
+        "responses": {
+          "200": {
+            "description": "The learning styles.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListLearningStylesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/code-languages": {
+      "get": {
+        "operationId": "listCodeLanguages",
+        "tags": [
+          "Course content"
+        ],
+        "summary": "List the code languages",
+        "responses": {
+          "200": {
+            "description": "The code languages.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ListCodeLanguagesResponse"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/me": {
+      "get": {
+        "operationId": "getMe",
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Get the signed-in learner",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The learner and their profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/me/profile": {
+      "patch": {
+        "operationId": "updateProfile",
+        "tags": [
+          "Profile"
+        ],
+        "summary": "Change the learner's profile",
+        "description": "Send only the fields that change.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateUserProfileRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The learner and the updated profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/learning-path": {
+      "get": {
+        "operationId": "getLearningPath",
+        "tags": [
+          "Learning path"
+        ],
+        "summary": "Get the learning path",
+        "description": "The current lesson is the first one the learner has not completed. Completed lessons and the current lesson are open, every other lesson is locked.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Units, lessons and progress.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LearningPathResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/lessons/{id}": {
+      "get": {
+        "operationId": "getLesson",
+        "tags": [
+          "Lessons"
+        ],
+        "summary": "Get a lesson",
+        "description": "A locked lesson returns 403. A missing or retired lesson returns 404.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The lesson and its steps.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/lessons/{id}/note": {
+      "get": {
+        "operationId": "getLessonNote",
+        "tags": [
+          "Lessons"
+        ],
+        "summary": "Get the learner's note",
+        "description": "Returns an empty body and a null `updatedAt` when there is no note yet.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The note.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonNoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      },
+      "put": {
+        "operationId": "saveLessonNote",
+        "tags": [
+          "Lessons"
+        ],
+        "summary": "Save the learner's note",
+        "description": "Creates the note the first time and updates it after that. Returns 400 over 2000 characters, or for a lesson with no notes step.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SaveLessonNoteRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The saved note.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LessonNoteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/lessons/{id}/start": {
+      "post": {
+        "operationId": "startLesson",
+        "tags": [
+          "Lessons"
+        ],
+        "summary": "Mark a lesson started",
+        "description": "A completed lesson stays completed.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Started."
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "403": {
+            "$ref": "#/components/responses/Forbidden"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/lessons/{id}/attempts": {
+      "post": {
+        "operationId": "startAttempt",
+        "tags": [
+          "Tests"
+        ],
+        "summary": "Start a test",
+        "description": "Starts a lesson test, or a checkpoint test for a checkpoint. Locked lessons can be tested, so a learner can test out of them. If the learner already has an unfinished attempt for the lesson, that one is returned with 200. Two starts at the same moment make one attempt. A lesson with no questions returns 409.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The unfinished attempt that was already there.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "A new attempt and its first question.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/attempts/{id}": {
+      "get": {
+        "operationId": "getAttempt",
+        "tags": [
+          "Tests"
+        ],
+        "summary": "Get an attempt",
+        "description": "Use it to pick up after a reload. An attempt in progress returns its current question with the hints already unlocked. A finished attempt returns its result. Another learner's attempt returns 404.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The attempt with a question or a result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/attempts/{id}/hints": {
+      "post": {
+        "operationId": "requestHint",
+        "tags": [
+          "Tests"
+        ],
+        "summary": "Unlock the next hint",
+        "description": "Each hint lowers the score for that answer. Returns 409 when the question is not the current one, is already answered, has no hints left, or the attempt is finished.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestHintRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The hint.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RequestHintResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/attempts/{id}/answers": {
+      "post": {
+        "operationId": "submitAnswer",
+        "tags": [
+          "Tests"
+        ],
+        "summary": "Answer the current question",
+        "description": "Grades the answer, updates the learner's rating for the question's lesson and returns the correct answer and the explanation. After the last answer, `question` is null and `result` is set. A pass completes the lesson and every lesson before it. The answer type must match the question type. A question id that is not in the attempt returns 404. A question that is already answered, is not the current one, or an attempt that is finished returns 409.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAnswerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The feedback, and the next question or the result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SubmitAnswerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "sessionCookie": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "better-auth.session_token",
+        "description": "Set by sign in and sign up."
+      }
+    },
+    "schemas": {
+      "SignInRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password"
+        ]
+      },
+      "SignUpRequest": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "required": [
+          "email",
+          "password",
+          "name"
+        ]
+      },
+      "UpdateUserProfileRequest": {
+        "type": "object",
+        "properties": {
+          "learningStyleId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "codeLanguageId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "textToSpeech": {
+            "type": "boolean"
+          },
+          "colourTheme": {
+            "type": "string",
+            "enum": [
+              "default",
+              "high-contrast",
+              "okabe-ito"
+            ]
+          },
+          "showOnLeaderboard": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SaveLessonNoteRequest": {
+        "type": "object",
+        "properties": {
+          "body": {
+            "type": "string",
+            "maxLength": 2000
+          }
+        },
+        "required": [
+          "body"
+        ]
+      },
+      "RequestHintRequest": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          }
+        },
+        "required": [
+          "questionId"
+        ]
+      },
+      "SubmitAnswerRequest": {
+        "type": "object",
+        "properties": {
+          "questionId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "answer": {
+            "$ref": "#/components/schemas/LearnerAnswer"
+          }
+        },
+        "required": [
+          "questionId",
+          "answer"
+        ]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string"
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "path": {
+                  "type": "array",
+                  "items": {
+                    "type": [
+                      "string",
+                      "number"
+                    ]
+                  }
+                },
+                "message": {
+                  "type": "string"
+                },
+                "code": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "path",
+                "message"
+              ]
+            }
+          },
+          "requestId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "Health": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok"
+          }
+        },
+        "required": [
+          "status"
+        ]
+      },
+      "Session": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                  },
+                  "role": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "email"
+                ]
+              },
+              "session": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string"
+                  },
+                  "expiresAt": {}
+                },
+                "required": [
+                  "id",
+                  "expiresAt"
+                ]
+              }
+            },
+            "required": [
+              "user",
+              "session"
+            ]
+          },
+          {
+            "type": "null"
+          }
+        ]
+      },
+      "ListAlgorithmsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "algorithms": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "code",
+                    "name"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "algorithms"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "AlgorithmSnippetResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "algorithm": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ]
+              },
+              "language": {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "code",
+                  "name"
+                ]
+              },
+              "source": {
+                "type": "string"
+              },
+              "lines": {
+                "type": "object",
+                "propertyNames": {
+                  "type": "string"
+                },
+                "additionalProperties": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                }
+              }
+            },
+            "required": [
+              "algorithm",
+              "language",
+              "source",
+              "lines"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ListLearningStylesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "learningStyles": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "name",
+                    "description"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "learningStyles"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ListCodeLanguagesResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "codeLanguages": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "code": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "code",
+                    "name"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "codeLanguages"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "MeResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "user": {
+                "type": "object",
+                "properties": {
+                  "email": {
+                    "type": "string",
+                    "format": "email",
+                    "pattern": "^(?:[A-Za-z0-9_'+\\-]+\\.)*[A-Za-z0-9_'+\\-]*[A-Za-z0-9_+-]@(?:[A-Za-z0-9][A-Za-z0-9\\-]*\\.)+[A-Za-z]{2,}$"
+                  },
+                  "emailVerified": {
+                    "type": "boolean"
+                  },
+                  "displayName": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "email",
+                  "emailVerified",
+                  "displayName"
+                ]
+              },
+              "profile": {
+                "type": "object",
+                "properties": {
+                  "codeLanguageId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "colourTheme": {
+                    "type": "string",
+                    "enum": [
+                      "default",
+                      "high-contrast",
+                      "okabe-ito"
+                    ]
+                  },
+                  "learningStyleId": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "onboardingComplete": {
+                    "type": "boolean"
+                  },
+                  "showOnLeaderboard": {
+                    "type": "boolean"
+                  },
+                  "textToSpeech": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "codeLanguageId",
+                  "colourTheme",
+                  "learningStyleId",
+                  "onboardingComplete",
+                  "showOnLeaderboard",
+                  "textToSpeech"
+                ]
+              }
+            },
+            "required": [
+              "user",
+              "profile"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "LearningPathResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "units": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "position": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "progress": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 100
+                    },
+                    "lessons": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid",
+                            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "summary": {
+                            "type": "string"
+                          },
+                          "kind": {
+                            "type": "string",
+                            "enum": [
+                              "lesson",
+                              "checkpoint"
+                            ]
+                          },
+                          "position": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "completed",
+                              "current",
+                              "locked"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "title",
+                          "summary",
+                          "kind",
+                          "position",
+                          "status"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "title",
+                    "position",
+                    "progress",
+                    "lessons"
+                  ]
+                }
+              },
+              "progress": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 100
+              },
+              "currentLessonId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "units",
+              "progress",
+              "currentLessonId"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "LessonResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "lesson": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "summary": {
+                    "type": "string"
+                  },
+                  "kind": {
+                    "type": "string",
+                    "enum": [
+                      "lesson",
+                      "checkpoint"
+                    ]
+                  },
+                  "position": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "notePrompt": {
+                    "type": [
+                      "string",
+                      "null"
+                    ]
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "summary",
+                  "kind",
+                  "position",
+                  "notePrompt"
+                ]
+              },
+              "unit": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "title": {
+                    "type": "string"
+                  },
+                  "position": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "id",
+                  "title",
+                  "position"
+                ]
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "completed",
+                  "current"
+                ]
+              },
+              "previousLessonId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "nextLessonId": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "steps": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "position": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "coreBlock": {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "text"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "tree": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                }
+                              },
+                              "required": [
+                                "markdown"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "diagram"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "highlights": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "key": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      },
+                                      "state": {
+                                        "type": "string",
+                                        "enum": [
+                                          "active",
+                                          "visited",
+                                          "deleting",
+                                          "unbalanced",
+                                          "new"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "key",
+                                      "state"
+                                    ]
+                                  }
+                                },
+                                "caption": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "highlights",
+                                "caption"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "animation"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "steps": {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "operation": {
+                                        "type": "string",
+                                        "enum": [
+                                          "insert",
+                                          "delete",
+                                          "search"
+                                        ]
+                                      },
+                                      "key": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "required": [
+                                      "operation",
+                                      "key"
+                                    ]
+                                  }
+                                },
+                                "autoplay": {
+                                  "type": "boolean"
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "steps",
+                                "autoplay"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "playground"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "allowedOperations": {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "insert",
+                                      "delete",
+                                      "search",
+                                      "rotateLeft",
+                                      "rotateRight",
+                                      "traverse"
+                                    ]
+                                  }
+                                },
+                                "instructions": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "goal": {
+                                  "oneOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "containsKeys"
+                                        },
+                                        "keys": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "keys"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "validAvl"
+                                        }
+                                      },
+                                      "required": [
+                                        "kind"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "kind": {
+                                          "type": "string",
+                                          "const": "traversal"
+                                        },
+                                        "order": {
+                                          "type": "string",
+                                          "enum": [
+                                            "preorder",
+                                            "inorder",
+                                            "postorder",
+                                            "levelorder"
+                                          ]
+                                        },
+                                        "keys": {
+                                          "type": "array",
+                                          "items": {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          }
+                                        }
+                                      },
+                                      "required": [
+                                        "kind",
+                                        "order",
+                                        "keys"
+                                      ]
+                                    }
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "allowedOperations",
+                                "instructions"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "code_trace"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "algorithmCode": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "operation": {
+                                  "oneOf": [
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "operation": {
+                                          "type": "string",
+                                          "enum": [
+                                            "insert",
+                                            "delete",
+                                            "search"
+                                          ]
+                                        },
+                                        "key": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": [
+                                        "operation",
+                                        "key"
+                                      ]
+                                    },
+                                    {
+                                      "type": "object",
+                                      "properties": {
+                                        "operation": {
+                                          "type": "string",
+                                          "const": "traverse"
+                                        }
+                                      },
+                                      "required": [
+                                        "operation"
+                                      ]
+                                    }
+                                  ]
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "algorithmCode",
+                                "startingKeys",
+                                "operation"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "copy_tree"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "caption": {
+                                  "type": "string"
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "caption"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "expression_tree"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "expression": {
+                                  "$ref": "#/components/schemas/ExpressionNode"
+                                },
+                                "order": {
+                                  "type": "string",
+                                  "enum": [
+                                    "preorder",
+                                    "inorder",
+                                    "postorder"
+                                  ]
+                                },
+                                "caption": {
+                                  "type": "string"
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "expression",
+                                "order",
+                                "caption"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "number_line"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "caption": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "caption"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        }
+                      ]
+                    },
+                    "styleBlock": {
+                      "anyOf": [
+                        {
+                          "oneOf": [
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "text"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "tree": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    }
+                                  },
+                                  "required": [
+                                    "markdown"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "diagram"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "highlights": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "key": {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          },
+                                          "state": {
+                                            "type": "string",
+                                            "enum": [
+                                              "active",
+                                              "visited",
+                                              "deleting",
+                                              "unbalanced",
+                                              "new"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "key",
+                                          "state"
+                                        ]
+                                      }
+                                    },
+                                    "caption": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "highlights",
+                                    "caption"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "animation"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "steps": {
+                                      "minItems": 1,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "operation": {
+                                            "type": "string",
+                                            "enum": [
+                                              "insert",
+                                              "delete",
+                                              "search"
+                                            ]
+                                          },
+                                          "key": {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": [
+                                          "operation",
+                                          "key"
+                                        ]
+                                      }
+                                    },
+                                    "autoplay": {
+                                      "type": "boolean"
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "steps",
+                                    "autoplay"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "playground"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "allowedOperations": {
+                                      "minItems": 1,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "insert",
+                                          "delete",
+                                          "search",
+                                          "rotateLeft",
+                                          "rotateRight",
+                                          "traverse"
+                                        ]
+                                      }
+                                    },
+                                    "instructions": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "goal": {
+                                      "oneOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": {
+                                              "type": "string",
+                                              "const": "containsKeys"
+                                            },
+                                            "keys": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "integer",
+                                                "minimum": -9007199254740991,
+                                                "maximum": 9007199254740991
+                                              }
+                                            }
+                                          },
+                                          "required": [
+                                            "kind",
+                                            "keys"
+                                          ]
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": {
+                                              "type": "string",
+                                              "const": "validAvl"
+                                            }
+                                          },
+                                          "required": [
+                                            "kind"
+                                          ]
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "kind": {
+                                              "type": "string",
+                                              "const": "traversal"
+                                            },
+                                            "order": {
+                                              "type": "string",
+                                              "enum": [
+                                                "preorder",
+                                                "inorder",
+                                                "postorder",
+                                                "levelorder"
+                                              ]
+                                            },
+                                            "keys": {
+                                              "type": "array",
+                                              "items": {
+                                                "type": "integer",
+                                                "minimum": -9007199254740991,
+                                                "maximum": 9007199254740991
+                                              }
+                                            }
+                                          },
+                                          "required": [
+                                            "kind",
+                                            "order",
+                                            "keys"
+                                          ]
+                                        }
+                                      ]
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "allowedOperations",
+                                    "instructions"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "code_trace"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "algorithmCode": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "operation": {
+                                      "oneOf": [
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "operation": {
+                                              "type": "string",
+                                              "enum": [
+                                                "insert",
+                                                "delete",
+                                                "search"
+                                              ]
+                                            },
+                                            "key": {
+                                              "type": "integer",
+                                              "minimum": -9007199254740991,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "required": [
+                                            "operation",
+                                            "key"
+                                          ]
+                                        },
+                                        {
+                                          "type": "object",
+                                          "properties": {
+                                            "operation": {
+                                              "type": "string",
+                                              "const": "traverse"
+                                            }
+                                          },
+                                          "required": [
+                                            "operation"
+                                          ]
+                                        }
+                                      ]
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "algorithmCode",
+                                    "startingKeys",
+                                    "operation"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "copy_tree"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "caption": {
+                                      "type": "string"
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "caption"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "expression_tree"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "expression": {
+                                      "$ref": "#/components/schemas/ExpressionNode"
+                                    },
+                                    "order": {
+                                      "type": "string",
+                                      "enum": [
+                                        "preorder",
+                                        "inorder",
+                                        "postorder"
+                                      ]
+                                    },
+                                    "caption": {
+                                      "type": "string"
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "expression",
+                                    "order",
+                                    "caption"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "number_line"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "caption": {
+                                      "type": "string"
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "caption"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "type": "null"
+                        }
+                      ]
+                    },
+                    "otherBlocks": {
+                      "type": "array",
+                      "items": {
+                        "oneOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "text"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "tree": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  }
+                                },
+                                "required": [
+                                  "markdown"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "diagram"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "highlights": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "key": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        },
+                                        "state": {
+                                          "type": "string",
+                                          "enum": [
+                                            "active",
+                                            "visited",
+                                            "deleting",
+                                            "unbalanced",
+                                            "new"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "key",
+                                        "state"
+                                      ]
+                                    }
+                                  },
+                                  "caption": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "highlights",
+                                  "caption"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "animation"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "steps": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "operation": {
+                                          "type": "string",
+                                          "enum": [
+                                            "insert",
+                                            "delete",
+                                            "search"
+                                          ]
+                                        },
+                                        "key": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "required": [
+                                        "operation",
+                                        "key"
+                                      ]
+                                    }
+                                  },
+                                  "autoplay": {
+                                    "type": "boolean"
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "steps",
+                                  "autoplay"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "playground"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "allowedOperations": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "insert",
+                                        "delete",
+                                        "search",
+                                        "rotateLeft",
+                                        "rotateRight",
+                                        "traverse"
+                                      ]
+                                    }
+                                  },
+                                  "instructions": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "goal": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "containsKeys"
+                                          },
+                                          "keys": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "integer",
+                                              "minimum": -9007199254740991,
+                                              "maximum": 9007199254740991
+                                            }
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "keys"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "validAvl"
+                                          }
+                                        },
+                                        "required": [
+                                          "kind"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "kind": {
+                                            "type": "string",
+                                            "const": "traversal"
+                                          },
+                                          "order": {
+                                            "type": "string",
+                                            "enum": [
+                                              "preorder",
+                                              "inorder",
+                                              "postorder",
+                                              "levelorder"
+                                            ]
+                                          },
+                                          "keys": {
+                                            "type": "array",
+                                            "items": {
+                                              "type": "integer",
+                                              "minimum": -9007199254740991,
+                                              "maximum": 9007199254740991
+                                            }
+                                          }
+                                        },
+                                        "required": [
+                                          "kind",
+                                          "order",
+                                          "keys"
+                                        ]
+                                      }
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "allowedOperations",
+                                  "instructions"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "code_trace"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "algorithmCode": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "operation": {
+                                    "oneOf": [
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "operation": {
+                                            "type": "string",
+                                            "enum": [
+                                              "insert",
+                                              "delete",
+                                              "search"
+                                            ]
+                                          },
+                                          "key": {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "required": [
+                                          "operation",
+                                          "key"
+                                        ]
+                                      },
+                                      {
+                                        "type": "object",
+                                        "properties": {
+                                          "operation": {
+                                            "type": "string",
+                                            "const": "traverse"
+                                          }
+                                        },
+                                        "required": [
+                                          "operation"
+                                        ]
+                                      }
+                                    ]
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "algorithmCode",
+                                  "startingKeys",
+                                  "operation"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "copy_tree"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "caption": {
+                                    "type": "string"
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "caption"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "expression_tree"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "expression": {
+                                    "$ref": "#/components/schemas/ExpressionNode"
+                                  },
+                                  "order": {
+                                    "type": "string",
+                                    "enum": [
+                                      "preorder",
+                                      "inorder",
+                                      "postorder"
+                                    ]
+                                  },
+                                  "caption": {
+                                    "type": "string"
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "expression",
+                                  "order",
+                                  "caption"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "number_line"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "caption": {
+                                    "type": "string"
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "caption"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          }
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "position",
+                    "coreBlock",
+                    "styleBlock",
+                    "otherBlocks"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "lesson",
+              "unit",
+              "status",
+              "previousLessonId",
+              "nextLessonId",
+              "steps"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "LessonNoteResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "lessonId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "body": {
+                "type": "string"
+              },
+              "updatedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "lessonId",
+              "body",
+              "updatedAt"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "Attempt": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "lessonId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "lesson_test",
+              "checkpoint"
+            ]
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "in_progress",
+              "finished"
+            ]
+          },
+          "total": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "answeredCount": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "startedAt": {
+            "type": "string",
+            "format": "date-time",
+            "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+          },
+          "finishedAt": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "lessonId",
+          "kind",
+          "status",
+          "total",
+          "answeredCount",
+          "startedAt",
+          "finishedAt"
+        ]
+      },
+      "AttemptQuestion": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "position": {
+            "type": "integer",
+            "exclusiveMinimum": 0,
+            "maximum": 9007199254740991
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "multiple_choice",
+              "build_tree",
+              "order_nodes",
+              "predict_rotation",
+              "text"
+            ]
+          },
+          "prompt": {
+            "type": "string"
+          },
+          "tree": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "text": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "text"
+              ]
+            }
+          },
+          "difficulty": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 5
+          },
+          "hints": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "hintsTotal": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "hintsRemaining": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          }
+        },
+        "required": [
+          "id",
+          "position",
+          "type",
+          "prompt",
+          "tree",
+          "difficulty",
+          "hints",
+          "hintsTotal",
+          "hintsRemaining"
+        ]
+      },
+      "AttemptResult": {
+        "type": "object",
+        "properties": {
+          "score": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "passed": {
+            "type": "boolean"
+          },
+          "points": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "ratingChange": {
+            "type": "integer",
+            "minimum": -9007199254740991,
+            "maximum": 9007199254740991
+          },
+          "reviewLessons": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "title": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "id",
+                "title"
+              ]
+            }
+          },
+          "answers": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questionId": {
+                  "type": "string",
+                  "format": "uuid",
+                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                },
+                "position": {
+                  "type": "integer",
+                  "exclusiveMinimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "prompt": {
+                  "type": "string"
+                },
+                "tree": {
+                  "type": [
+                    "string",
+                    "null"
+                  ]
+                },
+                "response": {
+                  "$ref": "#/components/schemas/LearnerAnswer"
+                },
+                "isCorrect": {
+                  "type": "boolean"
+                },
+                "correctAnswer": {
+                  "$ref": "#/components/schemas/LearnerAnswer"
+                },
+                "explanation": {
+                  "type": "string"
+                },
+                "hintsUsed": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "points": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "questionId",
+                "position",
+                "prompt",
+                "tree",
+                "response",
+                "isCorrect",
+                "correctAnswer",
+                "explanation",
+                "hintsUsed",
+                "points"
+              ]
+            }
+          }
+        },
+        "required": [
+          "score",
+          "passed",
+          "points",
+          "ratingChange",
+          "reviewLessons",
+          "answers"
+        ]
+      },
+      "AttemptStateResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "attempt": {
+                "$ref": "#/components/schemas/Attempt"
+              },
+              "question": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AttemptQuestion"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "result": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AttemptResult"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "attempt",
+              "question",
+              "result"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "RequestHintResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "questionId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              "hint": {
+                "type": "string"
+              },
+              "hintNumber": {
+                "type": "integer",
+                "exclusiveMinimum": 0,
+                "maximum": 9007199254740991
+              },
+              "hintsRemaining": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              }
+            },
+            "required": [
+              "questionId",
+              "hint",
+              "hintNumber",
+              "hintsRemaining"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "SubmitAnswerResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "isCorrect": {
+                "type": "boolean"
+              },
+              "correctAnswer": {
+                "$ref": "#/components/schemas/LearnerAnswer"
+              },
+              "explanation": {
+                "type": "string"
+              },
+              "hintsUsed": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "points": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "rating": {
+                "type": "object",
+                "properties": {
+                  "before": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  "after": {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  }
+                },
+                "required": [
+                  "before",
+                  "after"
+                ]
+              },
+              "attempt": {
+                "$ref": "#/components/schemas/Attempt"
+              },
+              "question": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AttemptQuestion"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "result": {
+                "anyOf": [
+                  {
+                    "$ref": "#/components/schemas/AttemptResult"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "isCorrect",
+              "correctAnswer",
+              "explanation",
+              "hintsUsed",
+              "points",
+              "rating",
+              "attempt",
+              "question",
+              "result"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "LearnerAnswer": {
+        "oneOf": [
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "multiple_choice"
+              },
+              "optionId": {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              }
+            },
+            "required": [
+              "type",
+              "optionId"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "build_tree"
+              },
+              "tree": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "tree"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "order_nodes"
+              },
+              "keys": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "minimum": -9007199254740991,
+                  "maximum": 9007199254740991
+                }
+              }
+            },
+            "required": [
+              "type",
+              "keys"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "predict_rotation"
+              },
+              "rotation": {
+                "type": "string",
+                "enum": [
+                  "left",
+                  "right",
+                  "leftRight",
+                  "rightLeft",
+                  "none"
+                ]
+              },
+              "pivotKey": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": -9007199254740991,
+                    "maximum": 9007199254740991
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "type",
+              "rotation",
+              "pivotKey"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "const": "text"
+              },
+              "text": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 200
+              }
+            },
+            "required": [
+              "type",
+              "text"
+            ]
+          }
+        ]
+      },
+      "ExpressionNode": {
+        "anyOf": [
+          {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              }
+            },
+            "required": [
+              "value"
+            ]
+          },
+          {
+            "type": "object",
+            "properties": {
+              "operator": {
+                "type": "string",
+                "enum": [
+                  "+",
+                  "-",
+                  "×",
+                  "÷"
+                ]
+              },
+              "left": {
+                "$ref": "#/components/schemas/ExpressionNode"
+              },
+              "right": {
+                "$ref": "#/components/schemas/ExpressionNode"
+              }
+            },
+            "required": [
+              "operator",
+              "left",
+              "right"
+            ]
+          }
+        ]
+      }
+    },
+    "responses": {
+      "BadRequest": {
+        "description": "The request is invalid. The body has `issues` when it failed validation.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Unauthorized": {
+        "description": "Nobody is signed in.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Forbidden": {
+        "description": "Signed in, but not allowed. For a lesson, it is locked.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "NotFound": {
+        "description": "It does not exist, or it belongs to someone else.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      },
+      "Conflict": {
+        "description": "The request clashes with the current state.",
+        "content": {
+          "application/json": {
+            "schema": {
+              "$ref": "#/components/schemas/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  }
+}

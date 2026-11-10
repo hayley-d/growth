@@ -21,6 +21,10 @@ shared/src/
       tree-encoding.ts    encodeTree and decodeTree: a tree as a string
       goal-check.ts       checkGoal: did the learner's tree meet a playground goal
     test/                 one <file>.test.ts for each file in src/
+  openapi/
+    index.ts              re-exports openApiDocument
+    src/                  the endpoint list, the schema components and the document builder
+    test/                 checks on the document
   engine/
     index.ts              re-exports everything in src/
     src/

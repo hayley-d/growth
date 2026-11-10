@@ -7,5 +7,11 @@ export default {
   title: "In-order",
   summary: "Visit the left subtree, then the node, then the right subtree.",
   kind: "lesson",
-  objectives: ["List the nodes of a tree in in-order"],
+  notePrompt:
+    "Explain in-order in your own words. Why does in-order give the keys of a search tree from smallest to biggest?",
+  objectives: [
+    "List the nodes of a tree in in-order",
+    "Say how the in-order code differs from the pre-order code",
+    "Explain why the in-order of a search tree gives its keys in sorted order",
+  ],
 } satisfies LessonContent;

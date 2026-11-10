@@ -185,6 +185,14 @@ describe("contentBlockBodySchema", () => {
     expect(result.type).toBe("expression_tree");
   });
 
+  it("parses a number line block", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "number_line",
+      body: { startingKeys: [20, 10, 30], caption: "A small tree." },
+    });
+    expect(result.type).toBe("number_line");
+  });
+
   it("rejects an operator with one value", () => {
     const result = contentBlockBodySchema.safeParse({
       type: "expression_tree",

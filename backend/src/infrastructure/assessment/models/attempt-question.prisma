@@ -1,0 +1,17 @@
+model AttemptQuestion {
+  id                  String            @id @default(uuid()) @database.Uuid
+  assessmentAttemptId String            @database.Uuid
+  questionId          String            @database.Uuid
+  position            Int
+  seed                Int?
+  generatedQuestion   Json?
+  difficulty          Int
+  hintsUsed           Int               @default(0)
+  assessmentAttempt   AssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Cascade)
+  question            Question          @relation(fields: [questionId], references: [id], onDelete: Restrict)
+
+  @@unique([assessmentAttemptId, position])
+  @@unique([assessmentAttemptId, questionId])
+  @@index([questionId])
+  @@map("attemptQuestion")
+}

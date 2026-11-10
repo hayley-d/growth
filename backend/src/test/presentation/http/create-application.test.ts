@@ -4,6 +4,7 @@ import type { ErrorResponse } from "@shared/schemas";
 import type { Logger } from "@/application/logging/logger";
 import { NotFoundError } from "@/domain/errors";
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
+import { createAttemptController } from "@/presentation/controllers/attempt-controller";
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
@@ -42,7 +43,13 @@ const createTestApp = (logger: Logger) =>
         throw new NotFoundError("Lesson not found");
       },
     }),
-    userController: createUserController({ updateProfile: vi.fn() }),
+    attemptController: createAttemptController({
+      startAttempt: vi.fn(),
+      getAttempt: vi.fn(),
+      requestHint: vi.fn(),
+      submitAnswer: vi.fn(),
+    }),
+    userController: createUserController({ getMe: vi.fn(), updateProfile: vi.fn() }),
     courseContentController: createCourseContentController({
       listLearningStyles: async () => ({ data: { learningStyles: [] } }),
       listCodeLanguages: async () => ({ data: { codeLanguages: [] } }),

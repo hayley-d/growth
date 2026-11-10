@@ -59,6 +59,10 @@ export default defineConfig({
                       label: "Lessons",
                       items: [
                         {
+                          label: "Lesson 1: What is a binary tree",
+                          slug: "id/storyboards/lessons/binary-tree",
+                        },
+                        {
                           label: "Lessons 2 to 4: Depth-first traversals",
                           slug: "id/storyboards/lessons/depth-first-traversals",
                         },
@@ -97,6 +101,7 @@ export default defineConfig({
                 {
                   label: "Reference",
                   items: [
+                    { label: "API reference", slug: "dev/reference/api" },
                     { label: "Scripts and tooling", slug: "dev/reference/scripts" },
                     { label: "Branches and commits", slug: "dev/reference/git-workflow" },
                   ],

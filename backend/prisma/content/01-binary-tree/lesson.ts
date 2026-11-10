@@ -5,7 +5,14 @@ export default {
   unit: "binary-trees",
   position: 1,
   title: "What is a binary tree",
-  summary: "Meet nodes, children and the shape of a binary tree.",
+  summary: "Learn the words for a binary tree and the rule that keeps a search tree in order.",
   kind: "lesson",
-  objectives: ["Name the root, children and leaves of a binary tree"],
+  notePrompt:
+    "Explain what a binary search tree is in your own words. Use the words root, leaf and subtree, and say where a new key goes.",
+  objectives: [
+    "Name the root, parents, children and leaves of a binary tree",
+    "Say what a subtree is and find the left and right subtree of a node",
+    "Work out the depth and the height of a node",
+    "Insert keys into a binary search tree by going left for smaller keys and right for bigger ones",
+  ],
 } satisfies LessonContent;

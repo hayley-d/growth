@@ -6,5 +6,6 @@ vi.mock("@/lib/auth-client", () => ({
     signIn: { email: vi.fn() },
     signUp: { email: vi.fn() },
     signOut: vi.fn(),
+    updateUser: vi.fn(),
   },
 }));

@@ -5,4 +5,10 @@ import type {
 } from "@/domain/assessment/answer-option";
 import type { Repository } from "@/domain/common/repository";
 
-export type AnswerOptionRepository = Repository<AnswerOption, NewAnswerOption, AnswerOptionChanges>;
+export type AnswerOptionRepository = Repository<
+  AnswerOption,
+  NewAnswerOption,
+  AnswerOptionChanges
+> & {
+  listByQuestionId(questionId: string): Promise<AnswerOption[]>;
+};

@@ -3,7 +3,10 @@ import type {
   AttemptAnswerChanges,
   NewAttemptAnswer,
 } from "@/domain/assessment/attempt-answer";
-import type { AttemptAnswerRepository } from "@/domain/assessment/repositories/attempt-answer-repository";
+import type {
+  AttemptAnswerRepository,
+  RecordAnswerInput,
+} from "@/domain/assessment/repositories/attempt-answer-repository";
 import type {
   AttemptAnswer as AttemptAnswerRow,
   Prisma,
@@ -14,6 +17,7 @@ import {
   toAttemptAnswerCreateData,
   toAttemptAnswerUpdateData,
 } from "@/infrastructure/assessment/mappers/attempt-answer-mapper";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 
 type AttemptAnswerModel = {
@@ -40,6 +44,40 @@ export class PrismaAttemptAnswerRepository
       orderBy: [{ assessmentAttemptId: "asc" }],
       toCreateData: toAttemptAnswerCreateData,
       toUpdateData: toAttemptAnswerUpdateData,
+    });
+  }
+
+  listByAttemptId(assessmentAttemptId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.attemptAnswer.findMany({
+          where: { assessmentAttemptId },
+          orderBy: { id: "asc" },
+        })
+      ).map(toAttemptAnswer),
+    );
+  }
+
+  countByUserAndLesson(userId: string, lessonId: string) {
+    return withPrismaErrors(() =>
+      this.client.attemptAnswer.count({
+        where: { assessmentAttempt: { userId }, question: { lessonId } },
+      }),
+    );
+  }
+
+  recordAnswer({ answer, mastery }: RecordAnswerInput) {
+    return withPrismaErrors(async () => {
+      const { userId, lessonId, ...values } = mastery;
+      const [row] = await this.client.$transaction([
+        this.client.attemptAnswer.create({ data: toAttemptAnswerCreateData(answer) }),
+        this.client.userMastery.upsert({
+          where: { userId_lessonId: { userId, lessonId } },
+          create: { userId, lessonId, ...values },
+          update: values,
+        }),
+      ]);
+      return toAttemptAnswer(row);
     });
   }
 }
