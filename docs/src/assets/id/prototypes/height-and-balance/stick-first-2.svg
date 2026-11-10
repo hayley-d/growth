@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 756" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <title>Stick first, steps 4 to 6. Three frames. Frame 4 works the balance factor of 20. Frame 5 states the AVL rule and lists illegal BFs on the stick. Frame 6 is the playground.</title>
   <style>@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap");</style>
   <rect width="1060" height="756" fill="#eceff4"/>
   <g>

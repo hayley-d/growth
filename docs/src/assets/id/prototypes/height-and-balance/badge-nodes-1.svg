@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 756" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <title>Badge on every node, steps 1 to 3. Three frames. Frame 1 is a bushy tree with h and bf badges. Frame 2 lists stick badges. Frame 3 restates the two formulas from the badges.</title>
   <style>@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap");</style>
   <rect width="1060" height="756" fill="#eceff4"/>
   <g>

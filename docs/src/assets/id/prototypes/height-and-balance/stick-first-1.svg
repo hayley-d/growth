@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 756" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <title>Stick first, steps 1 to 3. Three frames. Frame 1 shows the stick 1-2-3-4 and the O(n) search. Frame 2 shows a bushy AVL tree with 40 at the root. Frame 3 works heights on 20, 10, 30 and 5.</title>
   <style>@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap");</style>
   <rect width="1060" height="756" fill="#eceff4"/>
   <g>
