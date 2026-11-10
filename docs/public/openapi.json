@@ -1633,6 +1633,7 @@
                                           "visited",
                                           "deleting",
                                           "unbalanced",
+                                          "rotating",
                                           "new"
                                         ]
                                       }
@@ -2179,6 +2180,7 @@
                                               "visited",
                                               "deleting",
                                               "unbalanced",
+                                              "rotating",
                                               "new"
                                             ]
                                           }
@@ -2730,6 +2732,7 @@
                                             "visited",
                                             "deleting",
                                             "unbalanced",
+                                            "rotating",
                                             "new"
                                           ]
                                         }
