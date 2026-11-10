@@ -104,20 +104,17 @@ const runInsert = (context: CommandContext, keys: readonly number[]): CommandOut
         : `${listKeys(keys)} went in, and the tree is still an AVL tree.`,
     });
   }
-  const earlier = keys.slice(0, -1);
-  const last = keys.at(-1) ?? 0;
-  const before = earlier.reduce<AvlNode | null>(
-    (built, key) => insertKey(built, key),
-    context.tree,
+  const traced = keys.reduce<{ tree: AvlNode | null; steps: Step[] }>(
+    (built, key) => {
+      const inserted = traceInsert(built.tree, key);
+      return { tree: inserted.result, steps: [...built.steps, ...inserted.steps] };
+    },
+    { tree: context.tree, steps: [] },
   );
-  const traced = traceInsert(before, last);
   return done(context, {
-    tree: traced.result,
-    run: { label: `Insert ${last}`, steps: traced.steps, walk: null },
-    message:
-      earlier.length > 0
-        ? `Added ${listKeys(earlier)}. Step through to watch ${last} go in.`
-        : `Step through to watch ${last} go in.`,
+    tree: traced.tree,
+    run: { label: `Insert ${listKeys(keys)}`, steps: traced.steps, walk: null },
+    message: `Step through to watch ${listKeys(keys)} go in.`,
   });
 };
 

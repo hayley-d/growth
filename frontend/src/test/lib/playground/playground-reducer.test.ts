@@ -64,6 +64,28 @@ describe("playgroundReducer", () => {
     expect(session.run?.id).not.toBe(first);
   });
 
+  it("drops the run when a command fails or a drop is refused", () => {
+    const searched = playgroundReducer(
+      playgroundReducer(createSession(avl), { type: "command", text: "insert 5", via: "typed" }),
+      { type: "command", text: "search 5", via: "typed" },
+    );
+    expect(searched.run).not.toBeNull();
+    expect(
+      playgroundReducer(searched, { type: "command", text: "foo", via: "typed" }).run,
+    ).toBeNull();
+    expect(
+      playgroundReducer(searched, { type: "command", text: "delete 9", via: "typed" }).run,
+    ).toBeNull();
+    expect(
+      playgroundReducer(searched, {
+        type: "refuse",
+        command: "insert 3",
+        message: "No.",
+        via: "dragged",
+      }).run,
+    ).toBeNull();
+  });
+
   it("replays a logged command", () => {
     let session = playgroundReducer(createSession(avl), {
       type: "command",

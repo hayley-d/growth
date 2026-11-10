@@ -106,6 +106,10 @@ describe("parseCommand for traversals", () => {
       command: { kind: "random", size: 7 },
     });
     expect(parseCommand(`random ${maxPlaygroundKeys + 1}`, postorder).ok).toBe(false);
+    expect(parseCommand("random 7", postorder).ok).toBe(true);
+    for (const size of ["0x7", "1e1", "+5", "7.0"]) {
+      expect(parseCommand(`random ${size}`, postorder).ok).toBe(false);
+    }
   });
 });
 

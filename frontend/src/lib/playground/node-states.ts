@@ -5,6 +5,9 @@ export const withUnbalanced = (
   unbalanced: readonly number[],
 ): Record<number, NodeState> => {
   const result = { ...states };
-  for (const key of unbalanced) result[key] ??= "unbalanced";
+  for (const key of unbalanced) {
+    const state = result[key];
+    if (state === undefined || state === "visited") result[key] = "unbalanced";
+  }
   return result;
 };

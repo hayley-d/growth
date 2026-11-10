@@ -26,6 +26,8 @@ export type ParsedCommand = { ok: true; command: PlaygroundCommand } | Failure;
 
 export const maxCommandLength = 160;
 
+const wholeNumber = /^\d+$/;
+
 const avlWords = new Set(["insert", "delete", "search", "rotate", "balance"]);
 
 const isTraversal = (word: string): word is TraversalOrder =>
@@ -34,7 +36,7 @@ const isTraversal = (word: string): word is TraversalOrder =>
 export const parseKey = (text: string): { key: number } | { message: string } => {
   const trimmed = text.trim();
   if (trimmed === "") return { message: "Type a key first." };
-  if (!/^\d+$/.test(trimmed)) {
+  if (!wholeNumber.test(trimmed)) {
     return {
       message: `"${trimmed}" isn't a whole number. Keys are whole numbers from 1 to ${largestKey}.`,
     };
@@ -101,8 +103,9 @@ const parseAvlCommand = (word: string, parts: readonly string[]): ParsedCommand 
 
 const parseRandom = (parts: readonly string[]): ParsedCommand => {
   if (parts.length === 0) return { ok: true, command: { kind: "random", size: 7 } };
-  const size = Number(parts[0]);
-  if (parts.length > 1 || !Number.isInteger(size) || size < 1 || size > maxPlaygroundKeys) {
+  const [sizeText = ""] = parts;
+  const size = Number(sizeText);
+  if (parts.length > 1 || !wholeNumber.test(sizeText) || size < 1 || size > maxPlaygroundKeys) {
     return {
       ok: false,
       message: `random takes a size from 1 to ${maxPlaygroundKeys}, like random 7.`,

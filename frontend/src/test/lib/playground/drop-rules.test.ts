@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 
-import { type AvlNode, insertKey } from "@shared/avl";
+import { type AvlNode, insertKey, layoutTree, randomTree } from "@shared/avl";
+import { insertBst } from "@shared/engine";
 import {
   dropToAction,
   emptySlots,
@@ -25,6 +26,25 @@ describe("emptySlots", () => {
       ["40-left", 31, 39],
       ["40-right", 41, 99],
     ]);
+  });
+
+  it("keeps every spot at least a column away from the nodes on its row", () => {
+    const lopsided = (keys: number[]) =>
+      keys.reduce<AvlNode | null>((tree, key) => insertBst(tree, key), null);
+    const trees = [
+      lopsided([10, 20, 30, 40, 50]),
+      lopsided([50, 40, 30, 20, 10]),
+      lopsided([50, 10, 40, 20, 30]),
+      ...Array.from({ length: 20 }, (_, index) => randomTree({ size: 15, seed: index + 1 })),
+    ];
+    for (const tree of trees) {
+      const positions = layoutTree(tree);
+      for (const slot of emptySlots(tree)) {
+        for (const position of positions.filter((each) => each.y === slot.y)) {
+          expect(Math.abs(position.x - slot.x)).toBeGreaterThanOrEqual(1);
+        }
+      }
+    }
   });
 
   it("skips a spot no key can fill", () => {

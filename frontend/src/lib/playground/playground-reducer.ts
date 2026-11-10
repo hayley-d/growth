@@ -73,6 +73,7 @@ const refuseSession = (
   via: CommandSource,
 ): PlaygroundSession => ({
   ...session,
+  run: null,
   notice: { tone: "bad", message },
   ...addLog(session, { command, message, tone: "bad", via, replayable: false }),
 });
@@ -103,7 +104,7 @@ const runText = (
     seed,
     tree: outcome.tree,
     autoBalance: outcome.autoBalance,
-    run: outcome.run ? { ...outcome.run, id: session.nextId } : outcome.ok ? null : session.run,
+    run: outcome.run ? { ...outcome.run, id: session.nextId } : null,
     notice: { tone: outcome.tone, message: outcome.message },
     prediction: treeChanged ? [] : session.prediction,
     marks: treeChanged ? null : session.marks,

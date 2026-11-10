@@ -23,6 +23,14 @@ describe("runCommand", () => {
     expect(outcome.run?.steps.some((step) => step.stepKey.startsWith("rotate-right"))).toBe(true);
   });
 
+  it("traces every key of a multi-key insert", () => {
+    const outcome = runCommand(context([]), { kind: "insert", keys: [10, 20, 30] });
+    expect(outcome.run?.label).toBe("Insert 10, 20 and 30");
+    expect(outcome.run?.steps.some((step) => step.stepKey.startsWith("rotate-left"))).toBe(true);
+    expect(outcome.run?.steps[0]?.tree).toBeNull();
+    expect(outcome.run?.steps.at(-1)?.tree?.key).toBe(20);
+  });
+
   it("refuses a duplicate and a full tree", () => {
     expect(runCommand(context([30]), { kind: "insert", keys: [30] }).message).toMatch(
       /already in the tree/,
