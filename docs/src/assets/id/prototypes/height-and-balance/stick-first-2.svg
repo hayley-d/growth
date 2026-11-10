@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1060 756" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">
+  <style>@import url("https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&amp;family=JetBrains+Mono:wght@400;600&amp;display=swap");</style>
+  <rect width="1060" height="756" fill="#eceff4"/>
+  <g>
+    <rect x="18" y="18" width="328" height="720" rx="22" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="34" y="40" font-size="11" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">AVL trees · Lesson 7</text><text x="34" y="58" font-size="14" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Height and balance factor</text><rect x="34" y="70" width="296" height="8" rx="4" fill="#e2e6ee"/><rect x="34" y="70" width="197.33333333333331" height="8" rx="4" fill="#1b2130"/><text x="34" y="92" font-size="11" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Step 4 of 6</text><line x1="18" y1="102" x2="346" y2="102" stroke="#bfc6d2" stroke-width="1.5" stroke-dasharray="5 4"/><text x="34" y="130" font-size="18" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700">Balance factor</text><text x="34" y="161" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">The balance factor of a node is</text>
+<text x="34" y="179" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">height(left) - height(right).</text>
+<text x="34" y="197" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif"></text>
+<text x="34" y="215" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">A leaf has height 1. An empty</text>
+<text x="34" y="233" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">subtree has height 0.</text>
+<text x="34" y="251" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif"></text><g>
+    <rect x="34" y="273" width="296" height="220" rx="12" fill="#ffffff" stroke="#bfc6d2" stroke-width="1.5"/>
+    <g>
+    <line x1="140" y1="311" x2="90" y2="367" stroke="#5b6477" stroke-width="2"/><line x1="140" y1="311" x2="190" y2="367" stroke="#5b6477" stroke-width="2"/><line x1="90" y1="367" x2="64" y2="423" stroke="#5b6477" stroke-width="2"/>
+    <g>
+    <circle cx="140" cy="311" r="16" fill="#ffd23f" stroke="#1b2130" stroke-width="3.5"/>
+    <text x="140" y="316" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">20</text>
+    
+  </g>
+    <g>
+    <circle cx="90" cy="367" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="90" y="372" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">10</text>
+    
+  </g>
+    <g>
+    <circle cx="190" cy="367" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="190" y="372" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">30</text>
+    
+  </g>
+    <g>
+    <circle cx="64" cy="423" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="64" y="428" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">5</text>
+    
+  </g>
+  </g>
+           <text x="50" y="451" font-size="12" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">20: left 2 - right 1 → BF = 1</text>
+           <text x="50" y="471" font-size="12" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">10 → 1, 5 → 0, 30 → 0</text>
+  </g><line x1="18" y1="672" x2="346" y2="672" stroke="#bfc6d2" stroke-width="1.5" stroke-dasharray="5 4"/><g>
+    <rect x="34" y="682" width="88" height="36" rx="10" fill="#ffffff" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="78" y="705" text-anchor="middle" font-size="13" font-weight="400" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Back</text>
+  </g><g>
+    <rect x="222" y="682" width="108" height="36" rx="10" fill="#1b2130" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="276" y="705" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Next</text>
+  </g>
+  </g>
+<g>
+    <rect x="366" y="18" width="328" height="720" rx="22" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="382" y="40" font-size="11" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">AVL trees · Lesson 7</text><text x="382" y="58" font-size="14" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Height and balance factor</text><rect x="382" y="70" width="296" height="8" rx="4" fill="#e2e6ee"/><rect x="382" y="70" width="246.66666666666669" height="8" rx="4" fill="#1b2130"/><text x="382" y="92" font-size="11" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Step 5 of 6</text><line x1="366" y1="102" x2="694" y2="102" stroke="#bfc6d2" stroke-width="1.5" stroke-dasharray="5 4"/><text x="382" y="130" font-size="18" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700">The AVL rule</text><text x="382" y="161" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">An AVL tree is a binary search</text>
+<text x="382" y="179" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">tree where every node's balance</text>
+<text x="382" y="197" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">factor is -1, 0 or 1.</text>
+<text x="382" y="215" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif"></text>
+<text x="382" y="233" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">On the bushy tree, every BF is 0.</text>
+<text x="382" y="251" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">On the stick, 1 and 2 sit outside</text>
+<text x="382" y="269" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">-1 to 1.</text>
+<text x="382" y="287" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif"></text><g>
+    <rect x="382" y="309" width="296" height="200" rx="12" fill="#ffffff" stroke="#bfc6d2" stroke-width="1.5"/>
+    <g>
+    <line x1="500" y1="339" x2="440" y2="393" stroke="#5b6477" stroke-width="2"/><line x1="500" y1="339" x2="560" y2="393" stroke="#5b6477" stroke-width="2"/>
+    <line x1="440" y1="393" x2="408" y2="447" stroke="#5b6477" stroke-width="2"/><line x1="440" y1="393" x2="472" y2="447" stroke="#5b6477" stroke-width="2"/>
+    <line x1="560" y1="393" x2="528" y2="447" stroke="#5b6477" stroke-width="2"/><line x1="560" y1="393" x2="592" y2="447" stroke="#5b6477" stroke-width="2"/>
+    <g>
+    <circle cx="500" cy="339" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="500" y="344" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">40</text>
+    
+  </g>
+    <g>
+    <circle cx="440" cy="393" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="440" y="398" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">20</text>
+    
+  </g>
+    <g>
+    <circle cx="560" cy="393" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="560" y="398" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">60</text>
+    
+  </g>
+    <g>
+    <circle cx="408" cy="447" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="408" y="452" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">10</text>
+    
+  </g>
+    <g>
+    <circle cx="472" cy="447" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="472" y="452" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">30</text>
+    
+  </g>
+    <g>
+    <circle cx="528" cy="447" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="528" y="452" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">50</text>
+    
+  </g>
+    <g>
+    <circle cx="592" cy="447" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="592" y="452" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">70</text>
+    
+  </g>
+  </g>
+           <text x="398" y="495" font-size="12" fill="#b42f2f" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Stick: 2 → BF -2, 1 → BF -3. Illegal.</text>
+  </g><line x1="366" y1="672" x2="694" y2="672" stroke="#bfc6d2" stroke-width="1.5" stroke-dasharray="5 4"/><g>
+    <rect x="382" y="682" width="88" height="36" rx="10" fill="#ffffff" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="426" y="705" text-anchor="middle" font-size="13" font-weight="400" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Back</text>
+  </g><g>
+    <rect x="570" y="682" width="108" height="36" rx="10" fill="#1b2130" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="624" y="705" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Next</text>
+  </g>
+  </g>
+<g>
+    <rect x="714" y="18" width="328" height="720" rx="22" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="730" y="40" font-size="11" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">AVL trees · Lesson 7</text><text x="730" y="58" font-size="14" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Height and balance factor</text><rect x="730" y="70" width="296" height="8" rx="4" fill="#e2e6ee"/><rect x="730" y="70" width="296" height="8" rx="4" fill="#1b2130"/><text x="730" y="92" font-size="11" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Step 6 of 6</text><line x1="714" y1="102" x2="1042" y2="102" stroke="#bfc6d2" stroke-width="1.5" stroke-dasharray="5 4"/><text x="730" y="130" font-size="18" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif" font-weight="700">Practice</text><text x="730" y="161" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Insert 5 and 25. The tree must</text>
+<text x="730" y="179" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">hold 5, 10, 20, 25 and 30. Use</text>
+<text x="730" y="197" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">search if you want to check a key.</text>
+<text x="730" y="215" font-size="13" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif"></text><g>
+    <rect x="730" y="237" width="296" height="250" rx="12" fill="#ffffff" stroke="#bfc6d2" stroke-width="1.5"/>
+    <g>
+    <line x1="838" y1="275" x2="788" y2="335" stroke="#5b6477" stroke-width="2"/><line x1="838" y1="275" x2="888" y2="335" stroke="#5b6477" stroke-width="2"/>
+    <g>
+    <circle cx="838" cy="275" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="838" y="280" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">20</text>
+    
+  </g><g>
+    <circle cx="788" cy="335" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="788" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">10</text>
+    
+  </g><g>
+    <circle cx="888" cy="335" r="16" fill="#ffffff" stroke="#1b2130" stroke-width="2"/>
+    <text x="888" y="340" text-anchor="middle" font-size="12" font-weight="700" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">30</text>
+    
+  </g>
+  </g>
+     <text x="746" y="367" font-size="11" letter-spacing="0.06em" text-transform="uppercase" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">PLAYGROUND</text>
+     <g>
+    <rect x="746" y="379" width="80" height="36" rx="10" fill="#ffffff" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="786" y="402" text-anchor="middle" font-size="13" font-weight="400" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Insert</text>
+  </g>
+     <g>
+    <rect x="834" y="379" width="80" height="36" rx="10" fill="#ffffff" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="874" y="402" text-anchor="middle" font-size="13" font-weight="400" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Search</text>
+  </g>
+     <rect x="922" y="379" width="88" height="36" rx="10" fill="#ffffff" stroke="#bfc6d2" stroke-width="1.5"/>
+     <text x="934" y="401" font-size="13" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">key</text>
+     <text x="746" y="439" font-size="12" fill="#5b6477" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Goal · containsKeys</text>
+     <g><rect x="746" y="447" width="38" height="26" rx="6" fill="#e2e6ee" stroke="#bfc6d2"/><text x="765" y="464" text-anchor="middle" font-size="12" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">5</text></g><g><rect x="790" y="447" width="38" height="26" rx="6" fill="#e2e6ee" stroke="#bfc6d2"/><text x="809" y="464" text-anchor="middle" font-size="12" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">10</text></g><g><rect x="834" y="447" width="38" height="26" rx="6" fill="#e2e6ee" stroke="#bfc6d2"/><text x="853" y="464" text-anchor="middle" font-size="12" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">20</text></g><g><rect x="878" y="447" width="38" height="26" rx="6" fill="#e2e6ee" stroke="#bfc6d2"/><text x="897" y="464" text-anchor="middle" font-size="12" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">25</text></g><g><rect x="922" y="447" width="38" height="26" rx="6" fill="#e2e6ee" stroke="#bfc6d2"/><text x="941" y="464" text-anchor="middle" font-size="12" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">30</text></g>
+  </g><line x1="714" y1="672" x2="1042" y2="672" stroke="#bfc6d2" stroke-width="1.5" stroke-dasharray="5 4"/><g>
+    <rect x="730" y="682" width="88" height="36" rx="10" fill="#ffffff" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="774" y="705" text-anchor="middle" font-size="13" font-weight="400" fill="#1b2130" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Back</text>
+  </g><g>
+    <rect x="918" y="682" width="108" height="36" rx="10" fill="#1b2130" stroke="#1b2130" stroke-width="1.5"/>
+    <text x="972" y="705" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="'Atkinson Hyperlegible', system-ui, -apple-system, 'Segoe UI', sans-serif">Take the test</text>
+  </g>
+  </g>
+</svg>
