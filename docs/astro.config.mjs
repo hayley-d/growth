@@ -55,6 +55,11 @@ export default defineConfig({
                   label: "Storyboards",
                   items: [
                     { label: "Playground", slug: "id/storyboards/playground" },
+                    { label: "Lesson page", slug: "id/storyboards/lesson-page" },
+                    {
+                      label: "Text and diagram blocks",
+                      slug: "id/storyboards/text-and-diagram-blocks",
+                    },
                     {
                       label: "Lessons",
                       items: [

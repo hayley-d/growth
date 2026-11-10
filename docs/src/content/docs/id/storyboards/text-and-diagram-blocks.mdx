@@ -1,0 +1,106 @@
+---
+title: "Text and diagram blocks"
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+Text and diagram blocks are most of what a learner reads in a lesson. A text block is the words of a step, sometimes with a small tree. A diagram block is a tree with some nodes highlighted and a caption.
+
+We built the storyboards in two rounds. In round 1 we prototyped five ways to display the text and diagram blocks to the learner. In round 2 we took the three we liked best, B, C and D, and combined them.
+
+## Round 1: Savvy start
+
+### A: Margin figure
+
+This prototype has the step laid out similar to a textbook. The text part of the 
+step is on the left and the tree part of the step is on the right.
+
+
+   ![The "Name the pieces" step at 3 of 7. The text about the root, children, parent and leaves is on the left. On the right is the tree 8, 4, 12, 2, 6, 10, 14 with 8 in pink and the four leaves in teal, and under a thin line the caption "Figure 1.2 8 is the root. The four leaves are highlighted."](../../../../assets/id/prototypes/lesson/margin.png)
+
+   *Figure 1: A · Margin figure*
+
+### B: Word to node
+
+In this prototype the bold words in the text are linked to the tree. 
+When the user hovers over the word it highlights nodes in the corresponding tree.
+
+<Steps>
+
+1. The learner points at or taps a bold word, such as children and then the corresponding nodes then light up.
+
+2. The learner points at a node, and the words for it light up. 
+
+   ![The "Name the pieces" step at 3 of 7. The bold words root, children, parent, leaf, left and right have dotted underlines, and "children" is lit in yellow. In the tree under the text, 4 and 12 are yellow with a bar under each. The caption reads "8 is the root. The four leaves are highlighted."](../../../../assets/id/prototypes/lesson/word-to-node.png)
+
+   *Figure 2: B · Word to node*
+
+</Steps>
+
+### C: Drawn in
+
+In this prototype the tree nodes are added one-by-one when the learner loads the step.
+
+<Steps>
+
+1. The learner arrives on the step, and the tree draws itself on a dotted card, one level at a time.
+
+2. The learner watches the highlights land last, and then the caption is written out under the tree.
+
+   ![The "Name the pieces" step at 3 of 7. The tree sits on a card with a dotted background, with 8 in pink and the four leaves in teal. The caption "8 is the root. The four leaves are highlighted." is at the bottom left of the card and a "Draw it again" button at the bottom right.](../../../../assets/id/prototypes/lesson/draw-in.png)
+
+   *Figure 3: C · Drawn in*
+
+</Steps>
+
+### D: Leader labels
+
+This prototype has no caption under the tree rather the words are pinned to the nodes 
+they talk about with dotted leader lines.
+
+
+   ![The "Name the pieces" step at 3 of 7. A dotted line runs from 8 to the label "8 is the root". A bracket runs under 2, 6, 10 and 14, with a short dotted line down to the label "The four leaves: 2, 6, 10 and 14".](../../../../assets/id/prototypes/lesson/leader-labels.png)
+
+   *Figure 4: D · Leader labels*
+
+### E: Stem
+
+In this prototype a stem runs down the left of the text and joins up with the tree.
+
+
+   ![The "Name the pieces" step at 3 of 7. A teal line runs down the left with a dot beside the heading and each of the four paragraphs. Under the text it turns right and drops into the root, 8, of the tree. The caption is under the tree.](../../../../assets/id/prototypes/lesson/stem.png)
+
+   *Figure 5: E · Stem*
+
+
+## Round 2: B, C and D together
+
+From round 1 we liked three of the protoypes B, C and D. 
+We liked how storyboard B linked the words to the tree. 
+For storyboard C we liked how the tree was drawn in when you arrive on a step. 
+In storyboard D we liked how it labeled the tree placing the words right next to the nodes. 
+
+### Drawn and labelled
+
+In this prototype the tree and its labels are drawn in when the user arrives on the step.
+The page bolds some words allowing the learner to hover over a bold word to see where it corresponds to on the tree.
+
+
+   ![The "Name the pieces" step at 3 of 7. "leaf" is lit in yellow in the text. In the tree on the plain card, 2, 6, 10 and 14 are yellow with a bar under each, and their label "The four leaves: 2, 6, 10 and 14" is underlined. A dotted line runs from 8 to "8 is the root". Under the tree are the hint "Point at an underlined word to find it on the tree" and a "Draw it again" button.](../../../../assets/id/prototypes/lesson/drawn-and-labelled.png)
+
+   *Figure 6: Drawn and labelled*
+
+## Decision
+
+<Aside type="tip" title="We picked Drawn and labelled">
+</Aside>
+
+### Why we chose Drawn and labelled
+
+- The learner doesn't have to read a sentence and then look for the nodes it refers to.
+- Linking the bold words to the tree joins the new word to the thing it names, so the learner learns the word and sees it at the same time.
+
+### Why we did not go with A or E
+
+- We felt that A would be hard to make responsive on smaller screen and that it disconnected the text from the diagram.
+- For E we felt that it didn't add anything that would benefit the user, it was more of an UI idea than functional.

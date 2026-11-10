@@ -1,0 +1,124 @@
+---
+title: "Lesson page"
+---
+
+import { Aside, Steps } from "@astrojs/starlight/components";
+
+The lesson page is the frame around every lesson's steps. 
+
+We built it in two rounds. In round 1, the savvy start, we tried five different pages. In round 2 we took B, reworked it, and that became the page we picked.
+
+## Round 1: Savvy start
+
+### A: Contents rail
+
+The whole lesson is one long page. A list of the steps sits on the left and follows the learner as they scroll.
+
+<Steps>
+
+1. The learner scrolls down the page, and a dot slides down the list to the step they're reading.
+
+2. The learner clicks a step in the list, and the page scrolls to it.
+
+   ![The "Trace a small tree" step. The rail on the left lists steps 1 to 9 and Finish under "Binary trees, Pre-order", with a dot beside step 3. The step on the right has a Listen button, the tree 20, 10, 30 with 20 active, the pseudocode with line 2 highlighted, and the call stack showing preorder(20).](../../../../assets/id/prototypes/lesson/A.png)
+
+   *Figure 1: A · Contents rail*
+
+</Steps>
+
+### B: Sparkler fuse
+
+The lesson shows one step at a time. The progress bar is a fuse made of glowing particles, with a marker for each step. Back and Next sit on either side of it at the top.
+
+<Steps>
+
+1. The learner presses Next, and the bright head of the fuse glides to the next marker and throws off soft sparks.
+
+2. The learner reads how far through they are from the lit markers and the counter.
+
+   ![The "Trace a small tree" step at 3 of 9. Across the top are a close button, the title "Pre-order", a back arrow, the fuse lit up to the third marker, a yellow next button and "3/9". The step with its tree, code and call stack is under it.](../../../../assets/id/prototypes/lesson/B.png)
+
+   *Figure 2: B · Sparkler fuse*
+
+</Steps>
+
+### C: Task bar
+
+A side panel lists every step, grouped into Learn, Use it and Reflect. Back and Next are at the bottom.
+
+<Steps>
+
+1. The learner finishes a step, and a tick pops in beside it in the panel.
+
+2. The learner sees how many steps are done in each group, and clicks any step to go to it.
+
+   ![The "Algorithm" step at step 2 of 9. The panel on the left shows "Binary trees, Lesson 2 of 6", then Learn 1/5 with a tick on "What pre-order is" and "The rule" marked as current, Use it 0/3 and Reflect 0/1. The header shows "Pre-order" with an "In progress" badge.](../../../../assets/id/prototypes/lesson/C.png)
+
+   *Figure 3: C · Task bar*
+
+</Steps>
+
+### D: Split view
+
+The words are on the left and the thing the learner works with is on the right, so they never scroll between them. The arrows and the step counter are at the top.
+
+<Steps>
+
+1. The learner reads the step on the left.
+
+2. The learner works with the tree, the code trace or the question on the right while the text stays put.
+
+   ![The "Algorithm" step at 02/09, with back and next arrows either side of the counter at the top. The rules and pseudocode are on the left, with "Picked for you: See it run" under them. The right panel, headed "Tree", shows the tree 8, 4, 12, 2, 6, 10, 14 with the left and right subtrees boxed.](../../../../assets/id/prototypes/lesson/D.png)
+
+   *Figure 4: D · Split view*
+
+</Steps>
+
+### E: Growing tree
+
+The progress bar is a small tree with one node per step. Back and a big Continue button sit at the bottom.
+
+<Steps>
+
+1. The learner presses Continue, and the branch to the next node draws itself, then the node grows in.
+
+2. The learner reaches the end, and the whole tree grows in on the end screen.
+
+   ![The "Trace a small tree" step at 3 of 9. In the top right corner is a small tree of nine nodes, with the first two filled in, the third glowing yellow and the rest outlined, and "3/9" under it. Back is at the bottom left and Continue at the bottom right.](../../../../assets/id/prototypes/lesson/E.png)
+
+   *Figure 5: E · Growing tree*
+
+</Steps>
+
+## Round 2: B reworked
+
+From Round 1 we all preferred the large back and Contniue buttons at the bottom of the page so we wanted to swap out the top navigation buttons in prototype B
+for those. We liked the concept of the fuse but did not like the sparkle effect it had so we wanted to change it to something calmer.
+
+### Glow bar
+
+The bar is plain and thin, with no glow at rest.
+
+<Steps>
+
+1. The learner presses Continue, and a soft light runs along the bar to its new end while it fills, then fades.
+
+2. The learner presses Back, and the bar slides back with no light.
+
+   ![The "Algorithm" step at 2 of 9. A thin bar runs across the top next to the title "Pre-order", filled to about a ninth, with "2/9" at the end. The step lists the three pre-order rules and the pseudocode. Back sits at the bottom left and a wide Continue button at the bottom right.](../../../../assets/id/prototypes/lesson/b+.png)
+
+   *Figure 6: Glow bar*
+
+</Steps>
+
+## Decision
+
+<Aside type="tip" title="We picked B+, the Glow bar">
+</Aside>
+
+### Why we chose the Glow bar
+
+- The learner sees one step at a time, so they focus on one idea and never scroll through a long page.
+- The thin bar shows how far through the lesson the learner is. 
+- Back and Continue sit at the bottom, where the learner finishes reading.
+- The bar is a progress bar that reads "Step 2 of 9" to a screen reader, and the counter shows the same, so progress never only depends on the light bar.
