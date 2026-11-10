@@ -58,7 +58,7 @@ Each requirement is **Must** or **Should**. A Must is needed for the app to do i
 
 ### Use case diagram
 
-![Use case diagram: a student uses the skill map, progress view, lessons, playground, tests, case studies and daily challenge. Narration, the code trace and scaffolding hints extend the lesson, playground and test.](../../../assets/se/use-case-diagram.png)
+![Use case diagram: a student uses the skill map, progress view, lessons, playground, tests, case studies and daily challenge. Narration, the code trace and scaffolding hints extend the lesson, playground and test.](../../../assets/se/use-case-diagram.webp)
 
 _Figure 1: Use cases for the student. Each use case shows the requirement it belongs to._
 
