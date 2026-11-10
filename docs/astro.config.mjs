@@ -69,6 +69,15 @@ export default defineConfig({
                       ],
                     },
                     {
+                      label: "Assessment",
+                      items: [
+                        {
+                          label: "Question types",
+                          slug: "id/storyboards/assessment/question-types",
+                        },
+                      ],
+                    },
+                    {
                       label: "Playground",
                       items: [
                         { label: "Code trace", slug: "id/storyboards/playground/code-trace" },
