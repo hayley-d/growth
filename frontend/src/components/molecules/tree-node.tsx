@@ -21,6 +21,7 @@ type TreeNodeProperties = {
   showBalance: boolean;
   manual: boolean;
   selected: boolean;
+  badge?: number;
   instant: boolean;
   onSelect?: (nodeKey: number) => void;
 };
@@ -94,11 +95,11 @@ const stateNames: Record<NodeState, string> = {
   new: "new",
 };
 
-const accessibleName = (nodeKey: number, balance: number, state?: NodeState) => {
+const accessibleName = (nodeKey: number, balance: number, state?: NodeState, badge?: number) => {
   const factor = `balance factor ${balance}`;
-  return state === undefined
-    ? `${nodeKey}, ${factor}`
-    : `${nodeKey}, ${stateNames[state]}, ${factor}`;
+  const base =
+    state === undefined ? `${nodeKey}, ${factor}` : `${nodeKey}, ${stateNames[state]}, ${factor}`;
+  return badge === undefined ? base : `${base}, number ${badge}`;
 };
 
 type MarkProperties = {
@@ -158,6 +159,35 @@ function BalanceBadge({
   );
 }
 
+function NumberBadge({ x, y, value }: MarkProperties & { value: number }) {
+  const offset = treeNodeRadius * 0.75;
+  const centerX = x - offset;
+  const centerY = y - offset;
+  return (
+    <g>
+      <TreeNodeCircle
+        x={centerX}
+        y={centerY}
+        radius={10}
+        fill="var(--primary)"
+        stroke="var(--primary-foreground)"
+        strokeWidth={1.5}
+      />
+      <text
+        x={centerX}
+        y={centerY}
+        textAnchor="middle"
+        dominantBaseline="central"
+        fontSize="10"
+        fontWeight="700"
+        fill="var(--primary-foreground)"
+      >
+        {value}
+      </text>
+    </g>
+  );
+}
+
 export function TreeNode({
   x,
   y,
@@ -169,6 +199,7 @@ export function TreeNode({
   showBalance,
   manual,
   selected,
+  badge,
   instant,
   onSelect,
 }: TreeNodeProperties) {
@@ -215,6 +246,7 @@ export function TreeNode({
             {nodeKey}
           </text>
           {state === "deleting" ? <Cross x={x} y={y} /> : null}
+          {badge === undefined ? null : <NumberBadge x={x} y={y} value={badge} />}
           {showBalance || state === "unbalanced" ? (
             <BalanceBadge x={x} y={y} balance={balance} emphasised={state === "unbalanced"} />
           ) : null}
@@ -237,8 +269,8 @@ export function TreeNode({
           <foreignObject x={x - treeNodeRadius} y={y - treeNodeRadius} width={hit} height={hit}>
             <button
               type="button"
-              aria-label={accessibleName(nodeKey, balance, state)}
-              aria-pressed={selected}
+              aria-label={accessibleName(nodeKey, balance, state, badge)}
+              aria-pressed={selected || badge !== undefined}
               data-node-key={nodeKey}
               onClick={() => onSelect?.(nodeKey)}
               style={{ width: hit, height: hit }}

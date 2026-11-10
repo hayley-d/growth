@@ -288,3 +288,15 @@ it("draws one balance badge on an unbalanced node", async () => {
   const labels = [...screen.container.querySelectorAll("text")].map((node) => node.textContent);
   expect(labels.filter((label) => label === "0")).toHaveLength(1);
 });
+
+it("draws a number on a node and names it for screen readers", async () => {
+  const screen = await renderTree({
+    root: build([20, 10]),
+    manual: true,
+    badges: { 20: 1 },
+  });
+
+  await expect.element(screen.getByRole("button", { name: /^20,.*number 1/ })).toBeVisible();
+  await expect.element(screen.getByRole("button", { name: /^10,(?!.*number)/ })).toBeVisible();
+  await expect.element(screen.getByText("1", { exact: true })).toBeVisible();
+});

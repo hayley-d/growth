@@ -19,6 +19,7 @@ type TreeViewProperties = {
   showBalance?: boolean;
   manual?: boolean;
   selectedKey?: number | null;
+  badges?: Record<number, number>;
   onSelectKey?: (nodeKey: number) => void;
   slots?: readonly TreeViewSlot[];
   activeSlotId?: string | null;
@@ -124,6 +125,7 @@ export function TreeView({
   showBalance = false,
   manual = false,
   selectedKey = null,
+  badges = {},
   onSelectKey,
   slots = [],
   activeSlotId = null,
@@ -239,6 +241,7 @@ export function TreeView({
                 showBalance={showBalance}
                 manual={manual}
                 selected={selectedKey === position.key}
+                badge={badges[position.key]}
                 instant={instant}
                 onSelect={onSelectKey}
               />
