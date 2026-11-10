@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { type AvlNode, insertKey, StepRecorder, withinCall } from "@shared/avl";
+import { type AvlNode, insertKey, StepRecorder, withinCall, withinRotation } from "@shared/avl";
 
 const build = (keys: number[]) =>
   keys.reduce<AvlNode | null>((root, key) => insertKey(root, key), null);
@@ -17,6 +17,7 @@ describe("StepRecorder", () => {
         tree: root,
         nodeStates: { 20: "active" },
         callStack: [],
+        rotation: null,
         message: "Is 10 equal to 20? No.",
         variables: { key: 10, node: 20 },
       },
@@ -165,5 +166,66 @@ describe("StepRecorder", () => {
     const recorder = new StepRecorder(null);
     recorder.emit("levelorder.check-queue", { queued: 0, visited: 0 });
     expect(recorder.finish([1, 2])).toEqual({ result: [1, 2], steps: recorder.steps });
+  });
+
+  it("keeps rotation roles through focus and lets them go when the rotation ends", () => {
+    const recorder = new StepRecorder(build([20, 10, 30]));
+    withinRotation(
+      recorder,
+      { node: 20, label: "left" },
+      { 20: "unbalanced", 30: "rotating" },
+      () => {
+        recorder.focus(20);
+        recorder.focus(30);
+        recorder.emit("rotate-left.lift-pivot", { node: 20, pivot: 30 });
+      },
+    );
+    recorder.emit("insert.update-height", { node: 20 });
+    expect(recorder.steps[0]?.nodeStates).toEqual({ 20: "unbalanced", 30: "rotating" });
+    expect(recorder.steps[0]?.rotation).toEqual({ node: 20, label: "left" });
+    expect(recorder.steps[1]?.nodeStates).toEqual({ 20: "visited", 30: "visited" });
+    expect(recorder.steps[1]?.rotation).toBeNull();
+  });
+
+  it("keeps the outer rotation when one opens inside it", () => {
+    const recorder = new StepRecorder(build([20, 10, 30]));
+    withinRotation(
+      recorder,
+      { node: 20, label: "LR" },
+      { 20: "unbalanced", 10: "rotating" },
+      () => {
+        withinRotation(
+          recorder,
+          { node: 10, label: "left" },
+          { 10: "unbalanced", 30: "rotating" },
+          () => recorder.emit("rotate-left.lift-pivot", { node: 10, pivot: 30 }),
+        );
+        recorder.emit("rebalance.finish-left-right", { node: 20 });
+      },
+    );
+    expect(recorder.steps[0]?.nodeStates).toEqual({
+      20: "unbalanced",
+      10: "rotating",
+      30: "rotating",
+    });
+    expect(recorder.steps[0]?.rotation).toEqual({ node: 10, label: "left" });
+    expect(recorder.steps[1]?.nodeStates).toEqual({
+      20: "unbalanced",
+      10: "rotating",
+      30: "visited",
+    });
+    expect(recorder.steps[1]?.rotation).toEqual({ node: 20, label: "LR" });
+  });
+
+  it("ends the rotation even when the work throws", () => {
+    const recorder = new StepRecorder(build([20, 30]));
+    expect(() =>
+      withinRotation(recorder, { node: 20, label: "left" }, { 20: "rotating" }, () => {
+        throw new Error("stop");
+      }),
+    ).toThrow("stop");
+    recorder.emit("insert.update-height", { node: 20 });
+    expect(recorder.steps[0]?.rotation).toBeNull();
+    expect(recorder.steps[0]?.nodeStates).toEqual({ 20: "visited" });
   });
 });

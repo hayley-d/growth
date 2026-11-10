@@ -113,3 +113,48 @@ it("keeps the tree and the code mounted when the screen crosses the breakpoint",
   await expect.element(screen.getByRole("button", { name: "tree 1" })).toBeVisible();
   await expect.element(screen.getByRole("button", { name: "code 1" })).toBeVisible();
 });
+
+it("hides the code and the tabs when the code is hidden", async () => {
+  await page.viewport(375, 800);
+  const screen = await render(
+    <TraceLayout
+      tree={<p>the tree</p>}
+      code={<p>the code</p>}
+      message={<p>the message</p>}
+      codeHidden
+    />,
+  );
+
+  await expect.element(screen.getByText("the tree")).toBeVisible();
+  await expect.element(screen.getByText("the code")).not.toBeVisible();
+  await expect.element(screen.getByRole("tab", { name: "Code" })).not.toBeInTheDocument();
+});
+
+it("keeps the same tree panel when the code is shown again", async () => {
+  await page.viewport(1280, 800);
+  function Toggle() {
+    const [hidden, setHidden] = useState(false);
+    return (
+      <>
+        <button type="button" onClick={() => setHidden((current) => !current)}>
+          Toggle
+        </button>
+        <TraceLayout
+          tree={<p>the tree</p>}
+          code={<p>the code</p>}
+          message={<p>the message</p>}
+          codeHidden={hidden}
+        />
+      </>
+    );
+  }
+  const screen = await render(<Toggle />);
+  const before = screen.getByText("the tree").element();
+
+  await screen.getByRole("button", { name: "Toggle" }).click();
+  await expect.element(screen.getByText("the code")).not.toBeVisible();
+  await screen.getByRole("button", { name: "Toggle" }).click();
+
+  await expect.element(screen.getByText("the code")).toBeVisible();
+  expect(screen.getByText("the tree").element()).toBe(before);
+});

@@ -65,14 +65,15 @@ it("shows height and balance factor when asked", async () => {
   await expect.element(screen.getByText("h 3", { exact: true })).toBeVisible();
   await expect.element(screen.getByText("h 2", { exact: true })).toBeVisible();
   const labels = [...screen.container.querySelectorAll("text")].map((node) => node.textContent);
-  expect(labels.filter((label) => label === "bf 1")).toHaveLength(2);
+  expect(labels.filter((label) => label === "1")).toHaveLength(2);
 });
 
 it("hides height and balance factor by default", async () => {
   const screen = await renderTree({ root: build([20, 10, 30, 5]) });
 
   await expect.element(screen.getByText("h 3", { exact: true })).not.toBeInTheDocument();
-  await expect.element(screen.getByText("bf 1", { exact: true })).not.toBeInTheDocument();
+  const labels = [...screen.container.querySelectorAll("text")].map((node) => node.textContent);
+  expect(labels).not.toContain("1");
 });
 
 it("selects a manual node by click and by keyboard", async () => {
@@ -85,7 +86,7 @@ it("selects a manual node by click and by keyboard", async () => {
     nodeStates: {
       30: "active",
       5: "visited",
-      40: "about to be deleted",
+      40: "deleting",
       20: "unbalanced",
       10: "new",
     },
@@ -102,7 +103,6 @@ it("selects a manual node by click and by keyboard", async () => {
   await expect.element(screen.getByText("2", { exact: true })).toBeVisible();
   expect(screen.container.querySelectorAll("circle[stroke-dasharray]").length).toBe(1);
   expect(screen.container.querySelectorAll("polygon").length).toBe(1);
-  expect(screen.container.querySelectorAll("polyline").length).toBe(1);
 
   await active.click();
   expect(onSelectKey).toHaveBeenCalledWith(30);
@@ -248,14 +248,43 @@ it("keeps the link when a rotation swaps parent and child", async () => {
   }
 });
 
-it("lights the edge to each visited or active node", async () => {
+it("draws every edge the same whatever state its nodes are in", async () => {
   const screen = await renderTree({
     root: build([20, 10, 30]),
     nodeStates: { 20: "active", 10: "visited" },
   });
-  const lit = [...screen.container.querySelectorAll("line")].filter(
-    (line) => line.getAttribute("stroke") === "var(--primary)" && line.style.opacity !== "0",
+  const lines = [...screen.container.querySelectorAll("line")];
+
+  expect(lines).toHaveLength(2);
+  expect(lines.every((line) => line.getAttribute("stroke") === "currentColor")).toBe(true);
+});
+
+it("draws a drop spot for each slot and fills the active one", async () => {
+  const screen = await render(
+    <TreeView
+      root={build([30, 20])}
+      slots={[
+        { id: "20-left", x: -0.4, y: 2 },
+        { id: "30-right", x: 1.4, y: 1 },
+      ]}
+      activeSlotId="30-right"
+    />,
   );
 
-  expect(lit).toHaveLength(1);
+  const spots = screen.container.querySelectorAll("[data-drop='slot']");
+  expect([...spots].map((spot) => spot.getAttribute("data-slot-id"))).toEqual([
+    "20-left",
+    "30-right",
+  ]);
+  expect(spots[1]?.querySelector("circle")?.getAttribute("fill")).toBe("var(--primary)");
+  expect(spots[0]?.querySelector("circle")?.getAttribute("stroke-dasharray")).toBe("4 3");
+});
+
+it("draws one balance badge on an unbalanced node", async () => {
+  const screen = await render(
+    <TreeView root={build([65])} nodeStates={{ 65: "unbalanced" }} showBalance />,
+  );
+
+  const labels = [...screen.container.querySelectorAll("text")].map((node) => node.textContent);
+  expect(labels.filter((label) => label === "0")).toHaveLength(1);
 });

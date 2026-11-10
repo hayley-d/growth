@@ -10,6 +10,7 @@ type TraceLayoutProperties = {
   code: ReactNode;
   message: ReactNode;
   controls?: ReactNode;
+  codeHidden?: boolean;
   className?: string;
 };
 
@@ -25,15 +26,24 @@ const nextTabFor = (key: string, current: TraceTab): TraceTab | null => {
   return null;
 };
 
-export function TraceLayout({ tree, code, message, controls, className }: TraceLayoutProperties) {
+export function TraceLayout({
+  tree,
+  code,
+  message,
+  controls,
+  codeHidden = false,
+  className,
+}: TraceLayoutProperties) {
   const isWide = useMediaQuery("(min-width: 48rem)");
   const [tab, setTab] = useState<TraceTab>("tree");
   const baseId = useId();
+  const showTabs = !isWide && !codeHidden;
+  const shownTab: TraceTab = codeHidden ? "tree" : tab;
 
   return (
     <div className={cn("overflow-hidden rounded-2xl border bg-card", className)}>
       {isWide ? null : (
-        <div role="tablist" aria-label="Show" className="flex gap-1 p-3 pb-0">
+        <div role="tablist" aria-label="Show" hidden={codeHidden} className="flex gap-1 p-3 pb-0">
           {tabs.map((option) => {
             const isSelected = option.id === tab;
             return (
@@ -66,22 +76,26 @@ export function TraceLayout({ tree, code, message, controls, className }: TraceL
           })}
         </div>
       )}
-      <div className={cn(isWide && "grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] divide-x")}>
+      <div
+        className={cn(
+          isWide && !codeHidden && "grid grid-cols-[minmax(0,1fr)_minmax(0,1.3fr)] divide-x",
+        )}
+      >
         {tabs.map((option) => (
           <section
             key={option.id}
-            {...(isWide
-              ? { "aria-label": option.label }
-              : {
+            {...(showTabs
+              ? {
                   role: "tabpanel",
                   id: `${baseId}-${option.id}-panel`,
                   "aria-labelledby": `${baseId}-${option.id}-tab`,
-                  hidden: option.id !== tab,
-                })}
+                  hidden: option.id !== shownTab,
+                }
+              : { "aria-label": option.label, hidden: codeHidden && option.id === "code" })}
             className={cn(
               "min-w-0",
               isWide ? "p-6" : "p-4",
-              isWide && option.id === "tree" && "flex items-center justify-center",
+              (isWide || codeHidden) && option.id === "tree" && "flex items-center justify-center",
             )}
           >
             {option.id === "tree" ? tree : code}

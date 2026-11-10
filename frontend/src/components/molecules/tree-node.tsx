@@ -1,4 +1,4 @@
-import type { NodeState } from "@shared/engine";
+import type { NodeState } from "@shared/avl";
 import { TreeNodeCircle } from "@/components/atoms/tree-node-circle";
 import { useSvgPlace } from "@/lib/use-svg-place";
 
@@ -43,20 +43,14 @@ const idlePaint: Paint = {
 
 const paints: Record<NodeState, Paint> = {
   active: {
-    fill: "var(--accent)",
-    stroke: "var(--accent-foreground)",
-    text: "var(--accent-foreground)",
+    fill: "var(--primary)",
+    stroke: "var(--primary-foreground)",
+    text: "var(--primary-foreground)",
     strokeWidth: 1.5,
     dashed: false,
   },
-  visited: {
-    fill: "var(--muted)",
-    stroke: "var(--muted-foreground)",
-    text: "var(--muted-foreground)",
-    strokeWidth: 1.5,
-    dashed: false,
-  },
-  "about to be deleted": {
+  visited: idlePaint,
+  deleting: {
     fill: "var(--destructive)",
     stroke: "currentColor",
     text: "var(--destructive-foreground)",
@@ -70,6 +64,13 @@ const paints: Record<NodeState, Paint> = {
     strokeWidth: 1.5,
     dashed: false,
   },
+  rotating: {
+    fill: "var(--accent)",
+    stroke: "var(--accent-foreground)",
+    text: "var(--accent-foreground)",
+    strokeWidth: 1.5,
+    dashed: false,
+  },
   new: {
     fill: "var(--background)",
     stroke: "var(--primary)",
@@ -79,9 +80,25 @@ const paints: Record<NodeState, Paint> = {
   },
 };
 
+const keyFontSize = (nodeKey: number) => {
+  const digits = String(nodeKey).length;
+  return digits <= 2 ? 13 : Math.max(8, 13 - (digits - 2) * 2);
+};
+
+const stateNames: Record<NodeState, string> = {
+  active: "active",
+  visited: "visited",
+  deleting: "about to be deleted",
+  unbalanced: "unbalanced",
+  rotating: "rotating",
+  new: "new",
+};
+
 const accessibleName = (nodeKey: number, balance: number, state?: NodeState) => {
   const factor = `balance factor ${balance}`;
-  return state === undefined ? `${nodeKey}, ${factor}` : `${nodeKey}, ${state}, ${factor}`;
+  return state === undefined
+    ? `${nodeKey}, ${factor}`
+    : `${nodeKey}, ${stateNames[state]}, ${factor}`;
 };
 
 type MarkProperties = {
@@ -93,21 +110,6 @@ function Pointer({ x, y }: MarkProperties) {
   const tip = y - treeNodeRadius - 3;
   const base = tip - 12;
   return <polygon points={`${x},${tip} ${x - 6},${base} ${x + 6},${base}`} fill="currentColor" />;
-}
-
-function Tick({ x, y }: MarkProperties) {
-  const originX = x + treeNodeRadius - 1;
-  const originY = y + 4;
-  return (
-    <polyline
-      points={`${originX},${originY} ${originX + 5},${originY + 5} ${originX + 13},${originY - 5}`}
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  );
 }
 
 function Cross({ x, y }: MarkProperties) {
@@ -122,24 +124,32 @@ function Cross({ x, y }: MarkProperties) {
   );
 }
 
-function BalanceBadge({ x, y, balance }: MarkProperties & { balance: number }) {
-  const centerX = x + treeNodeRadius * 0.7;
-  const centerY = y - treeNodeRadius * 0.7;
+function BalanceBadge({
+  x,
+  y,
+  balance,
+  emphasised,
+}: MarkProperties & { balance: number; emphasised: boolean }) {
+  const offset = treeNodeRadius * 0.75;
+  const centerX = x + offset;
+  const centerY = y - offset;
   return (
     <g>
       <TreeNodeCircle
         x={centerX}
         y={centerY}
-        radius={11}
+        radius={emphasised ? 10 : 9}
         fill="var(--background)"
-        stroke="currentColor"
+        stroke={emphasised ? "currentColor" : "var(--muted-foreground)"}
+        strokeWidth={emphasised ? 2 : 1.5}
       />
       <text
         x={centerX}
         y={centerY}
         textAnchor="middle"
         dominantBaseline="central"
-        fontSize="10"
+        fontSize={emphasised ? 10 : 9}
+        fontWeight={emphasised ? 700 : 600}
         fill="currentColor"
       >
         {balance}
@@ -164,7 +174,7 @@ export function TreeNode({
 }: TreeNodeProperties) {
   const placeRef = useSvgPlace(x, y, instant);
   const paint = state === undefined ? idlePaint : paints[state];
-  const labels = [showHeight ? `h ${height}` : null, showBalance ? `bf ${balance}` : null].filter(
+  const labels = [showHeight ? `h ${height}` : null].filter(
     (label): label is string => label !== null,
   );
   const hit = treeNodeRadius * 2;
@@ -183,16 +193,6 @@ export function TreeNode({
             strokeWidth={paint.strokeWidth}
             strokeDasharray={paint.dashed ? "4 3" : undefined}
           />
-          {state === "active" ? (
-            <TreeNodeCircle
-              x={x}
-              y={y}
-              radius={treeNodeRadius + 5}
-              fill="none"
-              stroke="currentColor"
-              strokeWidth={3.5}
-            />
-          ) : null}
           {selected ? (
             <TreeNodeCircle
               x={x}
@@ -208,15 +208,17 @@ export function TreeNode({
             y={y}
             textAnchor="middle"
             dominantBaseline="central"
-            fontSize="13"
+            fontSize={keyFontSize(nodeKey)}
             fontWeight="600"
             fill={paint.text}
           >
             {nodeKey}
           </text>
-          {state === "visited" ? <Tick x={x} y={y} /> : null}
-          {state === "about to be deleted" ? <Cross x={x} y={y} /> : null}
-          {state === "unbalanced" ? <BalanceBadge x={x} y={y} balance={balance} /> : null}
+          {state === "deleting" ? <Cross x={x} y={y} /> : null}
+          {showBalance || state === "unbalanced" ? (
+            <BalanceBadge x={x} y={y} balance={balance} emphasised={state === "unbalanced"} />
+          ) : null}
+
           {labels.map((label, index) => (
             <text
               key={label}
@@ -237,6 +239,7 @@ export function TreeNode({
               type="button"
               aria-label={accessibleName(nodeKey, balance, state)}
               aria-pressed={selected}
+              data-node-key={nodeKey}
               onClick={() => onSelect?.(nodeKey)}
               style={{ width: hit, height: hit }}
               className="cursor-pointer rounded-full border-0 bg-transparent p-0 focus-visible:ring-[3px] focus-visible:ring-ring/50"

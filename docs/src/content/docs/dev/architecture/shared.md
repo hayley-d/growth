@@ -14,8 +14,8 @@ shared/src/
     src/
       algorithm-steps.ts  the algorithm codes and every step key each one can emit
       step-messages.ts    the sentence for each step key, built from that step's variables
-      step-recorder.ts    Step, CallFrame, StepRecorder and withinCall: snapshots of the tree and the call stack as an operation runs
-      avl-tree.ts         insert, remove, rotations, rebalance, layout, and their trace* versions
+      step-recorder.ts    Step, CallFrame, StepRecorder, withinCall and withinRotation: snapshots of the tree and the call stack as an operation runs
+      avl-tree.ts         insert, remove, rotations, rebalance, layout, lookups (findNode, parentOf, pivotOf, canRotate, openSpots), and the trace* versions
       tree-traversal.ts   TreeTraversal and traceTraversal: walk a tree one node at a time
       tree-searcher.ts    TreeSearcher and traceSearch: find a key and the path to it
       tree-encoding.ts    encodeTree and decodeTree: a tree as a string
@@ -24,7 +24,7 @@ shared/src/
   engine/
     index.ts              re-exports everything in src/
     src/
-      step.ts             Step: one snapshot of a manual rotation
+      step.ts             Step: one snapshot of a manual rotation, with NodeState from avl/
       bst.ts              insertBst and removeBst, with no rebalancing
       balance.ts          heightOf, balanceOf, findUnbalanced and isAvl
       rotate.ts           rotate: one left or right rotation, or a reason
@@ -119,9 +119,10 @@ Each step is a snapshot:
 ```
 
 - `tree` is always the whole tree as it is at that moment, not just the subtree being worked on. Heights above the change stay old until the `update-height` steps on the way back up, just like in the real algorithm.
-- `nodeStates` gives a node one of `active`, `visited`, `deleting`, `unbalanced` or `new`. It only names keys that are in that step's tree, and steps share one frozen object until a state changes.
+- `nodeStates` gives a node one of `active`, `visited`, `deleting`, `unbalanced`, `rotating` or `new`. It only names keys that are in that step's tree, and steps share one frozen object until a state changes.
 - `message` is shown on screen and read out by text-to-speech. It comes from `step-messages.ts`, which has one function per step key. Each function takes that step's variables, so the engine only passes variables and the wording lives in one file.
 - `stepKey` names the point in the algorithm. The code trace uses it to find the line to highlight.
+- `rotation` is `null`, or the rotation going on in that step: the node it sits on and a label (`LL`, `LR`, `RR`, `RL`, or `left` and `right` for a rotation by hand). Nothing draws it at the moment.
 - `callStack` lists the calls that are open, outermost first. Each frame is the algorithm and the key of the node it was called on, or `null` for an empty child, so `insert(20) › insert(30) › rebalance(30)`. The code trace shows it so a jump into another function makes sense. Steps share one frozen array until a call opens or closes.
 
 How long each state lasts:
@@ -130,7 +131,8 @@ How long each state lasts:
 | --- | --- | --- |
 | `active` | the step that works on the node | the focus moves on, then it's `visited` |
 | `new` | the step that creates the node | the next step, then it's `visited` |
-| `unbalanced` | the step that names the rotation case | the rotation starts on that node |
+| `unbalanced` | `rebalance.check-side` | the rotation ends, then it's `visited` |
+| `rotating` | `rebalance.check-side`, or the first step of a rotation by hand | the rotation ends, then it's `visited` |
 | `deleting` | the step that removes or replaces the node | the node is gone |
 
 States are keyed by node key. For a few steps of a delete with two children, the copied successor and the old successor leaf have the same key, so they show the same state. That ends when the leaf is removed.
@@ -138,6 +140,8 @@ States are keyed by node key. For a few steps of a delete with two children, the
 Insert and delete also run `update-height`, `rebalance` and the rotations as they unwind, so their steps include those keys too. Before each of those calls there is a step of its own, `insert.update-height` and then `insert.rebalance` (or the `delete.` ones), so the code trace stops on the line that makes the call instead of jumping into the other function. In a double rotation, `rebalance.finish-left-right` or `rebalance.finish-right-left` comes back to `rebalance` between the two turns.
 
 To open a frame, wrap the work in `withinCall(recorder, algorithm, node, () => ...)`. It works with no recorder too, so the plain functions don't change.
+
+A rotation works the same way: `withinRotation(recorder, tag, roles, () => ...)`. `roles` marks the unbalanced node `unbalanced` and the other nodes in the rotation `rotating` (the child and the grandchild, or the pivot). While it's open, `focus` still moves on but never changes those nodes' states, so they don't flip colour halfway through. When it closes, even after a throw, they become `visited` and the tag clears.
 
 ### Step keys
 

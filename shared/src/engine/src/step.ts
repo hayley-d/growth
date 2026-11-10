@@ -1,6 +1,5 @@
 import type { AvlNode } from "@shared/avl/src/avl-tree";
-
-export type NodeState = "active" | "visited" | "about to be deleted" | "unbalanced" | "new";
+import type { NodeState } from "@shared/avl/src/step-recorder";
 
 export type Step = {
   stepKey: string;

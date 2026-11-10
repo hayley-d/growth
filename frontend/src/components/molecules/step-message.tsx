@@ -1,4 +1,4 @@
-import { Volume2 } from "lucide-react";
+import { Mic } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 
@@ -38,7 +38,7 @@ export function StepMessage({
           aria-label="Listen to this step"
           className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full border-2 border-foreground/80 px-3 text-sm font-semibold transition-colors hover:bg-foreground hover:text-background focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background focus-visible:outline-none motion-reduce:transition-none sm:px-4"
         >
-          <Volume2 aria-hidden="true" className="size-4" />
+          <Mic aria-hidden="true" className="size-4" />
           <span className="hidden sm:inline">Listen</span>
         </button>
       ) : null}
