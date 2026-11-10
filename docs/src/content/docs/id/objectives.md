@@ -29,6 +29,10 @@ The questions that test them are described in [Assessment: Question types](../st
 | 11. Deleting from an AVL tree | Delete a key from an AVL tree and rebalance it. |
 | 12. AVL final challenge | Insert, delete and rotate in one AVL tree. |
 
+## Skipping ahead
+
+Two lessons are checkpoints: lesson 6 and lesson 12. A learner who can already do what a checkpoint tests can take it early, from the skill map, without working through the lessons first. The traversal checkpoint tests "Tell the four traversals apart". The AVL final challenge tests "Insert, delete and rotate in one AVL tree".
+
 :::note[To write]
 - The Bloom's taxonomy level of each objective
 - How they line up with the CS2023 learning outcomes

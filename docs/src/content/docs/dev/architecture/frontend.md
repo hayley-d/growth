@@ -178,7 +178,7 @@ Keep the query keys in the queries file and reuse them, so a typo can't break a 
 
 ## Testing
 
-All tests live in `src/test/`, at the same path as the code they cover. For example, the test for `src/pages/courses-page.tsx` is `src/test/pages/courses-page.test.tsx`.
+All tests live in `src/test/`, at the same path as the code they cover. For example, the test for `src/pages/dashboard-page.tsx` is `src/test/pages/dashboard-page.test.tsx`.
 
 Vitest runs two groups, set up in `frontend/vitest.config.ts`:
 
@@ -192,10 +192,10 @@ import { expect, it } from "vitest";
 
 import { renderApp } from "@/test/render-app";
 
-it("shows the courses empty state", async () => {
-  const screen = await renderApp("/courses");
+it("shows the dashboard with empty states", async () => {
+  const screen = await renderApp("/");
 
-  await expect.element(screen.getByRole("heading", { name: "Courses", level: 1 })).toBeVisible();
+  await expect.element(screen.getByRole("heading", { name: "Dashboard", level: 1 })).toBeVisible();
 });
 ```
 

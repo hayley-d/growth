@@ -265,11 +265,30 @@
     animation-name: tree-loader-right-node;
   }
 
+  .lesson-float {
+    animation: lesson-float var(--lesson-float-duration, 6s) ease-in-out
+      var(--lesson-float-delay, 0s) infinite;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     .tree-loader-node,
-    .tree-loader-edge {
+    .tree-loader-edge,
+    .lesson-float {
       animation: none;
     }
+  }
+}
+
+@keyframes lesson-float {
+  0%,
+  100% {
+    transform: translate(0, 0);
+  }
+  33% {
+    transform: translate(2px, -5px);
+  }
+  66% {
+    transform: translate(-2px, -7px);
   }
 }
 

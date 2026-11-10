@@ -18,14 +18,14 @@ export function DashboardPage() {
           Continue learning
         </h2>
         <EmptyState
-          title="No courses started yet"
+          title="No lessons started yet"
           description="Pick a tree and start your first lesson."
           action={
             <Link
-              to="/courses"
+              to="/learn"
               className="inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90"
             >
-              Browse courses
+              Go to Learn
             </Link>
           }
         />

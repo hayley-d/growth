@@ -17,6 +17,8 @@ const learningPathLessonSchema = z.object({
   status: learningPathLessonStatusSchema,
 });
 
+export type LearningPathLesson = z.infer<typeof learningPathLessonSchema>;
+
 const learningPathUnitSchema = z.object({
   id: z.uuid(),
   title: z.string(),
@@ -24,6 +26,8 @@ const learningPathUnitSchema = z.object({
   progress: percentageSchema,
   lessons: z.array(learningPathLessonSchema),
 });
+
+export type LearningPathUnit = z.infer<typeof learningPathUnitSchema>;
 
 export const learningPathResponseSchema = z.object({
   data: z.object({

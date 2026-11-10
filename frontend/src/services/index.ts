@@ -2,6 +2,7 @@ export * from "@/services/algorithm-service";
 export * from "@/services/auth-service";
 export * from "@/services/course-content-service";
 export * from "@/services/health-service";
+export * from "@/services/learning-path-service";
 export * from "@/services/lesson-service";
 export * from "@/services/network.service";
 export * from "@/services/service-error";
