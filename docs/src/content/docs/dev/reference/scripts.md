@@ -63,6 +63,12 @@ The test job starts its own Postgres on port 5433 and installs Chromium. It uses
 
 The site lives under `/growth`, set by `base` in `docs/astro.config.mjs`. Starlight adds the prefix to sidebar links for you, but not to links you write in pages. Use relative links there, like `../git-workflow/`, not `/dev/reference/git-workflow/`.
 
+### Images
+
+Images live in `docs/src/assets/` and are stored as WebP to keep the repo small. You can still add PNGs. When you commit, a pre-commit hook turns each staged PNG under `docs/src/assets/` into a `.webp`, shrinks it to at most 1600 px wide, deletes the PNG and changes the links in your pages to the `.webp`. To do it by hand, run `bun run images` in `docs/`. With no file names it converts every PNG in `docs/src/assets/`.
+
+Crop screenshots to the part that matters, and export draw.io diagrams at 1x or 2x zoom.
+
 ## Coding rules
 
 - Pin every dependency to an exact version. No `^` or `~`. `bunfig.toml` sets `exact = true`, so `bun add` does this for you.

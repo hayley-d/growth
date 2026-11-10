@@ -7,6 +7,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "typecheck": "astro check",
+    "images": "bun scripts/convert-images.ts",
     "test": "echo \"No tests for docs\""
   },
   "dependencies": {

@@ -5,6 +5,9 @@ pre-commit:
       glob: "*.{js,jsx,ts,tsx,json,jsonc,css,astro}"
       run: bunx biome check --write --error-on-warnings --no-errors-on-unmatched --files-ignore-unknown=true {staged_files}
       stage_fixed: true
+    - name: convert docs images to webp
+      glob: "docs/src/assets/**/*.png"
+      run: bun docs/scripts/convert-images.ts --stage {staged_files}
     - name: typecheck
       run: bun run typecheck
 

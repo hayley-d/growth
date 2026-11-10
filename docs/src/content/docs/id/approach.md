@@ -12,7 +12,7 @@ where each iteration gets us closer to the final product.
 SAM comes in two versions, both versions use an interative approach to create the final product. SAM 1 fits smaller projects and teams better as it only has three iterations of the evaluation, design and development steps. SAM 2 is an extension of SAM 1 for larger projects. SAM 2 has eight
 steps spread across three phases, preparation, iterative design and iterative development (Peck, 2026). For this project we decided to use SAM 2. 
 
-![The SAM 2 process: the preparation, iterative design and iterative development phases](../../../assets/id/sam-2-process.png)
+![The SAM 2 process: the preparation, iterative design and iterative development phases](../../../assets/id/sam-2-process.webp)
 
 *Figure 1: The SAM 2 process (Allen Interactions, 2021, cited in Elm Learning, n.d.)*
 
