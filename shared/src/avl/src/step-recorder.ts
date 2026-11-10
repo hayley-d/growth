@@ -2,7 +2,16 @@ import type { AlgorithmCode, StepKey } from "@shared/avl/src/algorithm-steps";
 import type { AvlNode } from "@shared/avl/src/avl-tree";
 import { describeStep, type StepMessageVariables } from "@shared/avl/src/step-messages";
 
-export type NodeState = "active" | "visited" | "deleting" | "unbalanced" | "new";
+export type NodeState = "active" | "visited" | "deleting" | "unbalanced" | "rotating" | "new";
+
+export type RotationLabel = "LL" | "LR" | "RR" | "RL" | "left" | "right";
+
+export type RotationTag = Readonly<{
+  node: number;
+  label: RotationLabel;
+}>;
+
+export type RotationRole = "unbalanced" | "rotating";
 
 export type StepVariables = Record<string, number | string | boolean | null>;
 
@@ -16,6 +25,7 @@ export type Step = {
   tree: AvlNode | null;
   nodeStates: Readonly<Record<number, NodeState>>;
   callStack: readonly CallFrame[];
+  rotation: RotationTag | null;
   message: string;
   variables: StepVariables;
 };
@@ -56,6 +66,8 @@ export class StepRecorder {
   private readonly frames: CallFrame[] = [];
   private stackSnapshot: readonly CallFrame[] = Object.freeze([]);
   private stackChanged = false;
+  private rotationTag: RotationTag | null = null;
+  private readonly held = new Set<number>();
 
   constructor(tree: AvlNode | null) {
     this.tree = tree;
@@ -78,6 +90,31 @@ export class StepRecorder {
     }
   }
 
+  withinRotation<Result>(
+    tag: RotationTag,
+    roles: Readonly<Record<number, RotationRole>>,
+    run: () => Result,
+  ): Result {
+    const outerTag = this.rotationTag;
+    const opened = Object.entries(roles)
+      .map(([key, role]) => [Number(key), role] as const)
+      .filter(([key]) => !this.held.has(key));
+    this.rotationTag = tag;
+    for (const [key, role] of opened) {
+      this.held.add(key);
+      this.set(key, role);
+    }
+    try {
+      return run();
+    } finally {
+      for (const [key] of opened) {
+        this.held.delete(key);
+        if (this.states.has(key)) this.set(key, "visited");
+      }
+      this.rotationTag = outerTag;
+    }
+  }
+
   replace(subtree: AvlNode | null): void {
     this.tree = spliceAt(this.tree, this.path, subtree);
     const keys = collectKeys(this.tree, new Set());
@@ -91,7 +128,7 @@ export class StepRecorder {
     this.demote(this.newKey, "new");
     this.newKey = null;
     this.activeKey = key;
-    this.set(key, "active");
+    if (!this.held.has(key)) this.set(key, "active");
   }
 
   mark(key: number, state: NodeState): void {
@@ -120,6 +157,7 @@ export class StepRecorder {
       tree: this.tree,
       nodeStates: this.snapshot,
       callStack: this.stackSnapshot,
+      rotation: this.rotationTag,
       message: describeStep(stepKey, variables),
       variables,
     });
@@ -156,3 +194,10 @@ export const withinCall = <Result>(
   node: number | null,
   run: () => Result,
 ): Result => (recorder ? recorder.within(algorithm, node, run) : run());
+
+export const withinRotation = <Result>(
+  recorder: StepRecorder | undefined,
+  tag: RotationTag,
+  roles: Readonly<Record<number, RotationRole>>,
+  run: () => Result,
+): Result => (recorder ? recorder.withinRotation(tag, roles, run) : run());

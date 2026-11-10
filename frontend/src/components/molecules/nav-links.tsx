@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 const links = [
   { to: "/", label: "Dashboard" },
   { to: "/courses", label: "Courses" },
+  { to: "/playground", label: "Playground" },
 ] as const;
 
 type NavLinksProperties = {

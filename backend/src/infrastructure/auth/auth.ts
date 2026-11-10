@@ -14,6 +14,7 @@ const userProfileRepository = new PrismaUserProfileRepository(prismaClient);
 export const auth = betterAuth({
   secret: environment.BETTER_AUTH_SECRET,
   baseURL: environment.BETTER_AUTH_URL,
+  trustedOrigins: ["http://localhost:5173", "http://127.0.0.1:5173"],
   database: prismaAdapter(prismaClient, { provider: "postgresql" }),
   emailAndPassword: {
     enabled: true,

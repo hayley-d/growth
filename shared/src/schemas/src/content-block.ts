@@ -17,6 +17,7 @@ export const nodeStateSchema = z.enum([
   "visited",
   "deleting",
   "unbalanced",
+  "rotating",
   "new",
 ]) satisfies z.ZodType<NodeState>;
 

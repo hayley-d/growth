@@ -1,23 +1,14 @@
 import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
-import { type AvlNode, layoutTree } from "@shared/avl";
-import type { NodeState } from "@shared/engine";
+import { type AvlNode, layoutTree, type NodeState } from "@shared/avl";
 import {
   TreeNode,
   treeNodeLabelHeight,
   treeNodePad,
   treeNodeRadius,
 } from "@/components/molecules/tree-node";
-import {
-  coverHoldMs,
-  edgeLink,
-  lightDelayMs,
-  lightOrder,
-  treeDropPx,
-  treeEdgeDrawSec,
-  treeGlideSec,
-} from "@/lib/tree-motion";
+import { edgeLink, treeDropPx, treeGlideMs, treeGlideSec } from "@/lib/tree-motion";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +20,15 @@ type TreeViewProperties = {
   manual?: boolean;
   selectedKey?: number | null;
   onSelectKey?: (nodeKey: number) => void;
+  slots?: readonly TreeViewSlot[];
+  activeSlotId?: string | null;
   className?: string;
+};
+
+export type TreeViewSlot = {
+  id: string;
+  x: number;
+  y: number;
 };
 
 type PlacedNode = {
@@ -47,8 +46,6 @@ type SnapshotEdgeProperties = {
   x2: number;
   y2: number;
   dropStart: boolean;
-  lit: boolean;
-  delayMs: number;
   instant: boolean;
 };
 
@@ -56,8 +53,6 @@ const columnGap = 64;
 const rowGap = 40;
 
 const childHeight = (node: AvlNode | null) => node?.height ?? 0;
-
-const onPath = (state: NodeState | undefined) => state === "active" || state === "visited";
 
 const factsByKey = (root: AvlNode | null) => {
   const facts = new Map<number, { height: number; balance: number }>();
@@ -98,54 +93,27 @@ const sameExtent = (
   return a.width === b.width && a.height === b.height;
 };
 
-function SnapshotEdge({
-  x1,
-  y1,
-  x2,
-  y2,
-  dropStart,
-  lit,
-  delayMs,
-  instant,
-}: SnapshotEdgeProperties) {
+function SnapshotEdge({ x1, y1, x2, y2, dropStart, instant }: SnapshotEdgeProperties) {
   const glide = { duration: instant ? 0 : treeGlideSec, ease: "easeInOut" as const };
   return (
-    <>
-      <motion.line
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        initial={
-          instant
-            ? false
-            : {
-                x1,
-                y1: dropStart ? y1 - treeDropPx : y1,
-                x2,
-                y2: dropStart ? y2 : y2 - treeDropPx,
-                opacity: 0,
-              }
-        }
-        animate={{ x1, y1, x2, y2, opacity: 1 }}
-        transition={glide}
-      />
-      <motion.line
-        stroke="var(--primary)"
-        strokeWidth="3"
-        strokeLinecap="round"
-        initial={false}
-        animate={{ x1, y1, x2, y2, pathLength: lit ? 1 : 0, opacity: lit ? 1 : 0 }}
-        transition={{
-          ...glide,
-          pathLength: {
-            duration: instant || !lit ? 0 : treeEdgeDrawSec,
-            delay: instant || !lit ? 0 : delayMs / 1000,
-            ease: "easeInOut",
-          },
-          opacity: { duration: 0 },
-        }}
-      />
-    </>
+    <motion.line
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      initial={
+        instant
+          ? false
+          : {
+              x1,
+              y1: dropStart ? y1 - treeDropPx : y1,
+              x2,
+              y2: dropStart ? y2 : y2 - treeDropPx,
+              opacity: 0,
+            }
+      }
+      animate={{ x1, y1, x2, y2, opacity: 1 }}
+      transition={glide}
+    />
   );
 }
 
@@ -157,6 +125,8 @@ export function TreeView({
   manual = false,
   selectedKey = null,
   onSelectKey,
+  slots = [],
+  activeSlotId = null,
   className,
 }: TreeViewProperties) {
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
@@ -172,30 +142,23 @@ export function TreeView({
     cy: treeNodePad + treeNodeRadius + position.y * verticalStep,
   }));
   const byKey = new Map(placed.map((position) => [position.key, position]));
-  const lit = new Set(
-    placed.filter((position) => onPath(nodeStates[position.key])).map((position) => position.key),
-  );
-  const order = lightOrder(placed, lit);
-  const previousLit = useRef<Set<number>>(new Set());
-  const delays = lightDelayMs(order, previousLit.current, instant);
   const signature = placed
     .map((position) => `${position.key}:${position.cx}:${position.cy}`)
     .join(";");
-  const litSignature = order.join(",");
-  const frame = useRef({ placed, order, instant });
-  frame.current = { placed, order, instant };
+  const frame = useRef({ placed, instant });
+  frame.current = { placed, instant };
   const previousPlaced = useRef(placed);
   const [cover, setCover] = useState(placed);
-  const { width, height } = extent(cover, labelHeight);
+  const placedSlots = slots.map((slot) => ({
+    ...slot,
+    cx: treeNodePad + treeNodeRadius + slot.x * columnGap,
+    cy: treeNodePad + treeNodeRadius + slot.y * verticalStep,
+  }));
+  const { width, height } = extent([...cover, ...placedSlots], labelHeight);
 
   useEffect(() => {
     setReady(true);
   }, []);
-
-  useEffect(() => {
-    const keys = litSignature === "" ? [] : litSignature.split(",").map(Number);
-    previousLit.current = new Set(keys);
-  }, [litSignature]);
 
   useLayoutEffect(() => {
     const next = frame.current.placed;
@@ -205,18 +168,16 @@ export function TreeView({
     if (currentSignature !== signature) return;
     const previous = previousPlaced.current;
     const held = [...previous, ...next];
-    const lights = frame.current.order.filter((key) => !previousLit.current.has(key)).length;
     setCover((current) => (sameExtent(current, held, labelHeight) ? current : held));
     if (frame.current.instant) {
       previousPlaced.current = next;
       setCover((current) => (sameExtent(current, next, labelHeight) ? current : next));
       return;
     }
-    const hold = coverHoldMs(lights, false);
     const id = window.setTimeout(() => {
       previousPlaced.current = next;
       setCover(next);
-    }, hold);
+    }, treeGlideMs);
     return () => {
       window.clearTimeout(id);
       previousPlaced.current = [...previousPlaced.current, ...next];
@@ -250,8 +211,6 @@ export function TreeView({
                 x2={link.x2}
                 y2={link.y2}
                 dropStart={link.dropStart}
-                lit={lit.has(position.key)}
-                delayMs={delays.get(position.key) ?? 0}
                 instant={instant}
               />
             </motion.g>
@@ -287,6 +246,29 @@ export function TreeView({
           );
         })}
       </AnimatePresence>
+      {placedSlots.map((slot) => {
+        const active = slot.id === activeSlotId;
+        return (
+          <g key={slot.id} data-drop="slot" data-slot-id={slot.id}>
+            <circle
+              cx={slot.cx}
+              cy={slot.cy}
+              r={treeNodeRadius - 2}
+              fill={active ? "var(--primary)" : "var(--background)"}
+              stroke="var(--primary)"
+              strokeWidth={active ? 3 : 2}
+              strokeDasharray={active ? undefined : "4 3"}
+            />
+            <path
+              d={`M ${slot.cx - 6} ${slot.cy} H ${slot.cx + 6} M ${slot.cx} ${slot.cy - 6} V ${slot.cy + 6}`}
+              stroke={active ? "var(--primary-foreground)" : "var(--primary)"}
+              strokeWidth={2.5}
+              strokeLinecap="round"
+              pointerEvents="none"
+            />
+          </g>
+        );
+      })}
     </svg>
   );
 }

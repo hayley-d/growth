@@ -2,8 +2,13 @@ import { describe, expect, it } from "vitest";
 
 import {
   type AvlNode,
+  canRotate,
+  findNode,
   insertKey,
   layoutTree,
+  openSpots,
+  parentOf,
+  pivotOf,
   removeKey,
   rotateRight,
   type SteppedResult,
@@ -275,6 +280,59 @@ describe("traceRemove", () => {
   });
 });
 
+describe("findNode and parentOf", () => {
+  const root = build([20, 10, 30, 25]);
+
+  it("finds a node by key, or null", () => {
+    expect(findNode(root, 25)?.key).toBe(25);
+    expect(findNode(root, 99)).toBeNull();
+    expect(findNode(null, 1)).toBeNull();
+  });
+
+  it("finds the parent, or null for the root and missing keys", () => {
+    expect(parentOf(root, 25)?.key).toBe(30);
+    expect(parentOf(root, 20)).toBeNull();
+    expect(parentOf(root, 99)).toBeNull();
+  });
+});
+
+describe("pivotOf and canRotate", () => {
+  const root = build([20, 10, 30]);
+
+  it("takes the right child for a left rotation and the left child for a right one", () => {
+    if (!root) throw new Error("Expected a tree");
+    expect(pivotOf(root, "left")?.key).toBe(30);
+    expect(pivotOf(root, "right")?.key).toBe(10);
+  });
+
+  it("can only rotate a node that is in the tree and has the pivot child", () => {
+    expect(canRotate(root, 20, "left")).toBe(true);
+    expect(canRotate(root, 10, "left")).toBe(false);
+    expect(canRotate(root, 99, "right")).toBe(false);
+  });
+});
+
+describe("openSpots", () => {
+  it("gives the whole range for an empty tree", () => {
+    expect(openSpots(null, 1, 99)).toEqual([{ parentKey: null, side: null, low: 1, high: 99 }]);
+  });
+
+  it("gives each empty child with the keys that fit there", () => {
+    expect(openSpots(build([30, 20, 40]), 1, 99)).toEqual([
+      { parentKey: 20, side: "left", low: 1, high: 19 },
+      { parentKey: 20, side: "right", low: 21, high: 29 },
+      { parentKey: 40, side: "left", low: 31, high: 39 },
+      { parentKey: 40, side: "right", low: 41, high: 99 },
+    ]);
+  });
+
+  it("skips a spot no key can fill", () => {
+    expect(openSpots(build([2, 1]), 1, 99)).toEqual([
+      { parentKey: 2, side: "right", low: 3, high: 99 },
+    ]);
+  });
+});
+
 describe("traceRotateLeft and traceRotateRight", () => {
   it("rotates the node with that key and fixes the heights above it", () => {
     const root = build([20, 10, 40, 30, 50]);
@@ -323,12 +381,51 @@ describe("node states in traced steps", () => {
     for (const step of later) expect(Object.values(step.nodeStates)).not.toContain("new");
   });
 
-  it("stops showing a node as unbalanced once the rotation starts on it", () => {
-    const traced = traceInsert(build([10, 20]), 30);
-    const caseStep = traced.steps.find((step) => step.stepKey === "rebalance.case-right-right");
-    expect(caseStep?.nodeStates[10]).toBe("unbalanced");
-    const later = statesAfter(traced.steps, "rebalance.case-right-right") as typeof traced.steps;
-    for (const step of later) expect(Object.values(step.nodeStates)).not.toContain("unbalanced");
+  it("keeps the three rotation nodes marked through a whole left-right case", () => {
+    const traced = traceInsert(build([50, 30, 70, 10]), 20);
+    const first = traced.steps.findIndex((step) => step.stepKey === "rebalance.check-side");
+    const last = traced.steps.findIndex((step) => step.stepKey === "rotate-right.done");
+    expect(first).toBeGreaterThan(0);
+    expect(traced.steps[first - 1]?.rotation).toBeNull();
+    for (const step of traced.steps.slice(first, last + 1)) {
+      expect(step.rotation).toEqual({ node: 30, label: "LR" });
+      expect(step.nodeStates[30]).toBe("unbalanced");
+      expect(step.nodeStates[10]).toBe("rotating");
+      expect(step.nodeStates[20]).toBe("rotating");
+    }
+  });
+
+  it("lets the rotation nodes go back to visited once the rotation ends", () => {
+    const traced = traceInsert(build([50, 30, 70, 10]), 20);
+    const last = traced.steps.findIndex((step) => step.stepKey === "rotate-right.done");
+    const after = traced.steps.slice(last + 1);
+    expect(after.length).toBeGreaterThan(0);
+    for (const step of after) {
+      expect(step.rotation).toBeNull();
+      expect(Object.values(step.nodeStates)).not.toContain("unbalanced");
+      expect(Object.values(step.nodeStates)).not.toContain("rotating");
+    }
+    expect(after[0]?.nodeStates[30]).toBe("visited");
+  });
+
+  it.each([
+    [[10, 20], 30, "RR"],
+    [[30, 20], 10, "LL"],
+    [[10, 30], 20, "RL"],
+  ] as const)("tags inserting into %j with %i as %s", (keys, key, label) => {
+    const traced = traceInsert(build([...keys]), key);
+    const tagged = traced.steps.find((step) => step.rotation !== null);
+    expect(tagged?.rotation?.label).toBe(label);
+  });
+
+  it("tags a rotation by hand with its direction and marks the node and its pivot", () => {
+    const traced = traceRotateLeft(build([20, 10, 30, 40]), 20);
+    expect(traced.steps.length).toBeGreaterThan(0);
+    for (const step of traced.steps) {
+      expect(step.rotation).toEqual({ node: 20, label: "left" });
+      expect(step.nodeStates[20]).toBe("rotating");
+      expect(step.nodeStates[30]).toBe("rotating");
+    }
   });
 
   it("clears the deleting mark once the node is gone, even when its successor shares the key", () => {

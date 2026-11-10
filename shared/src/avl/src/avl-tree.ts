@@ -1,4 +1,10 @@
-import { type SteppedResult, StepRecorder, withinCall } from "@shared/avl/src/step-recorder";
+import {
+  type RotationRole,
+  type SteppedResult,
+  StepRecorder,
+  withinCall,
+  withinRotation,
+} from "@shared/avl/src/step-recorder";
 
 export type AvlNode = {
   key: number;
@@ -14,7 +20,57 @@ export type AvlNodePosition = {
   parentKey: number | null;
 };
 
+export type RotationDirection = "left" | "right";
+
+export type OpenSpot = {
+  parentKey: number | null;
+  side: RotationDirection | null;
+  low: number;
+  high: number;
+};
+
 const heightOf = (node: AvlNode | null) => node?.height ?? 0;
+
+export const findNode = (root: AvlNode | null, key: number): AvlNode | null => {
+  let node = root;
+  while (node && node.key !== key) node = key < node.key ? node.left : node.right;
+  return node;
+};
+
+export const parentOf = (root: AvlNode | null, key: number): AvlNode | null => {
+  let parent: AvlNode | null = null;
+  let node = root;
+  while (node && node.key !== key) {
+    parent = node;
+    node = key < node.key ? node.left : node.right;
+  }
+  return node ? parent : null;
+};
+
+export const pivotOf = (node: AvlNode, direction: RotationDirection): AvlNode | null =>
+  direction === "left" ? node.right : node.left;
+
+export const canRotate = (root: AvlNode | null, key: number, direction: RotationDirection) => {
+  const node = findNode(root, key);
+  return node !== null && pivotOf(node, direction) !== null;
+};
+
+export const openSpots = (root: AvlNode | null, low: number, high: number): OpenSpot[] => {
+  if (!root) return low <= high ? [{ parentKey: null, side: null, low, high }] : [];
+  const spots: OpenSpot[] = [];
+  const visit = (node: AvlNode, from: number, to: number) => {
+    if (node.left) visit(node.left, from, node.key - 1);
+    else if (from <= node.key - 1) {
+      spots.push({ parentKey: node.key, side: "left", low: from, high: node.key - 1 });
+    }
+    if (node.right) visit(node.right, node.key + 1, to);
+    else if (node.key + 1 <= to) {
+      spots.push({ parentKey: node.key, side: "right", low: node.key + 1, high: to });
+    }
+  };
+  visit(root, low, high);
+  return spots;
+};
 
 const withChildren = (node: AvlNode, left: AvlNode | null, right: AvlNode | null): AvlNode => ({
   key: node.key,
@@ -48,7 +104,7 @@ const updateNode = (
 
 const rotateRightAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
   withinCall(recorder, "rotate-right", node.key, () => {
-    const pivot = node.left;
+    const pivot = pivotOf(node, "right");
     recorder?.focus(node.key);
     recorder?.emit("rotate-right.check-pivot", { node: node.key, pivot: pivot?.key ?? null });
     if (!pivot) {
@@ -72,7 +128,7 @@ const rotateRightAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
 
 const rotateLeftAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
   withinCall(recorder, "rotate-left", node.key, () => {
-    const pivot = node.right;
+    const pivot = pivotOf(node, "left");
     recorder?.focus(node.key);
     recorder?.emit("rotate-left.check-pivot", { node: node.key, pivot: pivot?.key ?? null });
     if (!pivot) {
@@ -94,6 +150,15 @@ const rotateLeftAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
     return rotated;
   });
 
+const rotationRoles = (
+  unbalanced: AvlNode,
+  ...others: (AvlNode | null)[]
+): Record<number, RotationRole> => {
+  const roles: Record<number, RotationRole> = { [unbalanced.key]: "unbalanced" };
+  for (const other of others) if (other) roles[other.key] = "rotating";
+  return roles;
+};
+
 const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
   withinCall(recorder, "rebalance", node.key, () => {
     const balance = balanceOf(node);
@@ -105,8 +170,6 @@ const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
       recorder?.emit("rebalance.balanced", { node: node.key, balance });
       return node;
     }
-    recorder?.mark(node.key, "unbalanced");
-    recorder?.emit("rebalance.check-side", { node: node.key, balance });
     if (leftHeavy) {
       const caseVariables = {
         node: node.key,
@@ -114,18 +177,28 @@ const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
         child: leftHeavy.key,
         childBalance: balanceOf(leftHeavy),
       };
-      recorder?.emit("rebalance.check-left-child", caseVariables);
-      if (caseVariables.childBalance >= 0) {
-        recorder?.emit("rebalance.case-left-left", caseVariables);
-        return rotateRightAt(node, recorder);
-      }
-      recorder?.emit("rebalance.case-left-right", caseVariables);
-      recorder?.enter("left");
-      const left = rotateLeftAt(leftHeavy, recorder);
-      recorder?.leave();
-      recorder?.focus(node.key);
-      recorder?.emit("rebalance.finish-left-right", { node: node.key });
-      return rotateRightAt(withChildren(node, left, node.right), recorder);
+      const single = caseVariables.childBalance >= 0;
+      const third = single ? leftHeavy.left : leftHeavy.right;
+      return withinRotation(
+        recorder,
+        { node: node.key, label: single ? "LL" : "LR" },
+        rotationRoles(node, leftHeavy, third),
+        () => {
+          recorder?.emit("rebalance.check-side", { node: node.key, balance });
+          recorder?.emit("rebalance.check-left-child", caseVariables);
+          if (single) {
+            recorder?.emit("rebalance.case-left-left", caseVariables);
+            return rotateRightAt(node, recorder);
+          }
+          recorder?.emit("rebalance.case-left-right", caseVariables);
+          recorder?.enter("left");
+          const left = rotateLeftAt(leftHeavy, recorder);
+          recorder?.leave();
+          recorder?.focus(node.key);
+          recorder?.emit("rebalance.finish-left-right", { node: node.key });
+          return rotateRightAt(withChildren(node, left, node.right), recorder);
+        },
+      );
     }
     if (rightHeavy) {
       const caseVariables = {
@@ -134,18 +207,28 @@ const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
         child: rightHeavy.key,
         childBalance: balanceOf(rightHeavy),
       };
-      recorder?.emit("rebalance.check-right-child", caseVariables);
-      if (caseVariables.childBalance <= 0) {
-        recorder?.emit("rebalance.case-right-right", caseVariables);
-        return rotateLeftAt(node, recorder);
-      }
-      recorder?.emit("rebalance.case-right-left", caseVariables);
-      recorder?.enter("right");
-      const rotatedRight = rotateRightAt(rightHeavy, recorder);
-      recorder?.leave();
-      recorder?.focus(node.key);
-      recorder?.emit("rebalance.finish-right-left", { node: node.key });
-      return rotateLeftAt(withChildren(node, node.left, rotatedRight), recorder);
+      const single = caseVariables.childBalance <= 0;
+      const third = single ? rightHeavy.right : rightHeavy.left;
+      return withinRotation(
+        recorder,
+        { node: node.key, label: single ? "RR" : "RL" },
+        rotationRoles(node, rightHeavy, third),
+        () => {
+          recorder?.emit("rebalance.check-side", { node: node.key, balance });
+          recorder?.emit("rebalance.check-right-child", caseVariables);
+          if (single) {
+            recorder?.emit("rebalance.case-right-right", caseVariables);
+            return rotateLeftAt(node, recorder);
+          }
+          recorder?.emit("rebalance.case-right-left", caseVariables);
+          recorder?.enter("right");
+          const rotatedRight = rotateRightAt(rightHeavy, recorder);
+          recorder?.leave();
+          recorder?.focus(node.key);
+          recorder?.emit("rebalance.finish-right-left", { node: node.key });
+          return rotateLeftAt(withChildren(node, node.left, rotatedRight), recorder);
+        },
+      );
     }
     return node;
   });
@@ -246,10 +329,10 @@ const removeFrom = (node: AvlNode | null, key: number, recorder?: StepRecorder):
     return climb("delete", copied, node.left, right, recorder);
   });
 
-type RotationTarget = { node: AvlNode; path: ("left" | "right")[] };
+type RotationTarget = { node: AvlNode; path: RotationDirection[] };
 
 const findRotationTarget = (root: AvlNode | null, key: number): RotationTarget | null => {
-  const path: ("left" | "right")[] = [];
+  const path: RotationDirection[] = [];
   let node = root;
   while (node && node.key !== key) {
     const direction = key < node.key ? "left" : "right";
@@ -261,7 +344,7 @@ const findRotationTarget = (root: AvlNode | null, key: number): RotationTarget |
 
 const rebuildPath = (
   node: AvlNode,
-  path: readonly ("left" | "right")[],
+  path: readonly RotationDirection[],
   subtree: AvlNode,
 ): AvlNode => {
   const [direction, ...rest] = path;
@@ -277,13 +360,22 @@ const rebuildPath = (
 const traceRotation = (
   root: AvlNode | null,
   key: number,
+  direction: RotationDirection,
   rotate: (node: AvlNode, recorder?: StepRecorder) => AvlNode,
 ): SteppedResult<AvlNode | null> => {
   const recorder = new StepRecorder(root);
   const target = findRotationTarget(root, key);
   if (!root || !target) return recorder.finish(root);
-  for (const direction of target.path) recorder.enter(direction);
-  const rotated = rotate(target.node, recorder);
+  for (const step of target.path) recorder.enter(step);
+  const node = target.node;
+  const pivot = pivotOf(node, direction);
+  const roles: Record<number, RotationRole> = {
+    [node.key]: Math.abs(balanceOf(node)) > 1 ? "unbalanced" : "rotating",
+  };
+  if (pivot) roles[pivot.key] = "rotating";
+  const rotated = withinRotation(recorder, { node: node.key, label: direction }, roles, () =>
+    rotate(node, recorder),
+  );
   return recorder.finish(rebuildPath(root, target.path, rotated));
 };
 
@@ -309,10 +401,10 @@ export const traceRemove = (root: AvlNode | null, key: number): SteppedResult<Av
 };
 
 export const traceRotateRight = (root: AvlNode | null, key: number) =>
-  traceRotation(root, key, rotateRightAt);
+  traceRotation(root, key, "right", rotateRightAt);
 
 export const traceRotateLeft = (root: AvlNode | null, key: number) =>
-  traceRotation(root, key, rotateLeftAt);
+  traceRotation(root, key, "left", rotateLeftAt);
 
 export const toKeys = (node: AvlNode | null): number[] =>
   node ? [...toKeys(node.left), node.key, ...toKeys(node.right)] : [];

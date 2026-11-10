@@ -1,4 +1,4 @@
-import { type AvlNode, toKeys, traceInsert, traceRemove } from "@shared/avl/src/avl-tree";
+import { type AvlNode, findNode, toKeys, traceInsert, traceRemove } from "@shared/avl/src/avl-tree";
 import { allKeys, createRandom, randomTree } from "@shared/avl/src/random-tree";
 import type { Step } from "@shared/avl/src/step-recorder";
 import type { GeneratorOptions, Rotation } from "@shared/schemas";
@@ -90,12 +90,6 @@ export const makePlainTree = (seed: number, difficulty: Difficulty): AvlNode => 
 export const unusedKeys = (tree: AvlNode | null): number[] => {
   const used = new Set(toKeys(tree));
   return allKeys.filter((key) => !used.has(key));
-};
-
-export const findNode = (node: AvlNode | null, key: number): AvlNode | null => {
-  if (!node) return null;
-  if (key === node.key) return node;
-  return findNode(key < node.key ? node.left : node.right, key);
 };
 
 const describeSteps = (steps: readonly Step[]) => {

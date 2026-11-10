@@ -1,4 +1,4 @@
-import { type AvlNode, rotateLeft, rotateRight } from "@shared/avl/src/avl-tree";
+import { type AvlNode, findNode, rotateLeft, rotateRight } from "@shared/avl/src/avl-tree";
 import type { Step } from "@shared/engine/src/step";
 
 export type RotateKind = "left" | "right";
@@ -17,12 +17,6 @@ const withChildren = (node: AvlNode, left: AvlNode | null, right: AvlNode | null
   right,
   height: 1 + Math.max(heightOf(left), heightOf(right)),
 });
-
-const findNode = (node: AvlNode | null, key: number): AvlNode | null => {
-  if (!node) return null;
-  if (key === node.key) return node;
-  return findNode(key < node.key ? node.left : node.right, key);
-};
 
 const turn = (node: AvlNode, kind: RotateKind): AvlNode =>
   kind === "right" ? rotateRight(node) : rotateLeft(node);

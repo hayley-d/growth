@@ -1,4 +1,4 @@
-import type { AvlNode } from "@shared/avl/src/avl-tree";
+import { type AvlNode, findNode } from "@shared/avl/src/avl-tree";
 import { encodeTree } from "@shared/avl/src/tree-encoding";
 import { TreeTraversal } from "@shared/avl/src/tree-traversal";
 import { balanceOf, heightOf } from "@shared/engine/src/balance";
@@ -7,7 +7,6 @@ import {
   acceptRotation,
   createGeneratorRandom,
   findCase,
-  findNode,
   type GenerateOptions,
   makePlainTree,
   pickFrom,
