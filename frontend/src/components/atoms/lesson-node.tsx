@@ -22,6 +22,7 @@ const statusWords: Record<LearningPathLessonStatus, string> = {
 const completedClasses: Record<UnitTone, string> = {
   primary: "border-primary bg-primary text-primary-foreground",
   secondary: "border-secondary bg-secondary text-secondary-foreground",
+  accent: "border-foreground/60 bg-accent text-accent-foreground",
 };
 
 export function LessonNode({
