@@ -15,6 +15,7 @@
     "prisma:seed": "bun --bun node_modules/.bin/prisma db seed",
     "openapi": "bun scripts/generate-openapi.ts",
     "content:load": "bun prisma/load-content.ts",
+    "unlock": "bun scripts/unlock-lessons.ts",
     "typecheck": "bun --bun node_modules/.bin/prisma generate && tsc --noEmit"
   },
   "dependencies": {

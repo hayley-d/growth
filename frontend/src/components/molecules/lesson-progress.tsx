@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { useRef } from "react";
+import { useState } from "react";
 
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
@@ -20,13 +20,16 @@ export function LessonProgress({
   className,
 }: LessonProgressProperties) {
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const previousStep = useRef(stepNumber);
-  const forward = stepNumber > previousStep.current;
-  const from = previousStep.current;
-  previousStep.current = stepNumber;
+  const [previousStep, setPreviousStep] = useState(stepNumber);
+  const [glowFrom, setGlowFrom] = useState<number | null>(null);
+  if (stepNumber !== previousStep) {
+    setPreviousStep(stepNumber);
+    setGlowFrom(stepNumber > previousStep ? previousStep : null);
+  }
   const done = finished ? totalSteps : stepNumber;
   const percent = totalSteps === 0 ? 0 : (done / totalSteps) * 100;
-  const fromPercent = totalSteps === 0 ? 0 : (Math.min(from, totalSteps) / totalSteps) * 100;
+  const fromPercent =
+    totalSteps === 0 || glowFrom === null ? 0 : (Math.min(glowFrom, totalSteps) / totalSteps) * 100;
 
   return (
     <div className={cn("flex items-center gap-3", className)}>
@@ -45,7 +48,7 @@ export function LessonProgress({
           animate={{ width: `${percent}%` }}
           transition={{ duration: reduced ? 0 : glowSeconds, ease: "easeOut" }}
         />
-        {forward && !reduced ? (
+        {glowFrom !== null && !reduced ? (
           <motion.span
             key={stepNumber}
             aria-hidden="true"

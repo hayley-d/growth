@@ -174,6 +174,15 @@ function BuildSession({
 
   const handleRun = (text: string) => {
     const parsed = parseCommand(text, lessonSetup);
+    if (parsed.ok && parsed.command.kind === "help") {
+      dispatch({
+        type: "reply",
+        command: "help",
+        message: `Here you can use ${listOr(examples)}.`,
+        via: "typed",
+      });
+      return;
+    }
     const allowed = parsed.ok && operations.some((operation) => operation === parsed.command.kind);
     if (parsed.ok && !allowed) {
       dispatch({

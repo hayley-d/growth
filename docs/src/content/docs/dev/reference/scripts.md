@@ -25,6 +25,7 @@ description: Workspace scripts, Biome, the git hooks and coding rules.
 | `bun run prisma:studio`   | Opens Prisma Studio                                    |
 | `bun run prisma:seed`     | Adds the learning styles, code languages and algorithms, then fails if a code snippet has no line for a step. Also creates the dev admin login (`admin@growth.local`) when `SEED_DEV_ADMIN=true` and the database is on localhost |
 | `bun run auth:generate`   | Merges anything new Better Auth needs into `infrastructure/auth/models/auth.prisma`. Run it after you upgrade Better Auth or add a plugin, then create a migration |
+| `bun run unlock <email> <count>` | Opens the first `count` lessons for the user with that email, for testing and demos. It marks the lessons before the last one completed, so lesson `count` is the current one. It never locks anything again |
 
 ## Frontend scripts
 

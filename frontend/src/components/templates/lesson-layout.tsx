@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, X } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
-import { type ReactNode, useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 
 import { Button } from "@/components/atoms/button";
 import { LessonProgress } from "@/components/molecules/lesson-progress";
@@ -41,9 +41,13 @@ export function LessonLayout({
   children,
 }: LessonLayoutProperties) {
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const previousStep = useRef(stepNumber);
-  const direction = stepNumber >= previousStep.current ? 1 : -1;
-  previousStep.current = stepNumber;
+  const [previousStep, setPreviousStep] = useState(stepNumber);
+  const [stepDirection, setStepDirection] = useState(1);
+  if (stepNumber !== previousStep) {
+    setPreviousStep(stepNumber);
+    setStepDirection(stepNumber > previousStep ? 1 : -1);
+  }
+  const direction = finished ? 1 : stepDirection;
   const handlers = useRef({ onBack, onContinue, isFirst, finished });
   handlers.current = { onBack, onContinue, isFirst, finished };
 

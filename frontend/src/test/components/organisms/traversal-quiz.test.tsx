@@ -60,3 +60,22 @@ it("shows the answers after a wrong check", async () => {
   await expect.element(screen.getByText("10, 15, 20, 30, 40, 45")).toBeVisible();
   await expect.element(screen.getByText("10, 20, 15, 40, 45, 30")).toBeVisible();
 });
+
+it("gives two quizzes with the same order their own boxes", async () => {
+  const screen = await render(
+    <div className="w-[640px]">
+      <TraversalQuiz startingKeys={[2, 1, 3]} orders={["preorder"]} />
+      <TraversalQuiz startingKeys={[5, 4, 6]} orders={["preorder"]} />
+    </div>,
+  );
+
+  const boxes = screen.getByLabelText("Pre-order").elements();
+  expect(boxes).toHaveLength(2);
+  expect(boxes[0]?.id).not.toBe(boxes[1]?.id);
+});
+
+it("lets a phone keyboard type commas and spaces", async () => {
+  const screen = await renderQuiz();
+
+  await expect.element(screen.getByLabelText("Pre-order")).not.toHaveAttribute("inputmode");
+});

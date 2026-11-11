@@ -86,6 +86,24 @@ it("refuses commands the step doesn't allow", async () => {
   await expect.element(screen.getByRole("alert")).toHaveTextContent("Here you can use insert n.");
 });
 
+it("answers help with the commands the step allows", async () => {
+  const screen = await render(
+    <PlaygroundBlock
+      startingKeys={[8]}
+      allowedOperations={["insert"]}
+      instructions="Build a tree."
+    />,
+  );
+
+  await screen.getByLabelText("Command").fill("help");
+  await screen.getByRole("button", { name: "Run" }).click();
+
+  await expect
+    .element(screen.getByRole("status").filter({ hasText: "Here you can use insert n." }))
+    .toBeVisible();
+  await expect.element(screen.getByRole("alert")).not.toBeInTheDocument();
+});
+
 it("starts again from the starting tree", async () => {
   const screen = await render(
     <PlaygroundBlock

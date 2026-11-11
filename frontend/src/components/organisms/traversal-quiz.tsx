@@ -1,5 +1,5 @@
 import { Check, X } from "lucide-react";
-import { type FormEvent, useMemo, useState } from "react";
+import { type FormEvent, useId, useMemo, useState } from "react";
 
 import { type AvlNode, insertKey, type TraversalOrder, TreeTraversal } from "@shared/avl";
 import { Button } from "@/components/atoms/button";
@@ -42,6 +42,7 @@ export function TraversalQuiz({ startingKeys, orders, className }: TraversalQuiz
       ) as Record<TraversalOrder, number[]>,
     [root, orders],
   );
+  const quizId = useId();
   const [typed, setTyped] = useState<Partial<Record<TraversalOrder, string>>>({});
   const [results, setResults] = useState<Partial<Record<TraversalOrder, Result>>>({});
   const [showAnswers, setShowAnswers] = useState(false);
@@ -70,7 +71,7 @@ export function TraversalQuiz({ startingKeys, orders, className }: TraversalQuiz
       </div>
 
       {orders.map((order) => {
-        const id = `traversal-quiz-${order}`;
+        const id = `${quizId}-${order}`;
         const result = results[order];
         return (
           <div key={order} className="flex flex-col gap-1">
@@ -78,7 +79,6 @@ export function TraversalQuiz({ startingKeys, orders, className }: TraversalQuiz
             <Input
               id={id}
               className="min-h-11 font-mono"
-              inputMode="numeric"
               autoComplete="off"
               placeholder="e.g. 1, 2, 3"
               aria-describedby={result ? `${id}-feedback` : undefined}
