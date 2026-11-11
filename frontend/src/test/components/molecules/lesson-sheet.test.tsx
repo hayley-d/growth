@@ -11,6 +11,7 @@ const lesson = (changes: Partial<LearningPathLesson>): LearningPathLesson => ({
   kind: "lesson",
   position: 3,
   status: "current",
+  mastery: 0,
   ...changes,
 });
 
@@ -119,4 +120,25 @@ it("closes from the close button", async () => {
   await screen.getByRole("button", { name: "Close" }).click();
 
   expect(actions.onClose).toHaveBeenCalled();
+});
+
+it("shows the lesson's mastery as a number and a label", async () => {
+  const screen = await render(
+    <LessonSheet lesson={lesson({ mastery: 55 })} unitLabel="Unit 1" {...handlers()} />,
+  );
+
+  await expect.element(screen.getByText("55%")).toBeVisible();
+  await expect.element(screen.getByText(/Getting there/)).toBeVisible();
+  await expect
+    .element(screen.getByRole("progressbar", { name: "Mastery" }))
+    .toHaveAttribute("aria-valuenow", "55");
+});
+
+it("hides mastery for a locked lesson", async () => {
+  const screen = await render(
+    <LessonSheet lesson={lesson({ status: "locked" })} unitLabel="Unit 1" {...handlers()} />,
+  );
+
+  await expect.element(screen.getByRole("heading", { name: "In-order" })).toBeVisible();
+  expect(screen.container.textContent).not.toContain("Mastery");
 });

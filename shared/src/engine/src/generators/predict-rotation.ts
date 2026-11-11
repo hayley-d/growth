@@ -23,6 +23,7 @@ export const generatePredictRotation = ({
     tree: encodeTree(found.tree),
     answer: { type: "predict_rotation", rotation: found.rotation, pivotKey: found.pivotKey },
     explanation: describeRotation(found.rotation, found.pivotKey),
+    replay: { kind: "operation", operation, key: found.key },
     hints: [
       "Do the change like in a plain binary search tree, then find the lowest node whose balance factor is -2 or 2. That node is the pivot.",
       found.rotation === "none"

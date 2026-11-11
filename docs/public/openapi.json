@@ -1562,6 +1562,11 @@
                               "current",
                               "locked"
                             ]
+                          },
+                          "mastery": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
                           }
                         },
                         "required": [
@@ -1570,7 +1575,8 @@
                           "summary",
                           "kind",
                           "position",
-                          "status"
+                          "status",
+                          "mastery"
                         ]
                       }
                     }
@@ -4872,6 +4878,16 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
+          "masteryBefore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "masteryAfter": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
           "reviewLessons": {
             "type": "array",
             "items": {
@@ -4928,6 +4944,65 @@
                 "explanation": {
                   "type": "string"
                 },
+                "replay": {
+                  "anyOf": [
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "operation"
+                            },
+                            "operation": {
+                              "type": "string",
+                              "enum": [
+                                "insert",
+                                "delete"
+                              ]
+                            },
+                            "key": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "operation",
+                            "key"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "traversal"
+                            },
+                            "order": {
+                              "type": "string",
+                              "enum": [
+                                "preorder",
+                                "inorder",
+                                "postorder",
+                                "levelorder"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "order"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "hintsUsed": {
                   "type": "integer",
                   "minimum": 0,
@@ -4948,6 +5023,7 @@
                 "isCorrect",
                 "correctAnswer",
                 "explanation",
+                "replay",
                 "hintsUsed",
                 "points"
               ]
@@ -4959,6 +5035,8 @@
           "passed",
           "points",
           "ratingChange",
+          "masteryBefore",
+          "masteryAfter",
           "reviewLessons",
           "answers"
         ]
@@ -5056,6 +5134,65 @@
               "explanation": {
                 "type": "string"
               },
+              "replay": {
+                "anyOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "operation"
+                          },
+                          "operation": {
+                            "type": "string",
+                            "enum": [
+                              "insert",
+                              "delete"
+                            ]
+                          },
+                          "key": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "operation",
+                          "key"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "traversal"
+                          },
+                          "order": {
+                            "type": "string",
+                            "enum": [
+                              "preorder",
+                              "inorder",
+                              "postorder",
+                              "levelorder"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "order"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
               "hintsUsed": {
                 "type": "integer",
                 "minimum": 0,
@@ -5113,6 +5250,7 @@
               "isCorrect",
               "correctAnswer",
               "explanation",
+              "replay",
               "hintsUsed",
               "points",
               "rating",

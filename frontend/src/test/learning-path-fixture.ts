@@ -18,7 +18,10 @@ const lessons = [
 export const lessonIdAt = (index: number) =>
   `00000000-0000-4000-8000-${String(index + 1).padStart(12, "0")}`;
 
-export const buildLearningPath = (completedCount: number): LearningPathResponse => {
+export const buildLearningPath = (
+  completedCount: number,
+  masteryByIndex: Readonly<Record<number, number>> = {},
+): LearningPathResponse => {
   const unitTitles = ["Binary trees and traversals", "AVL trees"];
   const units = unitTitles.map((title, unitIndex) => {
     const unitLessons = lessons
@@ -34,6 +37,7 @@ export const buildLearningPath = (completedCount: number): LearningPathResponse 
           kind,
           position: position + 1,
           status,
+          mastery: masteryByIndex[index] ?? 0,
         } as const;
       });
     const done = unitLessons.filter((lesson) => lesson.status === "completed").length;

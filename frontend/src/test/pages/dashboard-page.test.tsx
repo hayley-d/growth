@@ -105,3 +105,16 @@ it("shows a loading state first", async () => {
 
   await expect.element(screen.getByText("Loading...")).toBeVisible();
 });
+
+it("lists mastery for each lesson that is not locked", async () => {
+  mockedGet.mockResolvedValue({ data: buildLearningPath(2, { 0: 90, 1: 45 }) });
+  const screen = await renderApp("/");
+
+  await expect
+    .element(screen.getByRole("heading", { name: "Your mastery", level: 2 }))
+    .toBeVisible();
+  await expect.element(screen.getByText(/Strong/)).toBeVisible();
+  await expect.element(screen.getByText(/Getting there/)).toBeVisible();
+  await expect.element(screen.getByText(/Just started/)).toBeVisible();
+  expect(screen.getByRole("progressbar", { name: "Mastery" }).elements()).toHaveLength(3);
+});

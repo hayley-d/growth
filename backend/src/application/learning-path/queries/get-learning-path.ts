@@ -6,22 +6,33 @@ import { getCurrentLesson } from "@/domain/learning-path/current-lesson";
 import { getLessonStatuses } from "@/domain/learning-path/lesson-status";
 import { getOverallProgress, getUnitProgress } from "@/domain/learning-path/progress-percentage";
 import type { LessonProgressRepository } from "@/domain/user/repositories/lesson-progress-repository";
+import type { UserMasteryRepository } from "@/domain/user/repositories/user-mastery-repository";
 
 type GetLearningPathDependencies = {
   unitRepository: Pick<UnitRepository, "listAll">;
   lessonRepository: Pick<LessonRepository, "listAll">;
   lessonProgressRepository: Pick<LessonProgressRepository, "listByUserId">;
+  userMasteryRepository: Pick<UserMasteryRepository, "listByUserId">;
 };
 
 export const makeGetLearningPath =
-  ({ unitRepository, lessonRepository, lessonProgressRepository }: GetLearningPathDependencies) =>
+  ({
+    unitRepository,
+    lessonRepository,
+    lessonProgressRepository,
+    userMasteryRepository,
+  }: GetLearningPathDependencies) =>
   async (): Promise<LearningPathResponse> => {
     const userId = getSignedInUserId();
-    const [units, lessons, progress] = await Promise.all([
+    const [units, lessons, progress, masteries] = await Promise.all([
       unitRepository.listAll(),
       lessonRepository.listAll(),
       lessonProgressRepository.listByUserId(userId),
+      userMasteryRepository.listByUserId(userId),
     ]);
+    const masteryByLessonId = new Map(
+      masteries.map((row) => [row.lessonId, Math.round(row.mastery * 100)]),
+    );
 
     const completedLessonIds = new Set(
       progress.filter((row) => row.status === "completed").map((row) => row.lessonId),
@@ -46,6 +57,7 @@ export const makeGetLearningPath =
             kind: lesson.kind,
             position: lesson.position,
             status,
+            mastery: masteryByLessonId.get(lesson.id) ?? 0,
           })),
       })),
       progress: getOverallProgress(lessons, completedLessonIds),

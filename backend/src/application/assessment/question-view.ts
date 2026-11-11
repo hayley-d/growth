@@ -4,6 +4,7 @@ import {
   type LearnerAnswer,
   learnerAnswerSchema,
   type QuestionType,
+  type Replay,
 } from "@shared/schemas";
 import type { Logger } from "@/application/logging/logger";
 import type { AttemptQuestion } from "@/domain/assessment/attempt-question";
@@ -19,6 +20,7 @@ export type QuestionView = {
   options?: { id: string; text: string }[];
   accepted: LearnerAnswer[];
   explanation: string;
+  replay: Replay | null;
   hints: string[];
 };
 
@@ -55,6 +57,7 @@ export const makeLoadQuestionView = ({
       options: generated.options,
       accepted: [generated.answer],
       explanation: generated.explanation,
+      replay: generated.replay ?? null,
       hints: generated.hints,
     };
   };
@@ -65,6 +68,7 @@ export const makeLoadQuestionView = ({
       prompt: question.prompt ?? "",
       tree: question.tree,
       explanation: question.explanation,
+      replay: null,
     };
     const hints = (await hintRepository.listByQuestionId(question.id)).map((hint) => hint.text);
 

@@ -27,4 +27,16 @@ describe("PrismaUserMasteryRepository", () => {
     });
     expect(found?.mastery).toBe(0.75);
   });
+
+  it("lists every row for a user", async () => {
+    const userMastery = { findMany: vi.fn().mockResolvedValue([row]) };
+    const client = { userMastery } as unknown as PrismaClient;
+
+    const found = await new PrismaUserMasteryRepository(client).listByUserId(row.userId);
+
+    expect(userMastery.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({ where: { userId: row.userId } }),
+    );
+    expect(found.map((item) => item.mastery)).toEqual([0.75]);
+  });
 });

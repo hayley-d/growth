@@ -95,6 +95,8 @@ Two use cases in `application/learning-path/` have no route. The attempt use cas
 
 The status is `completed` when the learner's own progress says so, and `current` otherwise.
 
+Every lesson in the learning path response also has `mastery`, a whole percent from 0 to 100. It is the learner's stored mastery for that lesson (`UserMastery`), rounded, and `0` when they have never answered a question in it. `masteryLabel` in `shared/src/schemas/src/learning-path.ts` turns it into "Just started" (under 40), "Getting there" (40 to 79) or "Strong" (80 or more), so the page shows words as well as the number.
+
 Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every block carries its `learningStyleId` (`null` on the core block), so the page can name the style. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
 
 The note is saved as typed, with no trimming. `PUT` returns 400 over 2000 characters, and 400 for a lesson with no `notePrompt`. `GET` on such a lesson returns the empty note.
@@ -108,7 +110,7 @@ A test is an attempt. All four endpoints need a signed-in learner. The use cases
 | `POST /api/lessons/:id/attempts` | Starts an attempt and returns it with its first question. If the learner already has an unfinished attempt for that lesson, it returns that one instead. It returns 201 for a new attempt and 200 for a resumed one. Two starts at the same moment make one attempt, and both get it |
 | `GET /api/attempts/:id` | The attempt, with its current question and the hints already unlocked, or with its result when it is finished. Use it to pick up after a reload |
 | `POST /api/attempts/:id/hints` | Body `{ questionId }`. Unlocks the next hint for the current question and counts it |
-| `POST /api/attempts/:id/answers` | Body `{ questionId, answer }`. Grades the answer and returns whether it was right, the correct answer, the explanation, the new rating and the next question. After the last answer it returns the result instead of a next question |
+| `POST /api/attempts/:id/answers` | Body `{ questionId, answer }`. Grades the answer and returns whether it was right, the correct answer, the explanation, a `replay` for the page to animate the correct answer (or `null`), the new rating and the next question. After the last answer it returns the result instead of a next question |
 
 Every response is `{ data }`. Use `attemptStateResponseSchema`, `requestHintResponseSchema` and `submitAnswerResponseSchema` to parse them.
 
@@ -120,8 +122,9 @@ How an attempt works:
 - **The question id.** Hints and answers carry the `id` of the question the server sent. If it isn't the current unanswered question, the request returns 409. A question id that isn't in the attempt returns 404. This is why a double click or a retry can't answer the wrong question.
 - **Grading.** `application/assessment/grade-answer.ts` compares the answer with the accepted answers. A text answer is trimmed, lower cased and stripped of all spaces on both sides. A written text question can accept more than one answer, and the first one is shown as the correct answer.
 - **Hints.** A written question has the hints in the `Hint` table. A generated question has three. Each hint lowers the score for that answer, see `getScore`. After the last hint, the endpoint returns 409.
+- **Replay.** A generated question stores `replay` next to its answer: `{ kind: "operation", operation, key }` for insert and delete questions, or `{ kind: "traversal", order }` for traversal questions. The page runs the matching tracer on the question's tree to step through the correct answer. Questions without a tree operation, and written questions, have `null`.
 - **Rating.** Each answer updates the rating, mastery and difficulty of the question's own lesson, with the Elo maths in `domain/assessment/elo-rating.ts`. The answer and the rating are saved in one transaction (`recordAnswer`).
-- **The end.** After the last answer the attempt is finished. The score is the percent of questions answered correctly, and 80 or more passes. The result has the score, `passed`, the points, the total rating change, the answers with their explanations, and the lessons to review for the questions the learner got wrong. A pass calls `makeCompleteLesson`, which also completes every lesson before it. If a crash left an attempt with every question answered but not finished, the next `GET` or answer finishes it.
+- **The end.** After the last answer the attempt is finished. The score is the percent of questions answered correctly, and 80 or more passes. The result has the score, `passed`, the points, the total rating change, `masteryBefore` and `masteryAfter` (whole percents, averaged over the lessons the attempt touched), the answers with their explanations, and the lessons to review for the questions the learner got wrong. A pass calls `makeCompleteLesson`, which also completes every lesson before it. If a crash left an attempt with every question answered but not finished, the next `GET` or answer finishes it.
 - **Errors.** Another learner's attempt returns 404. Answering a question twice, answering after the attempt is finished, and asking for a hint that doesn't exist return 409.
 
 ## Request flow

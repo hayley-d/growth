@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 
-import { learningPathResponseSchema, toLearningPathResponse } from "@shared/schemas";
+import { learningPathResponseSchema, masteryLabel, toLearningPathResponse } from "@shared/schemas";
 
 const lessonId = "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a80";
 
@@ -19,6 +19,7 @@ const data = {
           kind: "lesson" as const,
           position: 1,
           status: "current" as const,
+          mastery: 0,
         },
       ],
     },
@@ -51,5 +52,18 @@ describe("learningPathResponseSchema", () => {
     expect(learningPathResponseSchema.safeParse({ data: { ...data, progress: 101 } }).success).toBe(
       false,
     );
+  });
+});
+
+describe("masteryLabel", () => {
+  it.each([
+    [0, "Just started"],
+    [39, "Just started"],
+    [40, "Getting there"],
+    [79, "Getting there"],
+    [80, "Strong"],
+    [100, "Strong"],
+  ])("labels %i as %s", (mastery, label) => {
+    expect(masteryLabel(mastery)).toBe(label);
   });
 });

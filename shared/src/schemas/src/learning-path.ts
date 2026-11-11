@@ -8,6 +8,19 @@ export type LearningPathLessonStatus = z.infer<typeof learningPathLessonStatusSc
 
 const percentageSchema = z.int().min(0).max(100);
 
+export const masteryLabels = ["Just started", "Getting there", "Strong"] as const;
+
+export type MasteryLabel = (typeof masteryLabels)[number];
+
+const gettingThereFrom = 40;
+const strongFrom = 80;
+
+export const masteryLabel = (mastery: number): MasteryLabel => {
+  if (mastery >= strongFrom) return "Strong";
+  if (mastery >= gettingThereFrom) return "Getting there";
+  return "Just started";
+};
+
 const learningPathLessonSchema = z.object({
   id: z.uuid(),
   title: z.string(),
@@ -15,6 +28,7 @@ const learningPathLessonSchema = z.object({
   kind: lessonKindSchema,
   position: z.int(),
   status: learningPathLessonStatusSchema,
+  mastery: percentageSchema,
 });
 
 export type LearningPathLesson = z.infer<typeof learningPathLessonSchema>;
