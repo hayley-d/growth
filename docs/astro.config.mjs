@@ -54,7 +54,6 @@ export default defineConfig({
                 {
                   label: "Storyboards",
                   items: [
-                    { label: "Playground", slug: "id/storyboards/playground" },
                     {
                       label: "Lessons",
                       items: [
@@ -80,6 +79,7 @@ export default defineConfig({
                     {
                       label: "Playground",
                       items: [
+                        { label: "Playground page", slug: "id/storyboards/playground/playground" },
                         { label: "Code trace", slug: "id/storyboards/playground/code-trace" },
                         { label: "Step player", slug: "id/storyboards/playground/step-player" },
                       ],
