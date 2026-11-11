@@ -28,7 +28,14 @@ export const saveLessonNote = async (
   return parsedData.data;
 };
 
+export const startLesson = async (lessonId: string): Promise<void> => {
+  await networkService
+    .post(uris.lessonStartUri(lessonId))
+    .catch((error) => rejectAxios(error, "Unable to start the lesson"));
+};
+
 export const lessonService = {
   getLessonNote,
   saveLessonNote,
+  startLesson,
 };

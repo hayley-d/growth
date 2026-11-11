@@ -13,7 +13,7 @@ it("shows the nav links and user menu on desktop", async () => {
   const navigation = screen.getByRole("navigation", { name: "Main" });
 
   await expect.element(navigation.getByRole("link", { name: "Dashboard" })).toBeVisible();
-  await expect.element(navigation.getByRole("link", { name: "Courses" })).toBeVisible();
+  await expect.element(navigation.getByRole("link", { name: "Learn" })).toBeVisible();
   await expect.element(screen.getByRole("button", { name: "Open menu" })).not.toBeInTheDocument();
 
   await screen.getByRole("button", { name: "Open user menu" }).click();
@@ -25,16 +25,14 @@ it("uses a menu button on phones", async () => {
   const screen = await renderApp("/");
 
   await expect
-    .element(
-      screen.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Courses" }),
-    )
+    .element(screen.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Learn" }))
     .not.toBeInTheDocument();
 
   await screen.getByRole("button", { name: "Open menu" }).click();
   const menu = page.getByRole("dialog");
-  await menu.getByRole("link", { name: "Courses" }).click();
+  await menu.getByRole("link", { name: "Learn" }).click();
 
-  await expect.element(screen.getByRole("heading", { name: "Courses", level: 1 })).toBeVisible();
+  await expect.element(screen.getByRole("heading", { name: "Learn", level: 1 })).toBeVisible();
   await expect.element(page.getByRole("dialog")).not.toBeInTheDocument();
 });
 

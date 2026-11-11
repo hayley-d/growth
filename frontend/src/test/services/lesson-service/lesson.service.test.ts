@@ -8,11 +8,13 @@ vi.mock("@/services/network.service", () => ({
   networkService: {
     get: vi.fn(),
     put: vi.fn(),
+    post: vi.fn(),
   },
 }));
 
 const mockedGet = vi.mocked(networkService.get);
 const mockedPut = vi.mocked(networkService.put);
+const mockedPost = vi.mocked(networkService.post);
 
 const lessonId = "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a80";
 const noteResponse = { data: { lessonId, body: "hello", updatedAt: "2026-11-02T10:00:00.000Z" } };
@@ -81,5 +83,27 @@ describe("lessonService.saveLessonNote", () => {
     await expect(lessonService.saveLessonNote(lessonId, "hello")).rejects.toMatchObject({
       message: "Incorrect data format",
     });
+  });
+});
+
+describe("lessonService.startLesson", () => {
+  beforeEach(() => {
+    mockedPost.mockReset();
+  });
+
+  it("posts to the start endpoint and returns nothing", async () => {
+    mockedPost.mockResolvedValue({ data: "" });
+
+    await expect(lessonService.startLesson(lessonId)).resolves.toBeUndefined();
+    expect(mockedPost).toHaveBeenCalledWith(`/api/lessons/${lessonId}/start`);
+  });
+
+  it("rejects with a ServiceError when the lesson is locked", async () => {
+    mockedPost.mockRejectedValue(serverFailure);
+
+    const error = await lessonService.startLesson(lessonId).catch((caught: unknown) => caught);
+
+    expect(error).toBeInstanceOf(ServiceError);
+    expect(error).toMatchObject({ status: 403, message: "Lesson is locked" });
   });
 });

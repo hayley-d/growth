@@ -2087,6 +2087,157 @@
                             "type",
                             "body"
                           ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "delete_tree"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "caption": {
+                                  "type": "string"
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "caption"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "heights"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "caption": {
+                                  "type": "string"
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "caption"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "transcript": {
+                              "type": "string"
+                            },
+                            "type": {
+                              "type": "string",
+                              "const": "traversal_quiz"
+                            },
+                            "body": {
+                              "type": "object",
+                              "properties": {
+                                "startingKeys": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "orders": {
+                                  "minItems": 1,
+                                  "type": "array",
+                                  "items": {
+                                    "type": "string",
+                                    "enum": [
+                                      "preorder",
+                                      "inorder",
+                                      "postorder",
+                                      "levelorder"
+                                    ]
+                                  }
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "required": [
+                                "startingKeys",
+                                "orders"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "transcript",
+                            "type",
+                            "body"
+                          ]
                         }
                       ]
                     },
@@ -2625,6 +2776,157 @@
                                   "required": [
                                     "startingKeys",
                                     "caption"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "delete_tree"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "caption": {
+                                      "type": "string"
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "caption"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "heights"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "caption": {
+                                      "type": "string"
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "caption"
+                                  ]
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "transcript",
+                                "type",
+                                "body"
+                              ]
+                            },
+                            {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                "transcript": {
+                                  "type": "string"
+                                },
+                                "type": {
+                                  "type": "string",
+                                  "const": "traversal_quiz"
+                                },
+                                "body": {
+                                  "type": "object",
+                                  "properties": {
+                                    "startingKeys": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    },
+                                    "orders": {
+                                      "minItems": 1,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "string",
+                                        "enum": [
+                                          "preorder",
+                                          "inorder",
+                                          "postorder",
+                                          "levelorder"
+                                        ]
+                                      }
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    }
+                                  },
+                                  "required": [
+                                    "startingKeys",
+                                    "orders"
                                   ]
                                 }
                               },
@@ -3177,6 +3479,157 @@
                                 "required": [
                                   "startingKeys",
                                   "caption"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "delete_tree"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "caption": {
+                                    "type": "string"
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "caption"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "heights"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "caption": {
+                                    "type": "string"
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "caption"
+                                ]
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "transcript",
+                              "type",
+                              "body"
+                            ]
+                          },
+                          {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string",
+                                "format": "uuid",
+                                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                              },
+                              "transcript": {
+                                "type": "string"
+                              },
+                              "type": {
+                                "type": "string",
+                                "const": "traversal_quiz"
+                              },
+                              "body": {
+                                "type": "object",
+                                "properties": {
+                                  "startingKeys": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  },
+                                  "orders": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "string",
+                                      "enum": [
+                                        "preorder",
+                                        "inorder",
+                                        "postorder",
+                                        "levelorder"
+                                      ]
+                                    }
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  }
+                                },
+                                "required": [
+                                  "startingKeys",
+                                  "orders"
                                 ]
                               }
                             },
