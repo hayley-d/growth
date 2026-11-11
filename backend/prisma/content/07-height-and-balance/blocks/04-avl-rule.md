@@ -8,7 +8,7 @@ transcript: "The AVL rule. Every node's balance factor must be minus 1, 0 or 1. 
 
 An AVL tree is a binary search tree where **every** node's balance factor is **-1, 0 or 1**.
 
-On the bushy tree above, every node has BF **0**. That is a valid AVL tree.
+On the balanced tree above, every node has BF **0**. That is a valid AVL tree.
 
 A plain BST with no rebalancing can break the rule. Insert `1`, `2`, `3`, `4` and you get a stick:
 
