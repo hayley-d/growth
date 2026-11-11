@@ -63,6 +63,18 @@ The pieces:
 - **Routes.** `presentation/routes/algorithm-routes.ts` takes the controller and returns a `new Hono()` with the paths and validators. `create-application.ts` mounts it at `/api/algorithms`.
 - **Wiring.** `main.ts` makes the Prisma repositories, the use cases and the controller, and passes the controller to `createApplication`.
 
+### Onboarding
+
+All three endpoints need a signed-in learner.
+
+| Endpoint | What it does |
+| --- | --- |
+| `GET /api/onboarding/quiz` | The 8 learning style questions, each with 4 options. The options don't say which style they count for |
+| `POST /api/onboarding/quiz` | Body `{ answers: [{ questionId, optionId }] }`. Returns the learning style. Saves nothing. Every question must be answered once, or it's a 400 |
+| `POST /api/onboarding` | Body `{ learningStyleId, codeLanguageId, showOnLeaderboard, textToSpeech }`. Saves all four and `onboardingComplete: true` in one write and returns the `/api/me` body. Sending it again overwrites the answers. An unknown id is a 400 through the `P2003` handling |
+
+The questions and the scoring live in `domain/learning-style/`. `scoreQuiz` counts the picks per style and breaks a tie in a fixed order, visual, auditory, reading/writing, kinesthetic, so the same answers always give the same style. The quiz use cases are in `application/onboarding/queries/`, and `makeCompleteOnboarding` is in `application/user/commands/`.
+
 ### Lessons
 
 All four endpoints need a signed-in learner. The use cases live in `application/lesson/`.

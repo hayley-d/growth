@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { toMeResponse, updateUserProfileRequestSchema } from "@shared/schemas";
+import {
+  completeOnboardingRequestSchema,
+  toMeResponse,
+  updateUserProfileRequestSchema,
+} from "@shared/schemas";
 
 describe("updateUserProfileRequestSchema", () => {
   it("leaves out fields that weren't sent", () => {
@@ -53,5 +57,29 @@ describe("toMeResponse", () => {
     expect(() =>
       toMeResponse(user, { ...profile, colourTheme: "high_contrast" as "high-contrast" }),
     ).toThrow();
+  });
+});
+
+describe("completeOnboardingRequestSchema", () => {
+  const request = {
+    learningStyleId: "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a80",
+    codeLanguageId: "8d3c1f9e-4b1a-4c55-9d0e-2f6a7b8c9d01",
+    showOnLeaderboard: false,
+    textToSpeech: true,
+  };
+
+  it("accepts the four answers", () => {
+    expect(completeOnboardingRequestSchema.parse(request)).toEqual(request);
+  });
+
+  it.each(Object.keys(request))("requires %s", (field) => {
+    const { [field as keyof typeof request]: _left, ...rest } = request;
+    expect(completeOnboardingRequestSchema.safeParse(rest).success).toBe(false);
+  });
+
+  it("drops fields onboarding doesn't set", () => {
+    expect(
+      completeOnboardingRequestSchema.parse({ ...request, onboardingComplete: false }),
+    ).toEqual(request);
   });
 });

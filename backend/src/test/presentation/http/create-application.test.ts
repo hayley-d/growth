@@ -8,6 +8,7 @@ import { createAttemptController } from "@/presentation/controllers/attempt-cont
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
+import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
 import { createUserController } from "@/presentation/controllers/user-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
@@ -55,6 +56,11 @@ const createTestApp = (logger: Logger) =>
       listCodeLanguages: async () => ({ data: { codeLanguages: [] } }),
     }),
     learningPathController: createLearningPathController({ getLearningPath: vi.fn() }),
+    onboardingController: createOnboardingController({
+      getQuiz: vi.fn(),
+      scoreQuiz: vi.fn(),
+      completeOnboarding: vi.fn(),
+    }),
   });
 
 describe("createApplication", () => {

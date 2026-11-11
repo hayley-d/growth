@@ -36,6 +36,8 @@ Pages get their layout from a pathless layout route:
 
 - `routes/_app.tsx` wraps pages in `AppLayout` (`components/templates/app-layout.tsx`): the `Navbar` on top and the page below. The navbar shows the logo, the nav links and the user menu. On phones the links move into a slide-out menu. Settings and every signed-in page live under `routes/_app/`.
 - `routes/_app/_authenticated.tsx` sends signed-out visitors to `/login`. Put any page that needs a signed-in user under `routes/_app/_authenticated/`.
+- `routes/_app.tsx` also checks onboarding. A signed-in learner whose profile says `onboardingComplete: false` is sent to `/onboarding` from every page in the app shell, settings and the playground included. It reads the profile with `queryClient.fetchQuery(meQueryOptions)`. If that request fails, the error page shows, and the learner isn't treated as "not onboarded".
+- `routes/onboarding.tsx` sits outside `_app`, in `SetupLayout` (`components/templates/setup-layout.tsx`): the logo and the user menu with only Profile and Sign out, and no nav links. Signed-out visitors go to `/login` and onboarded learners go to `/`, unless the URL has `?retake=true`.
 - `routes/_auth.tsx` wraps the login and sign-up pages in `AuthLayout`. It has no navbar. Small AVL trees grow and shrink in a faint background behind the form (`organisms/avl-background.tsx`), and they stay still when the visitor prefers reduced motion. Signed-in visitors are sent to `/`.
 
 Unknown URLs show `NotFoundPage` inside `AppLayout`.
@@ -43,6 +45,15 @@ Unknown URLs show `NotFoundPage` inside `AppLayout`.
 The user menu shows the signed-in user's name and email, with Settings and Sign out. If signing out fails, the menu stays open and shows why.
 
 The background imports its AVL rules (`insertKey`, `removeKey`, `layoutTree`) from `@shared/avl`, the same copy the backend uses. Each tree is a `GrowingAvlTree` molecule drawn from two atoms, `TreeNodeCircle` and `TreeEdge`. Phones show one tree, tablets two and desktops three. Trees for bigger screens are only mounted at that size, so phones don't animate trees nobody can see.
+
+## Onboarding
+
+`OnboardingPage` (`pages/onboarding-page.tsx`) runs four steps: the learning style quiz, the code language, the leaderboard and text to speech. The answers live in `stores/onboarding-store.ts` until the last step, which sends them all with `POST /api/onboarding`. The store resets when the page unmounts, so a learner who leaves halfway starts again.
+
+- `LearningStyleQuiz` (`organisms/learning-style-quiz.tsx`) shows one question at a time with `ProgressHeader` (label, bar and Back). A tap moves on, Back keeps the answer, and after the last question it hands every answer to the page.
+- The page sends them to `POST /api/onboarding/quiz` and shows `LearningStyleResult` (`organisms/learning-style-result.tsx`), which names the style and lets the learner pick any of the four. Both organisms use `ChoiceButton` (`molecules/choice-button.tsx`), which marks a picked answer with a tick and `aria-pressed`, not colour alone.
+- On success the `me` query is set and invalidated, so the guard sees the change, and the learner goes to `/`.
+- `/onboarding?retake=true` is for learners who are already set up. It only runs the quiz, saves the style with `PATCH /api/me/profile`, has a Cancel link, and goes back to `/settings`. The "Retake the quiz" link in Settings opens it.
 
 ## Colour schemes
 

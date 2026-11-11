@@ -32,6 +32,11 @@ export const tags = [
   },
   { name: "Course content", description: "Reference data and code snippets. Public." },
   { name: "Profile", description: "The signed-in learner's settings." },
+  {
+    name: "Onboarding",
+    description:
+      "The learning style quiz and the answers a new learner gives before reaching the app.",
+  },
   { name: "Learning path", description: "The units and lessons, with the learner's progress." },
   { name: "Lessons", description: "Open a lesson, keep a note and mark it started." },
   {
@@ -184,6 +189,53 @@ export const operations: OperationSpec[] = [
       "400": "BadRequest",
       "401": "Unauthorized",
       "404": "NotFound",
+    },
+  },
+  {
+    operationId: "completeOnboarding",
+    method: "post",
+    path: "/api/onboarding",
+    tag: "Onboarding",
+    summary: "Save the onboarding answers",
+    description:
+      "Saves the learning style, code language, leaderboard and text to speech answers and marks onboarding complete in one write. Sending it again overwrites the answers.",
+    secured: true,
+    requestBody: "CompleteOnboardingRequest",
+    responses: {
+      "200": { description: "The learner and the updated profile.", schema: "MeResponse" },
+      "400": "BadRequest",
+      "401": "Unauthorized",
+      "404": "NotFound",
+    },
+  },
+  {
+    operationId: "getQuiz",
+    method: "get",
+    path: "/api/onboarding/quiz",
+    tag: "Onboarding",
+    summary: "Get the learning style quiz",
+    description:
+      "Eight questions with four options each. The options don't say which style they count towards.",
+    secured: true,
+    responses: {
+      "200": { description: "The questions.", schema: "GetQuizResponse" },
+      "401": "Unauthorized",
+    },
+  },
+  {
+    operationId: "scoreQuiz",
+    method: "post",
+    path: "/api/onboarding/quiz",
+    tag: "Onboarding",
+    summary: "Work out the learning style from the answers",
+    description:
+      "Answer every question once. The style with the most picks wins, and a tie goes to visual, auditory, reading/writing, then kinesthetic. Nothing is saved.",
+    secured: true,
+    requestBody: "ScoreQuizRequest",
+    responses: {
+      "200": { description: "The learning style.", schema: "ScoreQuizResponse" },
+      "400": "BadRequest",
+      "401": "Unauthorized",
     },
   },
   {

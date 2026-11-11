@@ -133,7 +133,7 @@ describe("signed in", () => {
       .toBeChecked();
     await expect
       .element(screen.getByRole("link", { name: /Retake the quiz/ }))
-      .toHaveAttribute("href", "/onboarding");
+      .toHaveAttribute("href", "/onboarding?retake=true");
   });
 
   it("saves the colour scheme to the profile as well as this device", async () => {
@@ -243,8 +243,11 @@ describe("signed in", () => {
     await expect.element(screen.getByText("Name is too long")).toBeVisible();
   });
 
-  it("offers to try again when the profile can't be loaded", async () => {
-    mockedGet.mockRejectedValue({ statusCode: 500 });
+  it("offers to try again when the profile options can't be loaded", async () => {
+    mockedGet.mockImplementation(async (url) => {
+      if (url === "/api/me") return { data: meFor() };
+      throw { statusCode: 500 };
+    });
     const screen = await renderApp("/settings");
 
     await expect

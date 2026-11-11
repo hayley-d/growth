@@ -8,8 +8,10 @@ import {
   attemptResultSchema,
   attemptSchema,
   attemptStateResponseSchema,
+  completeOnboardingRequestSchema,
   errorResponseSchema,
   expressionNodeSchema,
+  getQuizResponseSchema,
   healthSchema,
   idParamSchema,
   learnerAnswerSchema,
@@ -23,6 +25,8 @@ import {
   requestHintRequestSchema,
   requestHintResponseSchema,
   saveLessonNoteRequestSchema,
+  scoreQuizRequestSchema,
+  scoreQuizResponseSchema,
   sessionResponseSchema,
   signInRequestSchema,
   signUpRequestSchema,
@@ -40,6 +44,8 @@ export const requestSchemas = {
   SaveLessonNoteRequest: saveLessonNoteRequestSchema,
   RequestHintRequest: requestHintRequestSchema,
   SubmitAnswerRequest: submitAnswerRequestSchema,
+  ScoreQuizRequest: scoreQuizRequestSchema,
+  CompleteOnboardingRequest: completeOnboardingRequestSchema,
 };
 
 export const responseSchemas = {
@@ -60,6 +66,8 @@ export const responseSchemas = {
   AttemptStateResponse: attemptStateResponseSchema,
   RequestHintResponse: requestHintResponseSchema,
   SubmitAnswerResponse: submitAnswerResponseSchema,
+  GetQuizResponse: getQuizResponseSchema,
+  ScoreQuizResponse: scoreQuizResponseSchema,
 };
 
 const sharedSchemas = {

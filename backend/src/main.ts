@@ -13,6 +13,9 @@ import { makeSaveLessonNote } from "@/application/lesson/commands/save-lesson-no
 import { makeStartLesson } from "@/application/lesson/commands/start-lesson";
 import { makeGetLesson } from "@/application/lesson/queries/get-lesson";
 import { makeGetLessonNote } from "@/application/lesson/queries/get-lesson-note";
+import { makeGetQuiz } from "@/application/onboarding/queries/get-quiz";
+import { makeScoreQuiz } from "@/application/onboarding/queries/score-quiz";
+import { makeCompleteOnboarding } from "@/application/user/commands/complete-onboarding";
 import { makeUpdateProfile } from "@/application/user/commands/update-profile";
 import { makeGetMe } from "@/application/user/queries/get-me";
 import {
@@ -51,6 +54,7 @@ import { createAttemptController } from "@/presentation/controllers/attempt-cont
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
+import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
 import { createUserController } from "@/presentation/controllers/user-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
@@ -133,6 +137,12 @@ const courseContentController = createCourseContentController({
   listCodeLanguages: makeListCodeLanguages({ codeLanguageRepository }),
 });
 
+const onboardingController = createOnboardingController({
+  getQuiz: makeGetQuiz(),
+  scoreQuiz: makeScoreQuiz({ learningStyleRepository }),
+  completeOnboarding: makeCompleteOnboarding({ userRepository, userProfileRepository }),
+});
+
 const learningPathController = createLearningPathController({
   getLearningPath: makeGetLearningPath({ ...lessonAccess, unitRepository }),
 });
@@ -147,6 +157,7 @@ const application = createApplication({
   userController,
   courseContentController,
   learningPathController,
+  onboardingController,
 });
 
 const server = Bun.serve({ port: environment.PORT, fetch: application.fetch });
