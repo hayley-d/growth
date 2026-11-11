@@ -58,7 +58,11 @@ describe("makeGetLesson", () => {
   it("returns the lesson, its unit, neighbours and status", async () => {
     const response = await asLearner(() => createGetLesson()({ id: "lesson-1" }));
     expect(response.data).toMatchObject({
-      lesson: { id: "lesson-1", notePrompt: "Explain it in your own words" },
+      lesson: {
+        id: "lesson-1",
+        notePrompt: "Explain it in your own words",
+        objectives: ["Insert a key into a binary tree"],
+      },
       unit,
       status: "current",
       previousLessonId: null,
@@ -99,8 +103,9 @@ describe("makeGetLesson", () => {
     const [first, second] = response.data.steps;
     expect(response.data.steps.map((step) => step.position)).toEqual([1, 2]);
     expect(first?.coreBlock.id).toBe("b-core");
-    expect(first?.styleBlock?.id).toBe("b-style");
-    expect(first?.otherBlocks.map((other) => other.id)).toEqual(["b-other"]);
+    expect(first?.coreBlock.learningStyleId).toBeNull();
+    expect(first?.styleBlock).toMatchObject({ id: "b-style", learningStyleId: styleId });
+    expect(first?.otherBlocks.map((other) => other.learningStyleId)).toEqual([otherStyleId]);
     expect(second?.styleBlock).toBeNull();
     expect(second?.otherBlocks).toEqual([]);
   });

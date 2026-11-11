@@ -54,9 +54,29 @@ export const playgroundGoalSchema = z.discriminatedUnion("kind", [
 
 export type PlaygroundGoal = z.infer<typeof playgroundGoalSchema>;
 
+export const treeLabelPlaceSchema = z.enum(["right", "below", "side"]);
+
+export type TreeLabelPlace = z.infer<typeof treeLabelPlaceSchema>;
+
+export const treeLabelSchema = z.object({
+  text: z.array(z.string().min(1)).min(1),
+  keys: treeKeysSchema.min(1),
+  place: treeLabelPlaceSchema,
+});
+
+export type TreeLabel = z.infer<typeof treeLabelSchema>;
+
+export const treeTermsSchema = z.record(z.string().min(1), treeKeysSchema.min(1));
+
+export type TreeTerms = z.infer<typeof treeTermsSchema>;
+
 export const textBlockBodySchema = z.object({
   markdown: z.string().min(1),
   tree: treeKeysSchema.optional(),
+  labels: z.array(treeLabelSchema).optional(),
+  terms: treeTermsSchema.optional(),
+  write: z.boolean().optional(),
+  answer: z.string().min(1).optional(),
 });
 
 export type TextBlockBody = z.infer<typeof textBlockBodySchema>;
@@ -65,6 +85,9 @@ export const diagramBlockBodySchema = z.object({
   startingKeys: treeKeysSchema,
   highlights: z.array(z.object({ key: treeKeySchema, state: nodeStateSchema })),
   caption: z.string(),
+  labels: z.array(treeLabelSchema).optional(),
+  markdown: z.string().min(1).optional(),
+  terms: treeTermsSchema.optional(),
 });
 
 export type DiagramBlockBody = z.infer<typeof diagramBlockBodySchema>;
@@ -73,6 +96,7 @@ export const animationBlockBodySchema = z.object({
   startingKeys: treeKeysSchema,
   steps: z.array(operationStepSchema).min(1),
   autoplay: z.boolean(),
+  markdown: z.string().min(1).optional(),
 });
 
 export type AnimationBlockBody = z.infer<typeof animationBlockBodySchema>;
@@ -104,6 +128,7 @@ export const codeTraceBlockBodySchema = z.object({
   startingKeys: treeKeysSchema,
   operation: codeTraceOperationSchema,
   markdown: z.string().min(1).optional(),
+  showCode: z.boolean().optional(),
 });
 
 export type CodeTraceBlockBody = z.infer<typeof codeTraceBlockBodySchema>;

@@ -164,19 +164,20 @@ const parseBlock = (block: BlockFile, report: Report): BlockData | null => {
     if (typeof data !== "object" || data === null || Array.isArray(data)) {
       report(
         block.file,
-        "The frontmatter must hold position, transcript and an optional style and tree",
+        "The frontmatter must hold position, transcript and an optional style, tree, labels, terms, write and answer",
       );
       return null;
     }
-    const { tree, ...placement } = data as Record<string, unknown>;
+    const { tree, labels, terms, write, answer, ...placement } = data as Record<string, unknown>;
+    const extras = Object.fromEntries(
+      Object.entries({ tree, labels, terms, write, answer }).filter(
+        ([, value]) => value !== undefined,
+      ),
+    );
     return parseWith(
       blockContentSchema,
       block.file,
-      {
-        ...placement,
-        type: "text",
-        body: tree === undefined ? { markdown: body } : { markdown: body, tree },
-      },
+      { ...placement, type: "text", body: { markdown: body, ...extras } },
       report,
     );
   } catch (error) {
@@ -192,6 +193,46 @@ const traversalAlgorithmCodes: readonly string[] = [
   "postorder",
   "levelorder",
 ];
+
+const blockTreeKeys = (block: BlockData): readonly number[] | null => {
+  if (block.type === "text") return block.body.tree ?? null;
+  return "startingKeys" in block.body ? block.body.startingKeys : null;
+};
+
+const blockLabels = (block: BlockData) =>
+  block.type === "text" || block.type === "diagram" ? (block.body.labels ?? []) : [];
+
+const checkTreeLinks = (lessonFile: string, blocks: BlockData[], report: Report) => {
+  for (const block of blocks) {
+    const where = `Block at position ${block.position}`;
+    const treeKeys = new Set(blockTreeKeys(block) ?? []);
+    for (const label of blockLabels(block)) {
+      const missing = label.keys.filter((key) => !treeKeys.has(key));
+      if (missing.length > 0) {
+        report(
+          lessonFile,
+          `${where} has a label "${label.text.join(" ")}" pointing at ${missing.join(", ")}, which isn't in its tree`,
+        );
+      }
+    }
+    const terms = block.type === "text" || block.type === "diagram" ? block.body.terms : undefined;
+    if (!terms) continue;
+    const shownKeys = new Set(
+      blocks
+        .filter((other) => other.position === block.position)
+        .flatMap((other) => blockTreeKeys(other) ?? []),
+    );
+    for (const [term, keys] of Object.entries(terms)) {
+      const missing = keys.filter((key) => !shownKeys.has(key));
+      if (missing.length > 0) {
+        report(
+          lessonFile,
+          `${where} links "${term}" to ${missing.join(", ")}, but no tree at that position shows them`,
+        );
+      }
+    }
+  }
+};
 
 const checkBlocks = (lessonFile: string, blocks: BlockData[], report: Report) => {
   const positions = [...new Set(blocks.map((block) => block.position))];
@@ -209,6 +250,7 @@ const checkBlocks = (lessonFile: string, blocks: BlockData[], report: Report) =>
       report(lessonFile, `Position ${position} has more than one ${style} block`);
     }
   }
+  checkTreeLinks(lessonFile, blocks, report);
   for (const block of blocks) {
     if (block.type !== "code_trace") continue;
     const { algorithmCode, operation } = block.body;

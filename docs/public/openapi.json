@@ -1470,6 +1470,12 @@
                       "string",
                       "null"
                     ]
+                  },
+                  "objectives": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 },
                 "required": [
@@ -1478,7 +1484,8 @@
                   "summary",
                   "kind",
                   "position",
-                  "notePrompt"
+                  "notePrompt",
+                  "objectives"
                 ]
               },
               "unit": {
@@ -1558,6 +1565,18 @@
                             "transcript": {
                               "type": "string"
                             },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
+                            },
                             "type": {
                               "type": "string",
                               "const": "text"
@@ -1576,6 +1595,67 @@
                                     "minimum": -9007199254740991,
                                     "maximum": 9007199254740991
                                   }
+                                },
+                                "labels": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "text": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "keys": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "place": {
+                                        "type": "string",
+                                        "enum": [
+                                          "right",
+                                          "below",
+                                          "side"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "text",
+                                      "keys",
+                                      "place"
+                                    ]
+                                  }
+                                },
+                                "terms": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "additionalProperties": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  }
+                                },
+                                "write": {
+                                  "type": "boolean"
+                                },
+                                "answer": {
+                                  "type": "string",
+                                  "minLength": 1
                                 }
                               },
                               "required": [
@@ -1586,6 +1666,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -1600,6 +1681,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -1646,6 +1739,64 @@
                                 },
                                 "caption": {
                                   "type": "string"
+                                },
+                                "labels": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "properties": {
+                                      "text": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "string",
+                                          "minLength": 1
+                                        }
+                                      },
+                                      "keys": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      },
+                                      "place": {
+                                        "type": "string",
+                                        "enum": [
+                                          "right",
+                                          "below",
+                                          "side"
+                                        ]
+                                      }
+                                    },
+                                    "required": [
+                                      "text",
+                                      "keys",
+                                      "place"
+                                    ]
+                                  }
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
+                                },
+                                "terms": {
+                                  "type": "object",
+                                  "propertyNames": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "additionalProperties": {
+                                    "minItems": 1,
+                                    "type": "array",
+                                    "items": {
+                                      "type": "integer",
+                                      "minimum": -9007199254740991,
+                                      "maximum": 9007199254740991
+                                    }
+                                  }
                                 }
                               },
                               "required": [
@@ -1658,6 +1809,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -1672,6 +1824,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -1716,6 +1880,10 @@
                                 },
                                 "autoplay": {
                                   "type": "boolean"
+                                },
+                                "markdown": {
+                                  "type": "string",
+                                  "minLength": 1
                                 }
                               },
                               "required": [
@@ -1728,6 +1896,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -1742,6 +1911,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -1856,6 +2037,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -1870,6 +2052,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -1931,6 +2125,9 @@
                                 "markdown": {
                                   "type": "string",
                                   "minLength": 1
+                                },
+                                "showCode": {
+                                  "type": "boolean"
                                 }
                               },
                               "required": [
@@ -1943,6 +2140,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -1957,6 +2155,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -1990,6 +2200,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -2004,6 +2215,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -2041,6 +2264,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -2055,6 +2279,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -2084,6 +2320,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -2098,6 +2335,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -2131,6 +2380,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -2145,6 +2395,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -2178,6 +2440,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -2192,6 +2455,18 @@
                             },
                             "transcript": {
                               "type": "string"
+                            },
+                            "learningStyleId": {
+                              "anyOf": [
+                                {
+                                  "type": "string",
+                                  "format": "uuid",
+                                  "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                },
+                                {
+                                  "type": "null"
+                                }
+                              ]
                             },
                             "type": {
                               "type": "string",
@@ -2235,6 +2510,7 @@
                           "required": [
                             "id",
                             "transcript",
+                            "learningStyleId",
                             "type",
                             "body"
                           ]
@@ -2256,6 +2532,18 @@
                                 "transcript": {
                                   "type": "string"
                                 },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
+                                },
                                 "type": {
                                   "type": "string",
                                   "const": "text"
@@ -2274,6 +2562,67 @@
                                         "minimum": -9007199254740991,
                                         "maximum": 9007199254740991
                                       }
+                                    },
+                                    "labels": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "text": {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1
+                                            }
+                                          },
+                                          "keys": {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                              "type": "integer",
+                                              "minimum": -9007199254740991,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "place": {
+                                            "type": "string",
+                                            "enum": [
+                                              "right",
+                                              "below",
+                                              "side"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "text",
+                                          "keys",
+                                          "place"
+                                        ]
+                                      }
+                                    },
+                                    "terms": {
+                                      "type": "object",
+                                      "propertyNames": {
+                                        "type": "string",
+                                        "minLength": 1
+                                      },
+                                      "additionalProperties": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      }
+                                    },
+                                    "write": {
+                                      "type": "boolean"
+                                    },
+                                    "answer": {
+                                      "type": "string",
+                                      "minLength": 1
                                     }
                                   },
                                   "required": [
@@ -2284,6 +2633,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2298,6 +2648,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2344,6 +2706,64 @@
                                     },
                                     "caption": {
                                       "type": "string"
+                                    },
+                                    "labels": {
+                                      "type": "array",
+                                      "items": {
+                                        "type": "object",
+                                        "properties": {
+                                          "text": {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                              "type": "string",
+                                              "minLength": 1
+                                            }
+                                          },
+                                          "keys": {
+                                            "minItems": 1,
+                                            "type": "array",
+                                            "items": {
+                                              "type": "integer",
+                                              "minimum": -9007199254740991,
+                                              "maximum": 9007199254740991
+                                            }
+                                          },
+                                          "place": {
+                                            "type": "string",
+                                            "enum": [
+                                              "right",
+                                              "below",
+                                              "side"
+                                            ]
+                                          }
+                                        },
+                                        "required": [
+                                          "text",
+                                          "keys",
+                                          "place"
+                                        ]
+                                      }
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "terms": {
+                                      "type": "object",
+                                      "propertyNames": {
+                                        "type": "string",
+                                        "minLength": 1
+                                      },
+                                      "additionalProperties": {
+                                        "minItems": 1,
+                                        "type": "array",
+                                        "items": {
+                                          "type": "integer",
+                                          "minimum": -9007199254740991,
+                                          "maximum": 9007199254740991
+                                        }
+                                      }
                                     }
                                   },
                                   "required": [
@@ -2356,6 +2776,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2370,6 +2791,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2414,6 +2847,10 @@
                                     },
                                     "autoplay": {
                                       "type": "boolean"
+                                    },
+                                    "markdown": {
+                                      "type": "string",
+                                      "minLength": 1
                                     }
                                   },
                                   "required": [
@@ -2426,6 +2863,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2440,6 +2878,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2554,6 +3004,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2568,6 +3019,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2629,6 +3092,9 @@
                                     "markdown": {
                                       "type": "string",
                                       "minLength": 1
+                                    },
+                                    "showCode": {
+                                      "type": "boolean"
                                     }
                                   },
                                   "required": [
@@ -2641,6 +3107,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2655,6 +3122,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2688,6 +3167,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2702,6 +3182,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2739,6 +3231,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2753,6 +3246,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2782,6 +3287,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2796,6 +3302,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2829,6 +3347,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2843,6 +3362,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2876,6 +3407,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2890,6 +3422,18 @@
                                 },
                                 "transcript": {
                                   "type": "string"
+                                },
+                                "learningStyleId": {
+                                  "anyOf": [
+                                    {
+                                      "type": "string",
+                                      "format": "uuid",
+                                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                    },
+                                    {
+                                      "type": "null"
+                                    }
+                                  ]
                                 },
                                 "type": {
                                   "type": "string",
@@ -2933,6 +3477,7 @@
                               "required": [
                                 "id",
                                 "transcript",
+                                "learningStyleId",
                                 "type",
                                 "body"
                               ]
@@ -2959,6 +3504,18 @@
                               "transcript": {
                                 "type": "string"
                               },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
+                              },
                               "type": {
                                 "type": "string",
                                 "const": "text"
@@ -2977,6 +3534,67 @@
                                       "minimum": -9007199254740991,
                                       "maximum": 9007199254740991
                                     }
+                                  },
+                                  "labels": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "text": {
+                                          "minItems": 1,
+                                          "type": "array",
+                                          "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          }
+                                        },
+                                        "keys": {
+                                          "minItems": 1,
+                                          "type": "array",
+                                          "items": {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "place": {
+                                          "type": "string",
+                                          "enum": [
+                                            "right",
+                                            "below",
+                                            "side"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "text",
+                                        "keys",
+                                        "place"
+                                      ]
+                                    }
+                                  },
+                                  "terms": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "additionalProperties": {
+                                      "minItems": 1,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    }
+                                  },
+                                  "write": {
+                                    "type": "boolean"
+                                  },
+                                  "answer": {
+                                    "type": "string",
+                                    "minLength": 1
                                   }
                                 },
                                 "required": [
@@ -2987,6 +3605,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3001,6 +3620,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3047,6 +3678,64 @@
                                   },
                                   "caption": {
                                     "type": "string"
+                                  },
+                                  "labels": {
+                                    "type": "array",
+                                    "items": {
+                                      "type": "object",
+                                      "properties": {
+                                        "text": {
+                                          "minItems": 1,
+                                          "type": "array",
+                                          "items": {
+                                            "type": "string",
+                                            "minLength": 1
+                                          }
+                                        },
+                                        "keys": {
+                                          "minItems": 1,
+                                          "type": "array",
+                                          "items": {
+                                            "type": "integer",
+                                            "minimum": -9007199254740991,
+                                            "maximum": 9007199254740991
+                                          }
+                                        },
+                                        "place": {
+                                          "type": "string",
+                                          "enum": [
+                                            "right",
+                                            "below",
+                                            "side"
+                                          ]
+                                        }
+                                      },
+                                      "required": [
+                                        "text",
+                                        "keys",
+                                        "place"
+                                      ]
+                                    }
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "terms": {
+                                    "type": "object",
+                                    "propertyNames": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "additionalProperties": {
+                                      "minItems": 1,
+                                      "type": "array",
+                                      "items": {
+                                        "type": "integer",
+                                        "minimum": -9007199254740991,
+                                        "maximum": 9007199254740991
+                                      }
+                                    }
                                   }
                                 },
                                 "required": [
@@ -3059,6 +3748,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3073,6 +3763,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3117,6 +3819,10 @@
                                   },
                                   "autoplay": {
                                     "type": "boolean"
+                                  },
+                                  "markdown": {
+                                    "type": "string",
+                                    "minLength": 1
                                   }
                                 },
                                 "required": [
@@ -3129,6 +3835,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3143,6 +3850,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3257,6 +3976,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3271,6 +3991,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3332,6 +4064,9 @@
                                   "markdown": {
                                     "type": "string",
                                     "minLength": 1
+                                  },
+                                  "showCode": {
+                                    "type": "boolean"
                                   }
                                 },
                                 "required": [
@@ -3344,6 +4079,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3358,6 +4094,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3391,6 +4139,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3405,6 +4154,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3442,6 +4203,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3456,6 +4218,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3485,6 +4259,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3499,6 +4274,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3532,6 +4319,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3546,6 +4334,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3579,6 +4379,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]
@@ -3593,6 +4394,18 @@
                               },
                               "transcript": {
                                 "type": "string"
+                              },
+                              "learningStyleId": {
+                                "anyOf": [
+                                  {
+                                    "type": "string",
+                                    "format": "uuid",
+                                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                                  },
+                                  {
+                                    "type": "null"
+                                  }
+                                ]
                               },
                               "type": {
                                 "type": "string",
@@ -3636,6 +4449,7 @@
                             "required": [
                               "id",
                               "transcript",
+                              "learningStyleId",
                               "type",
                               "body"
                             ]

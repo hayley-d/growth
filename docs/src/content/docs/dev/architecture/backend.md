@@ -69,7 +69,7 @@ All four endpoints need a signed-in learner. The use cases live in `application/
 
 | Endpoint | What it returns |
 | --- | --- |
-| `GET /api/lessons/:id` | The lesson, its unit, its status, the previous and next lesson ids, and its steps |
+| `GET /api/lessons/:id` | The lesson (with its objectives), its unit, its status, the previous and next lesson ids, and its steps |
 | `GET /api/lessons/:id/note` | The learner's note, or an empty body and a `null` `updatedAt` when there isn't one yet |
 | `PUT /api/lessons/:id/note` | Saves the note. It creates the note the first time and updates it after that |
 | `POST /api/lessons/:id/start` | Marks the lesson `started` and returns an empty 204. A completed lesson stays completed |
@@ -83,7 +83,7 @@ Two use cases in `application/learning-path/` have no route. The attempt use cas
 
 The status is `completed` when the learner's own progress says so, and `current` otherwise.
 
-Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
+Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every block carries its `learningStyleId` (`null` on the core block), so the page can name the style. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
 
 The note is saved as typed, with no trimming. `PUT` returns 400 over 2000 characters, and 400 for a lesson with no `notePrompt`. `GET` on such a lesson returns the empty note.
 
@@ -259,16 +259,37 @@ backend/prisma/content/
   case-studies/<key>.ts
 ```
 
-A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position. It can also hold a `tree`, a list of keys like `[8, 4, 12]`. The tree is drawn under the heading, before the rest of the text, so a task can show a real tree without needing a second block.
+A text block's frontmatter holds `position`, `transcript` and an optional `style` (`visual`, `auditory`, `reading-writing` or `kinesthetic`). A block with no style is the core block for its position. Every learner sees the core block. The block for their style shows under it, and the other styles go under "Other ways to learn this". It can also hold a `tree`, a list of keys like `[8, 4, 12]`. The tree is drawn under the heading, before the rest of the text, so a task can show a real tree without needing a second block.
+
+A text block can also hold `labels` for its own tree, and `terms`. Each term links a bold word, in lower case, to the keys it names:
+
+```yaml
+terms:
+  leaf: [2, 6, 10, 14]
+  root: [8]
+```
+
+When a tree at the same position shows those keys, the word becomes a button that lights them. The checker rejects a term whose keys no tree at that position shows, so a core text can link to the visual diagram beside it.
+
+A block that asks the learner to write something sets `write: true`, which puts a box to write in under the text. Its answer goes in `answer`, not the body, so it starts hidden behind a spoiler the learner can show and hide. `answer` is markdown, so use a YAML block scalar for lists:
+
+```yaml
+write: true
+answer: |
+  1. `preorder(40)`
+  2. `preorder(20)`, `preorder(40)`
+```
+
+Leave the answer out of the `transcript` too, or Listen reads it out.
 
 Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in `shared/src/schemas/src/content-block.ts`:
 
 | Type | Body |
 | --- | --- |
-| `diagram` | a tree from `startingKeys`, with highlighted nodes and a caption |
-| `animation` | insert, delete and search steps run on a tree |
+| `diagram` | a tree from `startingKeys`, with highlighted nodes and a caption. An optional `labels` list pins words to nodes: each label has `text` (one string a line), `keys` and a `place` of `right`, `below` or `side`. The checker rejects a label pointing at a key that isn't in the tree. An optional `markdown` holds text shown above it, and `terms` links its bold words to nodes, as for text blocks |
+| `animation` | insert, delete and search steps run on a tree. An optional `markdown` holds text shown above it, heading included |
 | `playground` | a tree the learner works on, with the operations they may use and an optional goal |
-| `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing. An optional `markdown` holds text shown above the trace, heading included |
+| `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing. An optional `markdown` holds text shown above the trace, heading included. `showCode: false` hides the code and shows only the tree and the call stack, for a step about the stack itself, like `02-pre-order/blocks/04-why-calls-wait.ts`. Its text and transcript then can't mention line numbers |
 | `copy_tree` | a tree copied into an empty one, a node at a time, in pre-order. An optional `markdown` holds text shown above it, heading included |
 | `expression_tree` | a maths expression as a tree (`{ value }` or `{ operator, left, right }`, operators `+ - × ÷`), stepped through in pre-, in- or post-order. An optional `markdown` holds text shown above it, heading included |
 | `number_line` | a search tree read in in-order, each key dropped into the next box on a number line |
@@ -276,7 +297,7 @@ Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in
 | `heights` | each node's height written in post-order, leaves first (a leaf has height 1). An optional `markdown` holds text shown above it, heading included |
 | `traversal_quiz` | a tree and one box per order in `orders`. The learner types the order of the nodes for each and checks their answers. An optional `markdown` holds text shown above it, heading included |
 
-A position holds one core block. When a step needs text and a picture, write the text at one position and the picture at the next, so every learner sees both. `02-pre-order/blocks/` is the example. A code trace, copy tree, expression tree, delete tree, heights block or traversal quiz is the exception: put its text in its own `markdown`, so the learner reads it next to the Step button or the quiz instead of a step earlier. The frontend doesn't draw `copy_tree`, `expression_tree`, `number_line`, `delete_tree`, `heights` or `traversal_quiz` yet.
+A position holds one core block. When a step needs text and a picture, write the text at one position and the picture at the next, so every learner sees both. `02-pre-order/blocks/` is the example. An animation, diagram, code trace, copy tree, expression tree, delete tree, heights block or traversal quiz is the exception: put its text in its own `markdown`, so the learner reads it next to the Step button or the picture instead of a step earlier. The frontend doesn't draw `number_line` yet.
 
 Written questions come in two kinds. `multiple_choice` lists `options`, with exactly one correct. `text` lists `accepted` answers, and each becomes a correct option. `build_tree`, `order_nodes` and `predict_rotation` have a `tree` and an `answer` that matches `learnerAnswerSchema`. A generated question only names its `generatorKey`, type, difficulty, Bloom's level and review lesson. It is stored with an empty explanation and no prompt, because the generator writes those when the question is asked.
 

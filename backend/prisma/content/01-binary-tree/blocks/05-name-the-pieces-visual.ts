@@ -16,5 +16,9 @@ export default {
       { key: 14, state: "active" },
     ],
     caption: "8 is the root. The four leaves are highlighted.",
+    labels: [
+      { text: ["8 is the root"], keys: [8], place: "right" },
+      { text: ["The four leaves:", "2, 6, 10 and 14"], keys: [2, 6, 10, 14], place: "below" },
+    ],
   },
 } satisfies BlockContent;

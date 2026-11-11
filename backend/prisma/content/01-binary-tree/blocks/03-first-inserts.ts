@@ -13,5 +13,7 @@ export default {
       { operation: "insert", key: 12 },
     ],
     autoplay: false,
+    markdown:
+      "## The first three keys\n\nPress play to watch 8, 4 and 12 go in.\n\n- **8** goes in first, so it becomes the **root**.\n- **4** is smaller than 8, so it goes **left**.\n- **12** is bigger than 8, so it goes **right**.",
   },
 } satisfies BlockContent;

@@ -1,10 +1,11 @@
 ---
 position: 1
-transcript: "Pre-order. Pre-order is a way to visit every node in a tree. It's one of the depth-first traversals. In pre-order, a node is visited before its subtrees. In this lesson you'll learn how to do it by hand and in code."
+transcript: "Pre-order traversal is a way to visit every node in a tree. As implied by the, pre, in pre-order, the algorithm visits a node before either of its subtrees. In this lesson you'll learn how to perform the traversal by hand and how the algorithm looks in code."
 ---
 
-## Pre-order
+## Pre-order Traversals
 
-Pre-order is a way to visit every node in a tree. It's one of the **depth-first** traversals.
+Pre-order traversal is a way to visit every node in a tree. As implied by the "pre" in pre-order, 
+the algorithm visits a node before either of its subtrees. In this lesson you'll learn how to
+perform the traversal by hand and how the algorithm looks in code.
 
-In pre-order, a node is visited before its subtrees. In this lesson you'll learn how to do it by hand and in code.

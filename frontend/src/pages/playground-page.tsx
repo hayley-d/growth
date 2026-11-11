@@ -1,7 +1,7 @@
 import { Navigate, useSearch } from "@tanstack/react-router";
 import { type PointerEvent, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 
-import { type AlgorithmCode, type AvlNode, createRandom, largestKey, toKeys } from "@shared/avl";
+import { type AlgorithmCode, type AvlNode, toKeys } from "@shared/avl";
 import { CommandLog } from "@/components/molecules/command-log";
 import { DragGhost } from "@/components/molecules/drag-ghost";
 import { PlaygroundNotice } from "@/components/molecules/playground-notice";
@@ -27,6 +27,7 @@ import {
 } from "@/lib/playground/playground-reducer";
 import { unbalancedKeys } from "@/lib/playground/run-command";
 import { type PlaygroundSetup, toSearch, toSetup, traversalNames } from "@/lib/playground/setup";
+import { suggestKey } from "@/lib/playground/suggest-key";
 import { usePlaygroundSnippets } from "@/lib/playground/use-playground-snippets";
 import {
   type DragSource,
@@ -46,16 +47,6 @@ const avlCodes: readonly AlgorithmCode[] = [
   "rebalance",
   "update-height",
 ];
-
-const suggestKey = (tree: AvlNode | null, salt: number) => {
-  const taken = new Set(toKeys(tree));
-  const random = createRandom(salt + taken.size * 7919);
-  for (let attempt = 0; attempt < 200; attempt += 1) {
-    const key = 1 + Math.floor(random() * largestKey);
-    if (!taken.has(key)) return String(key);
-  }
-  return "";
-};
 
 const avlWatchSuggestions = (tree: AvlNode | null, salt: number) => {
   const keys = toKeys(tree);

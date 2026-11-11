@@ -14,6 +14,7 @@ type TreeNodeProperties = {
   x: number;
   y: number;
   nodeKey: number;
+  label?: string;
   height: number;
   balance: number;
   state?: NodeState;
@@ -22,6 +23,9 @@ type TreeNodeProperties = {
   manual: boolean;
   selected: boolean;
   badge?: number;
+  pointer?: boolean;
+  lit?: boolean;
+  onHover?: (nodeKey: number | null) => void;
   instant: boolean;
   onSelect?: (nodeKey: number) => void;
 };
@@ -39,6 +43,14 @@ const idlePaint: Paint = {
   stroke: "var(--border)",
   text: "currentColor",
   strokeWidth: 1.5,
+  dashed: false,
+};
+
+const litPaint: Paint = {
+  fill: "var(--accent)",
+  stroke: "var(--accent-foreground)",
+  text: "var(--accent-foreground)",
+  strokeWidth: 3,
   dashed: false,
 };
 
@@ -95,10 +107,10 @@ const stateNames: Record<NodeState, string> = {
   new: "new",
 };
 
-const accessibleName = (nodeKey: number, balance: number, state?: NodeState, badge?: number) => {
+const accessibleName = (name: string, balance: number, state?: NodeState, badge?: number) => {
   const factor = `balance factor ${balance}`;
   const base =
-    state === undefined ? `${nodeKey}, ${factor}` : `${nodeKey}, ${stateNames[state]}, ${factor}`;
+    state === undefined ? `${name}, ${factor}` : `${name}, ${stateNames[state]}, ${factor}`;
   return badge === undefined ? base : `${base}, number ${badge}`;
 };
 
@@ -192,6 +204,7 @@ export function TreeNode({
   x,
   y,
   nodeKey,
+  label,
   height,
   balance,
   state,
@@ -200,21 +213,28 @@ export function TreeNode({
   manual,
   selected,
   badge,
+  pointer = true,
+  lit = false,
+  onHover,
   instant,
   onSelect,
 }: TreeNodeProperties) {
   const placeRef = useSvgPlace(x, y, instant);
-  const paint = state === undefined ? idlePaint : paints[state];
+  const paint = lit ? litPaint : state === undefined ? idlePaint : paints[state];
   const labels = [showHeight ? `h ${height}` : null].filter(
     (label): label is string => label !== null,
   );
   const hit = treeNodeRadius * 2;
 
   return (
-    <g ref={placeRef}>
+    <g
+      ref={placeRef}
+      onPointerEnter={onHover ? () => onHover(nodeKey) : undefined}
+      onPointerLeave={onHover ? () => onHover(null) : undefined}
+    >
       <g transform={`translate(${-x} ${-y})`}>
         <g aria-hidden={manual ? true : undefined}>
-          {state === "active" ? <Pointer x={x} y={y} /> : null}
+          {pointer && state === "active" ? <Pointer x={x} y={y} /> : null}
           <TreeNodeCircle
             x={x}
             y={y}
@@ -243,7 +263,7 @@ export function TreeNode({
             fontWeight="600"
             fill={paint.text}
           >
-            {nodeKey}
+            {label ?? nodeKey}
           </text>
           {state === "deleting" ? <Cross x={x} y={y} /> : null}
           {badge === undefined ? null : <NumberBadge x={x} y={y} value={badge} />}
@@ -269,7 +289,7 @@ export function TreeNode({
           <foreignObject x={x - treeNodeRadius} y={y - treeNodeRadius} width={hit} height={hit}>
             <button
               type="button"
-              aria-label={accessibleName(nodeKey, balance, state, badge)}
+              aria-label={accessibleName(label ?? String(nodeKey), balance, state, badge)}
               aria-pressed={selected || badge !== undefined}
               data-node-key={nodeKey}
               onClick={() => onSelect?.(nodeKey)}

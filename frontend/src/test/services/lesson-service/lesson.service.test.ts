@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { lessonService } from "@/services/lesson-service/lesson.service";
 import { networkService } from "@/services/network.service";
 import { ServiceError } from "@/services/service-error";
+import { buildLesson, lessonFixtureId } from "@/test/lesson-fixture";
 
 vi.mock("@/services/network.service", () => ({
   networkService: {
@@ -105,5 +106,35 @@ describe("lessonService.startLesson", () => {
 
     expect(error).toBeInstanceOf(ServiceError);
     expect(error).toMatchObject({ status: 403, message: "Lesson is locked" });
+  });
+});
+
+describe("lessonService.getLesson", () => {
+  beforeEach(() => {
+    mockedGet.mockReset();
+  });
+
+  it("returns the parsed lesson", async () => {
+    const lesson = buildLesson();
+    mockedGet.mockResolvedValue({ data: lesson });
+
+    await expect(lessonService.getLesson(lessonFixtureId)).resolves.toEqual(lesson);
+    expect(mockedGet).toHaveBeenCalledWith(`/api/lessons/${lessonFixtureId}`);
+  });
+
+  it("rejects with the status when the lesson is locked", async () => {
+    mockedGet.mockRejectedValue(serverFailure);
+
+    const error = await lessonService.getLesson(lessonFixtureId).catch((caught: unknown) => caught);
+
+    expect(error).toMatchObject({ status: 403, message: "Lesson is locked" });
+  });
+
+  it("rejects when the response has the wrong shape", async () => {
+    mockedGet.mockResolvedValue({ data: { data: { lesson: {} } } });
+
+    await expect(lessonService.getLesson(lessonFixtureId)).rejects.toMatchObject({
+      message: "Incorrect data format",
+    });
   });
 });

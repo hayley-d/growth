@@ -3,6 +3,7 @@ import { page } from "vitest/browser";
 
 import { networkService } from "@/services/network.service";
 import { buildLearningPath } from "@/test/learning-path-fixture";
+import { buildLesson } from "@/test/lesson-fixture";
 import { renderApp } from "@/test/render-app";
 
 vi.mock("@/services/network.service", () => ({
@@ -14,6 +15,14 @@ vi.mock("@/services/network.service", () => ({
 
 const mockedGet = vi.mocked(networkService.get);
 const mockedPost = vi.mocked(networkService.post);
+
+const serveMapAndLessons = (completedCount: number) => {
+  mockedGet.mockImplementation(async (url: string) => {
+    const lessonId = /^\/api\/lessons\/([^/]+)$/.exec(url)?.[1];
+    if (lessonId) return { data: buildLesson({ id: lessonId }) };
+    return { data: buildLearningPath(completedCount) };
+  });
+};
 
 beforeEach(async () => {
   await page.viewport(1280, 800);
@@ -69,14 +78,14 @@ it("says so when every lesson is done", async () => {
 });
 
 it("starts the lesson and goes to the lesson page", async () => {
-  mockedGet.mockResolvedValue({ data: buildLearningPath(2) });
+  serveMapAndLessons(2);
   mockedPost.mockResolvedValue({ data: "" });
   const screen = await renderApp("/learn");
 
   await screen.getByRole("button", { name: "In-order, up next" }).click();
   await page.getByRole("button", { name: "Start lesson" }).click();
 
-  await expect.element(screen.getByRole("heading", { name: "Lesson", level: 1 })).toBeVisible();
+  await expect.element(screen.getByRole("progressbar", { name: "Lesson progress" })).toBeVisible();
   expect(mockedPost).toHaveBeenCalledWith(
     "/api/lessons/00000000-0000-4000-8000-000000000003/start",
   );
@@ -96,7 +105,7 @@ it("stays on the map and shows the error when the start fails", async () => {
 
   await expect.element(page.getByRole("alert")).toHaveTextContent("Lesson is locked");
   await expect.element(page.getByRole("button", { name: "Start lesson" })).toBeEnabled();
-  expect(screen.container.textContent).not.toContain("The lesson page is on the way.");
+  expect(page.getByRole("progressbar", { name: "Lesson progress" }).elements()).toHaveLength(0);
 });
 
 it("goes to the test page for a locked lesson", async () => {
@@ -111,13 +120,13 @@ it("goes to the test page for a locked lesson", async () => {
 });
 
 it("goes to the lesson page to review a done lesson", async () => {
-  mockedGet.mockResolvedValue({ data: buildLearningPath(2) });
+  serveMapAndLessons(2);
   const screen = await renderApp("/learn");
 
   await screen.getByRole("button", { name: "Pre-order, completed" }).click();
   await page.getByRole("button", { name: "Review lesson" }).click();
 
-  await expect.element(screen.getByRole("heading", { name: "Lesson", level: 1 })).toBeVisible();
+  await expect.element(screen.getByRole("progressbar", { name: "Lesson progress" })).toBeVisible();
   expect(mockedPost).not.toHaveBeenCalled();
 });
 

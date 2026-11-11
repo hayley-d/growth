@@ -11,6 +11,7 @@ type PlaygroundConsoleProperties = {
   prompt: string;
   placeholder: string;
   suggestions: readonly string[];
+  emptyText?: string;
   busy: boolean;
   onRun: (text: string) => void;
   onReplay: (id: number) => void;
@@ -22,6 +23,7 @@ export function PlaygroundConsole({
   prompt,
   placeholder,
   suggestions,
+  emptyText = "Type a command below, or tap one to fill it in. help lists them all.",
   busy,
   onRun,
   onReplay,
@@ -42,12 +44,7 @@ export function PlaygroundConsole({
       aria-label="Console"
       className={cn("flex flex-col gap-3 rounded-2xl border-2 bg-card p-3 sm:p-4", className)}
     >
-      <CommandLog
-        entries={entries}
-        busy={busy}
-        emptyText="Type a command below, or tap one to fill it in. help lists them all."
-        onReplay={onReplay}
-      />
+      <CommandLog entries={entries} busy={busy} emptyText={emptyText} onReplay={onReplay} />
       <form onSubmit={handleSubmit} className="flex items-center gap-2">
         <label htmlFor={inputId} className="sr-only">
           Command
