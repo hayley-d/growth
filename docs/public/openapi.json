@@ -29,6 +29,10 @@
       "description": "The signed-in learner's settings."
     },
     {
+      "name": "Onboarding",
+      "description": "The learning style quiz and the answers a new learner gives before reaching the app."
+    },
+    {
       "name": "Learning path",
       "description": "The units and lessons, with the learner's progress."
     },
@@ -347,6 +351,123 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/onboarding": {
+      "post": {
+        "operationId": "completeOnboarding",
+        "tags": [
+          "Onboarding"
+        ],
+        "summary": "Save the onboarding answers",
+        "description": "Saves the learning style, code language, leaderboard and text to speech answers and marks onboarding complete in one write. Sending it again overwrites the answers.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompleteOnboardingRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The learner and the updated profile.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MeResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/onboarding/quiz": {
+      "get": {
+        "operationId": "getQuiz",
+        "tags": [
+          "Onboarding"
+        ],
+        "summary": "Get the learning style quiz",
+        "description": "Eight questions with four options each. The options don't say which style they count towards.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The questions.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/GetQuizResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      },
+      "post": {
+        "operationId": "scoreQuiz",
+        "tags": [
+          "Onboarding"
+        ],
+        "summary": "Work out the learning style from the answers",
+        "description": "Answer every question once. The style with the most picks wins, and a tie goes to visual, auditory, reading/writing, then kinesthetic. Nothing is saved.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ScoreQuizRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The learning style.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ScoreQuizResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
           }
         }
       }
@@ -938,6 +1059,65 @@
         "required": [
           "questionId",
           "answer"
+        ]
+      },
+      "ScoreQuizRequest": {
+        "type": "object",
+        "properties": {
+          "answers": {
+            "minItems": 1,
+            "maxItems": 32,
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "questionId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                },
+                "optionId": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 64
+                }
+              },
+              "required": [
+                "questionId",
+                "optionId"
+              ]
+            }
+          }
+        },
+        "required": [
+          "answers"
+        ]
+      },
+      "CompleteOnboardingRequest": {
+        "type": "object",
+        "properties": {
+          "learningStyleId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "codeLanguageId": {
+            "type": "string",
+            "format": "uuid",
+            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+          },
+          "showOnLeaderboard": {
+            "type": "boolean"
+          },
+          "textToSpeech": {
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "learningStyleId",
+          "codeLanguageId",
+          "showOnLeaderboard",
+          "textToSpeech"
         ]
       },
       "ErrorResponse": {
@@ -4125,6 +4305,102 @@
               "attempt",
               "question",
               "result"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "GetQuizResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "questions": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "string",
+                      "minLength": 1,
+                      "maxLength": 64
+                    },
+                    "prompt": {
+                      "type": "string"
+                    },
+                    "options": {
+                      "minItems": 4,
+                      "maxItems": 4,
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "minLength": 1,
+                            "maxLength": 64
+                          },
+                          "text": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "text"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "prompt",
+                    "options"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "questions"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "ScoreQuizResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "learningStyle": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "format": "uuid",
+                    "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                },
+                "required": [
+                  "id",
+                  "name",
+                  "description"
+                ]
+              }
+            },
+            "required": [
+              "learningStyle"
             ]
           }
         },

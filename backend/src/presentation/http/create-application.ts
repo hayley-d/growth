@@ -10,6 +10,7 @@ import type { AttemptController } from "@/presentation/controllers/attempt-contr
 import type { CourseContentController } from "@/presentation/controllers/course-content-controller";
 import type { LearningPathController } from "@/presentation/controllers/learning-path-controller";
 import type { LessonController } from "@/presentation/controllers/lesson-controller";
+import type { OnboardingController } from "@/presentation/controllers/onboarding-controller";
 import type { UserController } from "@/presentation/controllers/user-controller";
 import { createAuthMiddleware } from "@/presentation/middleware/auth-middleware";
 import { createErrorHandler } from "@/presentation/middleware/error-handler";
@@ -23,6 +24,7 @@ import { createCourseContentRoutes } from "@/presentation/routes/course-content-
 import { healthRoutes } from "@/presentation/routes/health-routes";
 import { createLearningPathRoutes } from "@/presentation/routes/learning-path-routes";
 import { createLessonRoutes } from "@/presentation/routes/lesson-routes";
+import { createOnboardingRoutes } from "@/presentation/routes/onboarding-routes";
 import { createUserRoutes } from "@/presentation/routes/user-routes";
 
 type ApplicationDependencies = {
@@ -35,6 +37,7 @@ type ApplicationDependencies = {
   userController: UserController;
   courseContentController: CourseContentController;
   learningPathController: LearningPathController;
+  onboardingController: OnboardingController;
 };
 
 export const createApplication = ({
@@ -47,6 +50,7 @@ export const createApplication = ({
   userController,
   courseContentController,
   learningPathController,
+  onboardingController,
 }: ApplicationDependencies) => {
   const application = new Hono();
   application.use(secureHeaders());
@@ -68,6 +72,7 @@ export const createApplication = ({
   application.route("/api", createAttemptRoutes(attemptController));
   application.route("/api/learning-path", createLearningPathRoutes(learningPathController));
   application.route("/api/me", createUserRoutes(userController));
+  application.route("/api/onboarding", createOnboardingRoutes(onboardingController));
   application.route("/api", createCourseContentRoutes(courseContentController));
   application.notFound(notFoundHandler);
   application.onError(createErrorHandler(logger));

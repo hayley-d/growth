@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const learningStyleSchema = z.object({
+export const learningStyleSchema = z.object({
   id: z.uuid(),
   name: z.string(),
   description: z.string(),

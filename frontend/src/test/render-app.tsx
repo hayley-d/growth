@@ -3,7 +3,9 @@ import { createMemoryHistory, createRouter, RouterProvider } from "@tanstack/rea
 import { vi } from "vitest";
 import { render } from "vitest-browser-react";
 
+import type { MeResponse } from "@shared/schemas";
 import { authClient } from "@/lib/auth-client";
+import { userQueryKeys } from "@/lib/queries/user.queries";
 import { queryClient } from "@/lib/query-client";
 import { routeTree } from "@/routeTree.gen";
 import "@/index.css";
@@ -40,14 +42,30 @@ type SessionError = { message: string; status: number };
 
 const defaultSessionData: SessionData = { user: mockUser, session: mockSession };
 
+export const onboardedMe: MeResponse = {
+  data: {
+    user: { email: mockUser.email, emailVerified: true, displayName: mockUser.name },
+    profile: {
+      codeLanguageId: null,
+      colourTheme: "default",
+      learningStyleId: null,
+      onboardingComplete: true,
+      showOnLeaderboard: true,
+      textToSpeech: false,
+    },
+  },
+};
+
 export function renderApp(
   path = "/",
   {
     session = defaultSessionData,
     sessionError,
-  }: { session?: SessionData; sessionError?: SessionError } = {},
+    me = onboardedMe,
+  }: { session?: SessionData; sessionError?: SessionError; me?: MeResponse | null } = {},
 ) {
   queryClient.clear();
+  if (me) queryClient.setQueryData(userQueryKeys.me, me);
   vi.mocked(authClient.getSession).mockResolvedValue(
     sessionError ? { data: null, error: sessionError } : { data: session, error: null },
   );

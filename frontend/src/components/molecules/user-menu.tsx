@@ -21,7 +21,7 @@ const toInitials = (name: string) =>
     .slice(0, 2)
     .toUpperCase();
 
-export function UserMenu() {
+export function UserMenu({ showSettings = true }: { showSettings?: boolean }) {
   const navigate = useNavigate();
   const session = useSessionQuery();
   const signOutMutation = useSignOutMutation();
@@ -57,12 +57,14 @@ export function UserMenu() {
           <User />
           Profile
         </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link to="/settings">
-            <Settings />
-            Settings
-          </Link>
-        </DropdownMenuItem>
+        {showSettings && (
+          <DropdownMenuItem asChild>
+            <Link to="/settings">
+              <Settings />
+              Settings
+            </Link>
+          </DropdownMenuItem>
+        )}
         <DropdownMenuSeparator />
         <DropdownMenuItem
           disabled={signOutMutation.isPending}

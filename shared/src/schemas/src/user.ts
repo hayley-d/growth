@@ -16,6 +16,15 @@ export const updateUserProfileRequestSchema = userProfileFieldsSchema.partial();
 
 export type UpdateUserProfileRequest = z.infer<typeof updateUserProfileRequestSchema>;
 
+export const completeOnboardingRequestSchema = userProfileFieldsSchema.pick({
+  learningStyleId: true,
+  codeLanguageId: true,
+  showOnLeaderboard: true,
+  textToSpeech: true,
+});
+
+export type CompleteOnboardingRequest = z.infer<typeof completeOnboardingRequestSchema>;
+
 const meProfileSchema = z.object({
   codeLanguageId: z.uuid().nullable(),
   colourTheme: colourThemeSchema,

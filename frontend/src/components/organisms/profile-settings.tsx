@@ -1,4 +1,5 @@
 import { useForm } from "@tanstack/react-form";
+import { Link } from "@tanstack/react-router";
 import type { ReactNode } from "react";
 
 import {
@@ -144,9 +145,13 @@ function LearningStyleSetting({
           </option>
         ))}
       </select>
-      <a href="/onboarding" className="self-start text-sm font-medium underline underline-offset-4">
+      <Link
+        to="/onboarding"
+        search={{ retake: true }}
+        className="inline-flex min-h-11 items-center self-start text-sm font-medium underline underline-offset-4"
+      >
         Not sure? Retake the quiz
-      </a>
+      </Link>
       {setting.status}
     </SettingSection>
   );
