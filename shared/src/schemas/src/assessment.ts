@@ -72,6 +72,17 @@ export const learnerAnswerSchema = z.discriminatedUnion("type", [
 
 export type LearnerAnswer = z.infer<typeof learnerAnswerSchema>;
 
+export const replaySchema = z.discriminatedUnion("kind", [
+  z.object({
+    kind: z.literal("operation"),
+    operation: z.enum(["insert", "delete"]),
+    key: treeKeySchema,
+  }),
+  z.object({ kind: z.literal("traversal"), order: traversalOrderSchema }),
+]);
+
+export type Replay = z.infer<typeof replaySchema>;
+
 export const generatedQuestionSchema = z
   .object({
     type: questionTypeSchema,
@@ -81,6 +92,7 @@ export const generatedQuestionSchema = z
     answer: learnerAnswerSchema,
     explanation: z.string(),
     hints: z.array(z.string()).min(2),
+    replay: replaySchema.nullable().optional(),
   })
   .refine(
     (value) => value.answer.type === value.type,

@@ -3,6 +3,7 @@ import { PartyPopper } from "lucide-react";
 
 import { ContinueCard } from "@/components/molecules/continue-card";
 import { EmptyState } from "@/components/molecules/empty-state";
+import { MasteryList } from "@/components/molecules/mastery-list";
 import { PageLoader } from "@/components/molecules/page-loader";
 import { UnitProgress } from "@/components/molecules/unit-progress";
 import { countCompleted } from "@/lib/learning-path/count-completed";
@@ -131,6 +132,14 @@ export function DashboardPage() {
               />
             ))}
           </div>
+        </section>
+      ) : null}
+      {lessons.length > 0 ? (
+        <section aria-labelledby="your-mastery" className="flex flex-col gap-4">
+          <h2 id="your-mastery" className="text-lg font-semibold">
+            Your mastery
+          </h2>
+          <MasteryList lessons={allLessons.filter((lesson) => lesson.status !== "locked")} />
         </section>
       ) : null}
     </div>

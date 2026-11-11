@@ -50,6 +50,7 @@ export const generateTraversalOrder = ({
     tree: encodeTree(tree),
     answer,
     explanation: `${title} visits ${orderRules[chosenOrder]}. For this tree that gives ${keys.join(", ")}.`,
+    replay: { kind: "traversal", order: chosenOrder },
     hints: [
       `${title} traversal visits ${orderRules[chosenOrder]}.`,
       `The root is ${tree.key}. It has ${toKeys(tree.left).length} keys in its left subtree and ${toKeys(tree.right).length} in its right.`,

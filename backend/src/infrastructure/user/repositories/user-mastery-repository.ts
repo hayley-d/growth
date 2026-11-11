@@ -10,6 +10,7 @@ import type {
   PrismaClient,
   UserMastery as UserMasteryRow,
 } from "@/generated/prisma/client";
+import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 import { PrismaRepository } from "@/infrastructure/database/prisma-repository";
 import { toUserMastery } from "@/infrastructure/user/mappers/user-mastery-mapper";
 
@@ -39,5 +40,16 @@ export class PrismaUserMasteryRepository
       toCreateData: (userMastery) => userMastery,
       toUpdateData: (changes) => changes,
     });
+  }
+
+  listByUserId(userId: string) {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.userMastery.findMany({
+          where: { userId },
+          orderBy: this.options.orderBy,
+        })
+      ).map(toUserMastery),
+    );
   }
 }

@@ -101,6 +101,7 @@ export const makeSubmitAnswer = (dependencies: SubmitAnswerDependencies) => {
         isCorrect,
         correctAnswer,
         explanation: view.explanation,
+        replay: view.replay,
         hintsUsed: saved.hintsUsed,
         points: getAnswerPoints(saved),
         rating: { before: ratingBefore, after: ratingAfter },

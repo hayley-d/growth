@@ -64,6 +64,21 @@ describe("generate", () => {
     });
   });
 
+  it("gives operation and traversal questions a replay that matches the prompt", () => {
+    everyCase("insert-result", (difficulty, seed) => {
+      const insert = generate("insert-result", { seed, difficulty });
+      const remove = generate("delete-result", { seed, difficulty });
+      expect(insert.replay).toMatchObject({ kind: "operation", operation: "insert" });
+      expect(remove.replay).toMatchObject({ kind: "operation", operation: "delete" });
+      if (insert.replay?.kind === "operation") {
+        expect(insert.prompt).toContain(`Insert ${insert.replay.key} `);
+      }
+      const traversal = generate("traversal-order", { seed, difficulty, order: "postorder" });
+      expect(traversal.replay).toEqual({ kind: "traversal", order: "postorder" });
+      expect(generate("height", { seed, difficulty }).replay ?? null).toBeNull();
+    });
+  });
+
   it("honours the requested traversal order", () => {
     const question = generate("traversal-order", { seed: 4, difficulty: 3, order: "inorder" });
     const sorted = [...nodeKeys(question.tree)].sort((first, second) => first - second);

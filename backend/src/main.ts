@@ -98,6 +98,7 @@ const lessonController = createLessonController({
 });
 
 const userRepository = new PrismaUserRepository(prismaClient);
+const userMasteryRepository = new PrismaUserMasteryRepository(prismaClient);
 const completeLesson = makeCompleteLesson(lessonAccess);
 const attemptDependencies = {
   assessmentAttemptRepository: new PrismaAssessmentAttemptRepository(prismaClient),
@@ -106,7 +107,7 @@ const attemptDependencies = {
   questionRepository: new PrismaQuestionRepository(prismaClient),
   answerOptionRepository: new PrismaAnswerOptionRepository(prismaClient),
   hintRepository: new PrismaHintRepository(prismaClient),
-  userMasteryRepository: new PrismaUserMasteryRepository(prismaClient),
+  userMasteryRepository,
   lessonRepository: lessonAccess.lessonRepository,
   completeLesson,
   logger,
@@ -144,7 +145,7 @@ const onboardingController = createOnboardingController({
 });
 
 const learningPathController = createLearningPathController({
-  getLearningPath: makeGetLearningPath({ ...lessonAccess, unitRepository }),
+  getLearningPath: makeGetLearningPath({ ...lessonAccess, unitRepository, userMasteryRepository }),
 });
 
 const application = createApplication({

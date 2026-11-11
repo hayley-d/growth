@@ -26,6 +26,7 @@ export const generateDeleteResult = ({ seed, difficulty }: GenerateOptions): Gen
     tree: encodeTree(found.tree),
     answer: { type: "build_tree", tree: encodeTree(found.result) },
     explanation: `${successorNote}${describeRotation(found.rotation, found.pivotKey, replacedKey)}`,
+    replay: { kind: "operation", operation: "delete", key: found.key },
     hints: [
       "Delete like in a plain binary search tree. A node with two children is replaced by its in-order successor, the smallest key in its right subtree.",
       "After deleting, check the balance factor of each node on the path from where the node was removed back up to the root.",

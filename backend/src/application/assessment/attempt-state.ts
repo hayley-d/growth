@@ -11,7 +11,7 @@ import type { AssessmentAttempt } from "@/domain/assessment/assessment-attempt";
 import type { AttemptAnswer } from "@/domain/assessment/attempt-answer";
 import type { AttemptQuestion } from "@/domain/assessment/attempt-question";
 import { getAttemptScore, isPassed } from "@/domain/assessment/attempt-score";
-import { getPoints, getScore } from "@/domain/assessment/elo-rating";
+import { getMastery, getPoints, getScore } from "@/domain/assessment/elo-rating";
 import type { Question } from "@/domain/assessment/question";
 import { NotFoundError } from "@/domain/errors";
 
@@ -90,6 +90,7 @@ export const makeLoadAttemptState = (dependencies: AttemptStateDependencies) => 
             isCorrect: answer.isCorrect,
             correctAnswer: correctAnswer as LearnerAnswer,
             explanation: view.explanation,
+            replay: view.replay,
             hintsUsed: answer.hintsUsed,
             points: getAnswerPoints(answer),
           },
@@ -110,6 +111,22 @@ export const makeLoadAttemptState = (dependencies: AttemptStateDependencies) => 
       .filter((lesson) => lesson !== null)
       .map((lesson) => ({ id: lesson.id, title: lesson.title }));
 
+    const lessonRatings = new Map<string, { before: number; after: number }>();
+    for (const { answer, question } of reviews) {
+      const existing = lessonRatings.get(question.lessonId);
+      lessonRatings.set(question.lessonId, {
+        before: existing?.before ?? answer.ratingBefore,
+        after: answer.ratingAfter,
+      });
+    }
+    const averageMastery = (pick: (rating: { before: number; after: number }) => number) => {
+      const masteries = [...lessonRatings.values()].map((rating) => getMastery(pick(rating)));
+      if (masteries.length === 0) return 0;
+      return Math.round(
+        (masteries.reduce((total, mastery) => total + mastery, 0) / masteries.length) * 100,
+      );
+    };
+
     return {
       score: attempt.score,
       passed: attempt.passed,
@@ -118,6 +135,8 @@ export const makeLoadAttemptState = (dependencies: AttemptStateDependencies) => 
         (total, answer) => total + answer.ratingAfter - answer.ratingBefore,
         0,
       ),
+      masteryBefore: averageMastery((rating) => rating.before),
+      masteryAfter: averageMastery((rating) => rating.after),
       reviewLessons,
       answers: reviews.map(({ review }) => review),
     };

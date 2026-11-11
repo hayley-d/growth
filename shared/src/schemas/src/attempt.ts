@@ -1,6 +1,10 @@
 import { z } from "zod";
 
-import { learnerAnswerSchema, questionTypeSchema } from "@shared/schemas/src/assessment";
+import {
+  learnerAnswerSchema,
+  questionTypeSchema,
+  replaySchema,
+} from "@shared/schemas/src/assessment";
 
 export const testAttemptKindSchema = z.enum(["lesson_test", "checkpoint"]);
 
@@ -52,6 +56,7 @@ export const attemptReviewAnswerSchema = z.object({
   isCorrect: z.boolean(),
   correctAnswer: learnerAnswerSchema,
   explanation: z.string(),
+  replay: replaySchema.nullable(),
   hintsUsed: z.int().nonnegative(),
   points: z.int().nonnegative(),
 });
@@ -61,6 +66,8 @@ export const attemptResultSchema = z.object({
   passed: z.boolean(),
   points: z.int().nonnegative(),
   ratingChange: z.int(),
+  masteryBefore: z.int().min(0).max(100),
+  masteryAfter: z.int().min(0).max(100),
   reviewLessons: z.array(attemptReviewLessonSchema),
   answers: z.array(attemptReviewAnswerSchema),
 });
@@ -106,6 +113,7 @@ export const submitAnswerResponseSchema = z.object({
     isCorrect: z.boolean(),
     correctAnswer: learnerAnswerSchema,
     explanation: z.string(),
+    replay: replaySchema.nullable(),
     hintsUsed: z.int().nonnegative(),
     points: z.int().nonnegative(),
     rating: z.object({ before: z.int(), after: z.int() }),

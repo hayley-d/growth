@@ -10,6 +10,7 @@ import {
   SheetHeader,
   SheetTitle,
 } from "@/components/atoms/sheet";
+import { MasteryMeter } from "@/components/molecules/mastery-meter";
 import { cn } from "@/lib/utils";
 
 type LessonSheetProperties = {
@@ -79,6 +80,7 @@ export function LessonSheet({
                 {badgeWords[lesson.status]}
                 {isQuiz ? " · quiz" : ""}
               </span>
+              {lesson.status === "locked" ? null : <MasteryMeter mastery={lesson.mastery} />}
               {lesson.status === "completed" ? (
                 <Button size="lg" className="min-h-11" onClick={() => onReview(lesson.id)}>
                   Review lesson

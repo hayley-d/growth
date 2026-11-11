@@ -11,4 +11,6 @@ export type UserMasteryRepository = Repository<
   NewUserMastery,
   UserMasteryChanges,
   UserMasteryKey
->;
+> & {
+  listByUserId(userId: string): Promise<UserMastery[]>;
+};

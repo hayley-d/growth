@@ -23,6 +23,7 @@ export const generateInsertResult = ({ seed, difficulty }: GenerateOptions): Gen
     tree: encodeTree(found.tree),
     answer: { type: "build_tree", tree: result },
     explanation: `${found.key} goes in like in a plain binary search tree. ${describeRotation(found.rotation, found.pivotKey)}`,
+    replay: { kind: "operation", operation: "insert", key: found.key },
     hints: [
       "Insert like in a plain binary search tree first: smaller keys go left, larger keys go right.",
       `After inserting, check the balance factor of each node on the path from ${found.key} back up to the root.`,
