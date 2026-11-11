@@ -117,7 +117,7 @@ const answerEverything = async () => {
 };
 
 describe("a learner who hasn't onboarded", () => {
-  it.each(["/", "/courses", "/settings", "/playground"])(
+  it.each(["/", "/learn", "/settings", "/playground"])(
     "is sent from %s to onboarding before anything else",
     async (path) => {
       await renderApp(path, { me: newMe });
@@ -278,9 +278,9 @@ describe("a learner who has onboarded", () => {
   });
 
   it("reaches signed-in pages without being sent to onboarding", async () => {
-    await renderApp("/courses");
+    await renderApp("/learn");
 
-    await expect.element(heading("Courses")).toBeVisible();
+    await expect.element(heading("Learn")).toBeVisible();
   });
 
   it("can retake the quiz and save only the learning style", async () => {
@@ -304,7 +304,7 @@ it("shows the error page, not onboarding, when the profile can't be loaded", asy
     return { data: responses[url as string] };
   });
 
-  await renderApp("/courses", { me: null });
+  await renderApp("/learn", { me: null });
 
   await expect.element(heading("Something went wrong")).toBeVisible();
   expect(page.getByText("Step 1 of 4").query()).toBeNull();

@@ -49,7 +49,7 @@ export const buildLearningPath = (completedCount: number): LearningPathResponse 
     data: {
       units,
       progress: Math.round((Math.min(completedCount, 12) / 12) * 100),
-      currentLessonId: completedCount >= 12 ? null : lessonIdAt(completedCount),
+      currentLessonId: lessonIdAt(Math.min(completedCount, 11)),
     },
   };
 };
