@@ -7,7 +7,7 @@ import { Aside, Steps } from "@astrojs/starlight/components";
 
 The code trace sits next to the tree, in the playground and in every lesson that runs an algorithm. It shows the line of code that's running and the values of the variables on that line. As the learner steps through the tree the line moves with it.
 
-The code trace allows the learner to see how the recursive calls affect the call stack. Additionaly, the learner will be able to see how the traversal algorithms differ.
+The code trace allows the learner to see how the recursive calls affect the call stack. Additionally, the learner will be able to see how the traversal algorithms differ.
 
 We designed the code trace over three rounds, following [SAM 2](../../../approach/). In the savvy start each of us sketched a storyboard for an idea of a code trace. We reviewed all five together and took the Debugger idea forward. Design 2 added a trail and a call stack onto it. Design 3 is the version we built, and the design proof is the first working build in the app.
 
@@ -99,8 +99,8 @@ This one shows where the learner came from. The last three lines keep a fading m
 
 ### Review
 
-All five of us went through the storyboards and decided A was our favourite idea. 
-The code and the tree sat side by side. B focused to heavily on the banner message. C looked like it would cause issues for responsive design. We liked the tagges D added but decided against them as it would interfear with another design we had planned. The team liked E's markers and wanted to oncorporate them into design 2.
+All five of us went through the storyboards and decided A was our favourite idea.
+The code and the tree sat side by side. B focused too heavily on the banner message. C looked like it would cause issues for responsive design. We liked the tags D added but decided against them as it would interfere with another design we had planned. The team liked E's markers and wanted to incorporate them into design 2.
 
 ## Design 2
 
@@ -126,13 +126,13 @@ This design built off A from the savvy start round with two additions. Firstly, 
 
 ### Review
 
-The team liked the call stack idea but not the trail. On a narrow laptop screen the faded mark and running line did not look good and in the colour blind schema the colours ended up being the same shade.
+The team liked the call stack idea but not the trail. On a narrow laptop screen the faded mark and running line did not look good and in the colour-blind scheme the colours ended up being the same shade.
 
 ## Design 3
 
 ### Debugger, built for every screen
 
-We designed the debugger so that a running line is marked in three ways so it never fully depends on colour alone. There is a dot in the gutter, a highlight across the line and a `aria-current="step"` for screen readers. 
+We designed the debugger so that a running line is marked in three ways so it never fully depends on colour alone. There is a dot in the gutter, a highlight across the line and an `aria-current="step"` for screen readers.
 
 <Steps>
 
@@ -162,7 +162,7 @@ Tree on one side, code on the other, the running line marked with a dot and a ba
 
 The debugger design allows the learner to see the tree and code side by side for comparison. The line is marked three ways, so it still reads in every colour scheme, which is one of our [presentation](../../../presentation/) rules.
 
-The message and the Listen button are for learners who don't read code fluently yet, and Listen also reads it aloud for anyone who'd rather hear it, which lines up with what we wrote about [learning styles](../../../learning-styles/). 
+The message and the Listen button are for learners who don't read code fluently yet, and Listen also reads it aloud for anyone who'd rather hear it, which lines up with what we wrote about [learning styles](../../../learning-styles/).
 
 ### CCAF
 
@@ -177,7 +177,7 @@ The message and the Listen button are for learners who don't read code fluently 
 
 The design proof was the `CodeTrace` and `TraceLayout` components on the playground page.
 
-We ran it at 375, 768 and 1280 pixels wide, in the default, high-contrast and colour-blind schemes, and stepped through a full insert with a double rotation in each. 
+We ran it at 375, 768 and 1280 pixels wide, in the default, high-contrast and colour-blind schemes, and stepped through a full insert with a double rotation in each.
 
 :::caution[Add screenshot]
 The built code trace in the playground at 1280 px, mid-way through an insert, with the lime band, gutter dot, variables and call stack showing.

@@ -1,12 +1,13 @@
 ---
 title: "Step player"
+description: How we designed the step player, from five savvy start storyboards to the design proof.
 ---
 
 import { Aside, Steps } from "@astrojs/starlight/components";
 
 The step player sits under the tree and the code trace, in the playground and in lessons. It moves through an operation one step at a time, plays the steps on its own if the learner wants, and sets the speed. An AVL insert of one key can run to forty steps. Without a way to see where the rotation is in those forty, the learner just presses Next until something happens.
 
-It serves the same [learning objectives](../../../objectives/) as the code trace, because it's what drives the trace. It enables learners to view how the call stack works, step slowly through rotations and operations such as insert and delete. 
+It serves the same [learning objectives](../../../objectives/) as the code trace, because it's what drives the trace. It enables learners to view how the call stack works, step slowly through rotations and operations such as insert and delete.
 
 We followed [SAM 2](../../../approach/) over three rounds. The savvy start gave us five step players. We took the Scrubber into design 2 and gave it chapter names from E. Design 3 is what we built and ran as a design proof.
 
@@ -94,7 +95,7 @@ The steps are grouped into chapters that say what's happening.
 
 ### Review
 
-The team liked A, B and E the most. The team did not like C as it could seem unfamilair to learners who have never used a debugger before and could discourage them from learning. B showed a rotation before it came which is nice if the learner wants to step around the tree and repeate rotations to see how they work without replaying the entire operation. The team liked A as it was already incorporated into B. D was too simple and did not offer the fine grained options that B had. E had the same idea as B but instead of shapes used words which may be easier for learners to understand. So design 2 was B with E's names.
+The team liked A, B and E the most. The team did not like C as it could seem unfamiliar to learners who have never used a debugger before and could discourage them from learning. B showed a rotation before it came which is nice if the learner wants to step around the tree and repeat rotations to see how they work without replaying the entire operation. The team liked A as it was already incorporated into B. D was too simple and did not offer the fine grained options that B had. E had the same idea as B but instead of shapes used words which may be easier for learners to understand. So design 2 was B with E's names.
 
 ## Design 2
 
@@ -124,7 +125,7 @@ The labels did not look good on smaller screens. We decided to rather make a key
 
 ### Scrubber, built
 
-We now have one dot per step, each dot keeps its colour and shape. The current dot gets a ring and `aria-current="step"`. We have four phases each with a colour and shape. Walk is a grey circle, height is a square, reblanace is a diamond and rotate is a triangle. We made the normal walk grey so the AVL content such as rotations would stand out to the learner. 
+We now have one dot per step, each dot keeps its colour and shape. The current dot gets a ring and `aria-current="step"`. We have four phases each with a colour and shape. Walk is a grey circle, height is a square, rebalance is a diamond and rotate is a triangle. We made the normal walk grey so the AVL content such as rotations would stand out to the learner.
 
 <Steps>
 
@@ -136,9 +137,9 @@ We now have one dot per step, each dot keeps its colour and shape. The current d
 
 4. The learner reaches the last step, and the forward button stays focused but stops moving, so the keys still work.
 
-   :::caution[Add screenshot]
-   Design 3 at step 23 of 37 on a desktop: full-colour dots, ring and pin on a diamond, the line after the pin faded, key underneath, speed 1×.
-   :::
+   ![Desktop view at step 23 of 37. The tree is on the left with 20 ringed in red, and the rebalance code is on the right with the arrow on line 4. Under the message bar is a line of 37 dots with no groups: grey circles for walking the tree, teal squares for update height, orange diamonds for rebalance and yellow triangles for rotate. A dark pin reading "23 of 37" sits over a ringed orange diamond, and the dots after it are faded. A key under the line names the four shapes. Back, play and forward buttons are under the key, with the speed picker set to 1× at the end of the row.](../../../../../assets/id/prototypes/player/scrubber-design-3-desktop.webp)
+
+   *Figure 7: Design 3 · Scrubber on a desktop*
 
 </Steps>
 
@@ -156,9 +157,9 @@ A line of dots representing one dot per step, with a colour and a shape for each
 
 The stepper design we chose was the only one that showed the operation before you stepped through it. The stepper allows the user to go back to an operation they are struggling to understand and slow it down.
 
-We allow the user to control how fast or slow they'd like to step through the operations. This links back to [scaffolding](../../../scaffolding/) allowing thr user to skip to the part they are struggling with and ignore the easy parts if they wish to do so.
+We allow the user to control how fast or slow they'd like to step through the operations. This links back to [scaffolding](../../../scaffolding/) allowing the user to skip to the part they are struggling with and ignore the easy parts if they wish to do so.
 
-With this stepper colour is not the only way to tell where an operation occurs, we also used shapes and the current step has a ring around it. The stepper also accomodates screen readers. We go this out of our [presentation](../../../presentation/) rules.
+With this stepper colour is not the only way to tell where an operation occurs, we also used shapes and the current step has a ring around it. The stepper also accommodates screen readers. We got this out of our [presentation](../../../presentation/) rules.
 
 
 ### CCAF
@@ -178,4 +179,4 @@ Testing it with the keyboard found the one bug. We'd used `disabled` on the end 
 
    ![The built step player under the code trace in the playground](../../../../../assets/id/prototypes/playground/stepper.webp)
 
-   *Figure 8: Final scrubber *
+   *Figure 8: Final scrubber*

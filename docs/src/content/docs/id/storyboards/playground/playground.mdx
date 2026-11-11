@@ -7,7 +7,7 @@ import { Aside, Steps } from "@astrojs/starlight/components";
 
 The playground is where a learner goes outside the lessons to build their own trees and break them. It puts the tree, the code trace and the step player on one page, so whatever the learner does to the tree, they see the code that did it. We've already done storyboards for the tree, code trace and step player so this round was for how we incorporate all three on the same page.
 
-The playground page provides the practice side of most [learning objectives](../../../objectives/) in the course. The playground will enable the learner to list the nodes of a tree in pre-order, in-order, post order and level order. Additionally the playground enables the learner to insert a new key and fix imbalances in an AVL tree
+The playground page provides the practice side of most [learning objectives](../../../objectives/) in the course. The playground will enable the learner to list the nodes of a tree in pre-order, in-order, post-order and level-order. Additionally the playground enables the learner to insert a new key and fix imbalances in an AVL tree.
 
 We followed [SAM 2](../../../approach/) over three rounds. The savvy start had four rough ideas for the controls. After each round the team reviewed the storyboards, kept what worked and built the next round from it. Design 2 reworked the console. Finally, design 3 split the page in two, a setup form and the playground, and that's what we built as the design proof.
 
@@ -83,9 +83,9 @@ The learner works on the tree directly. Every empty spot has a + button, and tap
 
 ### Review
 
-The team selected option C, the console. Each command matches what the code trace runs and the history keeps a record of what the learner tried throughout the session. However, the team identified two gaps with the initial approach. Firstly, there was no way for the learner to say if they wanted to work on AVL trees or traversals, the commands were mixed together. Secondly, the leaner could only type commands. The team liked option D's apporach that allowed the user to use their hands to add a node so we wanted to find a way to incorporate that into the final design.
+The team selected option C, the console. Each command matches what the code trace runs and the history keeps a record of what the learner tried throughout the session. However, the team identified two gaps with the initial approach. Firstly, there was no way for the learner to say if they wanted to work on AVL trees or traversals, the commands were mixed together. Secondly, the learner could only type commands. The team liked option D's approach that allowed the user to use their hands to add a node so we wanted to find a way to incorporate that into the final design.
 
-The team decided against using A, B and C. Option A had all the AVL operations and traversals in a single row. Option B's panel used up a lot of screen width which could be an issue on smaller screens. Option D had a hidden menu that we throught the user would struggle to find.
+The team decided against using A, B and C. Option A had all the AVL operations and traversals in a single row. Option B's panel used up a lot of screen width which could be an issue on smaller screens. Option D had a hidden menu that we thought the user would struggle to find.
 
 ## Design 2
 
@@ -116,9 +116,7 @@ A learner who only wants to watch one pre-order walk still sees the drag tools. 
 
 ### Set up, then play
 
-This design has a short setup form that the use completes first. the learner is asked to pick their topic, how they want to play and what they want their starting tree to look like. The playground then shows the learner only what they selected. The console from see becomes a "Watch it run" option and the drag and drop from design 2 becomes the "Interact with the tree".
-
-A short setup form comes first. The learner picks their topic, how to play and a starting tree, and the playground then shows only what they picked, with a bar at the top that says what they chose. The console from C becomes "Watch it run", and the drag and drop from design 2 becomes "Interact with the tree".
+This design has a short setup form that the user completes first. The learner is asked to pick their topic, how they want to play and what they want their starting tree to look like. The playground then shows the learner only what they selected. The console from C becomes a "Watch it run" option and the drag and drop from design 2 becomes the "Interact with the tree".
 
 <Steps>
 
@@ -142,7 +140,7 @@ A short setup form comes first. The learner picks their topic, how to play and a
 
 ### Review
 
-When the team reviewed this design and had no more suggestions or issues.
+When the team reviewed this design, they had no more suggestions or issues.
 
 ## Decision
 
@@ -152,11 +150,11 @@ A setup form asks what the learner wants, and the playground after it only shows
 
 ### Why we picked it
 
-This design allows the learner to define what they want to do and the page is customised based on their selection. This allows the learner to have a more personalised experiance and keeps the playground screen simple. This design also keeps the console from the initial savvy start phase and incorporates the drag and drop feature from design 2. 
+This design allows the learner to define what they want to do and the page is customised based on their selection. This allows the learner to have a more personalised experience and keeps the playground screen simple. This design also keeps the console from the initial savvy start phase and incorporates the drag and drop feature from design 2.
 
 Additionally, when the learner drags a key, every empty spot lights up so none of them is marked as the right one. This allows the learner to work out where a key goes, and a wrong drop gets refused with the reason, which incorporates a small aspect of [assessment](../../../assessment/).
 
-We allows the learner to change their configuration by clicking the "Change Setup" button keeping the change low cost as part of the [motivation](../../../motivation/) story: a playground should feel safe to mess up in.
+We allow the learner to change their configuration by clicking the "Change Setup" button keeping the change low cost as part of the [motivation](../../../motivation/) story: a playground should feel safe to mess up in.
 
 ### CCAF
 
@@ -171,13 +169,12 @@ We allows the learner to change their configuration by clicking the "Change Setu
 
 The design proof was the real `/playground` setup page and `/playground/play`.
 
-The setup lives only in the URL, so a learner can refresh or share the link and land on the same playground. Picking a random starting tree adds a seed, so the preview on the form and the tree in the playground grow the same way. Building a tree showed us a few limits we hadn't decided on. We capped the tree at 50 keys and the console at 160 characters, which still fits `insert` with fifty two-digit keys. We also tried a little rotation tag floating on the tree during a rotate, and took it out again. 
+The setup lives only in the URL, so a learner can refresh or share the link and land on the same playground. Picking a random starting tree adds a seed, so the preview on the form and the tree in the playground grow the same way. Building a tree showed us a few limits we hadn't decided on. We capped the tree at 50 keys and the console at 160 characters, which still fits `insert` with fifty two-digit keys. We also tried a little rotation tag floating on the tree during a rotate, and took it out again.
 
-   ![A form titled "Set up the playground". Three dropdowns read "Pre-order traversal", "Watch it run: run the walk and step through the code" and "A random tree with 7 keys". A Start button is under them.](../../../../../assets/id/prototypes/playground/playground-final-1.webp)
+   ![The built setup page, titled "Playground", with "Pick what to play with and we'll grow a tree for you." under it. On the left, three ticked questions: "What topic?" set to Tree building, "How do you want to explore?" set to Watch it run, and "What tree do you want to start with?" set to A small random tree, then a Start button. On the right, a preview of the starting tree: 90 at the root, 38 and 98 under it, and 8 and 74 under 38.](../../../../../assets/id/prototypes/playground/playground-final-1.webp)
 
-   *Figure 8: The playground form *
+   *Figure 8: The playground form*
 
-
-   ![The playground after setup. Pills at the top say "Tree Building" and "Watch it run", with a Change setup button on the right.](../../../../../assets/id/prototypes/playground/playground-final-1.webp)
+   ![The playground after setup. Pills at the top say "Tree building" and "Watch it run", with Change setup and Hide code buttons on the right. The tree 90, 38, 98, 8, 74 is on the left with 90 marked, and the message "Step through to watch 67 go in." above it. The code panel on the right is set to Rust and says "There's no Rust code for insert yet.", with key 67 and node 90 under Variables and insert(90) under Call stack. The message bar says "1 / 45 90 is here, so this spot isn't empty." with a Listen button, then the step player at "1 of 45". The console at the bottom shows help and insert 67, a prompt holding "insert 42" with a Run button, and chips for insert 29, delete 74, search 98, random 9, clear and help.](../../../../../assets/id/prototypes/playground/playground-final-2.webp)
 
    *Figure 9: The built playground in "watch it run" with the key 67 being inserted*
