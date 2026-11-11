@@ -142,6 +142,44 @@ it("names an empty tree", async () => {
   await expect.element(screen.getByRole("img", { name: "Empty tree" })).toBeVisible();
 });
 
+it("keeps part of a tree where it sits in the layout tree", async () => {
+  const full = build([8, 4, 12, 2, 6]);
+  const part: AvlNode = {
+    key: 8,
+    height: 2,
+    right: null,
+    left: { key: 4, height: 1, left: null, right: null },
+  };
+  const whole = await renderTree({ root: full });
+  const trimmed = await renderTree({ root: part, layoutRoot: full });
+  const placeOf = (container: HTMLElement, key: string) =>
+    [...container.querySelectorAll("text")]
+      .find((node) => node.textContent === key)
+      ?.getAttribute("x");
+
+  expect(viewBoxSize(trimmed.container)).toEqual(viewBoxSize(whole.container));
+  expect(placeOf(trimmed.container, "8")).toBe(placeOf(whole.container, "8"));
+  expect(placeOf(trimmed.container, "4")).toBe(placeOf(whole.container, "4"));
+  expect(textsOf(trimmed.container)).not.toContain("12");
+});
+
+it("shows a node's label instead of its key when given one", async () => {
+  const screen = await renderTree({
+    root: build([20, 10, 30]),
+    nodeLabels: { 20: "+", 10: "2" },
+  });
+
+  expect(textsOf(screen.container)).toEqual(expect.arrayContaining(["+", "2", "30"]));
+  expect(textsOf(screen.container)).not.toContain("20");
+  expect(textsOf(screen.container)).not.toContain("10");
+});
+
+it("uses a given label instead of the default name", async () => {
+  const screen = await renderTree({ root: build([20, 10]), label: "Original tree" });
+
+  await expect.element(screen.getByRole("img", { name: "Original tree" })).toBeVisible();
+});
+
 const textsOf = (container: HTMLElement) =>
   [...container.querySelectorAll("text")].map((node) => node.textContent);
 

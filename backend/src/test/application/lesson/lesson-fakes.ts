@@ -19,7 +19,7 @@ export const lessons: Lesson[] = [
     notePrompt: "Explain it in your own words",
     kind: "lesson",
     position: 1,
-    objectives: [],
+    objectives: ["Insert a key into a binary tree"],
     isRetired: false,
   },
   {

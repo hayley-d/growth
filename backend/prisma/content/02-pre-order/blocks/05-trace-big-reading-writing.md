@@ -2,6 +2,7 @@
 position: 5
 style: reading-writing
 transcript: "Predict first. Before you step, write the order you expect. Then step through and tick each key as it's visited. Circle any key you put in the wrong place."
+write: true
 ---
 
 ## Predict first

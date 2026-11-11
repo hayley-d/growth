@@ -147,6 +147,84 @@ The playground is two pages. `/playground` is a setup form and `/playground/play
 - Listen reads the step message aloud with `speak` from `lib/speak.ts` (the browser's speech synthesis).
 - The new-key box only takes two digits, since keys are 1 to 99.
 
+## Copy tree
+
+`CopyTree` (`organisms/copy-tree.tsx`) draws a lesson's `copy_tree` block. It takes the block's `startingKeys` and `caption`. `LessonBlock` renders it on the lesson page.
+
+- The original tree is on one side and the copy on the other, side by side from `sm` up and stacked below that. Each press of Step copies the next node in pre-order.
+- In the original, the node being copied is `active` and the ones already copied are `visited`. In the copy, the node that just went in is `new`.
+- A sentence above the trees says what happened, like "Copy 4 under 8.", and the copy order so far is listed under them.
+- `lib/copy-tree-steps.ts` builds the steps. The first step has nothing copied, and each one after it adds one node with the parent it hangs under. `trimTree` cuts the original down to the copied keys.
+- The copy is drawn with `TreeView`'s `layoutRoot` set to the original, so every copied node sits where it is in the original and the box doesn't change size as the copy grows. Without it the copy would be laid out as its own tree and its nodes would jump around.
+- It steps with `useStepPlayer`, so the arrow keys, Home and End work the same as in the code trace. The Reset, Back and Step buttons come from `StepButtons` (`molecules/step-buttons.tsx`), which uses `aria-disabled` at the ends, like `StepControls`.
+
+## Expression tree
+
+`ExpressionTree` (`organisms/expression-tree.tsx`) draws a lesson's `expression_tree` block. It takes the block's `expression`, `order` and `caption`. `LessonBlock` renders it on the lesson page.
+
+- The tree is built straight from the expression's shape in `lib/expression-tree-steps.ts`, never by inserting keys, because inserting would sort the nodes into a search tree and lose the shape. Each node gets a made-up number key, and `TreeView`'s `nodeLabels` shows its operator or value instead of the number.
+- Each press of Step visits the next node in the block's order. The visited node is `active` and the earlier ones are `visited`. What's been written so far is listed under the tree, and the last step names the notation: prefix for pre-order, infix for in-order and postfix for post-order.
+- It uses `useStepPlayer` and `StepButtons` like `CopyTree`.
+
+## Delete tree
+
+`DeleteTree` (`organisms/delete-tree.tsx`) draws a lesson's `delete_tree` block. It takes the block's `startingKeys` and `caption`. `LessonBlock` renders it on the lesson page.
+
+- It's the copy tree in reverse. The whole tree shows at the start, and each press of Step deletes the next node in post-order. The node being deleted is `about to be deleted`, and the ones before it are gone.
+- The sentence above the tree says why it's safe, like "Delete 4. 2 and 6 are already gone.", and the delete order so far is listed under it.
+- `lib/delete-tree-steps.ts` builds the steps, each with the node's children. The tree is drawn with `trimTree` from `copy-tree-steps.ts` and `TreeView`'s `layoutRoot`, so the nodes left over don't move as others go.
+- It uses `useStepPlayer` and `StepButtons` like `CopyTree`.
+
+## Tree heights
+
+`TreeHeights` (`organisms/tree-heights.tsx`) draws a lesson's `heights` block. It takes the block's `startingKeys` and `caption`. `LessonBlock` renders it on the lesson page.
+
+- Each press of Step works out the next node's height, in post-order. The node is `active` and the ones already done are `visited`.
+- The sentence above the tree shows the sum, like "4's left subtree has height 1 and its right subtree has height 1, so its height is 1 + max(1, 1) = 2." An empty child has height 0, so a leaf is 1. The heights so far are listed under the tree.
+- `lib/tree-heights-steps.ts` builds the steps. The first step has no heights, and each one after it adds one node with its two subtree heights.
+- It uses `useStepPlayer` and `StepButtons` like `CopyTree`.
+
+## Traversal quiz
+
+`TraversalQuiz` (`organisms/traversal-quiz.tsx`) draws a lesson's `traversal_quiz` block. It takes the block's `startingKeys` and `orders`. `LessonBlock` renders it on the lesson page.
+
+- It shows the tree and one box per order. The learner types the keys in order, with commas or spaces between them, and presses Check.
+- Each box gets its own feedback: correct, wrong, or a reminder to type keys when the answer isn't a list of numbers (`lib/traversal-answer.ts`). Each has an icon as well as a colour, and a screen reader hears the results.
+- After a check with a wrong answer, Show answers lists the right order under each box.
+- The answers come from `TreeTraversal` in `@shared/avl`, so they always match the tree.
+
+## Lesson page
+
+`/lessons/$lessonId` shows one lesson, one step at a time. The design is B+, the Glow bar. The map (`/learn`) starts the lesson before it opens the page, so the page itself doesn't call the start endpoint.
+
+- The step is the `step` search param (`lib/lesson/lesson-search.ts`), so a refresh lands on the same step. `clampStep` keeps it between 1 and one past the last step. One past the last step is the end screen.
+- The steps are the lesson's steps, plus "Explain it in your own words" at the end when the lesson has a `notePrompt`. That step is `LessonNoteStep`, which saves on its own. It's optional, so Finish never waits on it.
+- `LessonLayout` (`templates/lesson-layout.tsx`) holds the header (close, unit, title), the progress bar, the sliding step column and the Back and Continue footer. The footer is fixed to the bottom of the screen, so it stays put while steps change height. The left and right arrow keys move between steps from anywhere on the page, unless the key came from a text box or a slider, or a block already handled it (`defaultPrevented`). The code trace and the step blocks call `preventDefault` on the arrows they use, so they don't move the lesson too.
+- `LessonProgress` is a thin `role="progressbar"` with "Step N of M" as its value text. On Continue a soft light runs along it to the new end, then fades. There's no glow at rest, and none with reduced motion.
+- `LessonStep` always shows the core block. Below it, if the learner has a style and the step has a block for it, that block shows under "Picked for you". If no block matches, `pickExtra` (`lib/lesson/pick-extra.ts`) shows the visual one instead, or the first one when there's no visual block, under "Another way to see it". Every other style block goes under a closed "Other ways to learn this" toggle. The order is: a screen-reader-only step heading, "What you'll learn" (first step only), the core block, the picked block, then the toggle. Each style block is labelled from `learningStyleId` and `useLearningStylesQuery`, like "For visual learners", with a Lucide icon. Listen reads the core and picked transcripts. It sits on the first line of text: beside "What you'll learn", else floated right in the core block's markdown (`aside` on `Markdown`, threaded through `LessonBlock`), else on its own row when the core block starts with no text.
+- `LessonBlock` (`organisms/lesson-block.tsx`) is the one switch over the block `type`. Blocks with an optional `markdown` show it above the block. `number_line` has no real renderer yet, so it shows the tree and its caption.
+- A 403 shows the locked state with "Take the test to skip ahead". A 404 says the lesson is gone. Neither is retried.
+
+### Text and diagram blocks
+
+- `Markdown` (`molecules/markdown.tsx`) renders with `react-markdown` and theme classes only. A `##` in content becomes an `h3`, since the step label is the `h2`.
+- `DiagramBlock` draws the tree one level at a time with `TreeView`'s `layoutRoot`, so nodes don't move as levels arrive. Highlights land once the tree is drawn. With reduced motion the finished tree shows straight away. Diagrams turn off the pointer arrow, since nothing moves. The block's `transcript` is the description. With `labels`, the caption is screen-reader only and the tree's accessible name is the caption plus the label text. Without labels, the caption shows under the tree.
+- Leader labels: `TreeView` takes `labels` and lays them out with `lib/lesson/tree-label-layout.ts`, ported from the storyboard. `right` gets a dotted leader and an end dot, `side` joins its nodes to a bracket, and `below` puts a bracket under its nodes. The viewBox grows to fit them. `TreeLabels` draws them in after the highlights land, one at a time: the bracket draws, the leader fades in, then the words type out. With reduced motion they show straight away.
+- Word-to-node links: `TreeLinksProvider` (`lib/lesson/tree-links.tsx`) wraps only the core block and the picked or fallback block, so a word links to a tree only when the learner sees both straight away. Blocks under "Other ways" sit outside it, so their words stay plain. Trees register their keys with `useLinkedTree`. A bold word in `Markdown` becomes a `TermButton` only when its block's `terms` names it and a tree in the step shows all its keys. Otherwise it stays plain bold. Pointing at or focusing a word lights its nodes and any label on them. Tapping it pins it (`aria-pressed`). Pointing at a node lights the words that name it. Outside the provider everything is a no-op.
+- Write-in and spoiler: a text block with `write` shows `WriteIn` (`molecules/write-in.tsx`), a labelled text area. What the learner types lives in `stores/writing-store.ts`, keyed by block id, so going back a step keeps it, but a reload clears it and nothing is sent to the server. A text block with `answer` shows it inside `Spoiler` (`molecules/spoiler.tsx`). It starts as an opaque bar, and clicking the bar or the Show answer button reveals it. While it's hidden the answer is `invisible`, `aria-hidden` and `inert`, so screen readers skip it too.
+
+### Animation and playground blocks
+
+These follow design C, Score and scrubber: the task is set large, and the tree is what you play it on.
+
+- `AnimationBlock` builds its steps with `animationSteps` (`lib/lesson/animation-steps.ts`), one traced operation after another, and plays them with the same `StepControls` step player as the code trace.
+- `PlaygroundBlock` has two modes. With `traverse` allowed, the learner taps nodes in order. `TraversalStaff` shows one numbered beat per node, and wrong taps are written small and crossed out above the beat they were meant for (`lib/lesson/traversal-taps.ts`). Otherwise it reuses the playground page's pieces: `playgroundReducer`, the notice, `TreeViewport`, the step player and `PlaygroundConsole`. The learner types commands like `insert 4`. Only the block's allowed operations run, and anything else gets a refusal that lists them. The suggestions offer the next `containsKeys` key that's missing. Start again remounts the session. A reached goal shows `GoalReached`, with an icon and a message, not just colour.
+- `CodeTraceBlock` runs the block's operation on its starting tree and shows it in `TraceLayout` with `CodeTrace` and `StepControls`, like the playground. With `showCode` set to false it skips `TraceLayout` and puts the tree beside `CallStack`, with no code and no Tree and Code tabs.
+
+### Listen
+
+`ListenButton` reads the step's core and style transcripts in order with `speakAll` from `lib/speech.ts`. `stores/speech-store.ts` remembers which step is speaking, so the button can say Stop. Moving to another step, or leaving the page, stops it. The button is hidden when the browser can't speak. There's no auto-read setting yet.
+
 ## Queries and mutations
 
 Components don't call services directly. They use hooks from `lib/queries` and `lib/mutations`, one file per feature.

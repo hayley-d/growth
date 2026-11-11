@@ -98,6 +98,17 @@ describe("playgroundReducer", () => {
     expect(toKeys(session.tree)).toEqual([5]);
   });
 
+  it("logs a reply as information that can't be replayed", () => {
+    const session = playgroundReducer(createSession(avl), {
+      type: "reply",
+      command: "help",
+      message: "Here you can use insert n.",
+      via: "typed",
+    });
+    expect(session.notice).toEqual({ tone: "info", message: "Here you can use insert n." });
+    expect(session.log[0]).toMatchObject({ command: "help", tone: "info", replayable: false });
+  });
+
   it("keeps the log short", () => {
     let session = createSession(avl);
     for (let index = 0; index < maxLogEntries + 5; index += 1) {

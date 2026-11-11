@@ -2,12 +2,15 @@ import { AnimatePresence, motion } from "motion/react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 
 import { type AvlNode, layoutTree, type NodeState } from "@shared/avl";
+import type { TreeLabel } from "@shared/schemas";
+import { TreeLabels } from "@/components/molecules/tree-labels";
 import {
   TreeNode,
   treeNodeLabelHeight,
   treeNodePad,
   treeNodeRadius,
 } from "@/components/molecules/tree-node";
+import { layoutTreeLabels } from "@/lib/lesson/tree-label-layout";
 import { edgeLink, treeDropPx, treeGlideMs, treeGlideSec } from "@/lib/tree-motion";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
@@ -20,9 +23,18 @@ type TreeViewProperties = {
   manual?: boolean;
   selectedKey?: number | null;
   badges?: Record<number, number>;
+  pointers?: boolean;
+  litKeys?: ReadonlySet<number>;
+  onHoverKey?: (nodeKey: number | null) => void;
+  labels?: readonly TreeLabel[];
+  labelsShown?: boolean;
+  labelsAnimated?: boolean;
   onSelectKey?: (nodeKey: number) => void;
   slots?: readonly TreeViewSlot[];
   activeSlotId?: string | null;
+  label?: string;
+  nodeLabels?: Record<number, string>;
+  layoutRoot?: AvlNode | null;
   className?: string;
 };
 
@@ -52,6 +64,8 @@ type SnapshotEdgeProperties = {
 
 const columnGap = 64;
 const rowGap = 40;
+
+const emptyKeys: ReadonlySet<number> = new Set();
 
 const childHeight = (node: AvlNode | null) => node?.height ?? 0;
 
@@ -126,23 +140,33 @@ export function TreeView({
   manual = false,
   selectedKey = null,
   badges = {},
+  pointers = true,
+  litKeys,
+  onHoverKey,
+  labels,
+  labelsShown = true,
+  labelsAnimated = false,
   onSelectKey,
   slots = [],
   activeSlotId = null,
+  label,
+  nodeLabels,
+  layoutRoot,
   className,
 }: TreeViewProperties) {
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   const [ready, setReady] = useState(false);
   const instant = !ready || reduced;
-  const layout = layoutTree(root);
   const facts = factsByKey(root);
   const labelHeight = treeNodeLabelHeight(showHeight, showBalance);
   const verticalStep = treeNodeRadius * 2 + rowGap + labelHeight;
-  const placed: PlacedNode[] = layout.map((position) => ({
+  const framed: PlacedNode[] = layoutTree(layoutRoot ?? root).map((position) => ({
     ...position,
     cx: treeNodePad + treeNodeRadius + position.x * columnGap,
     cy: treeNodePad + treeNodeRadius + position.y * verticalStep,
   }));
+  const shownKeys = new Set(facts.keys());
+  const placed = layoutRoot ? framed.filter((position) => shownKeys.has(position.key)) : framed;
   const byKey = new Map(placed.map((position) => [position.key, position]));
   const signature = placed
     .map((position) => `${position.key}:${position.cx}:${position.cy}`)
@@ -156,7 +180,18 @@ export function TreeView({
     cx: treeNodePad + treeNodeRadius + slot.x * columnGap,
     cy: treeNodePad + treeNodeRadius + slot.y * verticalStep,
   }));
-  const { width, height } = extent([...cover, ...placedSlots], labelHeight);
+  const base = extent([...(layoutRoot ? framed : cover), ...placedSlots], labelHeight);
+  const labelLayout =
+    labels && labels.length > 0
+      ? layoutTreeLabels(
+          labels,
+          new Map((layoutRoot ? framed : placed).map((position) => [position.key, position])),
+          base,
+          treeNodeRadius,
+        )
+      : null;
+  const width = labelLayout?.width ?? base.width;
+  const height = labelLayout?.height ?? base.height;
 
   useEffect(() => {
     setReady(true);
@@ -191,7 +226,7 @@ export function TreeView({
       viewBox={`0 0 ${width} ${height}`}
       preserveAspectRatio="xMidYMid meet"
       role={manual ? "group" : "img"}
-      aria-label={root ? "Tree" : "Empty tree"}
+      aria-label={label ?? (root ? "Tree" : "Empty tree")}
       fontFamily="inherit"
       className={cn("block h-full w-full text-foreground", className)}
     >
@@ -234,6 +269,7 @@ export function TreeView({
                 x={position.cx}
                 y={position.cy}
                 nodeKey={position.key}
+                label={nodeLabels?.[position.key]}
                 height={fact?.height ?? 1}
                 balance={fact?.balance ?? 0}
                 state={nodeStates[position.key]}
@@ -242,6 +278,9 @@ export function TreeView({
                 manual={manual}
                 selected={selectedKey === position.key}
                 badge={badges[position.key]}
+                pointer={pointers}
+                lit={litKeys?.has(position.key) ?? false}
+                onHover={onHoverKey}
                 instant={instant}
                 onSelect={onSelectKey}
               />
@@ -249,6 +288,13 @@ export function TreeView({
           );
         })}
       </AnimatePresence>
+      {labelLayout && labelsShown ? (
+        <TreeLabels
+          placed={labelLayout.placed}
+          litKeys={litKeys ?? emptyKeys}
+          animated={labelsAnimated && !reduced}
+        />
+      ) : null}
       {placedSlots.map((slot) => {
         const active = slot.id === activeSlotId;
         return (

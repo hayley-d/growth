@@ -14,6 +14,7 @@ export const lessonStepBlockSchema = contentBlockBodySchema.and(
   z.object({
     id: z.uuid(),
     transcript: z.string(),
+    learningStyleId: z.uuid().nullable(),
   }),
 );
 
@@ -37,6 +38,7 @@ export const lessonResponseSchema = z.object({
       kind: lessonKindSchema,
       position: z.int(),
       notePrompt: z.string().nullable(),
+      objectives: z.array(z.string()),
     }),
     unit: z.object({
       id: z.uuid(),

@@ -38,6 +38,7 @@ export const toLessonResponse = ({
       kind: lesson.kind,
       position: lesson.position,
       notePrompt: lesson.notePrompt,
+      objectives: lesson.objectives,
     },
     unit: { id: unit.id, title: unit.title, position: unit.position },
     status: completed ? "completed" : "current",

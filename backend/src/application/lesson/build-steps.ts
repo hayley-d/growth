@@ -23,7 +23,12 @@ export const buildSteps = (
         issues: parsed.error.issues,
       });
     }
-    return { ...parsed.data, id: block.id, transcript: block.transcript };
+    return {
+      ...parsed.data,
+      id: block.id,
+      transcript: block.transcript,
+      learningStyleId: block.learningStyleId,
+    };
   };
 
   const blocksByPosition = new Map<number, ContentBlock[]>();

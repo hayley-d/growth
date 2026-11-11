@@ -14,5 +14,8 @@ export default {
       { key: 6, state: "active" },
     ],
     caption: "Everything in the left subtree of 8 is smaller than 8.",
+    labels: [
+      { text: ["Left subtree of 8:", "all smaller than 8"], keys: [2, 4, 6], place: "below" },
+    ],
   },
 } satisfies BlockContent;

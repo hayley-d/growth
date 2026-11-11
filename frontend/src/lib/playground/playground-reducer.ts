@@ -35,6 +35,7 @@ export type PlaygroundAction =
   | { type: "run"; command: PlaygroundCommand; via: CommandSource }
   | { type: "replay"; id: number }
   | { type: "refuse"; command: string; message: string; via: CommandSource }
+  | { type: "reply"; command: string; message: string; via: CommandSource }
   | { type: "new-tree" }
   | { type: "predict-add"; key: number }
   | { type: "predict-undo" }
@@ -66,16 +67,17 @@ const addLog = (
 
 const nextSeed = (seed: number) => (seed % 2147483646) + 1;
 
-const refuseSession = (
+const replySession = (
   session: PlaygroundSession,
   command: string,
   message: string,
+  tone: Tone,
   via: CommandSource,
 ): PlaygroundSession => ({
   ...session,
   run: null,
-  notice: { tone: "bad", message },
-  ...addLog(session, { command, message, tone: "bad", via, replayable: false }),
+  notice: { tone, message },
+  ...addLog(session, { command, message, tone, via, replayable: false }),
 });
 
 const runText = (
@@ -85,10 +87,11 @@ const runText = (
 ): PlaygroundSession => {
   const parsed = parseCommand(text, session.setup);
   if (!parsed.ok) {
-    return refuseSession(
+    return replySession(
       session,
       text.trim().toLowerCase().replace(/\s+/g, " "),
       parsed.message,
+      "bad",
       via,
     );
   }
@@ -155,7 +158,10 @@ export const playgroundReducer = (
     return entry?.replayable ? runText(session, entry.command, "typed") : session;
   }
   if (action.type === "refuse") {
-    return refuseSession(session, action.command, action.message, action.via);
+    return replySession(session, action.command, action.message, "bad", action.via);
+  }
+  if (action.type === "reply") {
+    return replySession(session, action.command, action.message, "info", action.via);
   }
   if (action.type === "new-tree") {
     const seed = nextSeed(session.seed);

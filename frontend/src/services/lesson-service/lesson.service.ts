@@ -1,7 +1,23 @@
-import { type LessonNoteResponse, lessonNoteResponseSchema } from "@shared/schemas";
+import {
+  type LessonNoteResponse,
+  type LessonResponse,
+  lessonNoteResponseSchema,
+  lessonResponseSchema,
+} from "@shared/schemas";
 import { uris } from "@/services/lesson-service/lesson.urls";
 import { networkService } from "@/services/network.service";
 import { rejectAxios, rejectInvalidResponse } from "@/services/service-error";
+
+export const getLesson = async (lessonId: string): Promise<LessonResponse> => {
+  const { data } = await networkService
+    .get(uris.lessonUri(lessonId))
+    .catch((error) => rejectAxios(error, "Unable to load the lesson"));
+
+  const parsedData = lessonResponseSchema.safeParse(data);
+  if (!parsedData.success) return rejectInvalidResponse();
+
+  return parsedData.data;
+};
 
 export const getLessonNote = async (lessonId: string): Promise<LessonNoteResponse> => {
   const { data } = await networkService
@@ -35,6 +51,7 @@ export const startLesson = async (lessonId: string): Promise<void> => {
 };
 
 export const lessonService = {
+  getLesson,
   getLessonNote,
   saveLessonNote,
   startLesson,

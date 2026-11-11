@@ -217,6 +217,103 @@ describe("checkContent", () => {
     });
   });
 
+  it("puts labels and terms from the frontmatter into the text block body", () => {
+    const raw = validRaw();
+    firstLesson(raw as unknown as Mutable).blocks[0] = {
+      file: "01-intro/blocks/01-text.md",
+      format: "markdown",
+      text: "---\nposition: 1\ntranscript: Root.\ntree: [8]\nlabels:\n  - text: [8 is the root]\n    keys: [8]\n    place: right\nterms:\n  root: [8]\n---\nThe **root**.",
+    };
+    const { problems, content } = checkContent(raw, { complete: false });
+    expect(problems).toEqual([]);
+    expect(content?.lessons[0]?.blocks[0]).toMatchObject({
+      body: {
+        labels: [{ text: ["8 is the root"], keys: [8], place: "right" }],
+        terms: { root: [8] },
+      },
+    });
+  });
+
+  it("puts write and answer from the frontmatter into the text block body", () => {
+    const raw = validRaw();
+    firstLesson(raw as unknown as Mutable).blocks[0] = {
+      file: "01-intro/blocks/01-text.md",
+      format: "markdown",
+      text: "---\nposition: 1\ntranscript: Write it.\nwrite: true\nanswer: |\n  1. `visit(8)`\n  2. `visit(4)`\n---\nWrite the visits.",
+    };
+    const { problems, content } = checkContent(raw, { complete: false });
+    expect(problems).toEqual([]);
+    expect(content?.lessons[0]?.blocks[0]).toMatchObject({
+      body: {
+        markdown: "Write the visits.",
+        write: true,
+        answer: "1. `visit(8)`\n2. `visit(4)`\n",
+      },
+    });
+  });
+
+  it("rejects a write that isn't true or false", () => {
+    const problems = problemsAfter((raw) => {
+      firstLesson(raw).blocks[0] = {
+        file: "01-intro/blocks/01-text.md",
+        format: "markdown",
+        text: "---\nposition: 1\ntranscript: Write it.\nwrite: yes please\n---\nWrite it.",
+      };
+    });
+    expect(problems).toContainEqual(
+      expect.objectContaining({ file: "01-intro/blocks/01-text.md" }),
+    );
+  });
+
+  it("lets a text term point at a diagram at the same position", () => {
+    const raw = validRaw();
+    firstLesson(raw as unknown as Mutable).blocks[0] = {
+      file: "01-intro/blocks/01-text.md",
+      format: "markdown",
+      text: "---\nposition: 1\ntranscript: Root.\nterms:\n  root: [20]\n---\nThe **root**.",
+    };
+    expect(checkContent(raw, { complete: false }).problems).toEqual([]);
+  });
+
+  it("rejects a term whose keys no tree at its position shows", () => {
+    const problems = problemsAfter((raw) => {
+      firstLesson(raw).blocks[0] = {
+        file: "01-intro/blocks/01-text.md",
+        format: "markdown",
+        text: "---\nposition: 1\ntranscript: Root.\nterms:\n  root: [8]\n---\nThe **root**.",
+      };
+    });
+    expect(problems).toContainEqual({
+      file: lessonFile,
+      message: 'Block at position 1 links "root" to 8, but no tree at that position shows them',
+    });
+  });
+
+  it("rejects a label pointing at a key that isn't in its tree", () => {
+    const problems = problemsAfter((raw) => {
+      firstLesson(raw).blocks[1] = {
+        file: "01-intro/blocks/01-visual.ts",
+        format: "module",
+        data: {
+          type: "diagram",
+          position: 1,
+          style: "visual",
+          transcript: "A tree.",
+          body: {
+            startingKeys: [20],
+            highlights: [],
+            caption: "A tree.",
+            labels: [{ text: ["The root"], keys: [7], place: "right" }],
+          },
+        },
+      };
+    });
+    expect(problems).toContainEqual({
+      file: lessonFile,
+      message: 'Block at position 1 has a label "The root" pointing at 7, which isn\'t in its tree',
+    });
+  });
+
   it("rejects a text block tree with repeated keys", () => {
     const problems = problemsAfter((raw) => {
       firstLesson(raw).blocks[0] = {
