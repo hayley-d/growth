@@ -15,7 +15,7 @@ The questions that test them are described in [Assessment: Question types](../st
 | 2. Pre-order | List the nodes of a tree in pre-order. Trace the recursive pre-order code and say which calls wait on the call stack. Explain why copying a tree and prefix expressions use pre-order. |
 | 3. In-order | List the nodes of a tree in in-order. Say how the in-order code differs from the pre-order code. Explain why the in-order of a search tree gives its keys in sorted order. |
 | 4. Post-order | List the nodes of a tree in post-order. |
-| 5. Level-order | List the nodes of a tree in level-order. |
+| 5. Level-order | List the nodes of a tree in level-order. Explain why level-order uses a queue and a loop instead of recursion. Compare level-order with pre-order, in-order and post-order on one tree. |
 | 6. Traversal checkpoint | Tell the four traversals apart. |
 
 ## AVL trees
