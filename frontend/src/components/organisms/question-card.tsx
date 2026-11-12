@@ -82,7 +82,7 @@ export function QuestionCard({
       <div className="flex flex-col items-start gap-2 border-t pt-4">
         <Button
           type="button"
-          variant="outline"
+          variant="subtle"
           className="min-h-11"
           disabled={isBusy || question.hintsRemaining === 0}
           onClick={onHint}

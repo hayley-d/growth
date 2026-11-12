@@ -59,7 +59,7 @@ export function OrderNodesQuestion({
       <div className="flex flex-wrap gap-2">
         <Button
           type="button"
-          variant="outline"
+          variant="subtle"
           className="min-h-11"
           disabled={disabled || keys.length === 0}
           onClick={() => setKeys((current) => current.slice(0, -1))}
@@ -69,7 +69,7 @@ export function OrderNodesQuestion({
         </Button>
         <Button
           type="button"
-          variant="outline"
+          variant="subtle"
           className="min-h-11"
           disabled={disabled || keys.length === 0}
           onClick={() => setKeys([])}
