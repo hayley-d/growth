@@ -161,40 +161,6 @@ it("in a bst lesson, inserts without balancing or rotating", async () => {
   );
 });
 
-it("inserts without balancing, then rotates by hand until the pre-order matches", async () => {
-  const screen = await render(
-    <PlaygroundBlock
-      startingKeys={[50, 30, 70, 20, 40]}
-      allowedOperations={["insert", "rotateLeft", "rotateRight"]}
-      instructions="Insert 10. If a node leans too far left, rotate it right."
-      goal={{ kind: "traversal", order: "preorder", keys: [30, 20, 10, 50, 40, 70] }}
-    />,
-  );
-
-  await expect.element(screen.getByRole("button", { name: "insert 10" })).toBeVisible();
-  await expect
-    .element(screen.getByText("Tap the first node", { exact: false }))
-    .not.toBeInTheDocument();
-
-  await screen.getByLabelText("Command").fill("insert 10");
-  await screen.getByRole("button", { name: "Run" }).click();
-  await expect
-    .element(
-      screen
-        .getByText("10 went in with no rotations. 50 is now unbalanced.", { exact: false })
-        .first(),
-    )
-    .toBeVisible();
-  expect(screen.container.textContent).not.toContain("Goal reached");
-
-  await screen.getByLabelText("Command").fill("rotate right 50");
-  await screen.getByRole("button", { name: "Run" }).click();
-  await screen.getByRole("button", { name: "Last step" }).click();
-  await expect
-    .element(screen.getByText("Goal reached. Every key is where it belongs."))
-    .toBeVisible();
-});
-
 it("refuses avl-only commands with the commands the step allows", async () => {
   const screen = await render(
     <PlaygroundBlock

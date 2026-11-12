@@ -1,14 +1,7 @@
 import { RotateCcw } from "lucide-react";
 import { useMemo, useReducer, useState } from "react";
 
-import {
-  type AvlNode,
-  canRotate,
-  checkGoal,
-  type TraversalOrder,
-  TreeTraversal,
-  toKeys,
-} from "@shared/avl";
+import { type AvlNode, checkGoal, type TraversalOrder, TreeTraversal, toKeys } from "@shared/avl";
 import type { PlaygroundGoal, TreeOperation } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { GoalReached } from "@/components/molecules/goal-reached";
@@ -24,7 +17,6 @@ import { emptyTaps, isFinished, tapMessage, tapNode } from "@/lib/lesson/travers
 import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { parseCommand } from "@/lib/playground/commands";
 import { createSession, playgroundReducer } from "@/lib/playground/playground-reducer";
-import { unbalancedKeys } from "@/lib/playground/run-command";
 import type { PlaygroundSetup } from "@/lib/playground/setup";
 import { suggestKey } from "@/lib/playground/suggest-key";
 import { speak } from "@/lib/speak";
@@ -48,7 +40,8 @@ type PlaygroundBlockProperties = {
 };
 
 export function PlaygroundBlock(properties: PlaygroundBlockProperties) {
-  if (properties.allowedOperations.includes("traverse")) {
+  const { allowedOperations, goal } = properties;
+  if (allowedOperations.includes("traverse") || goal?.kind === "traversal") {
     return <TraversePlayground {...properties} />;
   }
   return <BuildPlayground {...properties} />;
@@ -116,29 +109,9 @@ function TraversePlayground({
   );
 }
 
-const lessonOperations = ["insert", "delete", "search", "rotateLeft", "rotateRight"] as const;
+type BuildOperation = "insert" | "delete" | "search";
 
-type LessonOperation = (typeof lessonOperations)[number];
-
-const isLessonOperation = (operation: TreeOperation): operation is LessonOperation =>
-  lessonOperations.some((each) => each === operation);
-
-const operationExample: Record<LessonOperation, string> = {
-  insert: "insert n",
-  delete: "delete n",
-  search: "search n",
-  rotateLeft: "rotate left n",
-  rotateRight: "rotate right n",
-};
-
-const commandAllowed = (text: string, allowed: readonly LessonOperation[]) => {
-  const typed = text.trim().toLowerCase().replace(/\s+/g, " ");
-  if (typed === "" || typed === "help") return true;
-  if (typed.startsWith("rotate left")) return allowed.includes("rotateLeft");
-  if (typed.startsWith("rotate right")) return allowed.includes("rotateRight");
-  const word = typed.split(" ")[0] ?? "";
-  return allowed.some((operation) => operation === word);
-};
+const buildOperations: readonly BuildOperation[] = ["insert", "delete", "search"];
 
 const lessonSetup: PlaygroundSetup = {
   topic: "avl",
@@ -152,46 +125,24 @@ const listOr = (items: readonly string[]) =>
   items.length < 2 ? items.join("") : `${items.slice(0, -1).join(", ")} or ${items.at(-1)}`;
 
 const goalKeys = (goal: PlaygroundGoal | undefined) =>
-  goal?.kind === "containsKeys" || goal?.kind === "traversal" ? goal.keys : [];
-
-const rotationSuggestions = (tree: AvlNode | null, allowed: readonly LessonOperation[]) =>
-  unbalancedKeys(tree).flatMap((key) => {
-    const lines: string[] = [];
-    if (allowed.includes("rotateRight") && canRotate(tree, key, "right")) {
-      lines.push(`rotate right ${key}`);
-    }
-    if (allowed.includes("rotateLeft") && canRotate(tree, key, "left")) {
-      lines.push(`rotate left ${key}`);
-    }
-    return lines;
-  });
+  goal?.kind === "containsKeys" ? goal.keys : [];
 
 const buildSuggestions = (
   tree: AvlNode | null,
-  operations: readonly LessonOperation[],
+  operations: readonly BuildOperation[],
   goal: PlaygroundGoal | undefined,
   salt: number,
 ) => {
   const keys = toKeys(tree);
   const missing = goalKeys(goal).find((key) => !keys.includes(key));
-  const free =
-    missing !== undefined
-      ? String(missing)
-      : goal?.kind === "traversal"
-        ? ""
-        : suggestKey(tree, salt);
+  const free = missing === undefined ? suggestKey(tree, salt) : String(missing);
   const middle = keys[Math.floor(keys.length / 2)];
-  const suggestions: Record<LessonOperation, string | null> = {
+  const suggestions: Record<BuildOperation, string | null> = {
     insert: free === "" ? null : `insert ${free}`,
     delete: middle === undefined ? null : `delete ${middle}`,
     search: middle === undefined ? null : `search ${middle}`,
-    rotateLeft: null,
-    rotateRight: null,
   };
-  return [
-    ...rotationSuggestions(tree, operations),
-    ...operations.flatMap((operation) => suggestions[operation] ?? []),
-  ];
+  return operations.flatMap((operation) => suggestions[operation] ?? []);
 };
 
 function BuildPlayground(properties: PlaygroundBlockProperties) {
@@ -214,29 +165,27 @@ function BuildSession({
   onStartAgain,
 }: PlaygroundBlockProperties & { onStartAgain: () => void }) {
   const mode = useTreeMode();
-  const operations = allowedOperations.filter(isLessonOperation);
-  const manualRotation = operations.some(
-    (operation) => operation === "rotateLeft" || operation === "rotateRight",
-  );
-  const setup: PlaygroundSetup = manualRotation
-    ? { ...lessonSetup, explore: "interact" }
-    : lessonSetup;
-  const [session, dispatch] = useReducer(playgroundReducer, setup, (initial) => ({
-    ...createSession(initial),
+  const [session, dispatch] = useReducer(playgroundReducer, lessonSetup, (setup) => ({
+    ...createSession(setup),
     tree: buildTree(startingKeys, mode),
     treeMode: mode,
-    autoBalance: !manualRotation,
   }));
   const run = session.run;
   const player = useStepPlayer(run?.steps ?? [], String(run?.id ?? 0));
   const step = run ? player.step : null;
   const shownTree = step ? step.tree : session.tree;
-  const examples = operations.map((operation) => operationExample[operation]);
-  const reached = goal !== undefined && checkGoal(session.tree, goal) && (!run || player.isLast);
+  const operations = buildOperations.filter((operation) => allowedOperations.includes(operation));
+  const examples = operations.map((operation) => `${operation} n`);
+  const reached =
+    goal !== undefined &&
+    goal.kind !== "traversal" &&
+    checkGoal(session.tree, goal) &&
+    (!run || player.isLast);
 
   const handleRun = (text: string) => {
     const typed = text.trim().toLowerCase().replace(/\s+/g, " ");
-    if (typed !== "" && typed !== "help" && !commandAllowed(typed, operations)) {
+    const word = typed.split(" ")[0] ?? "";
+    if (word !== "" && word !== "help" && !operations.some((operation) => operation === word)) {
       dispatch({
         type: "refuse",
         command: typed,
