@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 
 import {
   type AvlNode,
+  buildTreeFromKeys,
   canRotate,
   findNode,
   insertKey,
@@ -13,6 +14,8 @@ import {
   rotateRight,
   type SteppedResult,
   toKeys,
+  traceBstInsert,
+  traceBstRemove,
   traceInsert,
   traceRemove,
   traceRotateLeft,
@@ -277,6 +280,38 @@ describe("traceRemove", () => {
     const traced = traceRemove(build([20]), 5);
     expect(stepKeysOf(traced.steps)).toContain("delete.not-found");
     expect(toKeys(traced.result)).toEqual([20]);
+  });
+});
+
+const avlOnlyStep =
+  /^(update-height|rebalance|rotate-left|rotate-right)\.|\.(update-height|rebalance)$/;
+
+const shapeOf = (node: AvlNode | null): string =>
+  node ? `${node.key}(${shapeOf(node.left)},${shapeOf(node.right)})` : "#";
+
+describe("plain BST traces", () => {
+  it("inserts without any height, balance or rotation steps", () => {
+    let root: AvlNode | null = null;
+    for (const key of [1, 2, 3]) {
+      const traced = traceBstInsert(root, key);
+      expect(stepKeysOf(traced.steps).filter((step) => avlOnlyStep.test(step))).toEqual([]);
+      root = traced.result;
+    }
+    expect(shapeOf(root)).toBe("1(#,2(#,3(#,#)))");
+    expect(root?.height).toBe(3);
+  });
+
+  it("removes without rebalancing", () => {
+    const root = buildTreeFromKeys([20, 10, 30, 40, 50], "bst");
+    const traced = traceBstRemove(root, 10);
+    expect(stepKeysOf(traced.steps).filter((step) => avlOnlyStep.test(step))).toEqual([]);
+    expect(shapeOf(traced.result)).toBe("20(#,30(#,40(#,50(#,#))))");
+  });
+
+  it("builds a skewed tree in bst mode and a balanced one in avl mode", () => {
+    expect(shapeOf(buildTreeFromKeys([1, 2, 3], "bst"))).toBe("1(#,2(#,3(#,#)))");
+    expect(shapeOf(buildTreeFromKeys([1, 2, 3], "avl"))).toBe("2(1(#,#),3(#,#))");
+    expect(shapeOf(buildTreeFromKeys([1, 2, 3]))).toBe("2(1(#,#),3(#,#))");
   });
 });
 

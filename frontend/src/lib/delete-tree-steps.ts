@@ -1,4 +1,4 @@
-import { type AvlNode, insertKey, layoutTree, TreeTraversal } from "@shared/avl";
+import { buildTreeFromKeys, layoutTree, type TreeMode, TreeTraversal } from "@shared/avl";
 
 export type DeleteTreeStep = {
   deletedKeys: number[];
@@ -8,8 +8,8 @@ export type DeleteTreeStep = {
 
 const emptyStep: DeleteTreeStep = { deletedKeys: [], currentKey: null, childKeys: [] };
 
-export const deleteTreeSteps = (startingKeys: readonly number[]) => {
-  const root = startingKeys.reduce<AvlNode | null>((node, key) => insertKey(node, key), null);
+export const deleteTreeSteps = (startingKeys: readonly number[], mode: TreeMode = "avl") => {
+  const root = buildTreeFromKeys(startingKeys, mode);
   const childKeysByKey = new Map<number, number[]>();
   for (const position of layoutTree(root)) {
     if (position.parentKey === null) continue;

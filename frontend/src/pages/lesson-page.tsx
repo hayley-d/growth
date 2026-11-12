@@ -8,6 +8,7 @@ import { LessonStep } from "@/components/organisms/lesson-step";
 import { LessonUnavailable } from "@/components/organisms/lesson-unavailable";
 import { LessonLayout } from "@/components/templates/lesson-layout";
 import { clampStep } from "@/lib/lesson/lesson-search";
+import { TreeModeProvider } from "@/lib/lesson/tree-mode";
 import { useSaveLessonNoteMutation } from "@/lib/mutations";
 import { useLearningStylesQuery, useLessonNoteQuery, useLessonQuery } from "@/lib/queries";
 import { ServiceError } from "@/services/service-error";
@@ -67,13 +68,15 @@ export function LessonPage() {
   const body = finished ? (
     <LessonEnd lessonId={lessonId} lessonTitle={details.title} />
   ) : step ? (
-    <LessonStep
-      key={step.position}
-      step={step}
-      stepNumber={stepNumber}
-      objectives={stepNumber === 1 ? details.objectives : null}
-      styleNames={styleNames}
-    />
+    <TreeModeProvider mode={unit.treeMode}>
+      <LessonStep
+        key={step.position}
+        step={step}
+        stepNumber={stepNumber}
+        objectives={stepNumber === 1 ? details.objectives : null}
+        styleNames={styleNames}
+      />
+    </TreeModeProvider>
   ) : details.notePrompt && note.isPending ? (
     <PageLoader />
   ) : details.notePrompt ? (

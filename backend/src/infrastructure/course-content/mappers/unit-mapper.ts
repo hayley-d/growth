@@ -5,4 +5,5 @@ export const toUnit = (row: UnitRow): Unit => ({
   id: row.id,
   title: row.title,
   position: row.position,
+  treeMode: row.treeMode,
 });

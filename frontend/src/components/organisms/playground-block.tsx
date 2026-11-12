@@ -1,7 +1,7 @@
 import { RotateCcw } from "lucide-react";
 import { useMemo, useReducer, useState } from "react";
 
-import { type AvlNode, checkGoal, type TraversalOrder, toKeys, traceTraversal } from "@shared/avl";
+import { type AvlNode, checkGoal, type TraversalOrder, TreeTraversal, toKeys } from "@shared/avl";
 import type { PlaygroundGoal, TreeOperation } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { GoalReached } from "@/components/molecules/goal-reached";
@@ -14,6 +14,7 @@ import { TreeView } from "@/components/organisms/tree-view";
 import { TreeViewport } from "@/components/organisms/tree-viewport";
 import { buildTree } from "@/lib/lesson/animation-steps";
 import { emptyTaps, isFinished, tapMessage, tapNode } from "@/lib/lesson/traversal-taps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { parseCommand } from "@/lib/playground/commands";
 import { createSession, playgroundReducer } from "@/lib/playground/playground-reducer";
 import type { PlaygroundSetup } from "@/lib/playground/setup";
@@ -56,10 +57,14 @@ function TraversePlayground({
   goal,
   className,
 }: PlaygroundBlockProperties) {
-  const root = useMemo(() => buildTree(startingKeys), [startingKeys]);
+  const mode = useTreeMode();
+  const root = useMemo(() => buildTree(startingKeys, mode), [startingKeys, mode]);
   const order = goal?.kind === "traversal" ? goal.order : "preorder";
   const expected = useMemo(
-    () => (goal?.kind === "traversal" ? goal.keys : traceTraversal(root, order).result),
+    () =>
+      goal?.kind === "traversal"
+        ? goal.keys
+        : [...new TreeTraversal(root, order)].map((node) => node.key),
     [goal, root, order],
   );
   const orderName = orderNames[order];
@@ -159,9 +164,11 @@ function BuildSession({
   className,
   onStartAgain,
 }: PlaygroundBlockProperties & { onStartAgain: () => void }) {
+  const mode = useTreeMode();
   const [session, dispatch] = useReducer(playgroundReducer, lessonSetup, (setup) => ({
     ...createSession(setup),
-    tree: buildTree(startingKeys),
+    tree: buildTree(startingKeys, mode),
+    treeMode: mode,
   }));
   const run = session.run;
   const player = useStepPlayer(run?.steps ?? [], String(run?.id ?? 0));
@@ -176,21 +183,22 @@ function BuildSession({
     (!run || player.isLast);
 
   const handleRun = (text: string) => {
-    const parsed = parseCommand(text, lessonSetup);
-    if (parsed.ok && parsed.command.kind === "help") {
+    const typed = text.trim().toLowerCase().replace(/\s+/g, " ");
+    const word = typed.split(" ")[0] ?? "";
+    if (word !== "" && word !== "help" && !operations.some((operation) => operation === word)) {
       dispatch({
-        type: "reply",
-        command: "help",
+        type: "refuse",
+        command: typed,
         message: `Here you can use ${listOr(examples)}.`,
         via: "typed",
       });
       return;
     }
-    const allowed = parsed.ok && operations.some((operation) => operation === parsed.command.kind);
-    if (parsed.ok && !allowed) {
+    const parsed = parseCommand(text, lessonSetup);
+    if (parsed.ok && parsed.command.kind === "help") {
       dispatch({
-        type: "refuse",
-        command: text.trim().toLowerCase().replace(/\s+/g, " "),
+        type: "reply",
+        command: "help",
         message: `Here you can use ${listOr(examples)}.`,
         via: "typed",
       });

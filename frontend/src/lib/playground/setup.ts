@@ -92,5 +92,13 @@ export const toSearch = (setup: PlaygroundSetup): PlaygroundSearch => ({
 export const startSize = (start: PlaygroundStart): number =>
   start === "large" ? startSizes.large : startSizes.small;
 
-export const startTree = (setup: Pick<PlaygroundSetup, "start" | "seed">): AvlNode | null =>
-  setup.start === "empty" ? null : randomTree({ size: startSize(setup.start), seed: setup.seed });
+export const randomTreeFor = (
+  topic: PlaygroundTopic | undefined,
+  size: number,
+  seed: number,
+): AvlNode | null => randomTree({ size, seed, mode: topic === "traversal" ? "bst" : "avl" });
+
+export const startTree = (
+  setup: Pick<PlaygroundSetup, "start" | "seed"> & { topic?: PlaygroundTopic },
+): AvlNode | null =>
+  setup.start === "empty" ? null : randomTreeFor(setup.topic, startSize(setup.start), setup.seed);

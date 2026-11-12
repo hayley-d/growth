@@ -233,13 +233,21 @@ const rebalanceAt = (node: AvlNode, recorder?: StepRecorder): AvlNode =>
     return node;
   });
 
-const climb = (
+type Climb = (
   algorithm: "insert" | "delete",
   node: AvlNode,
   left: AvlNode | null,
   right: AvlNode | null,
   recorder?: StepRecorder,
-): AvlNode => {
+) => AvlNode;
+
+const plainClimb: Climb = (_algorithm, node, left, right, recorder) => {
+  const rebuilt = withChildren(node, left, right);
+  recorder?.replace(rebuilt);
+  return rebuilt;
+};
+
+const rebalancingClimb: Climb = (algorithm, node, left, right, recorder) => {
   recorder?.focus(node.key);
   recorder?.emit(`${algorithm}.update-height`, { node: node.key });
   const updated = updateNode(node, left, right, recorder);
@@ -247,87 +255,98 @@ const climb = (
   return rebalanceAt(updated, recorder);
 };
 
-const insertInto = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode =>
-  withinCall(recorder, "insert", node?.key ?? null, () => {
-    if (node) recorder?.focus(node.key);
-    recorder?.emit("insert.check-empty", { key, node: node?.key ?? null });
-    if (!node) {
-      const created: AvlNode = { key, height: 1, left: null, right: null };
-      recorder?.replace(created);
-      recorder?.focus(key);
-      recorder?.mark(key, "new");
-      recorder?.emit("insert.create-node", { key });
-      return created;
-    }
-    recorder?.emit("insert.compare", { key, node: node.key });
-    if (key < node.key) {
-      recorder?.emit("insert.go-left", { key, node: node.key });
-      recorder?.enter("left");
-      const left = insertInto(node.left, key, recorder);
-      recorder?.leave();
-      return climb("insert", node, left, node.right, recorder);
-    }
-    recorder?.emit("insert.check-bigger", { key, node: node.key });
-    if (key > node.key) {
-      recorder?.emit("insert.go-right", { key, node: node.key });
-      recorder?.enter("right");
-      const right = insertInto(node.right, key, recorder);
-      recorder?.leave();
-      return climb("insert", node, node.left, right, recorder);
-    }
-    recorder?.emit("insert.duplicate", { key, node: node.key });
-    return node;
-  });
+const makeInsert = (climb: Climb) => {
+  const insertInto = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode =>
+    withinCall(recorder, "insert", node?.key ?? null, () => {
+      if (node) recorder?.focus(node.key);
+      recorder?.emit("insert.check-empty", { key, node: node?.key ?? null });
+      if (!node) {
+        const created: AvlNode = { key, height: 1, left: null, right: null };
+        recorder?.replace(created);
+        recorder?.focus(key);
+        recorder?.mark(key, "new");
+        recorder?.emit("insert.create-node", { key });
+        return created;
+      }
+      recorder?.emit("insert.compare", { key, node: node.key });
+      if (key < node.key) {
+        recorder?.emit("insert.go-left", { key, node: node.key });
+        recorder?.enter("left");
+        const left = insertInto(node.left, key, recorder);
+        recorder?.leave();
+        return climb("insert", node, left, node.right, recorder);
+      }
+      recorder?.emit("insert.check-bigger", { key, node: node.key });
+      if (key > node.key) {
+        recorder?.emit("insert.go-right", { key, node: node.key });
+        recorder?.enter("right");
+        const right = insertInto(node.right, key, recorder);
+        recorder?.leave();
+        return climb("insert", node, node.left, right, recorder);
+      }
+      recorder?.emit("insert.duplicate", { key, node: node.key });
+      return node;
+    });
+  return insertInto;
+};
 
 const smallestKey = (node: AvlNode): number => (node.left ? smallestKey(node.left) : node.key);
 
-const removeFrom = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode | null =>
-  withinCall(recorder, "delete", node?.key ?? null, (): AvlNode | null => {
-    if (node) recorder?.focus(node.key);
-    recorder?.emit("delete.check-empty", { key, node: node?.key ?? null });
-    if (!node) {
-      recorder?.emit("delete.not-found", { key });
-      return null;
-    }
-    recorder?.emit("delete.compare", { key, node: node.key });
-    if (key < node.key) {
-      recorder?.emit("delete.go-left", { key, node: node.key });
-      recorder?.enter("left");
-      const left = removeFrom(node.left, key, recorder);
-      recorder?.leave();
-      return climb("delete", node, left, node.right, recorder);
-    }
-    recorder?.emit("delete.check-bigger", { key, node: node.key });
-    if (key > node.key) {
-      recorder?.emit("delete.go-right", { key, node: node.key });
-      recorder?.enter("right");
-      const right = removeFrom(node.right, key, recorder);
-      recorder?.leave();
-      return climb("delete", node, node.left, right, recorder);
-    }
-    const children = (node.left ? 1 : 0) + (node.right ? 1 : 0);
-    recorder?.emit("delete.check-children", { key, children });
-    if (!node.left || !node.right) {
-      const child = node.left ?? node.right;
+const makeRemove = (climb: Climb) => {
+  const removeFrom = (node: AvlNode | null, key: number, recorder?: StepRecorder): AvlNode | null =>
+    withinCall(recorder, "delete", node?.key ?? null, (): AvlNode | null => {
+      if (node) recorder?.focus(node.key);
+      recorder?.emit("delete.check-empty", { key, node: node?.key ?? null });
+      if (!node) {
+        recorder?.emit("delete.not-found", { key });
+        return null;
+      }
+      recorder?.emit("delete.compare", { key, node: node.key });
+      if (key < node.key) {
+        recorder?.emit("delete.go-left", { key, node: node.key });
+        recorder?.enter("left");
+        const left = removeFrom(node.left, key, recorder);
+        recorder?.leave();
+        return climb("delete", node, left, node.right, recorder);
+      }
+      recorder?.emit("delete.check-bigger", { key, node: node.key });
+      if (key > node.key) {
+        recorder?.emit("delete.go-right", { key, node: node.key });
+        recorder?.enter("right");
+        const right = removeFrom(node.right, key, recorder);
+        recorder?.leave();
+        return climb("delete", node, node.left, right, recorder);
+      }
+      const children = (node.left ? 1 : 0) + (node.right ? 1 : 0);
+      recorder?.emit("delete.check-children", { key, children });
+      if (!node.left || !node.right) {
+        const child = node.left ?? node.right;
+        recorder?.mark(node.key, "deleting");
+        recorder?.emit("delete.replace-with-child", { key, child: child?.key ?? null });
+        recorder?.replace(child);
+        recorder?.clear(node.key);
+        return child;
+      }
+      const successorKey = smallestKey(node.right);
       recorder?.mark(node.key, "deleting");
-      recorder?.emit("delete.replace-with-child", { key, child: child?.key ?? null });
-      recorder?.replace(child);
-      recorder?.clear(node.key);
-      return child;
-    }
-    const successorKey = smallestKey(node.right);
-    recorder?.mark(node.key, "deleting");
-    recorder?.emit("delete.find-successor", { key, successor: successorKey });
-    const copied: AvlNode = { ...node, key: successorKey };
-    recorder?.replace(copied);
-    recorder?.focus(successorKey);
-    recorder?.emit("delete.copy-successor", { key, successor: successorKey });
-    recorder?.emit("delete.remove-successor", { key, successor: successorKey });
-    recorder?.enter("right");
-    const right = removeFrom(node.right, successorKey, recorder);
-    recorder?.leave();
-    return climb("delete", copied, node.left, right, recorder);
-  });
+      recorder?.emit("delete.find-successor", { key, successor: successorKey });
+      const copied: AvlNode = { ...node, key: successorKey };
+      recorder?.replace(copied);
+      recorder?.focus(successorKey);
+      recorder?.emit("delete.copy-successor", { key, successor: successorKey });
+      recorder?.emit("delete.remove-successor", { key, successor: successorKey });
+      recorder?.enter("right");
+      const right = removeFrom(node.right, successorKey, recorder);
+      recorder?.leave();
+      return climb("delete", copied, node.left, right, recorder);
+    });
+  return removeFrom;
+};
+
+const insertInto = makeInsert(rebalancingClimb);
+const removeFrom = makeRemove(rebalancingClimb);
+const insertIntoBst = makeInsert(plainClimb);
+const removeFromBst = makeRemove(plainClimb);
 
 type RotationTarget = { node: AvlNode; path: RotationDirection[] };
 
@@ -399,6 +418,32 @@ export const traceRemove = (root: AvlNode | null, key: number): SteppedResult<Av
   const recorder = new StepRecorder(root);
   return recorder.finish(removeFrom(root, key, recorder));
 };
+
+export const insertBst = (node: AvlNode | null, key: number): AvlNode => insertIntoBst(node, key);
+
+export const removeBst = (node: AvlNode | null, key: number): AvlNode | null =>
+  removeFromBst(node, key);
+
+export const traceBstInsert = (root: AvlNode | null, key: number): SteppedResult<AvlNode> => {
+  const recorder = new StepRecorder(root);
+  return recorder.finish(insertIntoBst(root, key, recorder));
+};
+
+export const traceBstRemove = (
+  root: AvlNode | null,
+  key: number,
+): SteppedResult<AvlNode | null> => {
+  const recorder = new StepRecorder(root);
+  return recorder.finish(removeFromBst(root, key, recorder));
+};
+
+export type TreeMode = "bst" | "avl";
+
+export const buildTreeFromKeys = (keys: readonly number[], mode: TreeMode = "avl") =>
+  keys.reduce<AvlNode | null>(
+    (tree, key) => (mode === "bst" ? insertBst(tree, key) : insertKey(tree, key)),
+    null,
+  );
 
 export const traceRotateRight = (root: AvlNode | null, key: number) =>
   traceRotation(root, key, "right", rotateRightAt);

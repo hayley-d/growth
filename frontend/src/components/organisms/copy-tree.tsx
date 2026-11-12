@@ -4,6 +4,7 @@ import type { NodeState } from "@shared/avl";
 import { StepButtons } from "@/components/molecules/step-buttons";
 import { TreeView } from "@/components/organisms/tree-view";
 import { type CopyTreeStep, copyTreeSteps, trimTree } from "@/lib/copy-tree-steps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { useStepPlayer } from "@/lib/use-step-player";
 import { cn } from "@/lib/utils";
 
@@ -34,8 +35,9 @@ const copyStates = (step: CopyTreeStep | null): Record<number, NodeState> =>
   step?.currentKey == null ? {} : { [step.currentKey]: "new" };
 
 export function CopyTree({ startingKeys, caption, className }: CopyTreeProperties) {
-  const runKey = startingKeys.join(",");
-  const { root, steps } = useMemo(() => copyTreeSteps(startingKeys), [startingKeys]);
+  const mode = useTreeMode();
+  const runKey = `${mode}|${startingKeys.join(",")}`;
+  const { root, steps } = useMemo(() => copyTreeSteps(startingKeys, mode), [startingKeys, mode]);
   const player = useStepPlayer(steps, runKey);
   const { step } = player;
   const total = steps.length - 1;

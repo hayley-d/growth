@@ -3,6 +3,7 @@ import { useMemo } from "react";
 import type { NodeState } from "@shared/avl";
 import { StepButtons } from "@/components/molecules/step-buttons";
 import { TreeView } from "@/components/organisms/tree-view";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { type TreeHeightsStep, treeHeightsSteps } from "@/lib/tree-heights-steps";
 import { useStepPlayer } from "@/lib/use-step-player";
 import { cn } from "@/lib/utils";
@@ -33,8 +34,9 @@ const nodeStates = (step: TreeHeightsStep | null) => {
 };
 
 export function TreeHeights({ startingKeys, caption, className }: TreeHeightsProperties) {
-  const runKey = startingKeys.join(",");
-  const { root, steps } = useMemo(() => treeHeightsSteps(startingKeys), [startingKeys]);
+  const mode = useTreeMode();
+  const runKey = `${mode}|${startingKeys.join(",")}`;
+  const { root, steps } = useMemo(() => treeHeightsSteps(startingKeys, mode), [startingKeys, mode]);
   const player = useStepPlayer(steps, runKey);
   const { step } = player;
   const total = steps.length - 1;

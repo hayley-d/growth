@@ -7,6 +7,7 @@ import { trimTree } from "@/lib/copy-tree-steps";
 import { buildTree } from "@/lib/lesson/animation-steps";
 import { describeLabelledTree } from "@/lib/lesson/tree-label-layout";
 import { useLinkedTree } from "@/lib/lesson/tree-links";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { useMediaQuery } from "@/lib/use-media-query";
 import { cn } from "@/lib/utils";
 
@@ -30,7 +31,8 @@ export function DiagramBlock({
   className,
 }: DiagramBlockProperties) {
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const root = useMemo(() => buildTree(startingKeys), [startingKeys]);
+  const mode = useTreeMode();
+  const root = useMemo(() => buildTree(startingKeys, mode), [startingKeys, mode]);
   const layout = useMemo(() => layoutTree(root), [root]);
   const treeKeys = useMemo(() => toKeys(root), [root]);
   const links = useLinkedTree(treeKeys);

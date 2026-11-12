@@ -40,7 +40,7 @@ export const toLessonResponse = ({
       notePrompt: lesson.notePrompt,
       objectives: lesson.objectives,
     },
-    unit: { id: unit.id, title: unit.title, position: unit.position },
+    unit: { id: unit.id, title: unit.title, position: unit.position, treeMode: unit.treeMode },
     status: completed ? "completed" : "current",
     previousLessonId: neighbours.previousLessonId,
     nextLessonId: neighbours.nextLessonId,

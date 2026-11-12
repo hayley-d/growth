@@ -5,6 +5,7 @@ import { StepControls } from "@/components/molecules/step-controls";
 import { StepMessage } from "@/components/molecules/step-message";
 import { TreeView } from "@/components/organisms/tree-view";
 import { animationSteps } from "@/lib/lesson/animation-steps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { speak } from "@/lib/speak";
 import { phaseOf } from "@/lib/step-phases";
 import { useMediaQuery } from "@/lib/use-media-query";
@@ -25,8 +26,12 @@ export function AnimationBlock({
   className,
 }: AnimationBlockProperties) {
   const reduced = useMediaQuery("(prefers-reduced-motion: reduce)");
-  const run = useMemo(() => animationSteps(startingKeys, operations), [startingKeys, operations]);
-  const runKey = `${startingKeys.join(",")}|${operations.map((each) => `${each.operation}${each.key}`).join(",")}`;
+  const mode = useTreeMode();
+  const run = useMemo(
+    () => animationSteps(startingKeys, operations, mode),
+    [startingKeys, operations, mode],
+  );
+  const runKey = `${mode}|${startingKeys.join(",")}|${operations.map((each) => `${each.operation}${each.key}`).join(",")}`;
   const player = useStepPlayer(run.steps, runKey);
   const step = player.step;
   const started = useRef(false);

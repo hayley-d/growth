@@ -43,7 +43,12 @@ export const buildLesson = (
       objectives: ["Trace a pre-order walk", "Copy a tree with pre-order"],
       ...overrides,
     },
-    unit: { id: "00000000-0000-4000-8000-0000000000b1", title: "Binary trees", position: 1 },
+    unit: {
+      id: "00000000-0000-4000-8000-0000000000b1",
+      title: "Binary trees",
+      position: 1,
+      treeMode: "bst",
+    },
     status: "current",
     previousLessonId: null,
     nextLessonId: null,

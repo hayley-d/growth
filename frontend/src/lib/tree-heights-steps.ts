@@ -1,4 +1,4 @@
-import { type AvlNode, insertKey, TreeTraversal } from "@shared/avl";
+import { buildTreeFromKeys, type TreeMode, TreeTraversal } from "@shared/avl";
 
 export type TreeHeightsStep = {
   heights: Record<number, number>;
@@ -9,8 +9,8 @@ export type TreeHeightsStep = {
 
 const emptyStep: TreeHeightsStep = { heights: {}, currentKey: null, leftHeight: 0, rightHeight: 0 };
 
-export const treeHeightsSteps = (startingKeys: readonly number[]) => {
-  const root = startingKeys.reduce<AvlNode | null>((node, key) => insertKey(node, key), null);
+export const treeHeightsSteps = (startingKeys: readonly number[], mode: TreeMode = "avl") => {
+  const root = buildTreeFromKeys(startingKeys, mode);
   const heights: Record<number, number> = {};
   const steps: TreeHeightsStep[] = [emptyStep];
   for (const node of new TreeTraversal(root, "postorder")) {

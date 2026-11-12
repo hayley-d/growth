@@ -1,11 +1,13 @@
 import { Check, X } from "lucide-react";
 import { type FormEvent, useId, useMemo, useState } from "react";
 
-import { type AvlNode, insertKey, type TraversalOrder, TreeTraversal } from "@shared/avl";
+import { type TraversalOrder, TreeTraversal } from "@shared/avl";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
 import { TreeView } from "@/components/organisms/tree-view";
+import { buildTree } from "@/lib/lesson/animation-steps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { parseTraversalAnswer } from "@/lib/traversal-answer";
 import { cn } from "@/lib/utils";
 
@@ -31,10 +33,8 @@ const feedbackText: Record<Result, string> = {
 };
 
 export function TraversalQuiz({ startingKeys, orders, className }: TraversalQuizProperties) {
-  const root = useMemo(
-    () => startingKeys.reduce<AvlNode | null>((node, key) => insertKey(node, key), null),
-    [startingKeys],
-  );
+  const mode = useTreeMode();
+  const root = useMemo(() => buildTree(startingKeys, mode), [startingKeys, mode]);
   const answers = useMemo(
     () =>
       Object.fromEntries(

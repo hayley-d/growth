@@ -9,6 +9,7 @@ import {
   learnerAnswerSchema,
   lessonKindSchema,
   questionTypeSchema,
+  treeModeSchema,
 } from "@shared/schemas";
 
 export const contentKeySchema = z
@@ -34,6 +35,7 @@ export const unitContentSchema = z.object({
   key: contentKeySchema,
   position: positionSchema,
   title: textSchema,
+  treeMode: treeModeSchema.default("avl"),
 });
 
 export const unitsContentSchema = z.array(unitContentSchema);
