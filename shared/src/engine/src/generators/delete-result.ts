@@ -4,7 +4,6 @@ import {
   describeRotation,
   findCase,
   type GenerateOptions,
-  pivotHint,
 } from "@shared/engine/src/generators/support";
 import type { GeneratedQuestion } from "@shared/schemas";
 
@@ -30,7 +29,7 @@ export const generateDeleteResult = ({ seed, difficulty }: GenerateOptions): Gen
     hints: [
       "Delete like in a plain binary search tree. A node with two children is replaced by its in-order successor, the smallest key in its right subtree.",
       "After deleting, check the balance factor of each node on the path from where the node was removed back up to the root.",
-      `${pivotHint(found.rotation, found.pivotKey, replacedKey)} ${describeRotation(found.rotation, found.pivotKey, replacedKey)}`,
+      "The lowest node on that path with a balance factor of -2 or 2 is the one to fix. Look at its heavy child to decide between one rotation and two. If no node reaches -2 or 2, nothing needs fixing.",
     ],
   };
 };
