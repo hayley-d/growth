@@ -128,7 +128,7 @@ it("lists the topics and disables the ones without questions", async () => {
   await expect.element(screen.getByRole("heading", { name: "Practice", level: 1 })).toBeVisible();
   await expect.element(screen.getByRole("button", { name: /Traversals/ })).toBeEnabled();
   await expect.element(screen.getByRole("button", { name: /Insertion/ })).toBeDisabled();
-  await expect.element(screen.getByText("No questions yet")).toBeVisible();
+  await expect.element(screen.getByText("Unlock a lesson on this first.")).toBeVisible();
   await expect.element(screen.getByText(/Practice has no stakes/)).toBeVisible();
 });
 
@@ -139,29 +139,65 @@ it("serves a question, gives feedback and then the next question", async () => {
   await screen.getByRole("button", { name: /Traversals/ }).click();
   await expect.element(screen.getByRole("heading", { name: "Question 1 prompt" })).toBeVisible();
 
+  await expect.element(screen.getByText("Difficulty 1 of 5")).toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("img", { name: "Your session tree: 0 of 0 right" }))
+    .toBeVisible();
+  await expect.element(screen.getByText(/Each one only softens/)).toBeVisible();
+
   await screen.getByRole("radio", { name: "Root last" }).click();
   await screen.getByRole("button", { name: "Submit" }).click();
   await expect.element(screen.getByRole("heading", { name: "Not quite" })).toBeVisible();
+  await expect
+    .element(screen.getByRole("img", { name: "Your session tree: 0 of 1 right" }))
+    .toBeVisible();
 
-  await screen.getByRole("button", { name: "Next" }).click();
+  await screen.getByRole("button", { name: "Next question" }).click();
   await expect.element(screen.getByRole("heading", { name: "Question 2 prompt" })).toBeVisible();
 });
 
-it("shows the summary when the learner stops", async () => {
+it("shows the grown tree and mastery shifts when the learner stops", async () => {
   serve();
   const screen = await renderApp("/practice");
 
   await screen.getByRole("button", { name: /Traversals/ }).click();
+  await screen.getByRole("radio", { name: "Root last" }).click();
+  await screen.getByRole("button", { name: "Submit" }).click();
+  await expect.element(screen.getByRole("heading", { name: "Not quite" })).toBeVisible();
   await screen.getByRole("button", { name: "Stop practising" }).click();
 
-  await expect.element(screen.getByRole("heading", { name: "Practice summary" })).toBeVisible();
-  await expect.element(screen.getByText("0 of 1")).toBeVisible();
-  await expect.element(screen.getByText("-8", { exact: true }).first()).toBeVisible();
+  await expect
+    .element(screen.getByRole("heading", { name: "You grew a 1-node tree", level: 1 }))
+    .toBeVisible();
+  await expect.element(screen.getByText(/0 of 1 right/)).toBeVisible();
   await expect.element(screen.getByText(/doesn't change your mastery/)).toBeVisible();
-  await expect.element(screen.getByText("Pre-order")).toBeVisible();
+  // Ratings show as mastery: 1000 is 36%, 992 is 35%.
+  await expect
+    .element(screen.getByRole("progressbar", { name: "Pre-order mastery" }))
+    .toHaveAttribute("aria-valuetext", "36% to 35%");
+  await expect.element(screen.getByRole("link", { name: "Pre-order" })).toBeVisible();
 
   await screen.getByRole("button", { name: "Practice again" }).click();
   await expect.element(screen.getByRole("button", { name: /Mixed/ })).toBeVisible();
+});
+
+it("says so when the learner stops before answering", async () => {
+  serve();
+  const screen = await renderApp("/practice");
+  mockedPost.mockImplementation(async (url: string) =>
+    url.endsWith("/finish")
+      ? { data: { data: { answered: 0, correct: 0, ratingChange: 0, lessons: [] } } }
+      : {
+          data: {
+            data: { attempt: attempt(0), question: question(firstQuestionId, 1), result: null },
+          },
+        },
+  );
+
+  await screen.getByRole("button", { name: /Traversals/ }).click();
+  await screen.getByRole("button", { name: "Stop practising" }).click();
+
+  await expect.element(screen.getByRole("heading", { name: "No tree this time" })).toBeVisible();
 });
 
 it("shows the server message when a topic cannot start", async () => {
