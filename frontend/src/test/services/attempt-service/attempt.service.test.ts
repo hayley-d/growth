@@ -18,6 +18,7 @@ const attempt = {
   id,
   lessonId: id,
   kind: "lesson_test",
+  topic: null,
   status: "in_progress",
   total: 5,
   answeredCount: 0,

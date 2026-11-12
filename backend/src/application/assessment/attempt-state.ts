@@ -67,11 +67,13 @@ export const makeLoadAttemptState = (dependencies: AttemptStateDependencies) => 
     const questionById = new Map<string, Question>(
       questions.map((question) => [question.id, question]),
     );
-    const answerByQuestionId = new Map(answers.map((answer) => [answer.questionId, answer]));
+    const answerByAttemptQuestionId = new Map(
+      answers.map((answer) => [answer.attemptQuestionId, answer]),
+    );
 
     const reviews = await Promise.all(
       attemptQuestions.map(async (attemptQuestion) => {
-        const answer = answerByQuestionId.get(attemptQuestion.questionId);
+        const answer = answerByAttemptQuestionId.get(attemptQuestion.id);
         const question = questionById.get(attemptQuestion.questionId);
         if (!answer || !question) {
           throw new NotFoundError("Attempt not found", { attemptId: attempt.id });
@@ -147,10 +149,18 @@ export const makeLoadAttemptState = (dependencies: AttemptStateDependencies) => 
       attemptQuestionRepository.listByAttemptId(attempt.id),
       attemptAnswerRepository.listByAttemptId(attempt.id),
     ]);
-    const answeredQuestionIds = new Set(answers.map((answer) => answer.questionId));
+    const answeredIds = new Set(answers.map((answer) => answer.attemptQuestionId));
     const current = attemptQuestions.find(
-      (attemptQuestion) => !answeredQuestionIds.has(attemptQuestion.questionId),
+      (attemptQuestion) => !answeredIds.has(attemptQuestion.id),
     );
+
+    if (!current && attempt.kind === "practice") {
+      return {
+        attempt: toAttempt(attempt, attemptQuestions.length, answers.length),
+        question: null,
+        result: null,
+      };
+    }
 
     if (current) {
       const [question] = await questionRepository.listByIds([current.questionId]);

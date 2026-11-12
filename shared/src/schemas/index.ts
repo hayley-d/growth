@@ -12,4 +12,5 @@ export * from "@shared/schemas/src/learning-path";
 export * from "@shared/schemas/src/lesson";
 export * from "@shared/schemas/src/lesson-note";
 export * from "@shared/schemas/src/onboarding";
+export * from "@shared/schemas/src/practice";
 export * from "@shared/schemas/src/user";

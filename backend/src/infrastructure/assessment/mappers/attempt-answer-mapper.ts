@@ -10,6 +10,7 @@ export const toAttemptAnswer = (row: AttemptAnswerRow): AttemptAnswer => ({
   id: row.id,
   assessmentAttemptId: row.assessmentAttemptId,
   questionId: row.questionId,
+  attemptQuestionId: row.attemptQuestionId,
   answerOptionId: row.answerOptionId,
   seed: row.seed,
   generatedQuestion: row.generatedQuestion,

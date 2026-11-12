@@ -17,4 +17,5 @@ export type AssessmentAttemptRepository = Repository<
     questions: AttemptQuestionDraft[],
   ): Promise<AssessmentAttempt>;
   findUnfinishedByLesson(userId: string, lessonId: string): Promise<AssessmentAttempt | null>;
+  findUnfinishedPractice(userId: string): Promise<AssessmentAttempt | null>;
 };

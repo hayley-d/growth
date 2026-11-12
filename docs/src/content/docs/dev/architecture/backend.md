@@ -127,6 +127,24 @@ How an attempt works:
 - **The end.** After the last answer the attempt is finished. The score is the percent of questions answered correctly, and 80 or more passes. The result has the score, `passed`, the points, the total rating change, `masteryBefore` and `masteryAfter` (whole percents, averaged over the lessons the attempt touched), the answers with their explanations, and the lessons to review for the questions the learner got wrong. A pass calls `makeCompleteLesson`, which also completes every lesson before it. If a crash left an attempt with every question answered but not finished, the next `GET` or answer finishes it.
 - **Errors.** Another learner's attempt returns 404. Answering a question twice, answering after the attempt is finished, and asking for a hint that doesn't exist return 409.
 
+### Practice
+
+Practice is an open-ended attempt of kind `practice` on one topic: `traversals`, `insertion`, `deletion`, `rotations` or `mixed`. It uses the same attempt tables as a test, but it has no stakes. It never completes a lesson, never finishes by itself and never changes mastery. The use cases live in `application/assessment/` (`start-practice`, `next-practice-question`, `finish-practice`, `get-practice-topics`). All endpoints need a signed-in learner.
+
+| Endpoint | What it does |
+| --- | --- |
+| `GET /api/practice/topics` | Every topic and whether it can be started |
+| `POST /api/practice/attempts` | Body `{ topic }`. Always starts a new attempt and returns it with its first question (201). An unfinished practice attempt is finished first, so there is no resume. A topic with no questions returns 409 |
+| `POST /api/practice/attempts/:id/questions` | The current question, or a new one when the last was answered |
+| `POST /api/practice/attempts/:id/finish` | Stops and returns the summary: questions answered, how many were right, the rating change, and the rating before and after for each lesson |
+
+Hints and answers use the test endpoints, `POST /api/attempts/:id/hints` and `/answers`. After an answer in practice `question` and `result` are both `null`, and the page asks for the next question.
+
+- **Which questions.** A topic maps to generator keys (`application/assessment/practice-topics.ts`): `traversals` is `traversal-order`, `insertion` is `insert-result`, `deletion` is `delete-result`, `rotations` is `predict-rotation` and `mixed` is every key. The pool is the active generated questions of lessons the learner has unlocked. Written questions are left out. A question is picked by generator key first, then lesson, then row, so a key with many rows does not dominate a mixed session.
+- **One at a time.** A question is made when it is asked for. The same question can come up again with a new seed, because an answer belongs to a served question (`AttemptAnswer.attemptQuestionId`), not to the question.
+- **Session rating.** The first answer on a lesson starts from the learner's stored rating (1000 if none). Every later answer in that session starts from the last answer's `ratingAfter`, and the next difficulty follows it (`practice-rating.ts`). `UserMastery` is never written, and practice answers do not count towards the Elo step of later tests. Each new session starts from the stored rating again.
+- **The topic.** It is saved on the attempt (`practiceTopic`) because the next question needs it.
+
 ## Request flow
 
 1. `secureHeaders` adds security headers to every response, like `x-content-type-options: nosniff`.

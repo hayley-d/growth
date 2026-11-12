@@ -13,7 +13,7 @@ export type RecordAnswerInput = {
     rating: number;
     mastery: number;
     currentDifficulty: number;
-  };
+  } | null;
 };
 
 export type AttemptAnswerRepository = Repository<

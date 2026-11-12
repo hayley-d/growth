@@ -22,6 +22,8 @@ import {
   listCodeLanguagesResponseSchema,
   listLearningStylesResponseSchema,
   meResponseSchema,
+  practiceSummaryResponseSchema,
+  practiceTopicsResponseSchema,
   requestHintRequestSchema,
   requestHintResponseSchema,
   saveLessonNoteRequestSchema,
@@ -30,6 +32,7 @@ import {
   sessionResponseSchema,
   signInRequestSchema,
   signUpRequestSchema,
+  startPracticeRequestSchema,
   submitAnswerRequestSchema,
   submitAnswerResponseSchema,
   updateUserProfileRequestSchema,
@@ -44,6 +47,7 @@ export const requestSchemas = {
   SaveLessonNoteRequest: saveLessonNoteRequestSchema,
   RequestHintRequest: requestHintRequestSchema,
   SubmitAnswerRequest: submitAnswerRequestSchema,
+  StartPracticeRequest: startPracticeRequestSchema,
   ScoreQuizRequest: scoreQuizRequestSchema,
   CompleteOnboardingRequest: completeOnboardingRequestSchema,
 };
@@ -66,6 +70,8 @@ export const responseSchemas = {
   AttemptStateResponse: attemptStateResponseSchema,
   RequestHintResponse: requestHintResponseSchema,
   SubmitAnswerResponse: submitAnswerResponseSchema,
+  PracticeTopicsResponse: practiceTopicsResponseSchema,
+  PracticeSummaryResponse: practiceSummaryResponseSchema,
   GetQuizResponse: getQuizResponseSchema,
   ScoreQuizResponse: scoreQuizResponseSchema,
 };

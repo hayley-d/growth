@@ -9,13 +9,14 @@ export const toAttempt = (
   total: number,
   answeredCount: number,
 ): Attempt => {
-  if (!attempt.lessonId || (attempt.kind !== "lesson_test" && attempt.kind !== "checkpoint")) {
+  if (attempt.kind === "daily_challenge") {
     throw new NotFoundError("Attempt not found", { attemptId: attempt.id });
   }
   return {
     id: attempt.id,
     lessonId: attempt.lessonId,
     kind: attempt.kind,
+    topic: attempt.practiceTopic,
     status: attempt.finishedAt ? "finished" : "in_progress",
     total,
     answeredCount,

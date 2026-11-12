@@ -117,6 +117,7 @@ it("goes to the test page for a locked lesson", async () => {
           id: "20000000-0000-4000-8000-000000000001",
           lessonId: lessonIdAt(7),
           kind: "lesson_test",
+          topic: null,
           status: "in_progress",
           total: 5,
           answeredCount: 0,

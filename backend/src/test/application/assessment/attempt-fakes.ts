@@ -145,6 +145,7 @@ export const createWorld = (options: WorldOptions = {}) => {
       id: nextId("attempt"),
       lessonId: null,
       dailyChallengeId: null,
+      practiceTopic: null,
       score: 0,
       passed: false,
       points: 0,
@@ -167,6 +168,11 @@ export const createWorld = (options: WorldOptions = {}) => {
       attempts.find(
         (attempt) =>
           attempt.userId === userId && attempt.lessonId === lessonId && attempt.finishedAt === null,
+      ) ?? null,
+    findUnfinishedPractice: async (userId: string) =>
+      attempts.find(
+        (attempt) =>
+          attempt.userId === userId && attempt.kind === "practice" && attempt.finishedAt === null,
       ) ?? null,
     create: async (entity: NewAttempt) => insertAttempt(entity),
     createWithQuestions: vi.fn(async (entity: NewAttempt, drafts: AttemptQuestionDraft[]) => {
@@ -197,6 +203,20 @@ export const createWorld = (options: WorldOptions = {}) => {
         .filter((row) => row.assessmentAttemptId === assessmentAttemptId)
         .sort((first, second) => first.position - second.position)
         .map((row) => ({ ...row })),
+    create: async (
+      entity: Omit<AttemptQuestion, "id" | "seed" | "generatedQuestion" | "hintsUsed"> &
+        Partial<AttemptQuestion>,
+    ) => {
+      const created: AttemptQuestion = {
+        id: nextId("attempt-question"),
+        seed: null,
+        generatedQuestion: null,
+        hintsUsed: 0,
+        ...entity,
+      };
+      attemptQuestions.push(created);
+      return { ...created };
+    },
     takeHint: vi.fn(async (id: string, hintsUsed: number) => {
       const row = attemptQuestions.find((candidate) => candidate.id === id);
       if (!row || row.hintsUsed !== hintsUsed) return false;
@@ -214,7 +234,11 @@ export const createWorld = (options: WorldOptions = {}) => {
       attemptAnswers.filter((row) => {
         const attempt = attempts.find((candidate) => candidate.id === row.assessmentAttemptId);
         const question = questionRows.find((candidate) => candidate.id === row.questionId);
-        return attempt?.userId === userId && question?.lessonId === lessonId;
+        return (
+          attempt?.userId === userId &&
+          attempt.kind !== "practice" &&
+          question?.lessonId === lessonId
+        );
       }).length,
     recordAnswer: vi.fn(async ({ answer, mastery }: RecordAnswerInput) => {
       const created: AttemptAnswer = {
@@ -226,7 +250,7 @@ export const createWorld = (options: WorldOptions = {}) => {
         ...answer,
       };
       attemptAnswers.push(created);
-      masteryRows.set(masteryKey(mastery), { ...mastery, updatedAt: new Date() });
+      if (mastery) masteryRows.set(masteryKey(mastery), { ...mastery, updatedAt: new Date() });
       return created;
     }),
   };

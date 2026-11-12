@@ -5,6 +5,7 @@ import {
   questionTypeSchema,
   replaySchema,
 } from "@shared/schemas/src/assessment";
+import { practiceTopicSchema } from "@shared/schemas/src/practice";
 
 export const testAttemptKindSchema = z.enum(["lesson_test", "checkpoint"]);
 
@@ -14,12 +15,15 @@ export const attemptStatusSchema = z.enum(["in_progress", "finished"]);
 
 export type AttemptStatus = z.infer<typeof attemptStatusSchema>;
 
+export const attemptStateKindSchema = z.enum(["lesson_test", "checkpoint", "practice"]);
+
 export const attemptSchema = z.object({
   id: z.uuid(),
-  lessonId: z.uuid(),
-  kind: testAttemptKindSchema,
+  lessonId: z.uuid().nullable(),
+  kind: attemptStateKindSchema,
+  topic: practiceTopicSchema.nullable(),
   status: attemptStatusSchema,
-  total: z.int().positive(),
+  total: z.int().nonnegative(),
   answeredCount: z.int().nonnegative(),
   startedAt: z.iso.datetime(),
   finishedAt: z.iso.datetime().nullable(),

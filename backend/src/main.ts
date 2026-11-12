@@ -1,7 +1,11 @@
+import { makeFinishPractice } from "@/application/assessment/commands/finish-practice";
+import { makeNextPracticeQuestion } from "@/application/assessment/commands/next-practice-question";
 import { makeRequestHint } from "@/application/assessment/commands/request-hint";
 import { makeStartAttempt } from "@/application/assessment/commands/start-attempt";
+import { makeStartPractice } from "@/application/assessment/commands/start-practice";
 import { makeSubmitAnswer } from "@/application/assessment/commands/submit-answer";
 import { makeGetAttempt } from "@/application/assessment/queries/get-attempt";
+import { makeGetPracticeTopics } from "@/application/assessment/queries/get-practice-topics";
 import { makeGetAlgorithmSnippet } from "@/application/course-content/queries/get-algorithm-snippet";
 import { makeListAlgorithms } from "@/application/course-content/queries/list-algorithms";
 import { makeListCodeLanguages } from "@/application/course-content/queries/list-code-languages";
@@ -55,6 +59,7 @@ import { createCourseContentController } from "@/presentation/controllers/course
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
+import { createPracticeController } from "@/presentation/controllers/practice-controller";
 import { createUserController } from "@/presentation/controllers/user-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
@@ -123,6 +128,14 @@ const attemptController = createAttemptController({
   submitAnswer: makeSubmitAnswer(attemptDependencies),
 });
 
+const practiceDependencies = { ...attemptDependencies, ...lessonAccess };
+const practiceController = createPracticeController({
+  getPracticeTopics: makeGetPracticeTopics(practiceDependencies),
+  startPractice: makeStartPractice(practiceDependencies),
+  nextPracticeQuestion: makeNextPracticeQuestion(practiceDependencies),
+  finishPractice: makeFinishPractice(practiceDependencies),
+});
+
 const userController = createUserController({
   getMe: makeGetMe({ userRepository, userProfileRepository }),
   updateProfile: makeUpdateProfile({
@@ -155,6 +168,7 @@ const application = createApplication({
   algorithmController,
   lessonController,
   attemptController,
+  practiceController,
   userController,
   courseContentController,
   learningPathController,

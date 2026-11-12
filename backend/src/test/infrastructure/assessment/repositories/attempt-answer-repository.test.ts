@@ -7,6 +7,7 @@ const row = {
   id: "8d3c1f9e-4b1a-4c55-9d0e-2f6a7b8c9d01",
   assessmentAttemptId: "1b2c3d4e-5f60-4718-9a2b-3c4d5e6f7a80",
   questionId: "2c3d4e5f-6071-4829-8b3c-4d5e6f7a8b91",
+  attemptQuestionId: "3d4e5f60-7182-493a-9c4d-5e6f7a8b9ca2",
   answerOptionId: null,
   seed: null,
   generatedQuestion: null,
@@ -26,6 +27,7 @@ describe("PrismaAttemptAnswerRepository", () => {
     await new PrismaAttemptAnswerRepository(client).create({
       assessmentAttemptId: row.assessmentAttemptId,
       questionId: row.questionId,
+      attemptQuestionId: row.attemptQuestionId,
       generatedQuestion: null,
       response: row.response,
       isCorrect: row.isCorrect,
