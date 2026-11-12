@@ -3,7 +3,7 @@ import { defineMdastPlugin, type MdastVisitorContext } from "satteri";
 
 const referencesHeading = "references";
 const citationPattern =
-  /([A-Z][\w.'’&-]*(?: [A-Z][\w.'’&-]*)*)(?:,? (?:and|&) [A-Z][\w'’-]*| et al\.)?(?:, (\d{4}[a-z]?|n\.d\.?)| \((\d{4}[a-z]?|n\.d\.?)\))/g;
+  /([A-Z][\w.'’&-]*(?: [A-Z][\w.'’&-]*)*)(?:,? (?:and|&) [A-Z][\w'’-]*| et al\.)?(?:, (\d{4}[a-z]?|n\.d\.?)| \((\d{4}[a-z]?|n\.d\.?)(?:, pp?\. [\d–-]+)?\))/g;
 const entryPattern = /^(.+?) \((\d{4}[a-z]?|n\.d\.?)\)/;
 const skippedTypes = new Set(["link", "linkReference", "inlineCode", "code", "heading", "html"]);
 
