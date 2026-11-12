@@ -1,10 +1,16 @@
+import { satteri } from "@astrojs/markdown-satteri";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 
+import { citationLinks } from "./src/plugins/citation-links";
+
 export default defineConfig({
   site: "https://hayley-d.github.io",
   base: "/growth",
+  markdown: {
+    processor: satteri({ mdastPlugins: [citationLinks] }),
+  },
   vite: {
     ssr: {
       external: ["satteri"],
