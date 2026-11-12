@@ -6,6 +6,7 @@ import { NotFoundError } from "@/domain/errors";
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { createAttemptController } from "@/presentation/controllers/attempt-controller";
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
+import { createLeaderboardController } from "@/presentation/controllers/leaderboard-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
@@ -56,6 +57,7 @@ const createTestApp = (logger: Logger) =>
       listCodeLanguages: async () => ({ data: { codeLanguages: [] } }),
     }),
     learningPathController: createLearningPathController({ getLearningPath: vi.fn() }),
+    leaderboardController: createLeaderboardController({ getLeaderboard: vi.fn() }),
     onboardingController: createOnboardingController({
       getQuiz: vi.fn(),
       scoreQuiz: vi.fn(),
@@ -104,6 +106,11 @@ describe("createApplication", () => {
 
   it("returns 401 for the learning path when signed out", async () => {
     const response = await createTestApp(createStubLogger()).request("/api/learning-path");
+    expect(response.status).toBe(401);
+  });
+
+  it("returns 401 for the leaderboard when signed out", async () => {
+    const response = await createTestApp(createStubLogger()).request("/api/leaderboard");
     expect(response.status).toBe(401);
   });
 

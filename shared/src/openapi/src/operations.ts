@@ -38,6 +38,10 @@ export const tags = [
       "The learning style quiz and the answers a new learner gives before reaching the app.",
   },
   { name: "Learning path", description: "The units and lessons, with the learner's progress." },
+  {
+    name: "Leaderboard",
+    description: "Today's daily challenge, ranked by how fast each learner finished.",
+  },
   { name: "Lessons", description: "Open a lesson, keep a note and mark it started." },
   {
     name: "Tests",
@@ -249,6 +253,23 @@ export const operations: OperationSpec[] = [
     secured: true,
     responses: {
       "200": { description: "Units, lessons and progress.", schema: "LearningPathResponse" },
+      "401": "Unauthorized",
+    },
+  },
+  {
+    operationId: "getLeaderboard",
+    method: "get",
+    path: "/api/leaderboard",
+    tag: "Leaderboard",
+    summary: "Get today's leaderboard",
+    description:
+      "Ranks learners by how fast they finished today's daily challenge. Time is whole seconds after 00:00 South African time, and ties share a rank. The top 10 only includes learners who chose to appear. The signed-in learner's own entry is separate, and is hidden with no rank when they opted out.",
+    secured: true,
+    responses: {
+      "200": {
+        description: "The top ten and the learner's own entry.",
+        schema: "LeaderboardResponse",
+      },
       "401": "Unauthorized",
     },
   },

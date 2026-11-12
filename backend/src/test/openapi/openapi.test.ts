@@ -5,6 +5,7 @@ import { openApiDocument } from "@shared/openapi";
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { createAttemptController } from "@/presentation/controllers/attempt-controller";
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
+import { createLeaderboardController } from "@/presentation/controllers/leaderboard-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
@@ -37,6 +38,7 @@ const application = createApplication({
     listCodeLanguages: vi.fn(),
   }),
   learningPathController: createLearningPathController({ getLearningPath: vi.fn() }),
+  leaderboardController: createLeaderboardController({ getLeaderboard: vi.fn() }),
   onboardingController: createOnboardingController({
     getQuiz: vi.fn(),
     scoreQuiz: vi.fn(),
@@ -64,6 +66,7 @@ describe("OpenAPI document", () => {
         "get /api/me",
         "patch /api/me/profile",
         "get /api/learning-path",
+        "get /api/leaderboard",
         "get /api/health",
       ]),
     );

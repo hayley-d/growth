@@ -37,6 +37,10 @@
       "description": "The units and lessons, with the learner's progress."
     },
     {
+      "name": "Leaderboard",
+      "description": "Today's daily challenge, ranked by how fast each learner finished."
+    },
+    {
       "name": "Lessons",
       "description": "Open a lesson, keep a note and mark it started."
     },
@@ -492,6 +496,36 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/LearningPathResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/leaderboard": {
+      "get": {
+        "operationId": "getLeaderboard",
+        "tags": [
+          "Leaderboard"
+        ],
+        "summary": "Get today's leaderboard",
+        "description": "Ranks learners by how fast they finished today's daily challenge. Time is whole seconds after 00:00 South African time, and ties share a rank. The top 10 only includes learners who chose to appear. The signed-in learner's own entry is separate, and is hidden with no rank when they opted out.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The top ten and the learner's own entry.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LeaderboardResponse"
                 }
               }
             }
@@ -1612,6 +1646,91 @@
               "units",
               "progress",
               "currentLessonId"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "LeaderboardResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "top": {
+                "maxItems": 10,
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "rank": {
+                      "type": "integer",
+                      "minimum": 1,
+                      "maximum": 9007199254740991
+                    },
+                    "displayName": {
+                      "type": "string"
+                    },
+                    "timeSeconds": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "rank",
+                    "displayName",
+                    "timeSeconds"
+                  ]
+                }
+              },
+              "me": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "displayName": {
+                        "type": "string"
+                      },
+                      "rank": {
+                        "anyOf": [
+                          {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 9007199254740991
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "timeSeconds": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "hidden": {
+                        "type": "boolean"
+                      }
+                    },
+                    "required": [
+                      "displayName",
+                      "rank",
+                      "timeSeconds",
+                      "hidden"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "top",
+              "me"
             ]
           }
         },
