@@ -63,6 +63,12 @@ export function LessonPage() {
     void navigate({ search: { step } });
   };
   const step = steps[stepNumber - 1];
+  const isCheckpoint = details.kind === "checkpoint";
+  const isLast = stepNumber === totalSteps;
+  const takeTest = () => {
+    stopSpeech();
+    void navigate({ to: "/lessons/$lessonId/test", params: { lessonId } });
+  };
 
   const body = finished ? (
     <LessonEnd lessonId={lessonId} lessonTitle={details.title} />
@@ -93,9 +99,10 @@ export function LessonPage() {
       totalSteps={totalSteps}
       finished={finished}
       isFirst={stepNumber <= 1}
-      isLast={stepNumber === totalSteps}
+      isLast={isLast}
+      lastLabel={isCheckpoint ? "Take the test" : undefined}
       onBack={() => goTo(Math.max(stepNumber - 1, 1))}
-      onContinue={() => goTo(stepNumber + 1)}
+      onContinue={() => (isCheckpoint && isLast ? takeTest() : goTo(stepNumber + 1))}
     >
       {body}
     </LessonLayout>
