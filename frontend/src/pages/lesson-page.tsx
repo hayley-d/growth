@@ -68,6 +68,7 @@ export function LessonPage() {
     <LessonEnd lessonId={lessonId} lessonTitle={details.title} />
   ) : step ? (
     <LessonStep
+      key={step.position}
       step={step}
       stepNumber={stepNumber}
       objectives={stepNumber === 1 ? details.objectives : null}

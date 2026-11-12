@@ -34,6 +34,19 @@ it("fills a beat for each right tap and crosses out wrong ones above it", async 
   await expect.element(screen.getByText("Tap the first node in pre-order.")).toBeVisible();
 });
 
+it("expects a pre-order walk when a traversal step has no goal", async () => {
+  const screen = await render(
+    <PlaygroundBlock
+      startingKeys={[8, 4, 12]}
+      allowedOperations={["traverse"]}
+      instructions="Tap the nodes."
+    />,
+  );
+
+  await screen.getByRole("button", { name: /^8,/ }).click();
+  await expect.element(screen.getByText("8 is right. Tap the node for beat 2.")).toBeVisible();
+});
+
 it("runs typed commands in the console and shows the goal once the run ends", async () => {
   const screen = await render(
     <PlaygroundBlock

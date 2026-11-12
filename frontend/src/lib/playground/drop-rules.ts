@@ -1,4 +1,4 @@
-import { type AvlNode, largestKey, layoutTree, openSpots, parentOf } from "@shared/avl";
+import { type AvlNode, findNode, largestKey, layoutTree, openSpots, parentOf } from "@shared/avl";
 import type { RotateCommand } from "@/lib/playground/commands";
 import type { PlaygroundAction } from "@/lib/playground/playground-reducer";
 import type { DragSource, DropTarget } from "@/lib/playground/use-pointer-drag";
@@ -78,7 +78,8 @@ export const dropToAction = (
     if (target.kind !== "slot") return null;
     const slot = emptySlots(tree).find((each) => each.id === target.slotId);
     if (!slot) return null;
-    if (!fitsSlot(source.key, slot)) {
+    const alreadyInTree = findNode(tree, source.key) !== null;
+    if (!alreadyInTree && !fitsSlot(source.key, slot)) {
       return refusal(`insert ${source.key}`, explainWrongSlot(source.key, slot, tree));
     }
     return { type: "run", command: { kind: "insert", keys: [source.key] }, via: "dragged" };

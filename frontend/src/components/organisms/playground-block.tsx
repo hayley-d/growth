@@ -1,7 +1,7 @@
 import { RotateCcw } from "lucide-react";
 import { useMemo, useReducer, useState } from "react";
 
-import { type AvlNode, checkGoal, type TraversalOrder, toKeys } from "@shared/avl";
+import { type AvlNode, checkGoal, type TraversalOrder, toKeys, traceTraversal } from "@shared/avl";
 import type { PlaygroundGoal, TreeOperation } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { GoalReached } from "@/components/molecules/goal-reached";
@@ -58,7 +58,10 @@ function TraversePlayground({
 }: PlaygroundBlockProperties) {
   const root = useMemo(() => buildTree(startingKeys), [startingKeys]);
   const order = goal?.kind === "traversal" ? goal.order : "preorder";
-  const expected = goal?.kind === "traversal" ? goal.keys : toKeys(root);
+  const expected = useMemo(
+    () => (goal?.kind === "traversal" ? goal.keys : traceTraversal(root, order).result),
+    [goal, root, order],
+  );
   const orderName = orderNames[order];
   const [taps, setTaps] = useState(emptyTaps);
   const finished = isFinished(taps, expected);
