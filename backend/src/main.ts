@@ -14,6 +14,7 @@ import { makeGetAlgorithmSnippet } from "@/application/course-content/queries/ge
 import { makeListAlgorithms } from "@/application/course-content/queries/list-algorithms";
 import { makeListCodeLanguages } from "@/application/course-content/queries/list-code-languages";
 import { makeListLearningStyles } from "@/application/course-content/queries/list-learning-styles";
+import { makeGetLeaderboard } from "@/application/leaderboard/queries/get-leaderboard";
 import { makeCompleteLesson } from "@/application/learning-path/commands/complete-lesson";
 import { makeCanTakeTest } from "@/application/learning-path/queries/can-take-test";
 import { makeGetLearningPath } from "@/application/learning-path/queries/get-learning-path";
@@ -33,6 +34,7 @@ import {
   PrismaAttemptQuestionRepository,
   PrismaDailyChallengeRepository,
   PrismaHintRepository,
+  PrismaLeaderboardRepository,
   PrismaQuestionRepository,
 } from "@/infrastructure/assessment/repositories";
 import { authHandler, getSession } from "@/infrastructure/auth/auth";
@@ -62,6 +64,7 @@ import { createAlgorithmController } from "@/presentation/controllers/algorithm-
 import { createAttemptController } from "@/presentation/controllers/attempt-controller";
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
 import { createDailyChallengeController } from "@/presentation/controllers/daily-challenge-controller";
+import { createLeaderboardController } from "@/presentation/controllers/leaderboard-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
@@ -183,6 +186,13 @@ const learningPathController = createLearningPathController({
   getLearningPath: makeGetLearningPath({ ...lessonAccess, unitRepository, userMasteryRepository }),
 });
 
+const leaderboardController = createLeaderboardController({
+  getLeaderboard: makeGetLeaderboard({
+    leaderboardRepository: new PrismaLeaderboardRepository(prismaClient),
+    now: () => new Date(),
+  }),
+});
+
 const application = createApplication({
   logger,
   authHandler,
@@ -195,6 +205,7 @@ const application = createApplication({
   userController,
   courseContentController,
   learningPathController,
+  leaderboardController,
   onboardingController,
 });
 

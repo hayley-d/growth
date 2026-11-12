@@ -4,4 +4,5 @@ export * from "@/infrastructure/assessment/repositories/attempt-answer-repositor
 export * from "@/infrastructure/assessment/repositories/attempt-question-repository";
 export * from "@/infrastructure/assessment/repositories/daily-challenge-repository";
 export * from "@/infrastructure/assessment/repositories/hint-repository";
+export * from "@/infrastructure/assessment/repositories/leaderboard-repository";
 export * from "@/infrastructure/assessment/repositories/question-repository";
