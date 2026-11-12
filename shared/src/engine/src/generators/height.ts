@@ -5,7 +5,7 @@ import { heightOf } from "@shared/engine/src/balance";
 import {
   createGeneratorRandom,
   type GenerateOptions,
-  makePlainTree,
+  makeTreeShaped,
   pickFrom,
 } from "@shared/engine/src/generators/support";
 import type { GeneratedQuestion } from "@shared/schemas";
@@ -15,9 +15,9 @@ const longestPath = (node: AvlNode): number[] => {
   return [node.key, ...(taller ? longestPath(taller) : [])];
 };
 
-export const generateHeight = ({ seed, difficulty }: GenerateOptions): GeneratedQuestion => {
+export const generateHeight = ({ seed, difficulty, shape }: GenerateOptions): GeneratedQuestion => {
   const random = createGeneratorRandom(seed, 4);
-  const tree = makePlainTree(seed, difficulty);
+  const tree = makeTreeShaped(seed, difficulty, shape);
   const nodes = [...new TreeTraversal(tree, "preorder")];
   const inner = nodes.filter((node) => node.left || node.right);
   const wholeTree = random() < 0.4;

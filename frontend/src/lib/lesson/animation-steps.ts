@@ -1,7 +1,10 @@
 import {
   type AvlNode,
-  insertKey,
+  buildTreeFromKeys,
   type Step,
+  type TreeMode,
+  traceBstInsert,
+  traceBstRemove,
   traceInsert,
   traceRemove,
   traceSearch,
@@ -20,25 +23,34 @@ export type AnimationRun = {
   marks: AnimationMark[];
 };
 
-export const buildTree = (keys: readonly number[]) =>
-  keys.reduce<AvlNode | null>((tree, key) => insertKey(tree, key), null);
+export const buildTree = (keys: readonly number[], mode: TreeMode = "avl") =>
+  buildTreeFromKeys(keys, mode);
 
-const traceOperation = (tree: AvlNode | null, operation: OperationStep) => {
-  if (operation.operation === "insert") return traceInsert(tree, operation.key);
-  if (operation.operation === "delete") return traceRemove(tree, operation.key);
+export const traceTreeOperation = (
+  tree: AvlNode | null,
+  operation: OperationStep,
+  mode: TreeMode = "avl",
+) => {
+  if (operation.operation === "insert") {
+    return mode === "bst" ? traceBstInsert(tree, operation.key) : traceInsert(tree, operation.key);
+  }
+  if (operation.operation === "delete") {
+    return mode === "bst" ? traceBstRemove(tree, operation.key) : traceRemove(tree, operation.key);
+  }
   return traceSearch(tree, operation.key);
 };
 
 export const animationSteps = (
   startingKeys: readonly number[],
   operations: readonly OperationStep[],
+  mode: TreeMode = "avl",
 ): AnimationRun => {
-  const startTree = buildTree(startingKeys);
+  const startTree = buildTree(startingKeys, mode);
   const steps: Step[] = [];
   const marks: AnimationMark[] = [];
   let tree = startTree;
   for (const operation of operations) {
-    const traced = traceOperation(tree, operation);
+    const traced = traceTreeOperation(tree, operation, mode);
     if (traced.steps.length === 0) continue;
     marks.push({
       operation,

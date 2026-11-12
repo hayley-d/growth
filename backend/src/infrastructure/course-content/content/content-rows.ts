@@ -2,6 +2,7 @@ import { dirname } from "node:path";
 
 import type { BloomsLevel, QuestionType } from "@/domain/assessment/question";
 import type { LessonKind } from "@/domain/course-content/lesson";
+import type { TreeMode } from "@/domain/course-content/unit";
 import type {
   CheckedContent,
   CheckedLesson,
@@ -21,6 +22,7 @@ export type UnitRow = {
   id: string;
   title: string;
   position: number;
+  treeMode: TreeMode;
 };
 
 export type LessonRow = {
@@ -153,6 +155,7 @@ export const toContentRows = (content: CheckedContent): ContentRows => {
       id: unitId(unit.key),
       title: unit.title,
       position: unit.position,
+      treeMode: unit.treeMode,
     })),
     lessons: content.lessons.map(({ data }) => ({
       id: lessonId(data.key),

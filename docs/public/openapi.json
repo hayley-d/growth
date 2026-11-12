@@ -1689,12 +1689,20 @@
                     "type": "integer",
                     "minimum": -9007199254740991,
                     "maximum": 9007199254740991
+                  },
+                  "treeMode": {
+                    "type": "string",
+                    "enum": [
+                      "bst",
+                      "avl"
+                    ]
                   }
                 },
                 "required": [
                   "id",
                   "title",
-                  "position"
+                  "position",
+                  "treeMode"
                 ]
               },
               "status": {

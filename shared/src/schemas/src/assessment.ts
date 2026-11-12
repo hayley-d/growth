@@ -5,6 +5,7 @@ import {
   treeKeySchema,
   treeKeysSchema,
 } from "@shared/schemas/src/content-block";
+import { treeModeSchema } from "@shared/schemas/src/lesson";
 
 export const questionTypeSchema = z.enum([
   "multiple_choice",
@@ -50,6 +51,7 @@ export type GeneratorKey = z.infer<typeof generatorKeySchema>;
 
 export const generatorOptionsSchema = z.object({
   order: traversalOrderSchema.optional(),
+  shape: treeModeSchema.optional(),
 });
 
 export type GeneratorOptions = z.infer<typeof generatorOptionsSchema>;

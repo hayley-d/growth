@@ -1,4 +1,10 @@
-import { type AvlNode, insertKey, layoutTree, TreeTraversal } from "@shared/avl";
+import {
+  type AvlNode,
+  buildTreeFromKeys,
+  layoutTree,
+  type TreeMode,
+  TreeTraversal,
+} from "@shared/avl";
 
 export type CopyTreeStep = {
   copiedKeys: number[];
@@ -8,8 +14,8 @@ export type CopyTreeStep = {
 
 const emptyStep: CopyTreeStep = { copiedKeys: [], currentKey: null, parentKey: null };
 
-export const copyTreeSteps = (startingKeys: readonly number[]) => {
-  const root = startingKeys.reduce<AvlNode | null>((node, key) => insertKey(node, key), null);
+export const copyTreeSteps = (startingKeys: readonly number[], mode: TreeMode = "avl") => {
+  const root = buildTreeFromKeys(startingKeys, mode);
   const parentByKey = new Map(
     layoutTree(root).map((position) => [position.key, position.parentKey]),
   );

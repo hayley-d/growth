@@ -1,3 +1,10 @@
+enum TreeMode {
+  bst
+  avl
+
+  @@map("treeMode")
+}
+
 enum LessonKind {
   lesson
   checkpoint

@@ -22,7 +22,9 @@ const sampleTree = [30, 20, 40, 10, 25].reduce<AvlNode | null>(
 );
 
 const previewTree = (answers: PlaygroundSearch): AvlNode | null => {
-  if (answers.start) return startTree({ start: answers.start, seed: answers.seed ?? 1 });
+  if (answers.start) {
+    return startTree({ start: answers.start, seed: answers.seed ?? 1, topic: answers.topic });
+  }
   return answers.topic ? sampleTree : seedling;
 };
 

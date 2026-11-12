@@ -249,3 +249,25 @@ describe("generate", () => {
     });
   });
 });
+
+describe("bst-shaped questions", () => {
+  const bstKeys = ["traversal-order", "height"] as const;
+
+  it.each(bstKeys)("%s builds plain search trees that are not always balanced", (key) => {
+    const trees = difficulties.flatMap((difficulty) =>
+      seeds.map((seed) => requireTree(generate(key, { seed, difficulty, shape: "bst" }).tree)),
+    );
+    for (const tree of trees) {
+      const keysInOrder = toKeys(tree);
+      expect(keysInOrder).toEqual([...keysInOrder].sort((left, right) => left - right));
+      expect(heightOf(tree)).toBeLessThanOrEqual(Math.ceil(Math.log2(keysInOrder.length + 1)) + 2);
+    }
+    expect(trees.some((tree) => !isAvl(tree))).toBe(true);
+  });
+
+  it.each(bstKeys)("%s still builds avl trees when no shape is given", (key) => {
+    everyCase(key, (difficulty, seed) => {
+      expect(isAvl(requireTree(generate(key, { seed, difficulty }).tree))).toBe(true);
+    });
+  });
+});

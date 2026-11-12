@@ -4,7 +4,7 @@ export default [
   {
     key: "post-order-easy",
     generatorKey: "traversal-order",
-    generatorOptions: { order: "postorder" },
+    generatorOptions: { order: "postorder", shape: "bst" },
     type: "order_nodes",
     difficulty: 1,
     bloomsLevel: "apply",
@@ -13,7 +13,7 @@ export default [
   {
     key: "post-order-medium",
     generatorKey: "traversal-order",
-    generatorOptions: { order: "postorder" },
+    generatorOptions: { order: "postorder", shape: "bst" },
     type: "order_nodes",
     difficulty: 2,
     bloomsLevel: "apply",
@@ -22,7 +22,7 @@ export default [
   {
     key: "post-order-hard",
     generatorKey: "traversal-order",
-    generatorOptions: { order: "postorder" },
+    generatorOptions: { order: "postorder", shape: "bst" },
     type: "order_nodes",
     difficulty: 3,
     bloomsLevel: "apply",

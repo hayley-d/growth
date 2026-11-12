@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { LogOut, Settings, User } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/atoms/avatar";
 import {
@@ -53,10 +53,6 @@ export function UserMenu({ showSettings = true }: { showSettings?: boolean }) {
           <span className="truncate text-xs font-normal text-muted-foreground">{email}</span>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-        <DropdownMenuItem disabled>
-          <User />
-          Profile
-        </DropdownMenuItem>
         {showSettings && (
           <DropdownMenuItem asChild>
             <Link to="/settings">

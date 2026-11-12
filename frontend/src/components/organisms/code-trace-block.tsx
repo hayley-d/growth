@@ -6,9 +6,7 @@ import {
   isAlgorithmCode,
   type Step,
   type TraversalOrder,
-  traceInsert,
-  traceRemove,
-  traceSearch,
+  type TreeMode,
   traceTraversal,
 } from "@shared/avl";
 import type { CodeTraceOperation } from "@shared/schemas";
@@ -18,7 +16,8 @@ import { StepMessage } from "@/components/molecules/step-message";
 import { CodeTrace } from "@/components/organisms/code-trace";
 import { TraceLayout } from "@/components/organisms/trace-layout";
 import { TreeView } from "@/components/organisms/tree-view";
-import { buildTree } from "@/lib/lesson/animation-steps";
+import { buildTree, traceTreeOperation } from "@/lib/lesson/animation-steps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { usePlaygroundSnippets } from "@/lib/playground/use-playground-snippets";
 import { speak } from "@/lib/speak";
 import { phaseOf } from "@/lib/step-phases";
@@ -41,15 +40,14 @@ const traceSteps = (
   root: AvlNode | null,
   algorithmCode: string,
   operation: CodeTraceOperation,
+  mode: TreeMode,
 ): Step[] => {
   if (operation.operation === "traverse") {
     return traversalOrders.includes(algorithmCode)
       ? traceTraversal(root, algorithmCode as TraversalOrder).steps
       : [];
   }
-  if (operation.operation === "insert") return traceInsert(root, operation.key).steps;
-  if (operation.operation === "delete") return traceRemove(root, operation.key).steps;
-  return traceSearch(root, operation.key).steps;
+  return traceTreeOperation(root, operation, mode).steps;
 };
 
 type CodeTraceBlockProperties = {
@@ -67,10 +65,11 @@ export function CodeTraceBlock({
   showCode = true,
   className,
 }: CodeTraceBlockProperties) {
-  const root = useMemo(() => buildTree(startingKeys), [startingKeys]);
+  const mode = useTreeMode();
+  const root = useMemo(() => buildTree(startingKeys, mode), [startingKeys, mode]);
   const steps = useMemo(
-    () => traceSteps(root, algorithmCode, operation),
-    [root, algorithmCode, operation],
+    () => traceSteps(root, algorithmCode, operation, mode),
+    [root, algorithmCode, operation, mode],
   );
   const codes = useMemo<readonly AlgorithmCode[]>(
     () =>

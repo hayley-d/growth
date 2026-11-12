@@ -4,6 +4,7 @@ export default [
   {
     key: "height-easy",
     generatorKey: "height",
+    generatorOptions: { shape: "bst" },
     type: "text",
     difficulty: 1,
     bloomsLevel: "apply",
@@ -12,6 +13,7 @@ export default [
   {
     key: "height-medium",
     generatorKey: "height",
+    generatorOptions: { shape: "bst" },
     type: "text",
     difficulty: 2,
     bloomsLevel: "apply",
@@ -20,6 +22,7 @@ export default [
   {
     key: "height-hard",
     generatorKey: "height",
+    generatorOptions: { shape: "bst" },
     type: "text",
     difficulty: 3,
     bloomsLevel: "apply",

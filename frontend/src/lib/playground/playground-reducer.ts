@@ -1,8 +1,14 @@
-import { type AvlNode, randomTree, toKeys, traceTraversal } from "@shared/avl";
+import { type AvlNode, type TreeMode, toKeys, traceTraversal } from "@shared/avl";
 import { commandText, type PlaygroundCommand, parseCommand } from "@/lib/playground/commands";
 import { checkPrediction } from "@/lib/playground/prediction";
 import { type PlaygroundRun, runCommand, type Tone } from "@/lib/playground/run-command";
-import { type PlaygroundSetup, startSize, startTree, traversalNames } from "@/lib/playground/setup";
+import {
+  type PlaygroundSetup,
+  randomTreeFor,
+  startSize,
+  startTree,
+  traversalNames,
+} from "@/lib/playground/setup";
 
 export type CommandSource = "typed" | "dragged" | "tapped";
 
@@ -20,6 +26,7 @@ export type Notice = { tone: Tone; message: string };
 export type PlaygroundSession = {
   setup: PlaygroundSetup;
   tree: AvlNode | null;
+  treeMode: TreeMode;
   autoBalance: boolean;
   run: (PlaygroundRun & { id: number }) | null;
   log: LogEntry[];
@@ -47,6 +54,7 @@ export const maxLogEntries = 30;
 export const createSession = (setup: PlaygroundSetup): PlaygroundSession => ({
   setup,
   tree: startTree(setup),
+  treeMode: "avl",
   autoBalance: true,
   run: null,
   log: [],
@@ -98,7 +106,13 @@ const runText = (
   const { command } = parsed;
   const seed = command.kind === "random" ? nextSeed(session.seed) : session.seed;
   const outcome = runCommand(
-    { tree: session.tree, autoBalance: session.autoBalance, setup: session.setup, seed },
+    {
+      tree: session.tree,
+      treeMode: session.treeMode,
+      autoBalance: session.autoBalance,
+      setup: session.setup,
+      seed,
+    },
     command,
   );
   const treeChanged = outcome.tree !== session.tree;
@@ -166,7 +180,7 @@ export const playgroundReducer = (
   if (action.type === "new-tree") {
     const seed = nextSeed(session.seed);
     const size = startSize(session.setup.start);
-    const tree = randomTree({ size, seed });
+    const tree = randomTreeFor(session.setup.topic, size, seed);
     return {
       ...session,
       seed,

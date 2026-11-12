@@ -2,6 +2,7 @@ import { expect, it } from "vitest";
 import { render } from "vitest-browser-react";
 
 import { PlaygroundBlock } from "@/components/organisms/playground-block";
+import { TreeModeProvider } from "@/lib/lesson/tree-mode";
 import "@/index.css";
 
 it("fills a beat for each right tap and crosses out wrong ones above it", async () => {
@@ -32,6 +33,19 @@ it("fills a beat for each right tap and crosses out wrong ones above it", async 
 
   await screen.getByRole("button", { name: "Start again" }).click();
   await expect.element(screen.getByText("Tap the first node in pre-order.")).toBeVisible();
+});
+
+it("expects a pre-order walk when a traversal step has no goal", async () => {
+  const screen = await render(
+    <PlaygroundBlock
+      startingKeys={[8, 4, 12]}
+      allowedOperations={["traverse"]}
+      instructions="Tap the nodes."
+    />,
+  );
+
+  await screen.getByRole("button", { name: /^8,/ }).click();
+  await expect.element(screen.getByText("8 is right. Tap the node for beat 2.")).toBeVisible();
 });
 
 it("runs typed commands in the console and shows the goal once the run ends", async () => {
@@ -120,4 +134,44 @@ it("starts again from the starting tree", async () => {
 
   await screen.getByRole("button", { name: "Start again" }).click();
   await expect.element(screen.getByText("The tree is empty.")).toBeVisible();
+});
+
+it("in a bst lesson, inserts without balancing or rotating", async () => {
+  const screen = await render(
+    <TreeModeProvider mode="bst">
+      <PlaygroundBlock
+        startingKeys={[8]}
+        allowedOperations={["insert"]}
+        instructions="Insert your own keys."
+      />
+    </TreeModeProvider>,
+  );
+
+  await screen.getByLabelText("Command").fill("insert 4 2");
+  await screen.getByRole("button", { name: "Run" }).click();
+  await screen.getByRole("button", { name: "Last step" }).click();
+
+  const text = screen.container.textContent ?? "";
+  expect(text).not.toMatch(/balance|rotat|height/i);
+  await expect
+    .element(screen.getByRole("list", { name: "Key" }))
+    .toHaveTextContent("Walk the tree");
+  expect(screen.getByRole("list", { name: "Key" }).element().textContent).not.toMatch(
+    /Rebalance|Rotate|Update height/,
+  );
+});
+
+it("refuses avl-only commands with the commands the step allows", async () => {
+  const screen = await render(
+    <PlaygroundBlock
+      startingKeys={[8]}
+      allowedOperations={["insert"]}
+      instructions="Build a tree."
+    />,
+  );
+
+  await screen.getByLabelText("Command").fill("rotate left 8");
+  await screen.getByRole("button", { name: "Run" }).click();
+
+  await expect.element(screen.getByRole("alert")).toHaveTextContent("Here you can use insert n.");
 });

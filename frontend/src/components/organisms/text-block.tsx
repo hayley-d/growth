@@ -9,6 +9,7 @@ import { TreeView } from "@/components/organisms/tree-view";
 import { buildTree } from "@/lib/lesson/animation-steps";
 import { describeLabelledTree } from "@/lib/lesson/tree-label-layout";
 import { useLinkedTree } from "@/lib/lesson/tree-links";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { cn } from "@/lib/utils";
 
 type TextBlockProperties = {
@@ -24,7 +25,8 @@ type TextBlockProperties = {
 };
 
 function OwnTree({ keys, labels }: { keys: readonly number[]; labels?: readonly TreeLabel[] }) {
-  const root = useMemo(() => buildTree(keys), [keys]);
+  const mode = useTreeMode();
+  const root = useMemo(() => buildTree(keys, mode), [keys, mode]);
   const treeKeys = useMemo(() => toKeys(root), [root]);
   const links = useLinkedTree(treeKeys);
   const name = describeLabelledTree([`Tree with keys ${keys.join(", ")}`], labels);

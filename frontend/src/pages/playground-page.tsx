@@ -117,6 +117,11 @@ function PlaygroundSession({ setup }: { setup: PlaygroundSetup }) {
     dispatch({ type: "run", command, via });
   }, []);
 
+  const replay = useCallback((id: number) => {
+    setSelectedKey(null);
+    dispatch({ type: "replay", id });
+  }, []);
+
   const handleDrop = (source: DragSource, target: DropTarget) => {
     const action = dropToAction(session.tree, isAvl, source, target);
     if (!action) return;
@@ -230,7 +235,11 @@ function PlaygroundSession({ setup }: { setup: PlaygroundSetup }) {
             ) : (
               <p className="grid min-h-48 place-items-center text-center text-muted-foreground">
                 The tree is empty.{" "}
-                {isAvl ? "Add a key to start." : "Press New tree, or build one with a command."}
+                {isAvl
+                  ? "Add a key to start."
+                  : isInteract
+                    ? "Press New tree to start."
+                    : "Press New tree, or build one with a command."}
               </p>
             )}
             {isInteract && isAvl ? (
@@ -296,7 +305,7 @@ function PlaygroundSession({ setup }: { setup: PlaygroundSetup }) {
             entries={session.log}
             busy={busy}
             emptyText="Everything you do shows up here as the command it ran."
-            onReplay={(id) => dispatch({ type: "replay", id })}
+            onReplay={replay}
           />
         </section>
       ) : (
@@ -311,7 +320,7 @@ function PlaygroundSession({ setup }: { setup: PlaygroundSetup }) {
           }
           busy={busy}
           onRun={(text) => runText(text, "typed")}
-          onReplay={(id) => dispatch({ type: "replay", id })}
+          onReplay={replay}
         />
       )}
       {drag?.moved ? (

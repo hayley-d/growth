@@ -1,10 +1,13 @@
 import { z } from "zod";
 
+import type { TreeMode } from "@shared/avl";
 import { contentBlockBodySchema } from "@shared/schemas/src/content-block";
 
 export const lessonKindSchema = z.enum(["lesson", "checkpoint"]);
 
 export type LessonKind = z.infer<typeof lessonKindSchema>;
+
+export const treeModeSchema = z.enum(["bst", "avl"]) satisfies z.ZodType<TreeMode>;
 
 export const lessonResponseStatusSchema = z.enum(["completed", "current"]);
 
@@ -44,6 +47,7 @@ export const lessonResponseSchema = z.object({
       id: z.uuid(),
       title: z.string(),
       position: z.int(),
+      treeMode: treeModeSchema,
     }),
     status: lessonResponseStatusSchema,
     previousLessonId: z.uuid().nullable(),

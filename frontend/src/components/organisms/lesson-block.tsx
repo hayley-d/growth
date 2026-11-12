@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { type ReactNode, useMemo } from "react";
 
 import type { LessonStepBlock, TreeTerms } from "@shared/schemas";
 import { Markdown } from "@/components/molecules/markdown";
@@ -14,6 +14,7 @@ import { TraversalQuiz } from "@/components/organisms/traversal-quiz";
 import { TreeHeights } from "@/components/organisms/tree-heights";
 import { TreeView } from "@/components/organisms/tree-view";
 import { buildTree } from "@/lib/lesson/animation-steps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { cn } from "@/lib/utils";
 
 type LessonBlockProperties = {
@@ -44,6 +45,12 @@ function WithMarkdown({
       {children}
     </div>
   );
+}
+
+function NumberLineTree({ keys, label }: { keys: readonly number[]; label: string }) {
+  const mode = useTreeMode();
+  const root = useMemo(() => buildTree(keys, mode), [keys, mode]);
+  return <TreeView root={root} label={label} />;
 }
 
 function BlockBody({ block, aside }: { block: LessonStepBlock; aside?: ReactNode }) {
@@ -141,7 +148,7 @@ function BlockBody({ block, aside }: { block: LessonStepBlock; aside?: ReactNode
       return (
         <figure className="flex flex-col gap-2">
           <div className="h-48 rounded-xl border bg-card p-3">
-            <TreeView root={buildTree(block.body.startingKeys)} label={block.body.caption} />
+            <NumberLineTree keys={block.body.startingKeys} label={block.body.caption} />
           </div>
           <figcaption className="text-center text-sm text-muted-foreground">
             {block.body.caption}

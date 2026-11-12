@@ -11,9 +11,14 @@ import type { UserMastery } from "@/domain/user/user-mastery";
 const userId = "user-1";
 
 const units: Unit[] = [
-  { id: "00000000-0000-4000-8000-000000000001", title: "Traversals", position: 1 },
-  { id: "00000000-0000-4000-8000-000000000002", title: "AVL basics", position: 2 },
-  { id: "00000000-0000-4000-8000-000000000003", title: "Coming soon", position: 3 },
+  { id: "00000000-0000-4000-8000-000000000001", title: "Traversals", position: 1, treeMode: "bst" },
+  { id: "00000000-0000-4000-8000-000000000002", title: "AVL basics", position: 2, treeMode: "avl" },
+  {
+    id: "00000000-0000-4000-8000-000000000003",
+    title: "Coming soon",
+    position: 3,
+    treeMode: "avl",
+  },
 ];
 const [firstUnit, secondUnit] = units as [Unit, Unit, Unit];
 

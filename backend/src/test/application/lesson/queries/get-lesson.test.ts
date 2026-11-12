@@ -6,7 +6,7 @@ import type { ContentBlock } from "@/domain/course-content/content-block";
 import { ForbiddenError, InvalidContentError, NotFoundError } from "@/domain/errors";
 import { asLearner, createAccessDependencies } from "@/test/application/lesson/lesson-fakes";
 
-const unit = { id: "unit-1", title: "Unit one", position: 1 };
+const unit = { id: "unit-1", title: "Unit one", position: 1, treeMode: "bst" as const };
 const styleId = "visual-id";
 const otherStyleId = "reading-id";
 

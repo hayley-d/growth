@@ -78,6 +78,37 @@ it("deletes the picked node with a button", async () => {
     .toBeVisible();
 });
 
+it("drops the picked node when a replay removes it", async () => {
+  const screen = await renderApp("/playground/play?topic=avl&explore=interact&start=small&seed=2");
+
+  const node = screen.getByRole("button", { name: /balance factor/ }).first();
+  const key = Number.parseInt((await node.element().getAttribute("aria-label")) ?? "", 10);
+  await node.click();
+  await screen.getByRole("button", { name: `Delete ${key}` }).click();
+
+  await screen.getByLabelText("New key").fill(String(key));
+  await screen.getByRole("button", { name: new RegExp(`^Key ${key}\\.`) }).click();
+  await screen.getByRole("button", { name: "Last step" }).click();
+  await screen.getByRole("button", { name: new RegExp(`^${key},.*balance factor`) }).click();
+  await expect.element(screen.getByRole("button", { name: `Delete ${key}` })).toBeVisible();
+
+  await screen.getByRole("button", { name: `Run delete ${key} again` }).click();
+
+  await expect
+    .element(screen.getByRole("button", { name: `Delete ${key}` }))
+    .not.toBeInTheDocument();
+});
+
+it("only offers New tree for an empty tree in a hands-on traversal", async () => {
+  const screen = await renderApp(
+    "/playground/play?topic=traversal&traversal=inorder&explore=interact&start=empty&seed=2",
+  );
+
+  await expect
+    .element(screen.getByText("The tree is empty. Press New tree to start."))
+    .toBeVisible();
+});
+
 it("hides the code so the tree has the whole card", async () => {
   const screen = await renderApp("/playground/play?topic=avl&explore=watch&start=small&seed=2");
 

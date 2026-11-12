@@ -109,6 +109,12 @@ describe("dropToAction", () => {
     });
   });
 
+  it("lets a key that's already in the tree through, so the insert can say so", () => {
+    expect(
+      dropToAction(tree, true, { kind: "new", key: 40 }, { kind: "slot", slotId: "20-right" }),
+    ).toEqual({ type: "run", command: { kind: "insert", keys: [40] }, via: "dragged" });
+  });
+
   it("ignores a new key dropped anywhere but a spot", () => {
     expect(dropToAction(tree, true, { kind: "new", key: 25 }, { kind: "bin" })).toBeNull();
   });
