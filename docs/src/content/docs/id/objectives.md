@@ -147,7 +147,7 @@ Two lessons are checkpoints. A learner who can already do what a checkpoint test
 
 Anderson, L.W. and Krathwohl, D.R. (eds.) (2001) *A taxonomy for learning, teaching, and assessing: a revision of Bloom's taxonomy of educational objectives*. New York: Longman.
 
-Biggs, J. (n.d) *Constructive Alignment in university teaching*. Univeristy of Hong Kong.
+Biggs, J. (n.d) *Constructive Alignment in university teaching*. University of Hong Kong.
 
 Kumar, A.N., Raj, R.K. et al. (2024) *Computer Science Curricula 2023*. New York: Association for Computing Machinery. Available at: https://doi.org/10.1145/3664191 (Accessed: 12 November 2026).
 
