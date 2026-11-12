@@ -249,3 +249,15 @@ it("hides Listen where the browser can't speak", async () => {
   if (supported) await expect.element(listen.first()).toBeVisible();
   else expect(listen.elements()).toHaveLength(0);
 });
+
+it("goes straight to the test from the last step of a checkpoint", async () => {
+  serve(buildLesson({ kind: "checkpoint", notePrompt: null }));
+  const screen = await renderApp(`${lessonPath}?step=2`);
+
+  await expect.element(screen.getByRole("button", { name: "Take the test" })).toBeVisible();
+  expect(screen.container.textContent).not.toContain("Finish the lesson");
+
+  await screen.getByRole("button", { name: "Take the test" }).click();
+
+  await vi.waitFor(() => expect(window.location.pathname).toBe(`${lessonPath}/test`));
+});

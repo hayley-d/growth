@@ -16,6 +16,7 @@ type LessonLayoutProperties = {
   finished: boolean;
   isFirst: boolean;
   isLast: boolean;
+  lastLabel?: string;
   onBack: () => void;
   onContinue: () => void;
   children: ReactNode;
@@ -36,6 +37,7 @@ export function LessonLayout({
   finished,
   isFirst,
   isLast,
+  lastLabel = "Finish the lesson",
   onBack,
   onContinue,
   children,
@@ -115,7 +117,7 @@ export function LessonLayout({
               Back
             </Button>
             <Button type="button" className="min-h-11 px-6" onClick={onContinue}>
-              {isLast ? "Finish the lesson" : "Continue"}
+              {isLast ? lastLabel : "Continue"}
               <ArrowRight aria-hidden />
             </Button>
           </div>
