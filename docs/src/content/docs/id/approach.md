@@ -9,7 +9,7 @@ Linear approaches such as ADDIE finish one stage before starting the next and tr
 SAM allowed us to build rough versions, test them and refine them in small iterations,
 where each iteration gets us closer to the final product.
 
-SAM comes in two versions, both versions use an interative approach to create the final product. SAM 1 fits smaller projects and teams better as it only has three iterations of the evaluation, design and development steps. SAM 2 is an extension of SAM 1 for larger projects. SAM 2 has eight
+SAM comes in two versions, both versions use an iterative approach to create the final product. SAM 1 fits smaller projects and teams better as it only has three iterations of the evaluation, design and development steps. SAM 2 is an extension of SAM 1 for larger projects. SAM 2 has eight
 steps spread across three phases, preparation, iterative design and iterative development (Peck, 2026). For this project we decided to use SAM 2. 
 
 ![The SAM 2 process: the preparation, iterative design and iterative development phases](../../../assets/id/sam-2-process.webp)
@@ -21,9 +21,9 @@ steps spread across three phases, preparation, iterative design and iterative de
 The **preparation phase** is where we gather information about the learners, learning goals,
 and constraints. This phase is supposed to be short as we will come back to it again. The second
 step in the preparation phase is **Savvy start**, where we sketched storyboards and brainstormed
-ideas of lessons, quizes and learning paths.  
+ideas of lessons, quizzes and learning paths.  
 
-The second phase is the **interative design phase**. This is an iterative process where 
+The second phase is the **iterative design phase**. This is an iterative process where 
 we first designed a storyboard of a lesson, quiz or learning path and then 
 reviewed the ideas with the team. A round doesn't have to pick one storyboard. It can join the best parts of several into a new one, and we review that too. The [playground storyboard](../storyboards/playground/playground/) shows this over three rounds. Project planning also happens in this phase, we planned
 what we were going to build and who was going to build the different items. Each item then
