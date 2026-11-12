@@ -56,6 +56,24 @@ describe("layoutTreeLabels", () => {
     expect(layout.placed[0]?.bracket).toBe("M 188 22 H 194 V 128 H 188");
   });
 
+  it("stacks side labels on the same row so their text doesn't overlap", () => {
+    const layout = layoutTreeLabels(
+      [
+        { text: ["12: BF 0"], keys: [12], place: "side" },
+        { text: ["4: BF 0"], keys: [4], place: "side" },
+      ],
+      points,
+      base,
+      18,
+    );
+    const right = layout.placed[0];
+    const left = layout.placed[1];
+    expect(left?.text.y).toBeLessThan(right?.text.y ?? 0);
+    expect((right?.text.y ?? 0) - (left?.text.y ?? 0)).toBeGreaterThanOrEqual(18);
+    expect(left?.leaders).toEqual(["M 74 110 H 178 V 97 H 188"]);
+    expect(right?.leaders).toEqual(["M 174 110 H 178 V 123 H 188"]);
+  });
+
   it("skips a label pointing at a node that isn't drawn", () => {
     const layout = layoutTreeLabels(
       [{ text: ["Missing"], keys: [99], place: "right" }],

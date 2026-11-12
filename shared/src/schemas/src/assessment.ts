@@ -52,6 +52,7 @@ export type GeneratorKey = z.infer<typeof generatorKeySchema>;
 export const generatorOptionsSchema = z.object({
   order: traversalOrderSchema.optional(),
   shape: treeModeSchema.optional(),
+  operation: z.enum(["insert", "delete"]).optional(),
 });
 
 export type GeneratorOptions = z.infer<typeof generatorOptionsSchema>;

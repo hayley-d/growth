@@ -230,6 +230,13 @@ export function TreeView({
       fontFamily="inherit"
       className={cn("block h-full w-full text-foreground", className)}
     >
+      {labelLayout && labelsShown ? (
+        <TreeLabels
+          placed={labelLayout.placed}
+          litKeys={litKeys ?? emptyKeys}
+          animated={labelsAnimated && !reduced}
+        />
+      ) : null}
       <AnimatePresence initial={false}>
         {placed.map((position) => {
           if (position.parentKey === null) return null;
@@ -288,13 +295,6 @@ export function TreeView({
           );
         })}
       </AnimatePresence>
-      {labelLayout && labelsShown ? (
-        <TreeLabels
-          placed={labelLayout.placed}
-          litKeys={litKeys ?? emptyKeys}
-          animated={labelsAnimated && !reduced}
-        />
-      ) : null}
       {placedSlots.map((slot) => {
         const active = slot.id === activeSlotId;
         return (
