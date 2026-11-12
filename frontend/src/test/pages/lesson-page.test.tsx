@@ -259,6 +259,7 @@ it("goes straight to the test from the last step of a checkpoint", async () => {
 
   await screen.getByRole("button", { name: "Take the test" }).click();
 
+  await vi.waitFor(() => expect(screen.router.state.location.pathname).toBe(`${lessonPath}/test`));
   await expect.element(screen.getByRole("heading", { name: "Test", level: 1 })).toBeVisible();
   await expect
     .element(screen.getByRole("button", { name: "Take the test" }))

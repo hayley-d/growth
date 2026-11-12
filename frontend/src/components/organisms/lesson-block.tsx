@@ -1,5 +1,6 @@
 import { type ReactNode, useMemo } from "react";
 
+import type { TreeMode } from "@shared/avl";
 import type { LessonStepBlock, TreeTerms } from "@shared/schemas";
 import { Markdown } from "@/components/molecules/markdown";
 import { AnimationBlock } from "@/components/organisms/animation-block";
@@ -14,7 +15,7 @@ import { TraversalQuiz } from "@/components/organisms/traversal-quiz";
 import { TreeHeights } from "@/components/organisms/tree-heights";
 import { TreeView } from "@/components/organisms/tree-view";
 import { buildTree } from "@/lib/lesson/animation-steps";
-import { useTreeMode } from "@/lib/lesson/tree-mode";
+import { TreeModeProvider, useTreeMode } from "@/lib/lesson/tree-mode";
 import { cn } from "@/lib/utils";
 
 type LessonBlockProperties = {
@@ -53,6 +54,10 @@ function NumberLineTree({ keys, label }: { keys: readonly number[]; label: strin
   return <TreeView root={root} label={label} />;
 }
 
+function OwnTreeMode({ mode, children }: { mode?: TreeMode; children: ReactNode }) {
+  return mode ? <TreeModeProvider mode={mode}>{children}</TreeModeProvider> : children;
+}
+
 function BlockBody({ block, aside }: { block: LessonStepBlock; aside?: ReactNode }) {
   switch (block.type) {
     case "text":
@@ -71,13 +76,15 @@ function BlockBody({ block, aside }: { block: LessonStepBlock; aside?: ReactNode
     case "diagram":
       return (
         <WithMarkdown markdown={block.body.markdown} terms={block.body.terms} aside={aside}>
-          <DiagramBlock
-            startingKeys={block.body.startingKeys}
-            highlights={block.body.highlights}
-            labels={block.body.labels}
-            caption={block.body.caption}
-            description={block.transcript}
-          />
+          <OwnTreeMode mode={block.body.treeMode}>
+            <DiagramBlock
+              startingKeys={block.body.startingKeys}
+              highlights={block.body.highlights}
+              labels={block.body.labels}
+              caption={block.body.caption}
+              description={block.transcript}
+            />
+          </OwnTreeMode>
         </WithMarkdown>
       );
     case "animation":

@@ -2188,6 +2188,13 @@
                                       "maximum": 9007199254740991
                                     }
                                   }
+                                },
+                                "treeMode": {
+                                  "type": "string",
+                                  "enum": [
+                                    "bst",
+                                    "avl"
+                                  ]
                                 }
                               },
                               "required": [
@@ -3155,6 +3162,13 @@
                                           "maximum": 9007199254740991
                                         }
                                       }
+                                    },
+                                    "treeMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "bst",
+                                        "avl"
+                                      ]
                                     }
                                   },
                                   "required": [
@@ -4127,6 +4141,13 @@
                                         "maximum": 9007199254740991
                                       }
                                     }
+                                  },
+                                  "treeMode": {
+                                    "type": "string",
+                                    "enum": [
+                                      "bst",
+                                      "avl"
+                                    ]
                                   }
                                 },
                                 "required": [

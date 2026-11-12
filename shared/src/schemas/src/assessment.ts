@@ -4,8 +4,8 @@ import {
   traversalOrderSchema,
   treeKeySchema,
   treeKeysSchema,
+  treeModeSchema,
 } from "@shared/schemas/src/content-block";
-import { treeModeSchema } from "@shared/schemas/src/lesson";
 
 export const questionTypeSchema = z.enum([
   "multiple_choice",
