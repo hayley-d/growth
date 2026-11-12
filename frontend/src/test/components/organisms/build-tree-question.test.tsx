@@ -2,6 +2,7 @@ import { expect, it, vi } from "vitest";
 import { render } from "vitest-browser-react";
 
 import { type AvlNode, encodeTree, insertKey } from "@shared/avl";
+import { removeBst } from "@shared/engine";
 import { BuildTreeQuestion } from "@/components/organisms/build-tree-question";
 import "@/index.css";
 
@@ -74,4 +75,38 @@ it("tells the learner when a rotation is not possible", async () => {
   await screen.getByRole("button", { name: "Rotate 20 left" }).click();
 
   await expect.element(screen.getByText("Node 20 has no right child")).toBeVisible();
+});
+
+it("deletes the picked node and submits the encoded tree", async () => {
+  const onSubmit = vi.fn();
+  const screen = await renderQuestion(onSubmit);
+
+  await screen.getByRole("button", { name: /^20,/ }).click();
+  await screen.getByRole("button", { name: "Delete 20" }).click();
+  await screen.getByRole("button", { name: "Submit" }).click();
+
+  expect(onSubmit).toHaveBeenCalledWith({ type: "build_tree", tree: encodeTree(build([30])) });
+});
+
+it("replaces a node with two children by its successor and undoes the delete", async () => {
+  const onSubmit = vi.fn();
+  const screen = await render(
+    <div className="w-96">
+      <BuildTreeQuestion root={build([30, 20, 40, 35])} onSubmit={onSubmit} />
+    </div>,
+  );
+
+  await screen.getByRole("button", { name: /^30,/ }).click();
+  await screen.getByRole("button", { name: "Delete 30" }).click();
+  await screen.getByRole("button", { name: "Submit" }).click();
+
+  expect(onSubmit).toHaveBeenLastCalledWith({
+    type: "build_tree",
+    tree: encodeTree(removeBst(build([30, 20, 40, 35]), 30)),
+  });
+  expect(encodeTree(removeBst(build([30, 20, 40, 35]), 30)).startsWith("35,")).toBe(true);
+
+  await screen.getByRole("button", { name: "Undo" }).click();
+  await expect.element(screen.getByRole("button", { name: /^30,/ })).toBeVisible();
+  expect(screen.container.textContent).not.toContain("Delete 30");
 });

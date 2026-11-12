@@ -7,6 +7,7 @@ import {
   type Step,
   type TraversalOrder,
   type TreeMode,
+  toKeys,
   traceTraversal,
 } from "@shared/avl";
 import type { CodeTraceOperation } from "@shared/schemas";
@@ -16,6 +17,7 @@ import { StepMessage } from "@/components/molecules/step-message";
 import { CodeTrace } from "@/components/organisms/code-trace";
 import { TraceLayout } from "@/components/organisms/trace-layout";
 import { TreeView } from "@/components/organisms/tree-view";
+import { TreeViewport } from "@/components/organisms/tree-viewport";
 import { buildTree, traceTreeOperation } from "@/lib/lesson/animation-steps";
 import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { usePlaygroundSnippets } from "@/lib/playground/use-playground-snippets";
@@ -58,6 +60,8 @@ type CodeTraceBlockProperties = {
   className?: string;
 };
 
+const largeTreeNodes = 8;
+
 export function CodeTraceBlock({
   algorithmCode,
   startingKeys,
@@ -84,9 +88,16 @@ export function CodeTraceBlock({
   const step = player.step;
 
   const treeView = (
-    <div className="h-64 w-full self-start sm:h-80">
+    <TreeViewport
+      className={cn(
+        "w-full",
+        toKeys(root).length >= largeTreeNodes
+          ? "h-80 md:h-auto md:min-h-96 md:self-stretch"
+          : "h-64 self-start sm:h-80",
+      )}
+    >
       <TreeView root={step?.tree ?? root} nodeStates={step?.nodeStates} className="h-full" />
-    </div>
+    </TreeViewport>
   );
   const message = step ? (
     <StepMessage
