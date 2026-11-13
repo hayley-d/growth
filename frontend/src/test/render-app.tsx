@@ -56,7 +56,7 @@ export const onboardedMe: MeResponse = {
   },
 };
 
-export function renderApp(
+export async function renderApp(
   path = "/",
   {
     session = defaultSessionData,
@@ -77,9 +77,10 @@ export function renderApp(
     context: { session },
   });
 
-  return render(
+  const screen = await render(
     <QueryClientProvider client={queryClient}>
       <RouterProvider router={router} />
     </QueryClientProvider>,
   );
+  return Object.assign(screen, { router });
 }

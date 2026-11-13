@@ -1,13 +1,10 @@
 import { z } from "zod";
 
-import type { TreeMode } from "@shared/avl";
-import { contentBlockBodySchema } from "@shared/schemas/src/content-block";
+import { contentBlockBodySchema, treeModeSchema } from "@shared/schemas/src/content-block";
 
 export const lessonKindSchema = z.enum(["lesson", "checkpoint"]);
 
 export type LessonKind = z.infer<typeof lessonKindSchema>;
-
-export const treeModeSchema = z.enum(["bst", "avl"]) satisfies z.ZodType<TreeMode>;
 
 export const lessonResponseStatusSchema = z.enum(["completed", "current"]);
 
