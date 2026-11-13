@@ -73,4 +73,18 @@ describe("PrismaQuestionRepository", () => {
     });
     expect(questions).toEqual([row]);
   });
+
+  it("lists the active generator questions in id order", async () => {
+    const generated = { ...row, generatorKey: "traversal-order" };
+    const question = { findMany: vi.fn().mockResolvedValue([generated]) };
+    const client = { question } as unknown as PrismaClient;
+
+    const questions = await new PrismaQuestionRepository(client).listActiveGenerated();
+
+    expect(question.findMany).toHaveBeenCalledWith({
+      where: { generatorKey: { not: null }, isRetired: false },
+      orderBy: [{ id: "asc" }],
+    });
+    expect(questions).toEqual([generated]);
+  });
 });

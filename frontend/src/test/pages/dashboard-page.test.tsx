@@ -83,12 +83,19 @@ it("shows the finished state when all 12 lessons are done", async () => {
 });
 
 it("shows an error and lets the learner try again", async () => {
-  mockedGet.mockRejectedValueOnce({
-    statusCode: 401,
-    message: "Request failed",
-    serverError: { message: "Unable to load your learning path" },
+  let learningPathCalls = 0;
+  mockedGet.mockImplementation(async (url: string) => {
+    if (url.endsWith("/daily-challenge")) throw { statusCode: 500, message: "Server error" };
+    learningPathCalls += 1;
+    if (learningPathCalls === 1) {
+      throw {
+        statusCode: 401,
+        message: "Request failed",
+        serverError: { message: "Unable to load your learning path" },
+      };
+    }
+    return { data: buildLearningPath(2) };
   });
-  mockedGet.mockResolvedValue({ data: buildLearningPath(2) });
   const screen = await renderApp("/");
 
   await expect
@@ -117,4 +124,86 @@ it("lists mastery for each lesson that is not locked", async () => {
   await expect.element(screen.getByText(/Getting there/)).toBeVisible();
   await expect.element(screen.getByText(/Just started/)).toBeVisible();
   expect(screen.getByRole("progressbar", { name: "Mastery" }).elements()).toHaveLength(3);
+});
+
+const dailyBase = {
+  date: "2026-11-14",
+  nextChallengeAt: new Date(Date.now() + 3_600_000).toISOString(),
+  startedAt: null,
+  finishedAt: null,
+  question: null,
+  result: null,
+};
+
+const serveWithDaily = (daily: object) =>
+  mockedGet.mockImplementation(async (url: string) =>
+    url.endsWith("/daily-challenge") ? { data: { data: daily } } : { data: buildLearningPath(2) },
+  );
+
+it("links to today's challenge when the learner hasn't done it", async () => {
+  serveWithDaily({ ...dailyBase, status: "not_started" });
+  const screen = await renderApp("/");
+
+  await expect
+    .element(screen.getByRole("heading", { name: "Daily challenge", level: 2 }))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("link", { name: "Take today's challenge" }))
+    .toHaveAttribute("href", "/daily");
+});
+
+it("sends the learner back to a challenge they've started", async () => {
+  serveWithDaily({
+    ...dailyBase,
+    status: "in_progress",
+    startedAt: new Date(Date.now() - 30_000).toISOString(),
+  });
+  const screen = await renderApp("/");
+
+  await expect
+    .element(screen.getByRole("link", { name: "Finish today's challenge" }))
+    .toBeVisible();
+  await expect.element(screen.getByText("Time so far")).toBeVisible();
+});
+
+it("shows the result and a countdown, with no link, once today's challenge is done", async () => {
+  serveWithDaily({
+    ...dailyBase,
+    status: "finished",
+    startedAt: "2026-11-14T06:00:00.000Z",
+    finishedAt: "2026-11-14T06:01:05.000Z",
+    result: {
+      prompt: "Is this tree a valid AVL tree?",
+      tree: null,
+      response: { type: "text", text: "3" },
+      isCorrect: true,
+      correctAnswer: { type: "text", text: "3" },
+      explanation: "A leaf has height 1.",
+      replay: null,
+      points: 30,
+      timeTakenSeconds: 65,
+    },
+  });
+  const screen = await renderApp("/");
+
+  await expect.element(screen.getByText("You got today's challenge right")).toBeVisible();
+  await expect.element(screen.getByText("30")).toBeVisible();
+  await expect.element(screen.getByText("1 minute 5 seconds")).toBeInTheDocument();
+  await expect.element(screen.getByText("Next challenge in")).toBeVisible();
+  await expect
+    .element(screen.getByRole("link", { name: /today's challenge/ }))
+    .not.toBeInTheDocument();
+});
+
+it("still offers the daily challenge page when the card can't load", async () => {
+  mockedGet.mockImplementation(async (url: string) => {
+    if (url.endsWith("/daily-challenge")) throw { statusCode: 500, message: "Server error" };
+    return { data: buildLearningPath(2) };
+  });
+  const screen = await renderApp("/");
+
+  await expect
+    .element(screen.getByRole("link", { name: "Open the daily challenge" }))
+    .toHaveAttribute("href", "/daily");
+  await expect.element(screen.getByRole("alert")).not.toBeInTheDocument();
 });

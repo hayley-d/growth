@@ -75,6 +75,10 @@ export class PrismaAssessmentAttemptRepository
     });
   }
 
+  findByUserAndDailyChallenge(userId: string, dailyChallengeId: string) {
+    return this.findOne({ userId_dailyChallengeId: { userId, dailyChallengeId } });
+  }
+
   hasPassedForLesson(userId: string, lessonId: string) {
     return withPrismaErrors(async () => {
       const attempt = await this.client.assessmentAttempt.findFirst({

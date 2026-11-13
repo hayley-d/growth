@@ -5,6 +5,7 @@ import { openApiDocument } from "@shared/openapi";
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { createAttemptController } from "@/presentation/controllers/attempt-controller";
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
+import { createDailyChallengeController } from "@/presentation/controllers/daily-challenge-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
@@ -37,6 +38,11 @@ const application = createApplication({
     startPractice: vi.fn(),
     nextPracticeQuestion: vi.fn(),
     finishPractice: vi.fn(),
+  }),
+  dailyChallengeController: createDailyChallengeController({
+    getDailyChallenge: vi.fn(),
+    startDailyChallenge: vi.fn(),
+    submitDailyChallengeAnswer: vi.fn(),
   }),
   userController: createUserController({ getMe: vi.fn(), updateProfile: vi.fn() }),
   courseContentController: createCourseContentController({

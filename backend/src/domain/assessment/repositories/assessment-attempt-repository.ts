@@ -18,4 +18,8 @@ export type AssessmentAttemptRepository = Repository<
   ): Promise<AssessmentAttempt>;
   findUnfinishedByLesson(userId: string, lessonId: string): Promise<AssessmentAttempt | null>;
   findUnfinishedPractice(userId: string): Promise<AssessmentAttempt | null>;
+  findByUserAndDailyChallenge(
+    userId: string,
+    dailyChallengeId: string,
+  ): Promise<AssessmentAttempt | null>;
 };

@@ -9,6 +9,7 @@ import {
   attemptSchema,
   attemptStateResponseSchema,
   completeOnboardingRequestSchema,
+  dailyChallengeStateResponseSchema,
   errorResponseSchema,
   expressionNodeSchema,
   getQuizResponseSchema,
@@ -72,6 +73,7 @@ export const responseSchemas = {
   SubmitAnswerResponse: submitAnswerResponseSchema,
   PracticeTopicsResponse: practiceTopicsResponseSchema,
   PracticeSummaryResponse: practiceSummaryResponseSchema,
+  DailyChallengeStateResponse: dailyChallengeStateResponseSchema,
   GetQuizResponse: getQuizResponseSchema,
   ScoreQuizResponse: scoreQuizResponseSchema,
 };

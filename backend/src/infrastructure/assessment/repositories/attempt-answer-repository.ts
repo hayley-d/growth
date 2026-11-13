@@ -61,7 +61,10 @@ export class PrismaAttemptAnswerRepository
   countByUserAndLesson(userId: string, lessonId: string) {
     return withPrismaErrors(() =>
       this.client.attemptAnswer.count({
-        where: { assessmentAttempt: { userId, kind: { not: "practice" } }, question: { lessonId } },
+        where: {
+          assessmentAttempt: { userId, kind: { notIn: ["practice", "daily_challenge"] } },
+          question: { lessonId },
+        },
       }),
     );
   }
