@@ -4,7 +4,7 @@ export type ActivityDay = Pick<DailyActivity, "date" | "count">;
 
 const millisecondsPerDay = 24 * 60 * 60 * 1000;
 
-function toDayNumber(date: Date): number {
+export function toDayNumber(date: Date): number {
   return Math.floor(date.getTime() / millisecondsPerDay);
 }
 

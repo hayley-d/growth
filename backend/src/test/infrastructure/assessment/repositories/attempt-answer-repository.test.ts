@@ -43,4 +43,22 @@ describe("PrismaAttemptAnswerRepository", () => {
       }),
     });
   });
+
+  it("leaves practice and daily challenge answers out of the Elo step count", async () => {
+    const attemptAnswer = { count: vi.fn().mockResolvedValue(3) };
+    const client = { attemptAnswer } as unknown as PrismaClient;
+
+    const count = await new PrismaAttemptAnswerRepository(client).countByUserAndLesson(
+      "user-1",
+      row.questionId,
+    );
+
+    expect(attemptAnswer.count).toHaveBeenCalledWith({
+      where: {
+        assessmentAttempt: { userId: "user-1", kind: { notIn: ["practice", "daily_challenge"] } },
+        question: { lessonId: row.questionId },
+      },
+    });
+    expect(count).toBe(3);
+  });
 });

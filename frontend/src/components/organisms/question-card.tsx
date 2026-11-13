@@ -15,7 +15,7 @@ type QuestionCardProperties = {
   question: AttemptQuestion;
   isBusy: boolean;
   errorMessage?: string | null;
-  onHint: () => void;
+  onHint?: () => void;
   onSubmit: (answer: LearnerAnswer) => void;
   hintNote?: string | null;
   className?: string;
@@ -82,17 +82,21 @@ export function QuestionCard({
         />
       ) : null}
       <div className="flex flex-col items-start gap-2 border-t pt-4">
-        <Button
-          type="button"
-          variant="subtle"
-          className="min-h-11"
-          disabled={isBusy || question.hintsRemaining === 0}
-          onClick={onHint}
-        >
-          <Lightbulb aria-hidden />
-          Hint ({question.hintsRemaining} left)
-        </Button>
-        {hintNote ? <p className="text-sm text-muted-foreground">{hintNote}</p> : null}
+        {onHint ? (
+          <>
+            <Button
+              type="button"
+              variant="subtle"
+              className="min-h-11"
+              disabled={isBusy || question.hintsRemaining === 0}
+              onClick={onHint}
+            >
+              <Lightbulb aria-hidden />
+              Hint ({question.hintsRemaining} left)
+            </Button>
+            {hintNote ? <p className="text-sm text-muted-foreground">{hintNote}</p> : null}
+          </>
+        ) : null}
         {errorMessage ? (
           <p role="alert" className="text-sm text-destructive">
             {errorMessage}

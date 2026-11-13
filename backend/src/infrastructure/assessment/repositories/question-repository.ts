@@ -58,4 +58,15 @@ export class PrismaQuestionRepository
       (await this.client.question.findMany({ where: { id: { in: [...ids] } } })).map(toQuestion),
     );
   }
+
+  listActiveGenerated() {
+    return withPrismaErrors(async () =>
+      (
+        await this.client.question.findMany({
+          where: { generatorKey: { not: null }, isRetired: false },
+          orderBy: [{ id: "asc" }],
+        })
+      ).map(toQuestion),
+    );
+  }
 }

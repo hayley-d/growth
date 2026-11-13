@@ -174,6 +174,10 @@ export const createWorld = (options: WorldOptions = {}) => {
         (attempt) =>
           attempt.userId === userId && attempt.kind === "practice" && attempt.finishedAt === null,
       ) ?? null,
+    findByUserAndDailyChallenge: async (userId: string, dailyChallengeId: string) =>
+      attempts.find(
+        (attempt) => attempt.userId === userId && attempt.dailyChallengeId === dailyChallengeId,
+      ) ?? null,
     create: async (entity: NewAttempt) => insertAttempt(entity),
     createWithQuestions: vi.fn(async (entity: NewAttempt, drafts: AttemptQuestionDraft[]) => {
       const attempt = insertAttempt(entity);
@@ -237,6 +241,7 @@ export const createWorld = (options: WorldOptions = {}) => {
         return (
           attempt?.userId === userId &&
           attempt.kind !== "practice" &&
+          attempt.kind !== "daily_challenge" &&
           question?.lessonId === lessonId
         );
       }).length,
@@ -256,6 +261,7 @@ export const createWorld = (options: WorldOptions = {}) => {
   };
 
   const questionRepository = {
+    findById: async (id: string) => questionRows.find((question) => question.id === id) ?? null,
     listByIds: async (ids: readonly string[]) =>
       questionRows.filter((question) => ids.includes(question.id)),
     listActiveByLessonIds: async (lessonIds: readonly string[]) =>

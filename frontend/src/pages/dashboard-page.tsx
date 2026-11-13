@@ -1,16 +1,19 @@
 import { Link, useNavigate } from "@tanstack/react-router";
 import { PartyPopper } from "lucide-react";
+import { useCallback } from "react";
 
 import { ContinueCard } from "@/components/molecules/continue-card";
 import { EmptyState } from "@/components/molecules/empty-state";
 import { MasteryList } from "@/components/molecules/mastery-list";
 import { PageLoader } from "@/components/molecules/page-loader";
 import { UnitProgress } from "@/components/molecules/unit-progress";
+import { DailyChallengeCard } from "@/components/organisms/daily-challenge-card";
+import { useRunAt } from "@/lib/daily-challenge/use-run-at";
 import { countCompleted } from "@/lib/learning-path/count-completed";
 import { isCourseFinished } from "@/lib/learning-path/is-course-finished";
 import { unitTone } from "@/lib/learning-path/unit-tone";
 import { useStartLessonMutation } from "@/lib/mutations";
-import { useLearningPathQuery, useSessionQuery } from "@/lib/queries";
+import { useDailyChallengeQuery, useLearningPathQuery, useSessionQuery } from "@/lib/queries";
 
 const linkClasses =
   "inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
@@ -20,6 +23,15 @@ export function DashboardPage() {
   const session = useSessionQuery();
   const learningPath = useLearningPathQuery();
   const startLesson = useStartLessonMutation();
+  const dailyChallenge = useDailyChallengeQuery();
+  const dailyState = dailyChallenge.data?.data ?? null;
+  const { refetch: refetchDailyChallenge } = dailyChallenge;
+  useRunAt(
+    dailyState ? Date.parse(dailyState.nextChallengeAt) : null,
+    useCallback(() => {
+      void refetchDailyChallenge();
+    }, [refetchDailyChallenge]),
+  );
   const firstName = session.data?.user.name.split(" ")[0];
 
   const heading = (
@@ -108,6 +120,14 @@ export function DashboardPage() {
           />
         )}
       </section>
+      {dailyChallenge.isPending ? null : (
+        <section aria-labelledby="daily-challenge" className="flex flex-col gap-3">
+          <h2 id="daily-challenge" className="text-lg font-semibold">
+            Daily challenge
+          </h2>
+          <DailyChallengeCard state={dailyState} />
+        </section>
+      )}
       {lessons.length > 0 ? (
         <section aria-labelledby="your-progress" className="flex flex-col gap-4">
           <h2 id="your-progress" className="text-lg font-semibold">

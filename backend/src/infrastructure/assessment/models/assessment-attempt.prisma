@@ -18,6 +18,7 @@ model AssessmentAttempt {
 
   @@index([userId])
   @@index([lessonId])
+  @@unique([userId, dailyChallengeId])
   @@index([dailyChallengeId])
   @@map("assessmentAttempt")
 }

@@ -47,6 +47,10 @@
     {
       "name": "Practice",
       "description": "Open-ended practice on one topic. Questions are generated one at a time until the learner stops. Hints and answers use the attempt endpoints. Practice has no stakes: its ratings live only inside the session, so it never changes mastery, difficulty on tests or lesson progress."
+    },
+    {
+      "name": "Daily challenge",
+      "description": "One generated question a day, the same for everyone. Days start at 00:00 in Africa/Johannesburg. The learner gets one go, timed from when they press Start. No hints, and it never changes mastery or ratings."
     }
   ],
   "paths": {
@@ -1113,6 +1117,131 @@
           },
           "404": {
             "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/daily-challenge": {
+      "get": {
+        "operationId": "getDailyChallenge",
+        "tags": [
+          "Daily challenge"
+        ],
+        "summary": "Get today's challenge",
+        "description": "The first request of the day creates the day's challenge. Returns whether the learner has started or finished it, the question while it is in progress, and the result once it is answered. Never starts the clock.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Today's challenge for the learner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/daily-challenge/start": {
+      "post": {
+        "operationId": "startDailyChallenge",
+        "tags": [
+          "Daily challenge"
+        ],
+        "summary": "Start today's challenge",
+        "description": "Starts the clock and returns the question without its answer. Starting again returns the same attempt with 200, so a double click or a reload can't restart the clock.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "It was already started or finished.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The challenge started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/daily-challenge/answers": {
+      "post": {
+        "operationId": "submitDailyChallengeAnswer",
+        "tags": [
+          "Daily challenge"
+        ],
+        "summary": "Answer today's challenge",
+        "description": "Grades the answer, stops the clock and returns the result with the correct answer and the explanation. Answering before starting, or a second time, returns 409. A question id that isn't today's returns 404.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAnswerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
           }
         }
       }
@@ -5608,6 +5737,277 @@
               "correct",
               "ratingChange",
               "lessons"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "DailyChallengeStateResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "nextChallengeAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not_started",
+                  "in_progress",
+                  "finished"
+                ]
+              },
+              "startedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "finishedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "question": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "position": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "multiple_choice",
+                          "build_tree",
+                          "order_nodes",
+                          "predict_rotation",
+                          "text"
+                        ]
+                      },
+                      "prompt": {
+                        "type": "string"
+                      },
+                      "tree": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "text": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "text"
+                          ]
+                        }
+                      },
+                      "difficulty": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      },
+                      "hints": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "hintsTotal": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "hintsRemaining": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "position",
+                      "type",
+                      "prompt",
+                      "tree",
+                      "difficulty",
+                      "hints",
+                      "hintsTotal",
+                      "hintsRemaining"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "result": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "prompt": {
+                        "type": "string"
+                      },
+                      "tree": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "response": {
+                        "$ref": "#/components/schemas/LearnerAnswer"
+                      },
+                      "isCorrect": {
+                        "type": "boolean"
+                      },
+                      "correctAnswer": {
+                        "$ref": "#/components/schemas/LearnerAnswer"
+                      },
+                      "explanation": {
+                        "type": "string"
+                      },
+                      "replay": {
+                        "anyOf": [
+                          {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "operation"
+                                  },
+                                  "operation": {
+                                    "type": "string",
+                                    "enum": [
+                                      "insert",
+                                      "delete"
+                                    ]
+                                  },
+                                  "key": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "operation",
+                                  "key"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "traversal"
+                                  },
+                                  "order": {
+                                    "type": "string",
+                                    "enum": [
+                                      "preorder",
+                                      "inorder",
+                                      "postorder",
+                                      "levelorder"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "order"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "points": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "timeTakenSeconds": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "prompt",
+                      "tree",
+                      "response",
+                      "isCorrect",
+                      "correctAnswer",
+                      "explanation",
+                      "replay",
+                      "points",
+                      "timeTakenSeconds"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "date",
+              "nextChallengeAt",
+              "status",
+              "startedAt",
+              "finishedAt",
+              "question",
+              "result"
             ]
           }
         },

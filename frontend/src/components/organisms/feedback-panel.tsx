@@ -14,7 +14,7 @@ type FeedbackPanelProperties = {
   root: AvlNode | null;
   runKey: string;
   isLast: boolean;
-  onNext: () => void;
+  onNext?: () => void;
   nextLabel?: string;
   children?: ReactNode;
   className?: string;
@@ -63,9 +63,11 @@ export function FeedbackPanel({
       <p>{explanation}</p>
       {replay ? <AnswerReplay root={root} replay={replay} runKey={runKey} /> : null}
       {children}
-      <Button type="button" className="min-h-11 self-end px-6" onClick={onNext}>
-        {nextLabel ?? (isLast ? "See results" : "Next")}
-      </Button>
+      {onNext ? (
+        <Button type="button" className="min-h-11 self-end px-6" onClick={onNext}>
+          {nextLabel ?? (isLast ? "See results" : "Next")}
+        </Button>
+      ) : null}
     </section>
   );
 }

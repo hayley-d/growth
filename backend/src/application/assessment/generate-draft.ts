@@ -12,6 +12,25 @@ import type { UserMasteryRepository } from "@/domain/user/repositories/user-mast
 
 const startingDifficulty = 1;
 
+export const generateQuestion = (
+  logger: Logger,
+  question: Question,
+  seed: number,
+  difficulty: number,
+): GeneratedQuestion => {
+  const key = generatorKeySchema.safeParse(question.generatorKey);
+  const options = generatorOptionsSchema.safeParse(question.generatorOptions ?? {});
+  if (!key.success || !options.success) {
+    logger.error("Stored generator settings are invalid", { questionId: question.id });
+    throw new InvalidContentError("Question content is invalid", { questionId: question.id });
+  }
+  return generate(key.data, {
+    ...options.data,
+    seed,
+    difficulty: difficulty as 1 | 2 | 3 | 4 | 5,
+  });
+};
+
 type GenerateDraftDependencies = {
   userMasteryRepository: Pick<UserMasteryRepository, "findById">;
   logger: Logger;
@@ -25,22 +44,11 @@ export const makeGenerateDraft =
     question: Question,
     difficultyOverride?: number,
   ): Promise<{ seed: number; difficulty: number; generated: GeneratedQuestion }> => {
-    const key = generatorKeySchema.safeParse(question.generatorKey);
-    const options = generatorOptionsSchema.safeParse(question.generatorOptions ?? {});
-    if (!key.success || !options.success) {
-      logger.error("Stored generator settings are invalid", { questionId: question.id });
-      throw new InvalidContentError("Question content is invalid", { questionId: question.id });
-    }
     const difficulty =
       difficultyOverride ??
       (await userMasteryRepository.findById({ userId, lessonId: question.lessonId }))
         ?.currentDifficulty ??
       startingDifficulty;
     const seed = pickSeed(random);
-    const generated = generate(key.data, {
-      ...options.data,
-      seed,
-      difficulty: difficulty as 1 | 2 | 3 | 4 | 5,
-    });
-    return { seed, difficulty, generated };
+    return { seed, difficulty, generated: generateQuestion(logger, question, seed, difficulty) };
   };
