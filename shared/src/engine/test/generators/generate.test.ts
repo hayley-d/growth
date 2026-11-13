@@ -207,6 +207,51 @@ describe("generate", () => {
     expect(replaced).toBeGreaterThan(0);
   });
 
+  it("predict-rotation only asks about inserts when told to", () => {
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        const question = generate("predict-rotation", { seed, difficulty, operation: "insert" });
+        expect(question.replay).toMatchObject({ operation: "insert" });
+        expect(question.prompt.startsWith("Insert ")).toBe(true);
+      }
+    }
+  });
+
+  it("is-avl hints are the same for valid and invalid trees", () => {
+    const hints = new Set<string>();
+    for (const seed of seeds) {
+      for (const difficulty of difficulties) {
+        hints.add(JSON.stringify(generate("is-avl", { seed, difficulty }).hints));
+      }
+    }
+    expect(hints.size).toBe(1);
+  });
+
+  it("rotation hints never reveal the pivot or the rotation", () => {
+    const withoutRange = (text: string) => text.replace(/-2 or 2/g, "").replace(/-2/g, "");
+    for (const key of ["insert-result", "predict-rotation"] as const) {
+      everyCase(key, (difficulty, seed) => {
+        const question = generate(key, { seed, difficulty });
+        const hints = withoutRange(question.hints.join(" "));
+        expect(hints).not.toMatch(/leftRight|rightLeft|\b(left|right)(-| )(left|right)\b/i);
+        expect(hints).not.toMatch(/\b(left|right) rotation\b|rotate \d|is (left|right)-heavy/i);
+        if (question.answer.type === "predict_rotation" && question.answer.pivotKey !== null) {
+          expect(hints).not.toMatch(new RegExp(`\\b${question.answer.pivotKey}\\b`));
+        }
+      });
+    }
+  });
+
+  it("predict-rotation only asks about inserts when told to", () => {
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        const question = generate("predict-rotation", { seed, difficulty, operation: "insert" });
+        expect(question.replay).toMatchObject({ operation: "insert" });
+        expect(question.prompt.startsWith("Insert ")).toBe(true);
+      }
+    }
+  });
+
   it("is-avl hints are the same for valid and invalid trees", () => {
     const hints = new Set<string>();
     for (const seed of seeds) {

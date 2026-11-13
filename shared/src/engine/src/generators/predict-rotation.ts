@@ -5,15 +5,16 @@ import {
   describeRotation,
   findCase,
   type GenerateOptions,
-  pivotHint,
 } from "@shared/engine/src/generators/support";
 import type { GeneratedQuestion } from "@shared/schemas";
 
 export const generatePredictRotation = ({
   seed,
   difficulty,
+  operation: chosenOperation,
 }: GenerateOptions): GeneratedQuestion => {
-  const operation = createGeneratorRandom(seed, 2)() < 0.5 ? "insert" : "delete";
+  const operation =
+    chosenOperation ?? (createGeneratorRandom(seed, 2)() < 0.5 ? "insert" : "delete");
   const found = findCase({ seed, difficulty, operation, accept: acceptPrediction(difficulty) });
   const action = operation === "insert" ? `Insert ${found.key} into` : `Delete ${found.key} from`;
 
@@ -26,12 +27,8 @@ export const generatePredictRotation = ({
     replay: { kind: "operation", operation, key: found.key },
     hints: [
       "Do the change like in a plain binary search tree, then find the lowest node whose balance factor is -2 or 2. That node is the pivot.",
-      found.rotation === "none"
-        ? "Check the balance factor of each node on the path from the change back up to the root."
-        : pivotHint(found.rotation, found.pivotKey),
-      found.rotation === "none"
-        ? pivotHint(found.rotation, found.pivotKey)
-        : "Look at the child of the pivot on its heavy side. If that child leans the same way as the pivot, one rotation is enough. If it leans the other way, you need two.",
+      "Check the balance factor of each node on the path from the change back up to the root.",
+      "Look at the child of the pivot on its heavy side. If that child leans the same way as the pivot, or is balanced, one rotation is enough. If it leans the other way, you need two. If no node reaches -2 or 2, no rotation is needed.",
     ],
   };
 };

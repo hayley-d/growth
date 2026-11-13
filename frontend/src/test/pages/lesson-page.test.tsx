@@ -260,4 +260,8 @@ it("goes straight to the test from the last step of a checkpoint", async () => {
   await screen.getByRole("button", { name: "Take the test" }).click();
 
   await expect.element(screen.getByRole("heading", { name: "Test", level: 1 })).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Take the test" }))
+    .not.toBeInTheDocument();
+  expect(screen.container.textContent).not.toContain("You finished");
 });
