@@ -50,7 +50,7 @@ export default defineConfig({
               icon: "pencil",
               items: [
                 { label: "Introduction", slug: "id/introduction" },
-                { label: "Learners", slug: "id/learners" },
+                { label: "Analysis", slug: "id/learners" },
                 { label: "Approach", slug: "id/approach" },
                 { label: "Learning objectives", slug: "id/objectives" },
                 { label: "Learning theories", slug: "id/theories" },

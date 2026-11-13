@@ -12,6 +12,7 @@ export default {
   objectives: [
     "List the nodes of a tree in in-order",
     "Say how the in-order code differs from the pre-order code",
+    "Trace the recursive in-order code and say which calls wait on the call stack",
     "Explain why the in-order of a search tree gives its keys in sorted order",
   ],
 } satisfies LessonContent;

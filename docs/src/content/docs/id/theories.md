@@ -5,7 +5,7 @@ description: The learning theories we apply and where.
 
 Growth runs before the COS212 lecture, with no lecturer present, so whatever learning happens has to come from what the learner does on the screen.
 
-The L01 lecture splits the field into behaviourism, cognitivism, constructivism and transformative learning (Marshall, 2026). Every one of them shows up somewhere in the app. 
+The L01 lecture splits the field into behaviourism, cognitivism, constructivism and transformative learning (Marshall, 2026a). Every one of them shows up somewhere in the app. 
 
 | Theory | Definition | Where it is in Growth |
 | --- | --- | --- |
@@ -30,7 +30,7 @@ We kept the rewards small on purpose. Keller warns that external rewards for doi
 
 ## Cognitivism
 
-Behaviourism only looks at what the learner does. Cognitivism looks at how the learner takes in, organises and stores new information. The lecture splits it into two parts, information processing and social cognitive theory (Marshall, 2026), and we use both.
+Behaviourism only looks at what the learner does. Cognitivism looks at how the learner takes in, organises and stores new information. The lecture splits it into two parts, information processing and social cognitive theory (Marshall, 2026a), and we use both.
 
 ### Information processing
 
@@ -96,7 +96,7 @@ Chi, M.T.H., Bassok, M., Lewis, M.W., Reimann, P. and Glaser, R. (1989) 'Self-ex
 
 Keller, J.M. (1987) 'Development and use of the ARCS model of instructional design', *Journal of Instructional Development*, 10(3), pp. 2–10. doi: 10.1007/BF02905780.
 
-Marshall, L. (2026) *L01 – Educational concepts: (teaching and) learning theories* [Lecture slides]. COS750: Educational Software Development, University of Pretoria.
+Marshall, L. (2026a) *L01 – Educational concepts: (teaching and) learning theories* [Lecture slides]. COS750: Educational Software Development, University of Pretoria.
 
 Mezirow, J. (1997) 'Transformative learning: theory to practice', *New Directions for Adult and Continuing Education*, 1997(74), pp. 5–12.
 

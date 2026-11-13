@@ -29,7 +29,7 @@ The first item on the page is a large card for the next lesson, with a single bu
 
 The progress section follows with an overall progress bar broken down into one bar per unit, and each unit bar carries one dot per lesson. This links a percentage back to actual lessons. A learner who sees 50% can count the dots and see that it means two of four lessons, which a percentage on its own does not show.
 
-The mastery section sits at the bottom as a grid of cards, each with a small progress bar. We considered it the least urgent information on the page, so it is placed last. The progress and mastery bars support the confidence component of Keller's ARCS model (Boyer, n.d). This enables the learners to see how far they have come and how close they are to the next milestone, helping success feel achievable (Boyer, n.d). The [Motivation](../motivation/) page covers this in more detail.
+The mastery section sits at the bottom as a grid of cards, each with a small progress bar. We considered it the least urgent information on the page, so it is placed last. The progress and mastery bars support the confidence component of Keller's ARCS model (Boyer, n.d.). This enables the learners to see how far they have come and how close they are to the next milestone, helping success feel achievable (Boyer, n.d.). The [Motivation](../motivation/) page covers this in more detail.
 
 ### Skill tree
 
@@ -43,7 +43,7 @@ Each node has one of three states. A completed node is filled and shows a tick. 
 
 *Figure 3: The skill tree, with finished, current and locked lessons.*
 
-Two progress bars sit above the tree, one for each unit. They divide the course into two smaller goals. Completing half of one unit feels closer than completing a quarter of the whole course, and goals that feel attainable support learner confidence (Boyer, n.d).
+Two progress bars sit above the tree, one for each unit. They divide the course into two smaller goals. Completing half of one unit feels closer than completing a quarter of the whole course, and goals that feel attainable support learner confidence (Boyer, n.d.).
 
 The lesson names are shown below the nodes on dotted lines, in lesson order from left to right. This was deliberate as a learner who has not yet studied in-order traversal cannot read the lesson order from the shape of the tree, but they can still follow the labels.
 
@@ -105,7 +105,9 @@ There are no timers in the app. Time pressure adds stress without supporting the
 
 Working memory has a limited capacity. Sweller's cognitive load theory distinguishes intrinsic load, which comes from the complexity of the material itself, from extraneous load, which comes from the way the material is presented (Sweller, 1988). AVL rotations cannot be made simpler than they are, but the presentation can avoid adding to the load.
 
-We reduced intrinsic load by keeping examples small. Each step teaches a single idea, and lesson trees contain only the nodes needed to show that idea. A small random tree in the playground has five keys, which is enough to show a rotation without making the tree hard to follow.
+We can't make a rotation less complex, but we can control how much of it the learner meets at once. Sweller calls this element interactivity, meaning how many pieces of information the learner has to hold and relate at the same time (Sweller, 2010). Each step teaches a single idea, and lesson trees contain only the nodes needed to show it. A learner works out heights and balance factors on their own in lesson 7 before lesson 8 asks them to use both during a rotation. A small random tree in the playground has five keys, which is enough to show a rotation without adding nodes the learner has to track.
+
+The effort we do want from the learner goes into making sense of the material, which Sweller calls germane load (Sweller, 2010). Cutting extraneous load leaves room for it. The note at the end of each lesson asks the learner to explain the idea in their own words, and the code trace asks them to follow the call stack instead of only watching the answer.
 
 Most of our design decisions target extraneous load. Each step shows one extra block and collapses the rest. Answers to writing tasks stay hidden until the learner presses Show answer. The step player's key only lists the phases that appear in the current run, so a traversal does not show a key entry for rotations. The playground's code panel can be hidden, and the setup form ensures the playground only shows the tools the learner asked for. The minimal nav bar serves the same purpose.
 
@@ -117,14 +119,16 @@ Several accessibility features support the presentation choices above. Every ste
 
 ## References
 
-Boyer, A (n.d) *Keller’s ARCS Model of Motivational Design*. Available at: https://idaho.pressbooks.pub/thuff/chapter/kellers-arcs-model-of-motivational-design/ (Accessed: 12 November 2026).
+Boyer, A. (n.d.) *Keller’s ARCS Model of Motivational Design*. Available at: https://idaho.pressbooks.pub/thuff/chapter/kellers-arcs-model-of-motivational-design/ (Accessed: 12 November 2026).
 
 Digital Learning Institute (n.d.) *Mayer's 12 Principles of Multimedia Learning (With Practical Examples)*. Available at: https://www.digitallearninginstitute.com/blog/mayers-principles-multimedia-learning (Accessed: 11 November 2026).
 
 Okabe, M. and Ito, K. (2008) *Color Universal Design (CUD): How to make figures and presentations that are friendly to colorblind people*. Available at: https://jfly.uni-koeln.de/color/ (Accessed: 12 November 2026).
 
-Lau, S. (2024) *Hick's Law*. Available at: https://thedecisionlab.com/reference-guide/design/hicks-law (Accessed 12 November 2026)
+Lau, S. (2024) *Hick's Law*. Available at: https://thedecisionlab.com/reference-guide/design/hicks-law (Accessed: 12 November 2026).
 
 Sweller, J. (1988) 'Cognitive load during problem solving: effects on learning', *Cognitive Science*, 12(2), pp. 257–285.
+
+Sweller, J. (2010) 'Element interactivity and intrinsic, extraneous, and germane cognitive load', *Educational Psychology Review*, 22(2), pp. 123–138.
 
 W3C (2023) *Web Content Accessibility Guidelines (WCAG) 2.2*. Available at: https://www.w3.org/TR/WCAG22/ (Accessed: 12 November 2026).

@@ -3,15 +3,15 @@ title: Learning objectives
 description: What students should be able to do after using the app.
 ---
 
-Each lesson has a short list of things the learner should be able to do by the end of it. The wording on this page is the same as the `objectives` list in each lesson's content file, and the learner sees the same list in the "What you'll learn" box at the start of every lesson. This aligns with constructive alignment which says that learning outcomes should be defined before the learning takes place (Biggs, n.d).
+Each lesson has a short list of things the learner should be able to do by the end of it. The wording on this page is the same as the `objectives` list in each lesson's content file, and the learner sees the same list in the "What you'll learn" box at the start of every lesson. This aligns with constructive alignment which says that learning outcomes should be defined before the learning takes place (Biggs, n.d.).
 
 The questions that test them are described in [Assessment: Question types](../storyboards/assessment/question-types/).
 
 ## How we wrote them
 
-A learning outcome should be observable and measurable. Each outcome should contain three parts: an action verb, a topic, and the level of mastery expected (Marshall, 2026). We wrote every objective that way. "List the nodes of a tree in post-order" starts with the action, names the topic, and the mastery is implied by the task. 
+A learning outcome should be observable and measurable. Each outcome should contain three parts: an action verb, a topic, and the level of mastery expected (Marshall, 2026c). We wrote every objective that way. "List the nodes of a tree in post-order" starts with the action, names the topic, and the mastery is implied by the task. 
 
-Each objective also had to be testable inside the app. Again considering constructive alignment where teaching should optimise the student's chance of achieving the outcomes (Biggs, n.d). The outcome, the activity that teaches it and the assessment that checks it all point at the same thing (Marshall, 2026). If we couldn't think of a question the app could mark for an objective, we rewrote the objective.
+Each objective also had to be testable inside the app. Again considering constructive alignment where teaching should optimise the student's chance of achieving the outcomes (Biggs, n.d.). The outcome, the activity that teaches it and the assessment that checks it all point at the same thing (Marshall, 2026c). If we couldn't think of a question the app could mark for an objective, we rewrote the objective.
 
 To decide how hard each objective is, we used the revised Bloom's taxonomy. It has six levels of cognitive process: Remember, Understand, Apply, Analyse, Evaluate and Create (Anderson and Krathwohl, 2001). Every question in the app stores one of these levels in its `bloomsLevel` field, so the level is part of the data, not only part of this document.
 
@@ -46,7 +46,7 @@ Some things we leave out on purpose. ILO 4 asks learners to develop several solu
 
 ## Course outcomes
 
-Marshall (2026) suggests keeping the number of outcomes manageable, at five to eight. Across twelve lessons we have far more lesson objectives than that, so we grouped them under six course outcomes. Every lesson objective serves one of these.
+Marshall (2026c) suggests keeping the number of outcomes manageable, at five to eight. Across twelve lessons we have far more lesson objectives than that, so we grouped them under six course outcomes. Every lesson objective serves one of these.
 
 After finishing Growth, the learner will be able to:
 
@@ -72,6 +72,7 @@ The CS2023 column gives the topic code and then the ILO, using the codes in the 
 | | Explain why copying a tree and prefix expressions use pre-order | Understand | 11c · ILO 2 |
 | 3. In-order | List the nodes of a tree in in-order | Apply | 11c · ILO 2 |
 | | Say how the in-order code differs from the pre-order code | Understand | 11c · ILO 2 |
+| | Trace the recursive in-order code and say which calls wait on the call stack | Analyse | 11c, 5 · ILO 2 |
 | | Explain why the in-order of a search tree gives its keys in sorted order | Understand | 9a, 11c · ILO 1a |
 | 4. Post-order | List the nodes of a tree in post-order | Apply | 11c · ILO 2 |
 | | Explain why deleting a whole tree and working out heights use post-order | Understand | 11c · ILO 2 |
@@ -129,7 +130,7 @@ Every written question in the content files has a Bloom's level. These are real 
 | Analyse | "In-order runs on this tree. What is on the stack when 10 is visited?" | 3 | The learner stops a run partway and reasons about its state. |
 | Analyse | "This is meant to be a binary search tree, but one key is in the wrong place. Which one?" | 1 | The learner has to check each part of the tree against the rule to find the one that breaks it. |
 
-Generated questions, which the app builds fresh from a random tree each time, are all Apply. They ask for a traversal order or a height on a tree the learner hasn't seen, and that is a procedure, not a recall task.
+Generated questions, which the app builds fresh from a random tree each time, are mostly Apply. They ask for a traversal order, a height or the tree you get after an insert or a delete, on a tree the learner hasn't seen, and that is a procedure, not a recall task. The exceptions are in the AVL unit. The easy "Is this an AVL tree?" questions are Understand, and the hardest balance factor, "Is this an AVL tree?" and predict-rotation questions are Analyse.
 
 The level also decides what kind of question works best. Remember and Understand fit multiple choice and short text answers. Apply fits the tap-to-order questions, where the learner taps nodes in sequence. The AVL lessons are planned to use the build-tree and predict-rotation question types, which suit Apply and Analyse. The [Assessment](../assessment/) page covers the question types in more detail.
 
@@ -137,7 +138,7 @@ The level also decides what kind of question works best. Remember and Understand
 
 Within each unit the objectives move up the taxonomy. Lesson 1 starts with naming parts of a tree, which is Remember, and ends with inserting into a search tree, which is Apply. The traversal lessons each start with listing, which is Apply, and end with comparing, which is Analyse. The AVL unit starts with working out heights and ends with full inserts and deletes.
 
-This order is deliberate. Marshall (2026) notes that each Bloom's level must be mastered in order, and CS2023 makes the same point in its own terms. 
+This order is deliberate. Marshall (2026c) notes that each Bloom's level must be mastered in order, and CS2023 makes the same point in its own terms. 
 
 ## Skipping ahead
 
@@ -147,10 +148,10 @@ Two lessons are checkpoints. A learner who can already do what a checkpoint test
 
 Anderson, L.W. and Krathwohl, D.R. (eds.) (2001) *A taxonomy for learning, teaching, and assessing: a revision of Bloom's taxonomy of educational objectives*. New York: Longman.
 
-Biggs, J. (n.d) *Constructive Alignment in university teaching*. University of Hong Kong.
+Biggs, J. (n.d.) *Constructive Alignment in university teaching*. University of Hong Kong.
 
 Kumar, A.N., Raj, R.K. et al. (2024) *Computer Science Curricula 2023*. New York: Association for Computing Machinery. Available at: https://doi.org/10.1145/3664191 (Accessed: 12 November 2026).
 
-Marshall, L. (2026) *L07 – Assessment of learning* [Lecture slides]. COS750: Educational Software Development, University of Pretoria.
+Marshall, L. (2026c) *L07 – Assessment of learning* [Lecture slides]. COS750: Educational Software Development, University of Pretoria.
 
 Thompson, E., Luxton-Reilly, A., Whalley, J.L., Hu, M. and Robbins, P. (2008) 'Bloom's taxonomy for CS assessment', *Proceedings of the Tenth Australasian Computing Education Conference (ACE 2008)*, Wollongong, Australia. CRPIT 78, pp. 155–161.

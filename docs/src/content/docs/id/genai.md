@@ -15,9 +15,9 @@ This page lists every Generative AI tool we used, what we used it for and the ex
 
 ### 8 November 2026: Generate storyboards for the code trace 
 
-**Who:** Hayley
-**Tool:** Claude Code (`claude-opus-5-5`) 
-**Used for.** Generating the storyboards for the code trace from the teams ideas.
+- **Who:** Hayley
+- **Tool:** Claude Code (`claude-opus-5-5`)
+- **Used for:** Generating the storyboards for the code trace from the team's ideas.
 
 **Prompt 1**
 
@@ -34,9 +34,9 @@ Idea D is having the variables show on the tree itself so the current node has a
 
 ### 8 November 2026: Generate storyboards for the stepper 
 
-**Who:** Hayley
-**Tool:** Claude Code (`claude-opus-5-5`) 
-**Used for.** Generating the storyboards for the code trace from the teams ideas.
+- **Who:** Hayley
+- **Tool:** Claude Code (`claude-opus-5-5`)
+- **Used for:** Generating the storyboards for the step player from the team's ideas.
 
 **Prompt 1**
 
@@ -54,9 +54,9 @@ Idea D is having the variables show on the tree itself so the current node has a
 
 ### 10 November 2026: Generate storyboards for the playground
 
-**Who:** Hayley
-**Tool:** Claude Code (`claude-opus-5-5`) 
-**Used for.** Generating the storyboards from the teams ideas.
+- **Who:** Hayley
+- **Tool:** Claude Code (`claude-opus-5-5`)
+- **Used for:** Generating the storyboards from the team's ideas.
 
 **Prompt 1**
 

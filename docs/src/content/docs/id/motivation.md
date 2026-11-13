@@ -3,9 +3,9 @@ title: Motivation
 description: How the app keeps students engaged.
 ---
 
-We designed for motivation with Keller's ARCS model, which splits motivation into four conditions that have to be met for people to become and stay motivated: Attention, Relevance, Confidence and Satisfaction (Boyer, n.d). Earlier instructional design models were shaped by behaviourism and cognitivism and paid little attention to motivation. ARCS was the first to show how to design lessons that motivate the learner (Boyer, n.d).
+We designed for motivation with Keller's ARCS model, which splits motivation into four conditions that have to be met for people to become and stay motivated: Attention, Relevance, Confidence and Satisfaction (Boyer, n.d.). Earlier instructional design models were shaped by behaviourism and cognitivism and paid little attention to motivation. ARCS was the first to show how to design lessons that motivate the learner (Boyer, n.d.).
 
-When thinking about ways to motivate the learner we considered the expectancy-value theory which says a learner keeps going when the work seems worth doing and success seems possible (Boyer, n.d). Attention and relevance speak to the first part and confidence speaks to the second. Satisfaction is what makes the learner want to come back.
+When thinking about ways to motivate the learner we considered the expectancy-value theory which says a learner keeps going when the work seems worth doing and success seems possible (Boyer, n.d.). Attention and relevance speak to the first part and confidence speaks to the second. Satisfaction is what makes the learner want to come back.
 
 Keller's model lists strategies under each condition and expects the designer to choose the ones that suit the audience (Drew, 2026). Growth is pre-lecture tutoring for COS212 students, who need these trees to pass the module, so they arrive with some motivation already. That shaped our choices. Keller warns that strategies should not take time away from the objectives, and that a class that is already motivated does not need a pile of extra tactics (Keller, 1987, p. 7). So we picked a few strategies under each condition and left out decoration.
 
@@ -46,7 +46,7 @@ Keller suggests that material should be organised by increasing difficulty, so t
 
 Hints are revealed one at a time, and the button shows how many are left, so a stuck learner can get exactly the help they need. This ties back to Keller's suggestion of low-risk practice (Keller, 1987, p. 5). A wrong answer in a lesson's traversal quiz gets "Not quite. Try again.", and the tap-the-traversal task has a "Start again" button. A failed test can be retaken. If a learner leaves a test halfway, they are told "Your answers so far are saved. You can pick up where you left off."
 
-Self-evaluation tools tied to the stated goals are another suggested strategy (Keller, 1987, p. 5). The lesson progress bar reads "Step X of Y". The dashboard has a progress bar for each unit and a mastery meter for each lesson that moves from "Just started" through "Getting there" to "Strong". Splitting the course into two units makes the next milestone feel closer, which supports confidence (Boyer, n.d). The [Dashboard section](../presentation/#dashboard) of the presentation page explains the layout.
+Self-evaluation tools tied to the stated goals are another suggested strategy (Keller, 1987, p. 5). The lesson progress bar reads "Step X of Y". The dashboard has a progress bar for each unit and a mastery meter for each lesson that moves from "Just started" through "Getting there" to "Strong". Splitting the course into two units makes the next milestone feel closer, which supports confidence (Boyer, n.d.). The [Dashboard section](../presentation/#dashboard) of the presentation page explains the layout.
 
 Finally, Keller suggests that learners should become more independent over time (Keller, 1987, p. 5). The test lets a confident learner skip ahead and passing it completes every earlier lesson. A learner who already knows pre-order does not have to sit through it again.
 
@@ -62,13 +62,13 @@ Keller also advises avoiding surveillance and avoiding external evaluations wher
 
 ## Daily challenge and leaderboard
 
-A daily challenge gives learners one problem a day. An optional leaderboard will rank that day's attempts by the time taken to finish.
+A daily challenge gives learners one problem a day. An optional leaderboard ranks that day's attempts by the time taken to finish.
 
 This is a deliberate exception to the rules above. A ranking by time is an external evaluation, which Keller's satisfaction strategies advise against, and it brings back the time pressure we kept out of lessons and tests. We think it is still worth having for one kind of learner. Keller's need-matching strategy offers people driven by achievement a chance to meet a standard of excellence "under conditions of moderate risk" (Keller, 1987, p. 4), and a daily challenge with a time fits that. The risk is kept moderate as the learner chooses to appear on the board with "Show me on the leaderboard" in Settings, and is hidden otherwise. The challenge is outside the course content, so a slow time never affects mastery or progress. And the board resets every day.
 
 ## References
 
-Boyer, A (n.d) *Keller’s ARCS Model of Motivational Design*. Available at: https://idaho.pressbooks.pub/thuff/chapter/kellers-arcs-model-of-motivational-design/ (Accessed: 12 November 2026).
+Boyer, A. (n.d.) *Keller’s ARCS Model of Motivational Design*. Available at: https://idaho.pressbooks.pub/thuff/chapter/kellers-arcs-model-of-motivational-design/ (Accessed: 12 November 2026).
 
 Drew, C. (2026) *ARCS Model of Motivational Design in E-Learning (John Keller)*. Helpful Professor, 6 October 2026. Available at: https://helpfulprofessor.com/arcs-model-of-motivation-keller/ (Accessed: 12 November 2026).
 
