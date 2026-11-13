@@ -19,20 +19,24 @@ export default [
     answer: { type: "order_nodes", keys: [2, 6, 4, 10, 14, 12, 8] },
   },
   {
-    key: "root-last",
+    key: "two-before-four",
     type: "multiple_choice",
-    difficulty: 1,
-    bloomsLevel: "remember",
-    prompt: "Which order visits 8, the root, last?",
+    difficulty: 2,
+    bloomsLevel: "analyse",
+    prompt: "Which two orders visit 2 before 4 on this tree?",
     explanation:
-      "Post-order visits a node after both of its subtrees, so the root is always last. Pre-order visits it first, and in-order visits it in the middle.",
+      "2 is in the left subtree of 4. Pre-order visits a node before its subtrees, so it visits 4 first. In-order and post-order both finish the left subtree before they visit 4, so they visit 2 first.",
     reviewLesson: "post-order",
-    hints: ["Use the rule, not the picture.", "Which order visits a node after both subtrees?"],
+    hints: [
+      "Where is 2 in relation to 4?",
+      "Which orders visit a node's left subtree before the node?",
+    ],
     tree: "8,4,2,#,#,6,#,#,12,10,#,#,14,#,#",
     options: [
-      { key: "pre-order", text: "Pre-order", isCorrect: false },
-      { key: "in-order", text: "In-order", isCorrect: false },
-      { key: "post-order", text: "Post-order", isCorrect: true },
+      { key: "in-and-post", text: "In-order and post-order", isCorrect: true },
+      { key: "pre-and-in", text: "Pre-order and in-order", isCorrect: false },
+      { key: "pre-and-post", text: "Pre-order and post-order", isCorrect: false },
+      { key: "all-three", text: "All three", isCorrect: false },
     ],
   },
   {

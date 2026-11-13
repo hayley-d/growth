@@ -5,7 +5,7 @@ description: How the app caters for different learners.
 
 ## Why We Chose VARK
 
-We looked at the three models from the lecture: Fleming's VARK, Kolb's experiential learning cycle, and Honey and Mumford's activists, reflectors, theorists and pragmatists (Marshall, 2026).
+We looked at the three models from the lecture: Fleming's VARK, Kolb's experiential learning cycle, and Honey and Mumford's activists, reflectors, theorists and pragmatists (Marshall, 2026b).
 
 We picked VARK because it looks at how learners prefer to take in information: visual, aural, read/write and kinesthetic (Fleming and Mills, 1992). We thought it would be easy to make lesson blocks change according to a target sense. A step about a tree could show you the tree, ask you to talk through the tree, ask you to write the tree or give you a tree to explore.
 
@@ -109,7 +109,7 @@ Digital Learning Institute (n.d.) *Mayer's 12 Principles of Multimedia Learning 
 
 Fleming, N.D. and Mills, C. (1992) 'Not another inventory, rather a catalyst for reflection', *To Improve the Academy*, 11, pp. 137–155.
 
-Marshall, L. (2026) *L04 – Educational concepts: learning styles* [Lecture slides]. COS750: Educational Software Development, University of Pretoria.
+Marshall, L. (2026b) *L04 – Educational concepts: learning styles* [Lecture slides]. COS750: Educational Software Development, University of Pretoria.
 
 McLeod, S. (2022) *Kolb's Learning Styles & Experiential Learning Cycle*. Simply Psychology. Available at: https://www.simplypsychology.org/learning-kolb.html (Accessed: 11 November 2026).
 

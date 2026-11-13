@@ -117,7 +117,7 @@ export default [
     key: "stick-not-avl",
     type: "multiple_choice",
     difficulty: 3,
-    bloomsLevel: "analyse",
+    bloomsLevel: "evaluate",
     prompt:
       "This tree came from inserting 1, 2, 3, 4 into a plain binary search tree with no rebalancing. Is it a valid AVL tree?",
     explanation:
