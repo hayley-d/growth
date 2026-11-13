@@ -73,7 +73,7 @@ The final step asks the learner to write a short note in their own words, which 
 
 ## Colour
 
-The app offers three colour schemes, which the learner selects on the Settings page. The choice is available before logging in, and once the learner is logged in it is saved to their profile so it applies on any device.
+The app offers three colour schemes. Picking one is the first step of onboarding, before the learning style quiz, so a learner who needs different colours has them from the first question onwards. The step shows one small tree that mixes skill tree nodes and lesson tree nodes in every state, and picking a scheme repaints the tree and the page straight away, so the learner judges the colours on the nodes they will actually use. The learner can skip the step and keep the default. The scheme can be changed later on the Settings page, which also works before logging in. Once the learner is logged in, the choice is saved to their profile so it applies on any device.
 
 The default scheme uses teal, pink and lime on a dark background. The high contrast scheme uses pure black and white with stronger borders and thicker focus rings, for learners with low vision. WCAG requires a contrast ratio of at least 4.5:1 for normal text (W3C, 2023), and we wanted this scheme to exceed that requirement comfortably. The colour-blind friendly scheme replaces the accent colours with the Okabe–Ito palette, a set of colours chosen to remain distinguishable under the common forms of colour blindness (Okabe and Ito, 2008). It only changes the accent colours. Text and backgrounds are unchanged.
 

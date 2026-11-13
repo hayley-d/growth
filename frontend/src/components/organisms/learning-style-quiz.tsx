@@ -11,6 +11,7 @@ type LearningStyleQuizProperties = {
   answers: QuizAnswers;
   onAnswersChange: (answers: QuizAnswers) => void;
   onComplete: (answers: QuizAnswers) => void;
+  onExit?: () => void;
 };
 
 export function LearningStyleQuiz({
@@ -18,6 +19,7 @@ export function LearningStyleQuiz({
   answers,
   onAnswersChange,
   onComplete,
+  onExit,
 }: LearningStyleQuizProperties) {
   const [index, setIndex] = useState(() =>
     Math.min(questions.filter((question) => answers[question.id]).length, questions.length - 1),
@@ -47,7 +49,7 @@ export function LearningStyleQuiz({
         label={`Question ${index + 1} of ${questions.length}`}
         done={index}
         total={questions.length}
-        onBack={index > 0 ? () => setIndex(index - 1) : undefined}
+        onBack={index > 0 ? () => setIndex(index - 1) : onExit}
       />
       <div>
         <h2
