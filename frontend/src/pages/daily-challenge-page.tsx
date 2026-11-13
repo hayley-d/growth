@@ -4,7 +4,7 @@ import { useCallback } from "react";
 import type { LearnerAnswer } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { DifficultyMeter } from "@/components/molecules/difficulty-meter";
-import { LiveDurationClock } from "@/components/molecules/duration-clock";
+import { LiveDurationClock } from "@/components/molecules/live-duration-clock";
 import { PageLoader } from "@/components/molecules/page-loader";
 import { DailyChallengeSummary } from "@/components/organisms/daily-challenge-summary";
 import { QuestionCard } from "@/components/organisms/question-card";

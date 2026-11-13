@@ -2,7 +2,8 @@ import { CalendarClock, Star } from "lucide-react";
 import { useMemo } from "react";
 
 import type { DailyChallengeResult } from "@shared/schemas";
-import { DurationClock, LiveDurationClock } from "@/components/molecules/duration-clock";
+import { DurationClock } from "@/components/molecules/duration-clock";
+import { LiveDurationClock } from "@/components/molecules/live-duration-clock";
 import { FeedbackPanel } from "@/components/organisms/feedback-panel";
 import { decodeQuestionTree } from "@/lib/test/replay-steps";
 
