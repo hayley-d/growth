@@ -46,7 +46,9 @@ const blockFilePattern = /^blocks\/[^/]+\.(md|ts)$/;
 const toPosix = (file: string) => file.replaceAll("\\", "/");
 
 const scan = async (root: string, pattern: string) =>
-  (await Array.fromAsync(new Bun.Glob(pattern).scan({ cwd: root }))).map(toPosix).sort();
+  (await Array.fromAsync(new Bun.Glob(pattern).scan({ cwd: root, followSymlinks: true })))
+    .map(toPosix)
+    .sort();
 
 const isKnownLessonFile = (folder: string, file: string) => {
   const inside = file.slice(folder.length + 1);
