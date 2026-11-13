@@ -14,6 +14,7 @@ const attempt = {
   id,
   lessonId: id,
   kind: "lesson_test",
+  topic: null,
   status: "in_progress",
   total: 5,
   answeredCount: 0,
@@ -106,5 +107,18 @@ describe("submitAnswerResponseSchema", () => {
     });
     expect(parsed.data.rating.after).toBe(1010);
     expect(parsed.data.replay).toEqual({ kind: "traversal", order: "preorder" });
+  });
+});
+
+describe("practice attempts", () => {
+  it("parses a practice attempt with no lesson and no questions yet", () => {
+    const parsed = attemptStateResponseSchema.parse({
+      data: {
+        attempt: { ...attempt, lessonId: null, kind: "practice", topic: "mixed", total: 0 },
+        question: null,
+        result: null,
+      },
+    });
+    expect(parsed.data.attempt.topic).toBe("mixed");
   });
 });

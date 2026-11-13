@@ -27,6 +27,7 @@ const attempt = (answeredCount: number, finished = false) => ({
   id: attemptId,
   lessonId,
   kind: "lesson_test",
+  topic: null,
   status: finished ? "finished" : "in_progress",
   total: 2,
   answeredCount,

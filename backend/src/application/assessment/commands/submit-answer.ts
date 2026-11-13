@@ -8,6 +8,7 @@ import { makeResolveCurrentQuestion } from "@/application/assessment/attempt-acc
 import type { AttemptStateDependencies } from "@/application/assessment/attempt-dependencies";
 import { getAnswerPoints, makeLoadAttemptState } from "@/application/assessment/attempt-state";
 import { gradeAnswer } from "@/application/assessment/grade-answer";
+import { makeGetPracticeRating } from "@/application/assessment/practice-rating";
 import { makeLoadQuestionView } from "@/application/assessment/question-view";
 import { getSignedInUserId } from "@/application/lesson/lesson-access";
 import {
@@ -15,13 +16,12 @@ import {
   getNextDifficulty,
   getNextRating,
   getScore,
+  startingRating,
 } from "@/domain/assessment/elo-rating";
 import type { AssessmentAttemptRepository } from "@/domain/assessment/repositories/assessment-attempt-repository";
 import type { AttemptAnswerRepository } from "@/domain/assessment/repositories/attempt-answer-repository";
 import { BadRequestError, NotFoundError } from "@/domain/errors";
 import type { UserMasteryRepository } from "@/domain/user/repositories/user-mastery-repository";
-
-const startingRating = 1000;
 
 type SubmitAnswerDependencies = AttemptStateDependencies & {
   assessmentAttemptRepository: Pick<AssessmentAttemptRepository, "findById" | "update">;
@@ -36,6 +36,7 @@ export const makeSubmitAnswer = (dependencies: SubmitAnswerDependencies) => {
   const resolveCurrentQuestion = makeResolveCurrentQuestion(dependencies);
   const loadAttemptState = makeLoadAttemptState(dependencies);
   const loadView = makeLoadQuestionView(dependencies);
+  const getPracticeRating = makeGetPracticeRating(dependencies);
   const { attemptAnswerRepository, questionRepository, userMasteryRepository } = dependencies;
 
   return async ({
@@ -56,11 +57,14 @@ export const makeSubmitAnswer = (dependencies: SubmitAnswerDependencies) => {
     }
 
     const isCorrect = gradeAnswer(answer, view.accepted);
-    const [mastery, answerCount] = await Promise.all([
+    const isPractice = attempt.kind === "practice";
+    const [mastery, storedAnswerCount, practiceRating] = await Promise.all([
       userMasteryRepository.findById({ userId, lessonId: question.lessonId }),
       attemptAnswerRepository.countByUserAndLesson(userId, question.lessonId),
+      isPractice ? getPracticeRating(attempt.id, userId, question.lessonId) : null,
     ]);
-    const ratingBefore = mastery?.rating ?? startingRating;
+    const answerCount = storedAnswerCount + (practiceRating?.sessionAnswers ?? 0);
+    const ratingBefore = practiceRating?.rating ?? mastery?.rating ?? startingRating;
     const score = getScore(isCorrect, attemptQuestion.hintsUsed);
     const ratingAfter = getNextRating(ratingBefore, attemptQuestion.difficulty, score, answerCount);
 
@@ -75,6 +79,7 @@ export const makeSubmitAnswer = (dependencies: SubmitAnswerDependencies) => {
       answer: {
         assessmentAttemptId: attempt.id,
         questionId: question.id,
+        attemptQuestionId: attemptQuestion.id,
         answerOptionId,
         seed: attemptQuestion.seed,
         generatedQuestion: attemptQuestion.generatedQuestion,
@@ -85,13 +90,15 @@ export const makeSubmitAnswer = (dependencies: SubmitAnswerDependencies) => {
         ratingBefore,
         ratingAfter,
       },
-      mastery: {
-        userId,
-        lessonId: question.lessonId,
-        rating: ratingAfter,
-        mastery: getMastery(ratingAfter),
-        currentDifficulty: getNextDifficulty(ratingAfter),
-      },
+      mastery: isPractice
+        ? null
+        : {
+            userId,
+            lessonId: question.lessonId,
+            rating: ratingAfter,
+            mastery: getMastery(ratingAfter),
+            currentDifficulty: getNextDifficulty(ratingAfter),
+          },
     });
 
     const state = await loadAttemptState(attempt);

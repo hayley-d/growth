@@ -27,3 +27,13 @@ enum AttemptKind {
 
   @@map("attemptKind")
 }
+
+enum PracticeTopic {
+  traversals
+  insertion
+  deletion
+  rotations
+  mixed
+
+  @@map("practiceTopic")
+}

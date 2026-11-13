@@ -113,10 +113,19 @@ const answerOption = async (transaction: Transaction, optionId: string, question
   const attempt = await transaction.assessmentAttempt.create({
     data: { userId: testUserId, lessonId: lessonId("binary-tree"), kind: "lesson_test" },
   });
+  const attemptQuestion = await transaction.attemptQuestion.create({
+    data: {
+      assessmentAttemptId: attempt.id,
+      questionId: questionId("binary-tree", questionKey),
+      position: 1,
+      difficulty: 1,
+    },
+  });
   await transaction.attemptAnswer.create({
     data: {
       assessmentAttemptId: attempt.id,
       questionId: questionId("binary-tree", questionKey),
+      attemptQuestionId: attemptQuestion.id,
       answerOptionId: optionId,
       response: { optionId },
       isCorrect: true,

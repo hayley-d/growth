@@ -11,6 +11,7 @@ import type { CourseContentController } from "@/presentation/controllers/course-
 import type { LearningPathController } from "@/presentation/controllers/learning-path-controller";
 import type { LessonController } from "@/presentation/controllers/lesson-controller";
 import type { OnboardingController } from "@/presentation/controllers/onboarding-controller";
+import type { PracticeController } from "@/presentation/controllers/practice-controller";
 import type { UserController } from "@/presentation/controllers/user-controller";
 import { createAuthMiddleware } from "@/presentation/middleware/auth-middleware";
 import { createErrorHandler } from "@/presentation/middleware/error-handler";
@@ -25,6 +26,7 @@ import { healthRoutes } from "@/presentation/routes/health-routes";
 import { createLearningPathRoutes } from "@/presentation/routes/learning-path-routes";
 import { createLessonRoutes } from "@/presentation/routes/lesson-routes";
 import { createOnboardingRoutes } from "@/presentation/routes/onboarding-routes";
+import { createPracticeRoutes } from "@/presentation/routes/practice-routes";
 import { createUserRoutes } from "@/presentation/routes/user-routes";
 
 type ApplicationDependencies = {
@@ -34,6 +36,7 @@ type ApplicationDependencies = {
   algorithmController: AlgorithmController;
   lessonController: LessonController;
   attemptController: AttemptController;
+  practiceController: PracticeController;
   userController: UserController;
   courseContentController: CourseContentController;
   learningPathController: LearningPathController;
@@ -47,6 +50,7 @@ export const createApplication = ({
   algorithmController,
   lessonController,
   attemptController,
+  practiceController,
   userController,
   courseContentController,
   learningPathController,
@@ -70,6 +74,7 @@ export const createApplication = ({
   application.route("/api/algorithms", createAlgorithmRoutes(algorithmController));
   application.route("/api/lessons", createLessonRoutes(lessonController));
   application.route("/api", createAttemptRoutes(attemptController));
+  application.route("/api", createPracticeRoutes(practiceController));
   application.route("/api/learning-path", createLearningPathRoutes(learningPathController));
   application.route("/api/me", createUserRoutes(userController));
   application.route("/api/onboarding", createOnboardingRoutes(onboardingController));

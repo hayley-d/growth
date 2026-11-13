@@ -33,6 +33,8 @@ describe("makeGetAttempt", () => {
         answer: {
           assessmentAttemptId: started.attempt.id,
           questionId: "q-tree",
+          attemptQuestionId:
+            useCases.world.attemptQuestions.find((row) => row.questionId === "q-tree")?.id ?? "",
           response: { type: "build_tree", tree: "2,1,#,#,3,#,#" },
           isCorrect: true,
           difficulty: 2,

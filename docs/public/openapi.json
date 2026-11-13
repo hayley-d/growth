@@ -43,6 +43,10 @@
     {
       "name": "Tests",
       "description": "Lesson tests, checkpoints and the final challenge. An attempt holds up to 5 questions chosen when it starts. The correct answer is only sent after the learner answers."
+    },
+    {
+      "name": "Practice",
+      "description": "Open-ended practice on one topic. Questions are generated one at a time until the learner stops. Hints and answers use the attempt endpoints. Practice has no stakes: its ratings live only inside the session, so it never changes mastery, difficulty on tests or lesson progress."
     }
   ],
   "paths": {
@@ -823,7 +827,7 @@
           "Tests"
         ],
         "summary": "Unlock the next hint",
-        "description": "Each hint lowers the score for that answer. Returns 409 when the question is not the current one, is already answered, has no hints left, or the attempt is finished.",
+        "description": "Each hint lowers the score for that answer. Works in practice attempts too. Returns 409 when the question is not the current one, is already answered, has no hints left, or the attempt is finished.",
         "security": [
           {
             "sessionCookie": []
@@ -884,7 +888,7 @@
           "Tests"
         ],
         "summary": "Answer the current question",
-        "description": "Grades the answer, updates the learner's rating for the question's lesson and returns the correct answer and the explanation. After the last answer, `question` is null and `result` is set. A pass completes the lesson and every lesson before it. The answer type must match the question type. A question id that is not in the attempt returns 404. A question that is already answered, is not the current one, or an attempt that is finished returns 409.",
+        "description": "Grades the answer, updates the learner's rating for the question's lesson and returns the correct answer and the explanation. After the last answer of a test, `question` is null and `result` is set. In practice `result` is always null and the next question comes from the practice questions endpoint. A pass completes the lesson and every lesson before it. The answer type must match the question type. A question id that is not in the attempt returns 404. A question that is already answered, is not the current one, or an attempt that is finished returns 409.",
         "security": [
           {
             "sessionCookie": []
@@ -934,6 +938,181 @@
           },
           "409": {
             "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/practice/topics": {
+      "get": {
+        "operationId": "getPracticeTopics",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "List the practice topics",
+        "description": "A topic is available when an unlocked lesson has generated questions for it. Unavailable topics return 409 from the start endpoint.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Every topic and whether it can be started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeTopicsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/practice/attempts": {
+      "post": {
+        "operationId": "startPractice",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "Start practising a topic",
+        "description": "Always starts a new attempt and finishes any unfinished practice attempt first. Questions come from lessons the learner has unlocked. The rating for each lesson starts at the learner's stored rating and then changes inside the session only, and difficulty follows it. A topic with no questions returns 409.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartPracticeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "A new attempt and its first question.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/practice/attempts/{id}/questions": {
+      "post": {
+        "operationId": "nextPracticeQuestion",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "Get the next practice question",
+        "description": "Returns the current question when one is unanswered, otherwise generates a new one. A finished attempt returns 409.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The attempt with its current question.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/practice/attempts/{id}/finish": {
+      "post": {
+        "operationId": "finishPractice",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "Stop practising",
+        "description": "Finishes the attempt and returns the summary: questions answered, how many were right and the rating change for each lesson (rating before and after, inside the session). An unanswered question is dropped. Finishing twice returns the same summary.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeSummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
           }
         }
       }
@@ -1059,6 +1238,24 @@
         "required": [
           "questionId",
           "answer"
+        ]
+      },
+      "StartPracticeRequest": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "enum": [
+              "traversals",
+              "insertion",
+              "deletion",
+              "rotations",
+              "mixed"
+            ]
+          }
+        },
+        "required": [
+          "topic"
         ]
       },
       "ScoreQuizRequest": {
@@ -4722,15 +4919,40 @@
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "lessonId": {
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "kind": {
             "type": "string",
             "enum": [
               "lesson_test",
-              "checkpoint"
+              "checkpoint",
+              "practice"
+            ]
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "traversals",
+                  "insertion",
+                  "deletion",
+                  "rotations",
+                  "mixed"
+                ]
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "status": {
@@ -4742,7 +4964,7 @@
           },
           "total": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "minimum": 0,
             "maximum": 9007199254740991
           },
           "answeredCount": {
@@ -4772,6 +4994,7 @@
           "id",
           "lessonId",
           "kind",
+          "topic",
           "status",
           "total",
           "answeredCount",
@@ -5265,6 +5488,105 @@
               "attempt",
               "question",
               "result"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "PracticeTopicsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "topic": {
+                  "type": "string",
+                  "enum": [
+                    "traversals",
+                    "insertion",
+                    "deletion",
+                    "rotations",
+                    "mixed"
+                  ]
+                },
+                "available": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "topic",
+                "available"
+              ]
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "PracticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "answered": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "correct": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "ratingChange": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "lessons": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "lessonId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "ratingBefore": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "ratingAfter": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "lessonId",
+                    "title",
+                    "ratingBefore",
+                    "ratingAfter"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "answered",
+              "correct",
+              "ratingChange",
+              "lessons"
             ]
           }
         },

@@ -1,5 +1,7 @@
 export const difficulties = [1, 2, 3, 4, 5] as const;
 
+export const startingRating = 1000;
+
 const easiestQuestionRating = 800;
 const ratingPerDifficulty = 100;
 const startingRatingStep = 96;

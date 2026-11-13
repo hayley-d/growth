@@ -2,6 +2,7 @@ export type AttemptAnswer = {
   id: string;
   assessmentAttemptId: string;
   questionId: string;
+  attemptQuestionId: string;
   answerOptionId: string | null;
   seed: number | null;
   generatedQuestion: unknown | null;
@@ -16,6 +17,7 @@ export type AttemptAnswer = {
 export type NewAttemptAnswer = {
   assessmentAttemptId: string;
   questionId: string;
+  attemptQuestionId: string;
   answerOptionId?: string | null;
   seed?: number | null;
   generatedQuestion?: unknown | null;

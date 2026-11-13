@@ -9,9 +9,9 @@ model AttemptQuestion {
   hintsUsed           Int               @default(0)
   assessmentAttempt   AssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Cascade)
   question            Question          @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  answer              AttemptAnswer?
 
   @@unique([assessmentAttemptId, position])
-  @@unique([assessmentAttemptId, questionId])
   @@index([questionId])
   @@map("attemptQuestion")
 }

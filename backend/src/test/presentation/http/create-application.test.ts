@@ -9,6 +9,7 @@ import { createCourseContentController } from "@/presentation/controllers/course
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
+import { createPracticeController } from "@/presentation/controllers/practice-controller";
 import { createUserController } from "@/presentation/controllers/user-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
@@ -49,6 +50,12 @@ const createTestApp = (logger: Logger) =>
       getAttempt: vi.fn(),
       requestHint: vi.fn(),
       submitAnswer: vi.fn(),
+    }),
+    practiceController: createPracticeController({
+      getPracticeTopics: vi.fn(),
+      startPractice: vi.fn(),
+      nextPracticeQuestion: vi.fn(),
+      finishPractice: vi.fn(),
     }),
     userController: createUserController({ getMe: vi.fn(), updateProfile: vi.fn() }),
     courseContentController: createCourseContentController({

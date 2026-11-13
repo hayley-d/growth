@@ -7,6 +7,7 @@ export const toAssessmentAttempt = (row: AssessmentAttemptRow): AssessmentAttemp
   lessonId: row.lessonId,
   dailyChallengeId: row.dailyChallengeId,
   kind: row.kind,
+  practiceTopic: row.practiceTopic,
   score: row.score,
   passed: row.passed,
   points: row.points,
