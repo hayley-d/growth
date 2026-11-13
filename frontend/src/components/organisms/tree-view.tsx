@@ -63,6 +63,7 @@ type SnapshotEdgeProperties = {
 };
 
 const columnGap = 64;
+const edgeExitSec = 0.12;
 const rowGap = 40;
 
 const emptyKeys: ReadonlySet<number> = new Set();
@@ -248,7 +249,11 @@ export function TreeView({
           );
           const glide = { duration: instant ? 0 : treeGlideSec, ease: "easeInOut" as const };
           return (
-            <motion.g key={link.key} exit={{ opacity: 0 }} transition={glide}>
+            <motion.g
+              key={link.key}
+              exit={{ opacity: 0, transition: { duration: instant ? 0 : edgeExitSec } }}
+              transition={glide}
+            >
               <SnapshotEdge
                 x1={link.x1}
                 y1={link.y1}

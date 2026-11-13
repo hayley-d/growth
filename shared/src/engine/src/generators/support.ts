@@ -235,12 +235,3 @@ export const describeRotation = (
   rotation === "none" || pivotKey === null
     ? "No node ends up with a balance factor outside -1 to 1, so no rotation is needed."
     : rotationSummaries[rotation](pivotLabel(pivotKey, replacedKey));
-
-export const pivotHint = (
-  rotation: Rotation,
-  pivotKey: number | null,
-  replacedKey: number | null = null,
-): string =>
-  rotation === "none" || pivotKey === null
-    ? "Check every node on the path. None of them reaches a balance factor of -2 or 2."
-    : `The lowest unbalanced node is ${replacedKey === null ? pivotKey : `the one that took ${replacedKey}'s place (it now holds ${pivotKey})`}.`;

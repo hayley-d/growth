@@ -52,7 +52,7 @@ Import it with `@shared/engine`. It is not exported from the shared barrel.
 
 ### Generated questions
 
-`generate(key, { seed, difficulty, order? })` returns a `GeneratedQuestion`: the tree, the prompt, the answer, an explanation and three hints from vague to specific. The same key, seed and difficulty always give the same question, so the backend can run it again later to get the answer.
+`generate(key, { seed, difficulty, order?, operation? })` returns a `GeneratedQuestion`: the tree, the prompt, the answer, an explanation and three hints from vague to specific. The same key, seed and difficulty always give the same question, so the backend can run it again later to get the answer.
 
 ```ts
 const question = generate("insert-result", { seed: 42, difficulty: 3 });
@@ -60,7 +60,7 @@ const question = generate("insert-result", { seed: 42, difficulty: 3 });
 
 The seed must be a non-negative safe integer and the difficulty a whole number from 1 to 5. Anything else throws a `RangeError`.
 
-The keys are `traversal-order`, `insert-result`, `delete-result`, `predict-rotation`, `balance-factor`, `height` and `is-avl`. `order` only matters for `traversal-order`.
+The keys are `traversal-order`, `insert-result`, `delete-result`, `predict-rotation`, `balance-factor`, `height` and `is-avl`. `order` only matters for `traversal-order`. `operation` (`insert` or `delete`) only matters for `predict-rotation`. It picks which kind of question to ask, and without it the generator picks one from the seed.
 
 Difficulty sets the tree size and the case:
 
@@ -76,7 +76,7 @@ Difficulty sets the tree size and the case:
 - A question only counts a case with one rotation, so `predict-rotation` always has one answer.
 - When a delete replaces a node with its in-order successor, the rotation can happen at the spot of the deleted node, where the key is now the successor's. `predict-rotation` skips those cases, because the pivot would be a leaf in the picture the learner sees. `delete-result` keeps them and says "the node that took 45's place (it now holds 70)".
 - `balance-factor` asks about any node at difficulty 1, a node with children at 2 and 3, and from 4 shows the tree just after a plain search tree insert, before rebalancing. The prompt says so, and at difficulty 5 half the questions ask about the unbalanced node, so the answer is 2 or -2.
-- Hints never give a yes or no. The `is-avl` hints are the same for every tree, and the last `traversal-order` hint shows fewer than half the keys, and at least one.
+- Hints never give a yes or no. The hints of `insert-result`, `delete-result` and `predict-rotation` also never name the pivot or the rotation, and a test checks that. The `is-avl` hints are the same for every tree, and the last `traversal-order` hint shows fewer than half the keys, and at least one.
 - Heights follow the engine: a leaf has height 1 and an empty tree has height 0. The `height` and `balance-factor` prompts say so.
 - Answers are in one fixed form: trees are `encodeTree` strings, and text lists are keys joined by `,` with no spaces. Cleaning up what a learner types is the grader's job, not the generator's.
 

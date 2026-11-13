@@ -1,0 +1,55 @@
+import type { GeneratedQuestionContent } from "@/infrastructure/course-content/content/content-schema";
+
+export default [
+  {
+    key: "delete-result-easy",
+    generatorKey: "delete-result",
+    type: "build_tree",
+    difficulty: 1,
+    bloomsLevel: "apply",
+    reviewLesson: "avl-delete",
+  },
+  {
+    key: "delete-result-medium",
+    generatorKey: "delete-result",
+    type: "build_tree",
+    difficulty: 2,
+    bloomsLevel: "apply",
+    reviewLesson: "avl-delete",
+  },
+  {
+    key: "delete-result-hard",
+    generatorKey: "delete-result",
+    type: "build_tree",
+    difficulty: 3,
+    bloomsLevel: "apply",
+    reviewLesson: "avl-delete",
+  },
+  {
+    key: "delete-predict-rotation-easy",
+    generatorKey: "predict-rotation",
+    generatorOptions: { operation: "delete" },
+    type: "predict_rotation",
+    difficulty: 1,
+    bloomsLevel: "apply",
+    reviewLesson: "avl-delete",
+  },
+  {
+    key: "delete-predict-rotation-medium",
+    generatorKey: "predict-rotation",
+    generatorOptions: { operation: "delete" },
+    type: "predict_rotation",
+    difficulty: 2,
+    bloomsLevel: "apply",
+    reviewLesson: "avl-delete",
+  },
+  {
+    key: "delete-predict-rotation-hard",
+    generatorKey: "predict-rotation",
+    generatorOptions: { operation: "delete" },
+    type: "predict_rotation",
+    difficulty: 3,
+    bloomsLevel: "analyse",
+    reviewLesson: "avl-delete",
+  },
+] satisfies GeneratedQuestionContent[];

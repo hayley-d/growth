@@ -1,8 +1,8 @@
-import { RotateCcw, RotateCw, Undo2 } from "lucide-react";
+import { RotateCcw, RotateCw, Trash2, Undo2 } from "lucide-react";
 import { useId, useState } from "react";
 
 import { type AvlNode, encodeTree, toKeys } from "@shared/avl";
-import { insertBst, rotate } from "@shared/engine";
+import { insertBst, removeBst, rotate } from "@shared/engine";
 import type { LearnerAnswer } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
@@ -49,6 +49,11 @@ export function BuildTreeQuestion({
     }
     push(insertBst(tree, parsed.key));
     setNewKey("");
+  };
+
+  const remove = () => {
+    if (selectedKey === null) return;
+    push(removeBst(tree, selectedKey));
   };
 
   const turn = (kind: "left" | "right") => {
@@ -100,6 +105,16 @@ export function BuildTreeQuestion({
       {selectedKey === null ? null : (
         <fieldset className="flex flex-wrap gap-2">
           <legend className="sr-only">Node {selectedKey}</legend>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            disabled={disabled}
+            onClick={remove}
+          >
+            <Trash2 aria-hidden="true" />
+            Delete {selectedKey}
+          </Button>
           <Button
             type="button"
             variant="outline"

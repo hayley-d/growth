@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 import { type AvlNode, decodeTree, toKeys } from "@shared/avl";
 import { balanceOf, type Difficulty, generate, heightOf, isAvl } from "@shared/engine";
 import { treeSizeBounds } from "@shared/engine/src/generators/support";
-import { type GeneratorKey, generatedQuestionSchema, generatorKeySchema } from "@shared/schemas";
+import {
+  type GeneratedQuestion,
+  type GeneratorKey,
+  generatedQuestionSchema,
+  generatorKeySchema,
+} from "@shared/schemas";
 
 const difficulties: Difficulty[] = [1, 2, 3, 4, 5];
 const seeds = [...Array.from({ length: 20 }, (_, index) => index + 1), 123456, 1762600000000];
@@ -18,6 +23,17 @@ const requireTree = (text: string | null): AvlNode => {
 const everyCase = (key: GeneratorKey, check: (difficulty: Difficulty, seed: number) => void) => {
   for (const difficulty of difficulties) for (const seed of seeds) check(difficulty, seed);
   return key;
+};
+
+const withoutRange = (text: string) => text.replace(/-2 or 2/g, "").replace(/-2/g, "");
+
+const expectHintsHideRotation = (question: GeneratedQuestion) => {
+  const hints = withoutRange(question.hints.join(" "));
+  expect(hints).not.toMatch(/leftRight|rightLeft|\b(left|right)(-| )(left|right)\b/i);
+  expect(hints).not.toMatch(/\b(left|right) rotation\b|rotate \d|is (left|right)-heavy/i);
+  if (question.answer.type === "predict_rotation" && question.answer.pivotKey !== null) {
+    expect(hints).not.toMatch(new RegExp(`\\b${question.answer.pivotKey}\\b`));
+  }
 };
 
 const nodeKeys = (text: string | null) => toKeys(requireTree(text));
@@ -217,6 +233,16 @@ describe("generate", () => {
     }
   });
 
+  it("predict-rotation hints for deletes never reveal the pivot or the rotation", () => {
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        expectHintsHideRotation(
+          generate("predict-rotation", { seed, difficulty, operation: "delete" }),
+        );
+      }
+    }
+  });
+
   it("is-avl hints are the same for valid and invalid trees", () => {
     const hints = new Set<string>();
     for (const seed of seeds) {
@@ -228,38 +254,21 @@ describe("generate", () => {
   });
 
   it("rotation hints never reveal the pivot or the rotation", () => {
-    const withoutRange = (text: string) => text.replace(/-2 or 2/g, "").replace(/-2/g, "");
-    for (const key of ["insert-result", "predict-rotation"] as const) {
+    for (const key of ["insert-result", "delete-result", "predict-rotation"] as const) {
       everyCase(key, (difficulty, seed) => {
-        const question = generate(key, { seed, difficulty });
-        const hints = withoutRange(question.hints.join(" "));
-        expect(hints).not.toMatch(/leftRight|rightLeft|\b(left|right)(-| )(left|right)\b/i);
-        expect(hints).not.toMatch(/\b(left|right) rotation\b|rotate \d|is (left|right)-heavy/i);
-        if (question.answer.type === "predict_rotation" && question.answer.pivotKey !== null) {
-          expect(hints).not.toMatch(new RegExp(`\\b${question.answer.pivotKey}\\b`));
-        }
+        expectHintsHideRotation(generate(key, { seed, difficulty }));
       });
     }
   });
 
-  it("predict-rotation only asks about inserts when told to", () => {
+  it("predict-rotation only asks about deletes when told to", () => {
     for (const difficulty of difficulties) {
       for (const seed of seeds) {
-        const question = generate("predict-rotation", { seed, difficulty, operation: "insert" });
-        expect(question.replay).toMatchObject({ operation: "insert" });
-        expect(question.prompt.startsWith("Insert ")).toBe(true);
+        const question = generate("predict-rotation", { seed, difficulty, operation: "delete" });
+        expect(question.replay).toMatchObject({ operation: "delete" });
+        expect(question.prompt.startsWith("Delete ")).toBe(true);
       }
     }
-  });
-
-  it("is-avl hints are the same for valid and invalid trees", () => {
-    const hints = new Set<string>();
-    for (const seed of seeds) {
-      for (const difficulty of difficulties) {
-        hints.add(JSON.stringify(generate("is-avl", { seed, difficulty }).hints));
-      }
-    }
-    expect(hints.size).toBe(1);
   });
 
   it("traversal-order never reveals every key in its last hint", () => {
