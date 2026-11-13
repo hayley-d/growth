@@ -1,11 +1,6 @@
 import { Timer } from "lucide-react";
 
-import {
-  describeDuration,
-  formatDuration,
-  secondsBetween,
-} from "@/lib/daily-challenge/format-duration";
-import { useNow } from "@/lib/use-now";
+import { describeDuration, formatDuration } from "@/lib/daily-challenge/format-duration";
 import { cn } from "@/lib/utils";
 
 type DurationClockProperties = {
@@ -28,15 +23,4 @@ export function DurationClock({ label, seconds, className }: DurationClockProper
       </time>
     </p>
   );
-}
-
-type LiveDurationClockProperties = {
-  label: string;
-  className?: string;
-} & ({ since: number; until?: never } | { until: number; since?: never });
-
-export function LiveDurationClock({ label, since, until, className }: LiveDurationClockProperties) {
-  const now = useNow();
-  const seconds = since === undefined ? secondsBetween(now, until) : secondsBetween(since, now);
-  return <DurationClock label={label} seconds={seconds} className={className} />;
 }

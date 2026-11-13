@@ -1,8 +1,8 @@
 import { describe, expect, it, vi } from "vitest";
 
+import { makeGetDailyChallenge } from "@/application/assessment/commands/get-daily-challenge";
 import { makeStartDailyChallenge } from "@/application/assessment/commands/start-daily-challenge";
 import { makeSubmitDailyChallengeAnswer } from "@/application/assessment/commands/submit-daily-challenge-answer";
-import { makeGetDailyChallenge } from "@/application/assessment/queries/get-daily-challenge";
 import type { DailyChallenge } from "@/domain/assessment/daily-challenge";
 import { ConflictError, NotFoundError } from "@/domain/errors";
 import {

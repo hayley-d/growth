@@ -1,4 +1,5 @@
 import { makeFinishPractice } from "@/application/assessment/commands/finish-practice";
+import { makeGetDailyChallenge } from "@/application/assessment/commands/get-daily-challenge";
 import { makeGetTodaysChallenge } from "@/application/assessment/commands/get-todays-challenge";
 import { makeNextPracticeQuestion } from "@/application/assessment/commands/next-practice-question";
 import { makeRequestHint } from "@/application/assessment/commands/request-hint";
@@ -8,7 +9,6 @@ import { makeStartPractice } from "@/application/assessment/commands/start-pract
 import { makeSubmitAnswer } from "@/application/assessment/commands/submit-answer";
 import { makeSubmitDailyChallengeAnswer } from "@/application/assessment/commands/submit-daily-challenge-answer";
 import { makeGetAttempt } from "@/application/assessment/queries/get-attempt";
-import { makeGetDailyChallenge } from "@/application/assessment/queries/get-daily-challenge";
 import { makeGetPracticeTopics } from "@/application/assessment/queries/get-practice-topics";
 import { makeGetAlgorithmSnippet } from "@/application/course-content/queries/get-algorithm-snippet";
 import { makeListAlgorithms } from "@/application/course-content/queries/list-algorithms";

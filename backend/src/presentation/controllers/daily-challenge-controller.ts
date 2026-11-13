@@ -1,9 +1,9 @@
 import type { Context } from "hono";
 
 import type { SubmitAnswerRequest } from "@shared/schemas";
+import type { GetDailyChallenge } from "@/application/assessment/commands/get-daily-challenge";
 import type { StartDailyChallenge } from "@/application/assessment/commands/start-daily-challenge";
 import type { SubmitDailyChallengeAnswer } from "@/application/assessment/commands/submit-daily-challenge-answer";
-import type { GetDailyChallenge } from "@/application/assessment/queries/get-daily-challenge";
 
 type DailyChallengeControllerDependencies = {
   getDailyChallenge: GetDailyChallenge;

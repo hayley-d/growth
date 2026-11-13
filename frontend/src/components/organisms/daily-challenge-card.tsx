@@ -2,7 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Check, Star, X } from "lucide-react";
 
 import type { DailyChallengeState } from "@shared/schemas";
-import { DurationClock, LiveDurationClock } from "@/components/molecules/duration-clock";
+import { DurationClock } from "@/components/molecules/duration-clock";
+import { LiveDurationClock } from "@/components/molecules/live-duration-clock";
 import { cn } from "@/lib/utils";
 
 const linkClasses =
@@ -13,14 +14,12 @@ type DailyChallengeCardProperties = {
   className?: string;
 };
 
-function ChallengeLink({ label }: { label: string }) {
-  return (
-    <Link to="/daily" className={linkClasses}>
-      {label}
-      <ArrowRight aria-hidden className="size-4" />
-    </Link>
-  );
-}
+const challengeLink = (label: string) => (
+  <Link to="/daily" className={linkClasses}>
+    {label}
+    <ArrowRight aria-hidden className="size-4" />
+  </Link>
+);
 
 export function DailyChallengeCard({ state, className }: DailyChallengeCardProperties) {
   const cardClasses = cn("flex flex-col gap-3 rounded-lg border p-4 sm:p-6", className);
@@ -29,7 +28,7 @@ export function DailyChallengeCard({ state, className }: DailyChallengeCardPrope
     return (
       <div className={cardClasses}>
         <p className="text-sm text-muted-foreground">We couldn't load today's challenge here.</p>
-        <ChallengeLink label="Open the daily challenge" />
+        {challengeLink("Open the daily challenge")}
       </div>
     );
   }
@@ -38,7 +37,7 @@ export function DailyChallengeCard({ state, className }: DailyChallengeCardPrope
     return (
       <div className={cardClasses}>
         <p>One question, the same for everyone. The clock starts when you press Start.</p>
-        <ChallengeLink label="Take today's challenge" />
+        {challengeLink("Take today's challenge")}
       </div>
     );
   }
@@ -50,7 +49,7 @@ export function DailyChallengeCard({ state, className }: DailyChallengeCardPrope
         {state.startedAt ? (
           <LiveDurationClock label="Time so far" since={Date.parse(state.startedAt)} />
         ) : null}
-        <ChallengeLink label="Finish today's challenge" />
+        {challengeLink("Finish today's challenge")}
       </div>
     );
   }
