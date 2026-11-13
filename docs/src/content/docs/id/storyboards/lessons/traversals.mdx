@@ -1,14 +1,19 @@
 ---
-title: "Lessons 2 to 4: Depth-first traversals"
+title: "Traversals"
+description: How we designed lessons 2 to 5, from five savvy start storyboards to code first, one order per lesson.
 ---
 
 import { Aside, Steps } from "@astrojs/starlight/components";
 
-Pre-order, in-order and post-order traversals are all variations of the same algorithm with a single line modified, thus they were storyboarded together. We made five storyboards representing different ways to teach them. For each storyboard, we teach pre-order and then compare with in-order and post-order to signify how they change. 
+Lessons 2 to 5 teach the learner how to traverse a tree. The learner does these lessons after lesson 1. At this point it is assumed they have surface-level knowledge of binary search trees and the terminology.
 
-## A: Code first
+We followed [SAM 2](../../../approach/) and the savvy start generated five ideas which we built on in design 2 and design 3. The five of us reviewed every round.
 
-This prototypes follows an  "algorithm-first" approach. The learner reads the algorithm rules, then the code and then traces the running code with the help of a call stack. In-order and post-order follow by moving a single line of code.
+## Savvy start
+
+### A: Code first
+
+The learner reads the rule, then the code, then traces the running code with the call stack beside it.
 
 <Steps>
 
@@ -20,7 +25,7 @@ This prototypes follows an  "algorithm-first" approach. The learner reads the al
 
    ![Three frames. Frame 1 shows the 7-node example tree under the heading "Three ways to go deep". Frame 2 lists the three steps of the pre-order rule, with the left and right subtrees boxed. Frame 3 shows the five lines of pre-order pseudocode.](../../../../../assets/id/prototypes/depth-first/code-first-1.webp)
 
-   *Figure 1: A · Code first, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 1: A · Code first, steps 1 to 3*
 
 4. The learner is walked through a trace of a small tree. As they step through the code, they also step through the tree and the call stack at the same time.
 
@@ -30,27 +35,27 @@ This prototypes follows an  "algorithm-first" approach. The learner reads the al
 
    ![Three frames with a code trace. Frame 4 traces a 3-node tree with 20 at the root, and the call stack holds preorder(20). Frame 5 shows 10 being visited while preorder(20) waits at line 4. Frame 6 starts the trace on the 7-node tree.](../../../../../assets/id/prototypes/depth-first/code-first-2.webp)
 
-   *Figure 2: A · Code first, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 2: A · Code first, steps 4 to 6*
 
-7. The learner learns where pre-order is used: copying a tree and prefix expressions.
+7. The learner learns what pre-order is used for (copying and expressions).
 
-8. The learner moves the visit line between the two recursive calls and traces the result. That is in-order.
+8. The learner moves the visit line between the two recursive calls and traces the result.
 
 9. The learner watches the keys of a search tree land on a number line in sorted order.
 
    ![Three frames. Frame 7 shows a tree being copied next to an expression tree for 2 × 3 + 4. Frame 8 shows the in-order code with line 4 highlighted above a trace of a 3-node tree. Frame 9 shows the 7-node tree with its keys landing on a number line.](../../../../../assets/id/prototypes/depth-first/code-first-3.webp)
 
-   *Figure 3: A · Code first, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 3: A · Code first, steps 7 to 9*
 
 10. The learner sees that the learning path map is drawn in in-order, left to right.
 
 11. The learner moves the visit line to the end and traces the result. That is post-order.
 
-12. The learner learns where post-order is used: deleting a whole tree and working out heights.
+12. The learner learns what post-order is used for (deleting a tree and working out heights).
 
     ![Three frames. Frame 10 shows a 7-node tree numbered 1 to 7 from left to right across the page. Frame 11 shows the post-order code with line 5 highlighted above a trace of a 3-node tree. Frame 12 shows a tree being deleted above height badges.](../../../../../assets/id/prototypes/depth-first/code-first-4.webp)
 
-    *Figure 4: A · Code first, steps 10 to 12. Own work, low-fidelity prototype.*
+    *Figure 4: A · Code first, steps 10 to 12*
 
 13. The learner steps through an expression tree in post-order and gets a postfix expression.
 
@@ -60,7 +65,7 @@ This prototypes follows an  "algorithm-first" approach. The learner reads the al
 
     ![Three frames. Frame 13 steps through the expression tree for 2 × 3 + 4 and reads 2 3 × 4 +. Frame 14 shows the 7-node tree numbered in each order, with the three code blocks. Frame 15 asks which order visits 8, the root, last.](../../../../../assets/id/prototypes/depth-first/code-first-5.webp)
 
-    *Figure 5: A · Code first, steps 13 to 15. Own work, low-fidelity prototype.*
+    *Figure 5: A · Code first, steps 13 to 15*
 
 16. The learner is taken to a playground where they can trace random trees in a random order.
 
@@ -68,13 +73,11 @@ This prototypes follows an  "algorithm-first" approach. The learner reads the al
 
     ![Two frames. Frame 16 is the playground, with a random tree, the code, an empty call stack and a streak counter. Frame 17 is the notes step.](../../../../../assets/id/prototypes/depth-first/code-first-6.webp)
 
-    *Figure 6: A · Code first, steps 16 and 17. Own work, low-fidelity prototype.*
+    *Figure 6: A · Code first, steps 16 and 17*
 
 </Steps>
 
-**Playground:** the learner gets a random tree and a random order, and taps the node the visit line reaches next. The code and the call stack update as they go. Each wrong tap gives a bigger hint. A tree with no mistakes adds to their streak.
-
-## B: Walk around the tree
+### B: Walk around the tree
 
 An ant walks around the outside of the tree. It passes every node three times, on its left, under it and on its right. Each order writes a node down on a different pass.
 
@@ -88,7 +91,7 @@ An ant walks around the outside of the tree. It passes every node three times, o
 
    ![Three frames. Frame 1 shows a dotted path around a 3-node tree, with the ant on the left of 20 and a slider to drag it. Frame 2 shows the same walk on the 7-node tree. Frame 3 shows the 7-node tree numbered in pre-order, with the left and right subtrees boxed.](../../../../../assets/id/prototypes/depth-first/walk-around-1.webp)
 
-   *Figure 7: B · Walk around the tree, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 7: B · Walk around the tree, steps 1 to 3*
 
 4. The learner walks the tree again. In-order writes a node down on the second pass, when the ant goes under it.
 
@@ -98,7 +101,7 @@ An ant walks around the outside of the tree. It passes every node three times, o
 
    ![Three frames. Frame 4 shows the ant under node 4 on the 7-node tree, with the nodes numbered in in-order. Frame 5 shows the keys landing on a number line. Frame 6 shows a 7-node tree numbered 1 to 7 from left to right across the page.](../../../../../assets/id/prototypes/depth-first/walk-around-2.webp)
 
-   *Figure 8: B · Walk around the tree, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 8: B · Walk around the tree, steps 4 to 6*
 
 7. The learner walks the tree a third time. Post-order writes a node down on the last pass, on its right side.
 
@@ -108,17 +111,17 @@ An ant walks around the outside of the tree. It passes every node three times, o
 
    ![Three frames. Frame 7 shows the ant on the right of node 12, with the nodes numbered in post-order. Frame 8 walks a tree where 9 has no right child. Frame 9 is a code trace with the call stack above the three code blocks.](../../../../../assets/id/prototypes/depth-first/walk-around-3.webp)
 
-   *Figure 9: B · Walk around the tree, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 9: B · Walk around the tree, steps 7 to 9*
 
-10. The learner sees where pre-order is used: copying a tree and prefix expressions.
+10. The learner sees that pre-order is used to copy a tree and to write prefix expressions.
 
-11. The learner sees where post-order is used: deleting a tree, heights and postfix expressions.
+11. The learner sees that post-order is used to delete a tree, work out heights and write postfix expressions.
 
 12. The learner sees all three orders on one tree and answers a quick quiz about where the ant is.
 
     ![Three frames. Frame 10 shows a tree being copied and the ant walking an expression tree for 2 × 3 + 4. Frame 11 shows a tree being deleted, height badges and the ant spelling 2 3 × 4 +. Frame 12 shows the 7-node tree numbered in each order, and a question about where the ant is.](../../../../../assets/id/prototypes/depth-first/walk-around-4.webp)
 
-    *Figure 10: B · Walk around the tree, steps 10 to 12. Own work, low-fidelity prototype.*
+    *Figure 10: B · Walk around the tree, steps 10 to 12*
 
 13. The learner is taken to a playground where they tap nodes in the order the ant would write them, for a random order.
 
@@ -126,13 +129,11 @@ An ant walks around the outside of the tree. It passes every node three times, o
 
     ![Two frames. Frame 13 is the playground with a random tree, the order shown in the heading and a "Show the walk" button. Frame 14 is the notes step.](../../../../../assets/id/prototypes/depth-first/walk-around-5.webp)
 
-    *Figure 11: B · Walk around the tree, steps 13 and 14. Own work, low-fidelity prototype.*
+    *Figure 11: B · Walk around the tree, steps 13 and 14*
 
 </Steps>
 
-**Playground:** a random tree and a random order. The learner taps nodes in the order the ant would write them down. "Show the walk" draws the ant's path as a hint.
-
-## C: Guess first
+### C: Guess first
 
 The learner guesses the order, sees which parts they got right, and only then gets the rule. This repeats for each order.
 
@@ -146,7 +147,7 @@ The learner guesses the order, sees which parts they got right, and only then ge
 
    ![Three frames. Frame 1 asks the learner to tap a 3-node tree in the order they think, with Clear and Check buttons. Frame 2 shows the same tree numbered 20, 10, 30. Frame 3 asks for a guess on the 7-node tree.](../../../../../assets/id/prototypes/depth-first/guess-first-1.webp)
 
-   *Figure 12: C · Guess first, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 12: C · Guess first, steps 1 to 3*
 
 4. The learner reads about a common confusion with level-order.
 
@@ -156,7 +157,7 @@ The learner guesses the order, sees which parts they got right, and only then ge
 
    ![Three frames. Frame 4 explains that 8, 4, 12, 2, 6, 10, 14 is level-order, not pre-order. Frame 5 is a code trace with the call stack. Frame 6 asks which calls are on the stack when 6 is visited.](../../../../../assets/id/prototypes/depth-first/guess-first-2.webp)
 
-   *Figure 13: C · Guess first, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 13: C · Guess first, steps 4 to 6*
 
 7. The learner guesses the in-order of the same 3-node tree.
 
@@ -166,7 +167,7 @@ The learner guesses the order, sees which parts they got right, and only then ge
 
    ![Three frames. Frame 7 asks the learner to guess the in-order of the 3-node tree. Frame 8 shows the keys of the 7-node tree landing on a number line. Frame 9 shows a 7-node tree numbered 1 to 7 from left to right across the page.](../../../../../assets/id/prototypes/depth-first/guess-first-3.webp)
 
-   *Figure 14: C · Guess first, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 14: C · Guess first, steps 7 to 9*
 
 10. The learner guesses the post-order of the 3-node tree.
 
@@ -176,7 +177,7 @@ The learner guesses the order, sees which parts they got right, and only then ge
 
     ![Three frames. Frame 10 asks the learner to guess the post-order of the 3-node tree. Frame 11 asks for the post-order of an expression tree for 2 × 3 + 4. Frame 12 shows a tree being deleted node by node, and asks what goes wrong when 8 is deleted first.](../../../../../assets/id/prototypes/depth-first/guess-first-4.webp)
 
-    *Figure 15: C · Guess first, steps 10 to 12. Own work, low-fidelity prototype.*
+    *Figure 15: C · Guess first, steps 10 to 12*
 
 13. The learner sees all three orders on one tree and answers a quick quiz.
 
@@ -186,15 +187,13 @@ The learner guesses the order, sees which parts they got right, and only then ge
 
     ![Three frames. Frame 13 shows three copies of the 7-node tree numbered in each order, and a question asking which order visits 8 last. Frame 14 is the playground with a random tree and a streak counter. Frame 15 is the notes step.](../../../../../assets/id/prototypes/depth-first/guess-first-5.webp)
 
-    *Figure 16: C · Guess first, steps 13 to 15. Own work, low-fidelity prototype.*
+    *Figure 16: C · Guess first, steps 13 to 15*
 
 </Steps>
 
-**Playground:** random trees in a random order, one after another. Each wrong tap gives a hint. A streak counter tracks trees with no mistakes.
+### D: Start with a use
 
-## D: Start with a use
-
-Each order comes in through a job it does: copying a tree and prefix expressions, then sorting, then deleting and postfix expressions.
+Each order is introduced by its use case.
 
 <Steps>
 
@@ -206,7 +205,7 @@ Each order comes in through a job it does: copying a tree and prefix expressions
 
    ![Three frames. Frame 1 shows the original tree next to an empty copy, with a Step button. Frame 2 shows the tree numbered in pre-order, with the left and right subtrees boxed. Frame 3 steps through an expression tree for 2 × 3 + 4.](../../../../../assets/id/prototypes/depth-first/start-with-a-use-1.webp)
 
-   *Figure 17: D · Start with a use, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 17: D · Start with a use, steps 1 to 3*
 
 4. The learner sees that prefix does not need brackets.
 
@@ -216,7 +215,7 @@ Each order comes in through a job it does: copying a tree and prefix expressions
 
    ![Three frames. Frame 4 shows the tree for (1 + 2) × 5, numbered in pre-order. Frame 5 shows the keys of the 7-node tree landing on a number line. Frame 6 shows a 7-node tree numbered 1 to 7 from left to right across the page.](../../../../../assets/id/prototypes/depth-first/start-with-a-use-2.webp)
 
-   *Figure 18: D · Start with a use, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 18: D · Start with a use, steps 4 to 6*
 
 7. The learner is given a third job: deleting a whole tree. Children have to go before the parent. That is post-order.
 
@@ -226,7 +225,7 @@ Each order comes in through a job it does: copying a tree and prefix expressions
 
    ![Three frames. Frame 7 shows a tree being deleted node by node. Frame 8 shows height badges appearing on the 7-node tree. Frame 9 steps through the expression tree for 2 × 3 + 4 and reads 2 3 × 4 +.](../../../../../assets/id/prototypes/depth-first/start-with-a-use-3.webp)
 
-   *Figure 19: D · Start with a use, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 19: D · Start with a use, steps 7 to 9*
 
 10. The learner steps through how the code does it, with the call stack and the three code blocks.
 
@@ -236,7 +235,7 @@ Each order comes in through a job it does: copying a tree and prefix expressions
 
     ![Three frames. Frame 10 is a code trace with the call stack above the three code blocks. Frame 11 shows three copies of the 7-node tree numbered in each order. Frame 12 asks for the postfix form of 7 − 2 × 3, with three choices.](../../../../../assets/id/prototypes/depth-first/start-with-a-use-4.webp)
 
-    *Figure 20: D · Start with a use, steps 10 to 12. Own work, low-fidelity prototype.*
+    *Figure 20: D · Start with a use, steps 10 to 12*
 
 13. The learner is taken to a playground where they build prefix or postfix expressions from random expression trees.
 
@@ -244,13 +243,11 @@ Each order comes in through a job it does: copying a tree and prefix expressions
 
     ![Two frames. Frame 13 is the expression builder playground with a random expression tree and the order shown in the heading. Frame 14 is the notes step.](../../../../../assets/id/prototypes/depth-first/start-with-a-use-5.webp)
 
-    *Figure 21: D · Start with a use, steps 13 and 14. Own work, low-fidelity prototype.*
+    *Figure 21: D · Start with a use, steps 13 and 14*
 
 </Steps>
 
-**Playground:** random expression trees, with prefix or postfix picked at random. The learner taps the nodes in order to build the expression, then sees what it works out to.
-
-## E: Examples that fade
+### E: Examples that fade
 
 Shows worked examples first, then the same task with less and less help until the learner does it alone. This repeats for each order.
 
@@ -264,7 +261,7 @@ Shows worked examples first, then the same task with less and less help until th
 
    ![Three frames. Frame 1 lists the rule and the pre-order pseudocode. Frame 2 is a worked code trace on a 3-node tree. Frame 3 is a worked code trace on the 7-node tree.](../../../../../assets/id/prototypes/depth-first/examples-that-fade-1.webp)
 
-   *Figure 22: E · Examples that fade, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 22: E · Examples that fade, steps 1 to 3*
 
 4. The learner finishes a pre-order with 3 nodes already done, with the call stack shown and hints.
 
@@ -274,7 +271,7 @@ Shows worked examples first, then the same task with less and less help until th
 
    ![Three frames. Frame 4 has 8, 4 and 2 already visited, with a call stack of preorder(8), preorder(4) and preorder(2). Frame 5 has an expression tree with + and × done, above a tree being copied. Frame 6 shows the in-order code with line 4 highlighted above a worked trace.](../../../../../assets/id/prototypes/depth-first/examples-that-fade-2.webp)
 
-   *Figure 23: E · Examples that fade, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 23: E · Examples that fade, steps 4 to 6*
 
 7. The learner finishes an in-order with 2 nodes already done, with smaller hints.
 
@@ -284,7 +281,7 @@ Shows worked examples first, then the same task with less and less help until th
 
    ![Three frames. Frame 7 shows a new tree with the first two nodes visited and a call stack. Frame 8 shows the keys landing on a number line above a 7-node tree numbered 1 to 7 from left to right. Frame 9 shows the post-order code with line 5 highlighted above a worked trace.](../../../../../assets/id/prototypes/depth-first/examples-that-fade-3.webp)
 
-   *Figure 24: E · Examples that fade, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 24: E · Examples that fade, steps 7 to 9*
 
 10. The learner finishes a post-order with 3 nodes already done, with the call stack shown and hints.
 
@@ -294,7 +291,7 @@ Shows worked examples first, then the same task with less and less help until th
 
     ![Three frames. Frame 10 has the first three nodes of the 7-node tree visited, with a call stack. Frame 11 shows a tree being deleted above height badges. Frame 12 shows an expression tree with the first two nodes done.](../../../../../assets/id/prototypes/depth-first/examples-that-fade-4.webp)
 
-    *Figure 25: E · Examples that fade, steps 10 to 12. Own work, low-fidelity prototype.*
+    *Figure 25: E · Examples that fade, steps 10 to 12*
 
 13. The learner sees all three orders on one tree, next to the three code blocks.
 
@@ -302,7 +299,7 @@ Shows worked examples first, then the same task with less and less help until th
 
     ![Two frames. Frame 13 shows three copies of the 7-node tree numbered in each order above the three code blocks. Frame 14 shows a new tree with no call stack and no hints.](../../../../../assets/id/prototypes/depth-first/examples-that-fade-5.webp)
 
-    *Figure 26: E · Examples that fade, steps 13 and 14. Own work, low-fidelity prototype.*
+    *Figure 26: E · Examples that fade, steps 13 and 14*
 
 15. The learner is taken to a playground where they tap random trees in a random order with no help.
 
@@ -310,28 +307,151 @@ Shows worked examples first, then the same task with less and less help until th
 
     ![Two frames. Frame 15 is the playground with a random tree, no help and a streak counter. Frame 16 is the notes step.](../../../../../assets/id/prototypes/depth-first/examples-that-fade-6.webp)
 
-    *Figure 27: E · Examples that fade, steps 15 and 16. Own work, low-fidelity prototype.*
+    *Figure 27: E · Examples that fade, steps 15 and 16*
 
 </Steps>
 
-**Playground:** random trees in a random order with no stack and no hints. A streak counter tracks trees with no mistakes.
+### Review
+
+The team liked A. The orders differ by one line, where the visit sits relative to the recursive calls, and the call stack is shown and explained.
+
+B is a trick, not the algorithm. The ant was fiddly on a phone and invisible to a screen reader.
+
+C asked learners to guess before they'd seen any rule, so they guessed at random.
+
+D answered "why would I do this?" best, but ran longest, and expression trees add a second new idea.
+
+E started slow and repeated itself, leaving the uses the least time.
+
+We kept A's code and call stack idea, and gave D's uses their own steps. None of them fixed the length of the lesson. The team thinks that three orders in seventeen steps is too much for one sitting.
+
+## Design 2
+
+### Code first, with uses
+
+Each lesson shows the rule and code, a small trace, a big trace, then use cases. In-order and post-order open by pointing at the line that moved.
+
+We also decided to add level-order as a fifth lesson.
+
+<Steps>
+
+1. The learner opens lesson 2 and sees eight steps: the rule, a small trace, why calls wait, a big trace, two uses, the playground and a note.
+
+2. The learner copies the 7-node tree node by node and sees that 6 can only go in after its parent, 4.
+
+3. The learner opens lesson 3 on the same code with `visit(node)` moved from line 3 to line 4.
+
+   ![Three frames. The pre-order lesson as a list of eight steps with step 5, copy a tree, highlighted. Step 5 copies the 7-node tree node by node, with 6 about to join under 4. The in-order lesson opens with the code and the visit line highlighted as moved to line 4.](../../../../../assets/id/prototypes/depth-first/design-2-1.webp)
+
+   *Figure 28: Design 2 · Code first, with uses, lessons 2 and 3*
+
+4. The learner taps a random tree in post-order in the playground and sees their streak go to 3.
+
+5. The learner reaches lesson 5 and sees a stack next to a queue, with a note that a stack dives down and a queue goes across.
+
+6. The learner sees the 7-node tree four times, numbered in each order.
+
+   ![Three frames. The playground with a random tree, post-order picked and a streak of 3. Level-order's why a queue step shows a stack beside a queue. A compare step shows the 7-node tree four times, numbered in pre-, in-, post- and level-order.](../../../../../assets/id/prototypes/depth-first/design-2-2.webp)
+
+   *Figure 29: Design 2 · Code first, with uses, the playground and lesson 5*
+
+</Steps>
+
+### Review
+
+We liked splitting the orders. Now each lesson has around 8 steps, which resolves the issue of the long lesson.
+
+Two things didn't work. First, every step was "read the code, watch the trace", which only suits learners who like code.
+
+Second, random orders meant lesson 2's playground could ask for in-order before the learner had seen it. Now each lesson's playground sticks to its own order on one fixed tree, with a goal to finish. Random trees and streaks moved to the playground page, where the learner picks the order.
+
+## Design 3
+
+### Pre-order
+
+In-order, post-order and level-order follow the same steps.
+
+<Steps>
+
+1. The learner reads that pre-order visits a node before either of its subtrees, and sees the lesson's three objectives.
+
+2. The learner reads the three-step rule and the five lines of code. The style block picked for them adds one more way in. An auditory learner gets "Say the rule". A reading and writing learner writes down each line that runs on the 5-node tree, then presses Show answer to check. A kinesthetic learner taps 20, then its left side, then its right side, and is told after each tap whether it was right.
+
+   ![A card under "Picked for you" labelled "For auditory learners" with an ear icon. Its heading is "Say the rule". The text says pre-order has a three-beat rhythm you can say out loud, "me, left, right", explains what each beat means, and says lines 3, 4 and 5 of the code follow the same rhythm.](../../../../../assets/id/learning-styles/auditory-1.webp)
+
+   *Figure 30: Design 3 · Step 2, the auditory block*
+
+   ![A card labelled "For reading/writing learners" with a book icon. The heading is "Write the lines that run". The text asks the learner to write down each line of the code that runs on the tree, starting with preorder(8), and to leave out the checks for empty nodes. Below is a tree with 8 at the root, 4 and 12 under it, and 2 and 6 under 4. Then an empty box labelled "Your answer", the note "Only you can see this. It isn't saved.", and an Answer section with a Show answer button and a blurred bar.](../../../../../assets/id/learning-styles/learning-1.webp)
+
+   *Figure 31: Design 3 · Step 2, the reading and writing block*
+
+   ![The same card after Show answer is pressed. The button now says Hide answer, and the answer reads: preorder(8), visit(8), preorder(4), visit(4), preorder(2), visit(2), preorder(6), visit(6), preorder(12), visit(12).](../../../../../assets/id/learning-styles/learning-2.webp)
+
+   *Figure 32: Design 3 · Step 2, the same block after Show answer*
+
+   ![A card labelled "For kinesthetic learners" with a hand icon. The heading says "Use the rule: tap the node, then its left side, then its right side." A tree shows 20 at the root with 10 and 30 below it. Node 20 has a badge with the number 1. Under the tree is a row of three slots: the first holds 20 and the other two are empty dashed circles. A message reads "20 is right. Tap the node for beat 2." Below it is a Start again button.](../../../../../assets/id/learning-styles/kinesthetic-1.webp)
+
+   *Figure 33: Design 3 · Step 2, the kinesthetic block*
+
+3. The learner presses Step through the code on 20, 10 and 30 and watches each call go onto the stack and come off when it finishes, with paper cards if that's their block.
+
+   ![A card labelled "For kinesthetic learners" with a hand icon. The heading is "Make a card pile". The text says to write preorder(20), preorder(10) and preorder(30) on three scraps of paper, then, as you press Step, put a card on the pile when its call starts and take the top card off when it finishes.](../../../../../assets/id/learning-styles/kinesthetic-2.webp)
+
+   *Figure 34: Design 3 · Step 3, the card pile*
+
+4. The learner watches the call stack on its own, with the code hidden, and sees `preorder(20)` wait while `preorder(10)` runs.
+
+5. The learner writes the order they expect for the 7-node tree, if they have the "Predict first" block, then steps through it and sees 2 and 6 come before 12.
+
+6. The learner watches the tree get copied one node at a time in pre-order, each node going in after its parent.
+
+7. The learner steps through the expression tree for 2 × 3 + 4 and reads off + × 2 3 4.
+
+8. The learner taps the nodes of 28, 21, 57, 1, 47, 59 in pre-order in the playground until the goal ticks off.
+
+9. The learner writes a note on pre-order and why `preorder(8)` stays on the stack while its left subtree runs.
+
+</Steps>
+
+In-order (lesson 3) opens on the rule with the moved line, then a small trace, a big trace, and sorted keys as its use. Post-order (lesson 4) adds deleting a tree, heights and postfix, then a compare step with all three orders on one tree. Level-order (lesson 5) keeps the small and big traces, swaps "why calls wait" for "why a queue", adds where it's used, and ends with a compare step across all four.
+
+### Review
+
+We walked design 3 against the objectives for all four lessons. Pre-order's "which calls wait on the call stack" got its own step (step 4, with the code hidden so the stack is the only thing moving). Every other objective had at least one step and one test question. Level-order's "why a queue" is the only one without a picture on screen. It's explained in words, and with paper cards for kinesthetic learners.
 
 ## Decision
 
-<Aside type="tip" title="We picked A the code first approach">
+<Aside type="tip" title="We picked design 3, code first">
+One order per lesson: the rule and the code, a small trace, a big trace, the order's uses, then the playground and a note.
 </Aside>
 
-### Why we chose the code first approach
+### Why we picked it
 
-- The app prepares learners for COS212 lectures, and COS212 expects the learners to be able to code the algorithms.
-- The three orders are one line of code apart, so the code shows the difference exactly: the visit line sits before, between or after the two recursive calls. The other ideas need extra steps to link back to the code.
-- Showing the call stack helps the learner understand how recursion works, and it stays the same for all three orders.
-- The algorithm, code and captions are things that a learner can read. Having text also makes text-to-speech easy to implement, accommodating audio learners. The lesson also accommodates visual learners by showing the tree, call stack and code with lines highlighted.
-- The pictures and number line from the other ideas still fit inside it as steps.
+COS212 expects learners to code these algorithms, and code first is the only idea that builds every step around the code. The code also shows the difference between orders.
 
-### Why we dropped the others
+The call stack is important to teach since COS212 is the first module where students are exposed to recursion.
 
-- **B: Walk around the tree.** It is easy to remember, and one walk covers all three orders, but it is a trick and not the algorithm COS212 asks for. Dragging the ant is fiddly on a small screen, and a screen reader needs a text version.
-- **C: Guess first.** It is active from the first screen, but it repeats the guessing three times. A learner with no idea can guess at random, and in-order and post-order are guessed before the rule.
-- **D: Start with a use.** It gives the best reason for each order, but prefix and postfix maths is a second new idea, and expression trees are not search trees. It was also the longest.
-- **E: Examples that fade.** It is good scaffolding, but it starts with two steps of watching and repeats the same pattern three times, so the uses get the least time. We keep the idea for the playground, where help can fade as the streak grows.
+The small trace before the big one allows us to slowly introduce the concept, and as the learner becomes more confident they can work on a more complex tree.
+
+### CCAF
+
+For step 5 of "Pre-order", the big trace.
+
+| | |
+| --- | --- |
+| **Context** | The learner is on step 5 of 9 of "Pre-order". They've traced the 3-node tree and seen why calls wait. On screen is the 7-node tree from lesson 1 (8 at the root), the pre-order code and an empty call stack. A "Predict first" block may be picked for them. |
+| **Challenge** | Say the order pre-order visits the 7 nodes, and why 2 and 6 come before 12. |
+| **Activity** | The learner writes the order they expect (if they have the block), then presses Step through the trace and ticks each key as it's visited. |
+| **Feedback** | The current line lights up, the call stack grows to `preorder(8)`, `preorder(4)`, `preorder(2)` and shrinks again, and the visited list builds to 8, 4, 2, 6, 12, 10, 14. The message points out that the code finishes the whole left subtree before it goes right. Listen reads it out. |
+
+## Design proof
+
+Pre-order was the first traversal lesson we built. Its content is eight block files in `backend/prisma/content/02-pre-order/blocks/`, plus the learning style variants.
+
+![Step 2 of 9 in "Pre-order", "Algorithm", as built. The text lists the three steps: visit the node, visit all the nodes in the left subtree, visit all the nodes in the right subtree. Below is the five-line pseudocode for preorder(node), with notes on what lines 2, 3, 4 and 5 do. Under "Picked for you" is a card for reading/writing learners, "Write the lines that run", asking the learner to write down each line of the code that runs, starting with preorder(8). A Listen button sits top right, with Back and Continue at the bottom.](../../../../../assets/id/prototypes/depth-first/design-proof-algorithm.webp)
+
+*Figure 35: Design proof · Step 2, the algorithm, as built*
+
+![Step 3 of 9 in "Pre-order", "Trace a small tree", as built. The text explains that a stack is last in, first out, and asks the learner to press Step and watch the call stack. On the left is a tree with 20 at the root and 10 and 30 below it, with 20 highlighted. On the right is the Rust version of pre-order with line 2 highlighted, a Rust language picker, the variable node set to 20 and a call stack holding preorder(20).](../../../../../assets/id/prototypes/depth-first/design-proof-trace-small.webp)
+
+*Figure 36: Design proof · Step 3, the small trace, as built*

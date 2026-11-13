@@ -179,6 +179,6 @@ The design proof was the `CodeTrace` and `TraceLayout` components on the playgro
 
 We ran it at 375, 768 and 1280 pixels wide, in the default, high-contrast and colour-blind schemes, and stepped through a full insert with a double rotation in each.
 
-:::caution[Add screenshot]
-The built code trace in the playground at 1280 px, mid-way through an insert, with the lime band, gutter dot, variables and call stack showing.
-:::
+![The built code trace on the playground page, running a pre-order walk. A banner says "The pre-order walk visits 66, 22, 11, 29, 88." The tree 66, 22, 88, 11, 29 is on the left with 66 highlighted and zoom buttons above it. The Java pre-order code is on the right with a gutter dot and a lime band on line 2, "if (node == null) return;". Under the code, the variables show node 66 and the call stack holds preorder(66). The message bar says "Is this subtree empty? No, 66 is here." at step 1 of 32, with a Listen button. Under it is a row of step dots labelled "Walk the tree", the step buttons and a 0.5×, 1× and 2× speed picker. At the bottom is the command box with the prompt "preorder >" and the chips preorder, tree 50 30 70 20 40 60 80, random 7 and help.](../../../../../assets/id/prototypes/code-trace/design-proof-playground.webp)
+
+*Figure 8: Design proof · The code trace in the playground, as built*
