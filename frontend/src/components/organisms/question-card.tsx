@@ -17,6 +17,7 @@ type QuestionCardProperties = {
   errorMessage?: string | null;
   onHint: () => void;
   onSubmit: (answer: LearnerAnswer) => void;
+  hintNote?: string | null;
   className?: string;
 };
 
@@ -26,6 +27,7 @@ export function QuestionCard({
   errorMessage,
   onHint,
   onSubmit,
+  hintNote = "Using hints lowers your score.",
   className,
 }: QuestionCardProperties) {
   const root = decodeQuestionTree(question.tree);
@@ -90,7 +92,7 @@ export function QuestionCard({
           <Lightbulb aria-hidden />
           Hint ({question.hintsRemaining} left)
         </Button>
-        <p className="text-sm text-muted-foreground">Using hints lowers your score.</p>
+        {hintNote ? <p className="text-sm text-muted-foreground">{hintNote}</p> : null}
         {errorMessage ? (
           <p role="alert" className="text-sm text-destructive">
             {errorMessage}

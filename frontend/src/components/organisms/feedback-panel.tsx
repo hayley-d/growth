@@ -1,5 +1,5 @@
 import { Check, X } from "lucide-react";
-import { useEffect, useRef } from "react";
+import { type ReactNode, useEffect, useRef } from "react";
 
 import type { AvlNode } from "@shared/avl";
 import type { Replay } from "@shared/schemas";
@@ -15,6 +15,8 @@ type FeedbackPanelProperties = {
   runKey: string;
   isLast: boolean;
   onNext: () => void;
+  nextLabel?: string;
+  children?: ReactNode;
   className?: string;
 };
 
@@ -26,6 +28,8 @@ export function FeedbackPanel({
   runKey,
   isLast,
   onNext,
+  nextLabel,
+  children,
   className,
 }: FeedbackPanelProperties) {
   const headingReference = useRef<HTMLHeadingElement>(null);
@@ -58,8 +62,9 @@ export function FeedbackPanel({
       </h2>
       <p>{explanation}</p>
       {replay ? <AnswerReplay root={root} replay={replay} runKey={runKey} /> : null}
+      {children}
       <Button type="button" className="min-h-11 self-end px-6" onClick={onNext}>
-        {isLast ? "See results" : "Next"}
+        {nextLabel ?? (isLast ? "See results" : "Next")}
       </Button>
     </section>
   );
