@@ -123,7 +123,7 @@ Every written question in the content files has a Bloom's level. These are real 
 
 | Bloom's | Question prompt | Lesson | Why this level |
 | --- | --- | --- | --- |
-| Remember | "In the in-order code, which line is visit(node) on?" | 3 | The answer is a fact the learner has seen and can recall directly. |
+| Remember | "In-order does visit(node), inorder(node.left) and inorder(node.right). Which position is visit(node) in?" | 3 | The answer is a fact the learner has seen and can recall directly. |
 | Understand | "Why does in-order give the keys of a search tree in sorted order?" | 3 | The learner has to explain the connection between the search tree rule and the traversal. |
 | Apply | "Tap the nodes of this tree in in-order." | 3 | The learner runs the procedure on a new tree. |
 | Analyse | "In-order runs on this tree. What is on the stack when 10 is visited?" | 3 | The learner stops a run partway and reasons about its state. |

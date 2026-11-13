@@ -66,7 +66,7 @@ Each question stores its revised Bloom's level (Anderson and Krathwohl, 2001). T
 
 | Question | Type | Bloom's | Objective |
 | --- | --- | --- | --- |
-| In the in-order code, which line is visit(node) on? | Multiple choice | Remember | Say how the in-order code differs from pre-order |
+| In-order does visit(node), inorder(node.left) and inorder(node.right). Which position is visit(node) in? | Multiple choice | Remember | Say how the in-order code differs from pre-order |
 | Why does in-order give the keys of a search tree in sorted order? | Multiple choice | Understand | Explain why in-order gives sorted keys |
 | Tap the nodes of this tree in in-order. | Order nodes | Apply | List the nodes in in-order |
 | Write this tree's keys in in-order, with a comma and a space between each. | Text | Apply | List the nodes in in-order |

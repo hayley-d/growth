@@ -9,7 +9,7 @@ Linear approaches such as ADDIE finish one stage before starting the next and tr
 SAM allowed us to build rough versions, test them and refine them in small iterations,
 where each iteration gets us closer to the final product.
 
-SAM comes in two versions, both versions use an iterative approach to create the final product. SAM 1 fits smaller projects and teams better as it only has three iterations of the evaluation, design and development steps. SAM 2 is an extension of SAM 1 for larger projects. SAM 2 has eight
+SAM comes in two versions, both versions use an iterative approach to create the final product. SAM 1 has one cycle of evaluate, design and develop that repeats about three times, so design and development happen together. It suits simple projects where there isn't much to build. SAM 2 splits design and development into separate phases, for projects where there is real development work to do. SAM 2 has eight
 steps spread across three phases, preparation, iterative design and iterative development (Peck, 2026). For this project we decided to use SAM 2. 
 
 ![The SAM 2 process: the preparation, iterative design and iterative development phases](../../../assets/id/sam-2-process.webp)
@@ -29,13 +29,16 @@ reviewed the ideas with the team. A round doesn't have to pick one storyboard. I
 what we were going to build and who was going to build the different items. Each item then
 become a ticket on our sprint board.
 
-The final phase is the **iterative development** phase where we started with a design proof which allowed us to see if the design worked as we wanted. After the design proof we completed the alpha version of the content which was a complete version of the item that required testing. After 
-the alpha version we developed the beta version of an item which resolved any errors found in the alpha version. Finally the gold version was developed which was the final version of the item (Peck, 2026).
+The final phase is the **iterative development** phase. We started each item with a design proof, which let us see if the design worked the way we wanted in the actual app. After the design proof we built the alpha version, which is a complete version of the item that still needs testing. The beta version fixes the errors found in the alpha, and the gold version is the final version (Peck, 2026).
+
+Since Growth is a prototype, and we only had around four weeks, we did not go as far as gold. All the items we built made it to alpha, and then beta. We tested the beta ourselves as a team because we couldn't get access to COS212 students in the time we had. The [Alpha and beta](../development/) page shows what we changed along the way.
 
 ## Why we picked SAM 2
 
 When we received the project specification, we had around four weeks and a team of five to build the app.
 SAM lets us get a rough version of everything working and then go back and improve parts when we have time.
+
+We picked SAM2 beasue Growth consists of twelve lessons, a playground, tests and practice mode. We wanted important items to undergo a few rounds of storyboards before we knew what to build, and then it needed to be built. SAM 2 enabled us to agree on a storyboard as a team first, and only then turn it into a ticket for someone to build. 
 
 SAM also matches our software engineering approach. We chose Agile for the software engineering approach, and SAM works in the same way using short iterations. 
 
