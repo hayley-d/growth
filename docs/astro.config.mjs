@@ -68,10 +68,6 @@ export default defineConfig({
                           slug: "id/storyboards/lessons/binary-tree",
                         },
                         { label: "Traversals", slug: "id/storyboards/lessons/traversals" },
-                        {
-                          label: "Lesson 7: Height and balance factor",
-                          slug: "id/storyboards/lessons/height-and-balance",
-                        },
                         { label: "Rotations", slug: "id/storyboards/lessons/rotations" },
                       ],
                     },
