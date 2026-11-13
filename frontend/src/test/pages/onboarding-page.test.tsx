@@ -2,9 +2,11 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 
 import type { MeResponse } from "@shared/schemas";
+import { applyColourScheme } from "@/lib/colour-schemes";
 import { userQueryKeys } from "@/lib/queries";
 import { queryClient } from "@/lib/query-client";
 import { networkService } from "@/services/network.service";
+import { useColourSchemeStore } from "@/stores/colour-scheme-store";
 import { onboardedMe, renderApp } from "@/test/render-app";
 
 vi.mock("@/services/network.service", () => ({
@@ -72,7 +74,11 @@ const completedMe = (body: unknown): MeResponse => ({
   },
 });
 
+let stopApplying: () => void;
+
 beforeEach(() => {
+  useColourSchemeStore.setState({ colourScheme: "default" });
+  stopApplying = useColourSchemeStore.subscribe((state) => applyColourScheme(state.colourScheme));
   mockedGet.mockReset();
   mockedPost.mockReset();
   mockedPatch.mockReset();
@@ -89,16 +95,27 @@ beforeEach(() => {
     return { data: savedMe };
   });
   mockedPatch.mockImplementation(async (_url, body) => {
-    savedMe = completedMe(body);
+    const current = savedMe ?? (queryClient.getQueryData(userQueryKeys.me) as MeResponse);
+    savedMe = {
+      data: { ...current.data, profile: { ...current.data.profile, ...(body as object) } },
+    };
     return { data: savedMe };
   });
 });
 
 afterEach(() => {
   queryClient.setQueryDefaults(userQueryKeys.me, {});
+  stopApplying();
+  useColourSchemeStore.setState({ colourScheme: "default" });
+  delete document.documentElement.dataset.colourScheme;
 });
 
 const heading = (name: string) => page.getByRole("heading", { name, level: 1 });
+
+const skipColours = async () => {
+  await expect.element(heading("Pick your colours")).toBeVisible();
+  await page.getByRole("button", { name: "Next" }).click();
+};
 
 const answerQuiz = async () => {
   await page.getByRole("button", { name: "Option a for 1" }).click();
@@ -107,6 +124,7 @@ const answerQuiz = async () => {
 };
 
 const answerEverything = async () => {
+  await skipColours();
   await answerQuiz();
   await page.getByRole("button", { name: "Next" }).click();
   await page.getByRole("button", { name: "Rust" }).click();
@@ -122,8 +140,8 @@ describe("a learner who hasn't onboarded", () => {
     async (path) => {
       await renderApp(path, { me: newMe });
 
-      await expect.element(heading("Find your learning style")).toBeVisible();
-      await expect.element(page.getByText("Step 1 of 4")).toBeVisible();
+      await expect.element(heading("Pick your colours")).toBeVisible();
+      await expect.element(page.getByText("Step 1 of 5")).toBeVisible();
       await expect.element(page.getByText(/Let's set up your account/)).toBeVisible();
       await expect.element(page.getByRole("button", { name: "Back" })).not.toBeInTheDocument();
     },
@@ -132,7 +150,7 @@ describe("a learner who hasn't onboarded", () => {
   it("shows no way into the app until onboarding is done, only signing out", async () => {
     await renderApp("/onboarding", { me: newMe });
 
-    await expect.element(heading("Find your learning style")).toBeVisible();
+    await expect.element(heading("Pick your colours")).toBeVisible();
     expect(page.getByRole("navigation", { name: "Main" }).query()).toBeNull();
     expect(page.getByRole("link", { name: "Dashboard" }).query()).toBeNull();
     await page.getByRole("button", { name: "Open user menu" }).click();
@@ -143,7 +161,7 @@ describe("a learner who hasn't onboarded", () => {
   it("is sent from a retake link to the full onboarding", async () => {
     await renderApp("/onboarding?retake=true", { me: newMe });
 
-    await expect.element(page.getByText("Step 1 of 4")).toBeVisible();
+    await expect.element(page.getByText("Step 1 of 5")).toBeVisible();
   });
 
   it("goes through every step, saves once and lands on the dashboard", async () => {
@@ -169,9 +187,71 @@ describe("a learner who hasn't onboarded", () => {
     expect(mockedPatch).not.toHaveBeenCalled();
   });
 
+  it("applies a picked colour scheme straight away and saves it to the profile", async () => {
+    await renderApp("/onboarding", { me: newMe });
+
+    await page.getByText("High contrast").click();
+
+    await expect.element(page.getByRole("radio", { name: /High contrast/ })).toBeChecked();
+    await expect.element(page.getByText(/Stronger text, borders and focus rings/)).toBeVisible();
+    expect(document.documentElement.dataset.colourScheme).toBe("high-contrast");
+    expect(mockedPatch).toHaveBeenCalledWith("/api/me/profile", { colourTheme: "high-contrast" });
+    await expect.element(page.getByText("Saved")).toBeVisible();
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect.element(heading("Find your learning style")).toBeVisible();
+    await expect.element(page.getByText("Step 2 of 5")).toBeVisible();
+  });
+
+  it("shows sample tree nodes in every state, hidden from screen readers", async () => {
+    await renderApp("/onboarding", { me: newMe });
+
+    await expect.element(heading("Pick your colours")).toBeVisible();
+    const tree = document.querySelector("main [aria-hidden='true'].relative");
+    expect(tree?.querySelectorAll("svg circle").length).toBeGreaterThanOrEqual(5);
+    expect(tree?.querySelectorAll("button").length).toBe(0);
+    await expect
+      .element(page.getByText("Teal, pink and lime, the standard Growth colours."))
+      .toBeVisible();
+  });
+
+  it("can skip the colour step and keep the default scheme without saving", async () => {
+    await renderApp("/onboarding", { me: newMe });
+
+    await page.getByRole("button", { name: "Skip, keep the default" }).click();
+
+    await expect.element(heading("Find your learning style")).toBeVisible();
+    expect(useColourSchemeStore.getState().colourScheme).toBe("default");
+    expect(mockedPatch).not.toHaveBeenCalled();
+  });
+
+  it("goes back to the default scheme when skipping after picking another", async () => {
+    await renderApp("/onboarding", { me: newMe });
+
+    await page.getByText("Colour-blind friendly").click();
+    await expect.element(page.getByText("Saved")).toBeVisible();
+    await page.getByRole("button", { name: "Skip, keep the default" }).click();
+
+    await expect.element(heading("Find your learning style")).toBeVisible();
+    expect(document.documentElement.dataset.colourScheme).toBe("default");
+    expect(mockedPatch).toHaveBeenLastCalledWith("/api/me/profile", { colourTheme: "default" });
+  });
+
+  it("keeps the picked scheme on this device when the profile save fails", async () => {
+    await renderApp("/onboarding", { me: newMe });
+    mockedPatch.mockRejectedValueOnce({ statusCode: 500, serverError: { message: "Down" } });
+
+    await page.getByText("High contrast").click();
+
+    await expect.element(page.getByText(/still saved on this device/)).toBeVisible();
+    expect(document.documentElement.dataset.colourScheme).toBe("high-contrast");
+    await page.getByRole("button", { name: "Next" }).click();
+    await expect.element(heading("Find your learning style")).toBeVisible();
+  });
+
   it("saves a different style when the learner picks one on the result", async () => {
     await renderApp("/onboarding", { me: newMe });
 
+    await skipColours();
     await answerQuiz();
     await page.getByRole("button", { name: "Auditory" }).click();
     await expect.element(page.getByText("The quiz suggested Visual.")).toBeVisible();
@@ -194,7 +274,7 @@ describe("a learner who hasn't onboarded", () => {
     await renderApp("/onboarding", { me: newMe });
 
     await answerEverything();
-    await expect.element(page.getByText("Step 4 of 4")).toBeVisible();
+    await expect.element(page.getByText("Step 5 of 5")).toBeVisible();
     await page.getByRole("button", { name: "Back" }).click();
     await expect
       .element(page.getByRole("button", { name: "No, keep me off it" }))
@@ -209,16 +289,23 @@ describe("a learner who hasn't onboarded", () => {
     await expect
       .element(page.getByRole("button", { name: "Option b for 2" }))
       .toHaveAttribute("aria-pressed", "true");
+    await page.getByRole("button", { name: "Back" }).click();
+    await expect.element(page.getByText("Question 1 of 2")).toBeVisible();
+    await page.getByRole("button", { name: "Back" }).click();
+    await expect.element(heading("Pick your colours")).toBeVisible();
+    await expect.element(page.getByRole("radio", { name: /Default/ })).toBeChecked();
   });
 
   it("starts again after leaving halfway and saves nothing", async () => {
     const first = await renderApp("/onboarding", { me: newMe });
 
+    await skipColours();
     await page.getByRole("button", { name: "Option c for 1" }).click();
     await expect.element(page.getByText("Question 2 of 2")).toBeVisible();
     await first.unmount();
     await renderApp("/onboarding", { me: newMe });
 
+    await skipColours();
     await expect.element(page.getByText("Question 1 of 2")).toBeVisible();
     await expect
       .element(page.getByRole("button", { name: "Option c for 1" }))
@@ -252,6 +339,7 @@ describe("a learner who hasn't onboarded", () => {
       serverError: { message: "Unable to work out your learning style" },
     });
 
+    await skipColours();
     await page.getByRole("button", { name: "Option a for 1" }).click();
     await page.getByRole("button", { name: "Option b for 2" }).click();
     await expect.element(page.getByText("Unable to work out your learning style")).toBeVisible();
@@ -287,6 +375,7 @@ describe("a learner who has onboarded", () => {
     await renderApp("/onboarding?retake=true");
 
     await expect.element(page.getByText("Retake the quiz")).toBeVisible();
+    await expect.element(heading("Find your learning style")).toBeVisible();
     await expect.element(page.getByText(/Let's set up your account/)).not.toBeInTheDocument();
     await answerQuiz();
     await page.getByRole("button", { name: "Save" }).click();
@@ -307,7 +396,7 @@ it("shows the error page, not onboarding, when the profile can't be loaded", asy
   await renderApp("/learn", { me: null });
 
   await expect.element(heading("Something went wrong")).toBeVisible();
-  expect(page.getByText("Step 1 of 4").query()).toBeNull();
+  expect(page.getByText("Step 1 of 5").query()).toBeNull();
 });
 
 it("sends a signed out visitor from onboarding to the login page", async () => {
@@ -319,6 +408,6 @@ it("sends a signed out visitor from onboarding to the login page", async () => {
 it("lets a signed out visitor use the playground without asking about onboarding", async () => {
   await renderApp("/playground", { session: null, me: null });
 
-  await expect.element(page.getByText("Step 1 of 4")).not.toBeInTheDocument();
+  await expect.element(page.getByText("Step 1 of 5")).not.toBeInTheDocument();
   expect(mockedGet).not.toHaveBeenCalledWith("/api/me");
 });

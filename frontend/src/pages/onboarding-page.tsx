@@ -9,21 +9,27 @@ import type {
 } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { ChoiceButton } from "@/components/molecules/choice-button";
+import { ColourSchemeChoices } from "@/components/molecules/colour-scheme-choices";
+import { ColourSchemeTree } from "@/components/molecules/colour-scheme-tree";
 import { PageLoader } from "@/components/molecules/page-loader";
+import { SaveStatus } from "@/components/molecules/save-status";
 import { LearningStyleQuiz } from "@/components/organisms/learning-style-quiz";
 import { LearningStyleResult } from "@/components/organisms/learning-style-result";
+import type { ColourScheme } from "@/lib/colour-schemes";
 import {
   useCompleteOnboardingMutation,
   useScoreQuizMutation,
   useUpdateProfileMutation,
 } from "@/lib/mutations";
 import { useCodeLanguagesQuery, useLearningStylesQuery, useQuizQuery } from "@/lib/queries";
+import { useColourSchemeStore } from "@/stores/colour-scheme-store";
 import { onboardingSteps, useOnboardingStore } from "@/stores/onboarding-store";
 
 type LearningStyles = ListLearningStylesResponse["data"]["learningStyles"];
 type CodeLanguages = ListCodeLanguagesResponse["data"]["codeLanguages"];
 
 const stepTitles = [
+  "Pick your colours",
   "Find your learning style",
   "Which language do you want to see code in?",
   "Do you want to appear on the leaderboard?",
@@ -94,6 +100,49 @@ function YesNoChoice({
   );
 }
 
+function ColourSchemeStep() {
+  const colourScheme = useColourSchemeStore((state) => state.colourScheme);
+  const setColourScheme = useColourSchemeStore((state) => state.setColourScheme);
+  const setAnswers = useOnboardingStore((state) => state.setAnswers);
+  const save = useUpdateProfileMutation();
+
+  const choose = (scheme: ColourScheme) => {
+    setColourScheme(scheme);
+    save.mutate({ colourTheme: scheme });
+  };
+
+  const skip = () => {
+    if (colourScheme !== "default") choose("default");
+    setAnswers({ step: 1 });
+  };
+
+  return (
+    <>
+      <p className="text-muted-foreground">
+        Pick the one where the nodes below are easiest to tell apart.
+      </p>
+      <div className="flex flex-col gap-4">
+        <ColourSchemeTree />
+        <ColourSchemeChoices value={colourScheme} onChange={choose} />
+        <div className="flex justify-center">
+          <SaveStatus
+            status={save.status}
+            errorMessage={`${save.error?.message}. It's still saved on this device.`}
+          />
+        </div>
+      </div>
+      <div className="flex items-center justify-between gap-3">
+        <Button variant="ghost" className="min-h-11 px-4" onClick={skip}>
+          Skip, keep the default
+        </Button>
+        <Button className="min-h-11 px-6" onClick={() => setAnswers({ step: 1 })}>
+          Next
+        </Button>
+      </div>
+    </>
+  );
+}
+
 function LearningStyleStep({
   retake,
   questions,
@@ -152,7 +201,7 @@ function LearningStyleStep({
               </Button>
             </>
           ) : (
-            <Button className="min-h-11 px-6" onClick={() => setAnswers({ step: 1 })}>
+            <Button className="min-h-11 px-6" onClick={() => setAnswers({ step: 2 })}>
               Next
             </Button>
           )
@@ -168,6 +217,7 @@ function LearningStyleStep({
         answers={quizAnswers}
         onAnswersChange={(answers) => setAnswers({ quizAnswers: answers })}
         onComplete={submit}
+        onExit={retake ? undefined : () => setAnswers({ step: 0 })}
       />
       {score.isPending ? (
         <p role="status" className="text-sm text-muted-foreground">
@@ -204,8 +254,8 @@ function CodeLanguageStep({ codeLanguages }: { codeLanguages: CodeLanguages }) {
       </ul>
       <StepActions
         canContinue={codeLanguageId !== null}
-        onBack={() => setAnswers({ step: 0 })}
-        onNext={() => setAnswers({ step: 2 })}
+        onBack={() => setAnswers({ step: 1 })}
+        onNext={() => setAnswers({ step: 3 })}
       />
     </>
   );
@@ -228,8 +278,8 @@ function LeaderboardStep() {
       />
       <StepActions
         canContinue={showOnLeaderboard !== null}
-        onBack={() => setAnswers({ step: 1 })}
-        onNext={() => setAnswers({ step: 3 })}
+        onBack={() => setAnswers({ step: 2 })}
+        onNext={() => setAnswers({ step: 4 })}
       />
     </>
   );
@@ -277,7 +327,7 @@ function TextToSpeechStep() {
         canContinue={textToSpeech !== null}
         nextLabel="Finish"
         pending={complete.isPending}
-        onBack={() => setAnswers({ step: 2 })}
+        onBack={() => setAnswers({ step: 3 })}
         onNext={finish}
       />
     </>
@@ -316,18 +366,21 @@ export function OnboardingPage({ retake = false }: { retake?: boolean }) {
     if (!quiz.data || !learningStyles.data || (!retake && !codeLanguages.data)) {
       return <PageLoader />;
     }
-    if (step === 1 && codeLanguages.data) {
+    if (retake || step === 1) {
+      return (
+        <LearningStyleStep
+          retake={retake}
+          questions={quiz.data.data.questions}
+          learningStyles={learningStyles.data.data.learningStyles}
+        />
+      );
+    }
+    if (step === 2 && codeLanguages.data) {
       return <CodeLanguageStep codeLanguages={codeLanguages.data.data.codeLanguages} />;
     }
-    if (step === 2) return <LeaderboardStep />;
-    if (step === 3) return <TextToSpeechStep />;
-    return (
-      <LearningStyleStep
-        retake={retake}
-        questions={quiz.data.data.questions}
-        learningStyles={learningStyles.data.data.learningStyles}
-      />
-    );
+    if (step === 3) return <LeaderboardStep />;
+    if (step === 4) return <TextToSpeechStep />;
+    return <ColourSchemeStep />;
   };
 
   return (
@@ -351,11 +404,11 @@ export function OnboardingPage({ retake = false }: { retake?: boolean }) {
           tabIndex={-1}
           className="text-2xl font-semibold outline-none sm:text-3xl"
         >
-          {stepTitles[step]}
+          {stepTitles[retake ? 1 : step]}
         </h1>
         {step === 0 && !retake ? (
           <p className="mt-2 text-muted-foreground">
-            Let's set up your account. It's 4 quick steps, and you can change any of it later in
+            Let's set up your account. It's 5 quick steps, and you can change any of it later in
             Settings.
           </p>
         ) : null}

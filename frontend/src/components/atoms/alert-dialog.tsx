@@ -73,7 +73,7 @@ function AlertDialogAction({
     <AlertDialogPrimitive.Action
       data-slot="alert-dialog-action"
       className={cn(
-        "inline-flex min-h-11 items-center justify-center rounded-md border bg-background px-5 text-sm font-medium hover:bg-accent hover:text-accent-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
+        "inline-flex min-h-11 items-center justify-center rounded-md border bg-background px-5 text-sm font-medium hover:border-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none",
         className,
       )}
       {...properties}
