@@ -120,7 +120,7 @@ Then open:
 | API | http://localhost:3000/api/health |
 | Docs | http://localhost:4321 |
 
-The [getting started guide](https://hayley-d.github.io/growth/dev/getting-started/) covers the env file and test browsers in more detail.
+The [deployment and running page](https://hayley-d.github.io/growth/se/deployment/) of the SE document covers the env file and the services in more detail.
 
 ### Useful scripts
 
@@ -142,7 +142,7 @@ growth/
 ├── frontend/   React app (atoms → molecules → organisms → templates → pages)
 ├── backend/    Hono API, Prisma schema and course content
 ├── shared/     Zod schemas, AVL engine and question generators used by both sides
-├── docs/       Starlight docs site: SE document, ID document and developer guide
+├── docs/       Starlight docs site: SE document and ID document
 └── .github/    CI, docs deploy and release workflows
 ```
 
@@ -150,14 +150,12 @@ growth/
 
 | | |
 | --- | --- |
-| [**Learn the trees**](https://hayley-d.github.io/growth/learn/trees/) | What each tree is and the part that trips people up |
 | [**SE document**](https://hayley-d.github.io/growth/se/introduction/) | Approach, requirements, architecture, design, testing and deployment |
 | [**ID document**](https://hayley-d.github.io/growth/id/introduction/) | Learners, objectives, learning theories, scaffolding, assessment and storyboards |
-| [**Developer guide**](https://hayley-d.github.io/growth/dev/getting-started/) | Setup, architecture of each workspace, API reference and scripts |
 
 ## Contributing
 
-Commits follow [Conventional Commits](https://www.conventionalcommits.org), and a Lefthook pre-commit hook checks them along with Biome. Read the [branches and commits page](https://hayley-d.github.io/growth/dev/reference/git-workflow/) before you open a PR.
+Commits follow [Conventional Commits](https://www.conventionalcommits.org), and a Lefthook pre-commit hook checks them along with Biome. The branch and merge rules are in the [approach page](https://hayley-d.github.io/growth/se/approach/#git-workflow) of the SE document. Read them before you open a PR.
 
 ## Team
 

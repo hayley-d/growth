@@ -37,12 +37,6 @@ export default defineConfig({
         starlightSidebarTopics(
           [
             {
-              label: "Learn the trees",
-              link: "/learn/trees/",
-              icon: "open-book",
-              items: [{ label: "Trees covered", slug: "learn/trees" }],
-            },
-            {
               id: "se",
               label: "SE document",
               link: "/se/introduction/",
@@ -112,30 +106,6 @@ export default defineConfig({
                 { label: "Alpha and beta", slug: "id/development" },
                 { label: "Evaluation", slug: "id/evaluation" },
                 { label: "GenAI acknowledgment", slug: "id/genai" },
-              ],
-            },
-            {
-              label: "Work on the code",
-              link: "/dev/getting-started/",
-              icon: "seti:config",
-              items: [
-                { label: "Getting started", slug: "dev/getting-started" },
-                {
-                  label: "Architecture",
-                  items: [
-                    { label: "Backend", slug: "dev/architecture/backend" },
-                    { label: "Frontend", slug: "dev/architecture/frontend" },
-                    { label: "Shared", slug: "dev/architecture/shared" },
-                  ],
-                },
-                {
-                  label: "Reference",
-                  items: [
-                    { label: "API reference", slug: "dev/reference/api" },
-                    { label: "Scripts and tooling", slug: "dev/reference/scripts" },
-                    { label: "Branches and commits", slug: "dev/reference/git-workflow" },
-                  ],
-                },
               ],
             },
           ],
