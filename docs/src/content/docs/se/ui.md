@@ -23,7 +23,7 @@ After the sign-up process, the student must follow 5 onboarding steps:
 2. Finding their learning style.
 3. Choosing a preferred coding language.
 4. Opting in to appear on the leaderboard.
-5. Deciding if the lessons should be read aloud.
+5. Deciding if lesson steps should show audio (Listen) buttons.
 
 ![The onboarding screen on step 2 of 5. A question from the learning style quiz with four answers, a Back button and a progress label.](../../../assets/se/ui/onboarding.webp)
 

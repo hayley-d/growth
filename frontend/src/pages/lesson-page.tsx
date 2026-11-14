@@ -10,7 +10,12 @@ import { LessonLayout } from "@/components/templates/lesson-layout";
 import { clampStep } from "@/lib/lesson/lesson-search";
 import { TreeModeProvider } from "@/lib/lesson/tree-mode";
 import { useSaveLessonNoteMutation } from "@/lib/mutations";
-import { useLearningStylesQuery, useLessonNoteQuery, useLessonQuery } from "@/lib/queries";
+import {
+  useLearningStylesQuery,
+  useLessonNoteQuery,
+  useLessonQuery,
+  useMeQuery,
+} from "@/lib/queries";
 import { ServiceError } from "@/services/service-error";
 import { useSpeechStore } from "@/stores/speech-store";
 
@@ -24,6 +29,7 @@ export function LessonPage() {
   const hasNote = lesson.data?.data.lesson.notePrompt != null;
   const note = useLessonNoteQuery(lessonId, hasNote);
   const learningStyles = useLearningStylesQuery();
+  const me = useMeQuery();
   const saveNote = useSaveLessonNoteMutation();
   const stopSpeech = useSpeechStore((state) => state.stop);
 
@@ -81,6 +87,7 @@ export function LessonPage() {
         stepNumber={stepNumber}
         objectives={stepNumber === 1 ? details.objectives : null}
         styleNames={styleNames}
+        showListen={me.data?.data.profile.textToSpeech === true}
       />
     </TreeModeProvider>
   ) : details.notePrompt && note.isPending ? (

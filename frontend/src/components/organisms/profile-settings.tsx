@@ -243,9 +243,9 @@ export function ProfileSettings({ me, learningStyles, codeLanguages }: ProfileSe
         field="textToSpeech"
         saved={profile.textToSpeech}
         id="text-to-speech"
-        title="Text to speech"
-        description="Have lesson text read aloud."
-        label="Read lessons aloud"
+        title="Audio buttons"
+        description="Show a Listen button on lesson steps."
+        label="Show audio buttons"
       />
       <ToggleSetting
         field="showOnLeaderboard"

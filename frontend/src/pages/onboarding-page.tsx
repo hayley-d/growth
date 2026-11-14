@@ -309,13 +309,13 @@ function TextToSpeechStep() {
   return (
     <>
       <p className="text-muted-foreground">
-        Each lesson step gets a Listen button that reads it out with your browser's voice. You can
+        Lesson steps can show a Listen button that reads them out with your browser's voice. You can
         change this any time in Settings.
       </p>
       <YesNoChoice
         value={textToSpeech}
-        yesLabel="Yes, read them aloud"
-        noLabel="No thanks"
+        yesLabel="Yes, show audio buttons"
+        noLabel="No, hide them"
         onChange={(value) => setAnswers({ textToSpeech: value })}
       />
       {complete.isError ? (
