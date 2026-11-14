@@ -96,6 +96,12 @@ it("explains the rules and waits for Start before showing the question", async (
     .toBeVisible();
   await expect.element(screen.getByText("Saturday 14 November")).toBeVisible();
   await expect.element(screen.getByText(/one go, with no hints/)).toBeVisible();
+  await expect.element(screen.getByText(/clock starts when you press Start/)).toBeVisible();
+  await expect.element(screen.getByText(/see the answer and why/)).toBeVisible();
+  await expect.element(screen.getByText(/never changes your mastery or progress/)).toBeVisible();
+  await expect
+    .element(screen.getByRole("link", { name: "Settings" }).last())
+    .toHaveAttribute("href", "/settings");
   await expect
     .element(screen.getByRole("heading", { name: "Is this tree a valid AVL tree?" }))
     .not.toBeInTheDocument();
@@ -106,7 +112,7 @@ it("starts the clock, takes one answer with no hints and shows the summary", asy
   serve(notStarted);
   const screen = await renderApp("/daily");
 
-  await screen.getByRole("button", { name: "Start" }).click();
+  await screen.getByRole("button", { name: "Start the clock" }).click();
 
   await expect
     .element(screen.getByRole("heading", { name: "Is this tree a valid AVL tree?" }))
@@ -138,7 +144,9 @@ it("goes straight back to the question after a reload mid-challenge", async () =
   await expect
     .element(screen.getByRole("heading", { name: "Is this tree a valid AVL tree?" }))
     .toBeVisible();
-  await expect.element(screen.getByRole("button", { name: "Start" })).not.toBeInTheDocument();
+  await expect
+    .element(screen.getByRole("button", { name: "Start the clock" }))
+    .not.toBeInTheDocument();
 });
 
 it("shows the summary and a countdown when today's challenge is done", async () => {
@@ -158,7 +166,7 @@ it("shows the server message when the challenge can't start", async () => {
   });
   const screen = await renderApp("/daily");
 
-  await screen.getByRole("button", { name: "Start" }).click();
+  await screen.getByRole("button", { name: "Start the clock" }).click();
 
   await expect
     .element(screen.getByRole("alert"))
@@ -179,7 +187,40 @@ it("moves to the next day's challenge once midnight passes", async () => {
   const screen = await renderApp("/daily");
 
   await expect.element(screen.getByRole("heading", { name: "Not quite" })).toBeVisible();
-  await expect.element(screen.getByRole("button", { name: "Start" })).toBeVisible();
+  await expect.element(screen.getByRole("button", { name: "Start the clock" })).toBeVisible();
   await expect.element(screen.getByRole("heading", { name: "Not quite" })).not.toBeInTheDocument();
   expect(dailyCalls).toBe(2);
+});
+
+it("leaves straight away before the clock starts", async () => {
+  serve(notStarted);
+  const screen = await renderApp("/daily");
+
+  await screen.getByRole("link", { name: "Leave the daily challenge" }).click();
+
+  await expect
+    .element(screen.getByRole("heading", { name: "Daily challenge", level: 1 }))
+    .not.toBeInTheDocument();
+  await expect.element(screen.getByRole("alertdialog")).not.toBeInTheDocument();
+});
+
+it("warns that the clock keeps running before leaving mid-challenge", async () => {
+  serve(inProgress);
+  const screen = await renderApp("/daily");
+
+  await screen.getByRole("link", { name: "Leave the daily challenge" }).click();
+  await expect
+    .element(screen.getByRole("alertdialog", { name: "Leave the daily challenge?" }))
+    .toBeVisible();
+  await expect.element(screen.getByText(/clock keeps running/)).toBeVisible();
+  await screen.getByRole("button", { name: "Stay" }).click();
+  await expect
+    .element(screen.getByRole("heading", { name: "Is this tree a valid AVL tree?" }))
+    .toBeVisible();
+
+  await screen.getByRole("link", { name: "Leave the daily challenge" }).click();
+  await screen.getByRole("button", { name: "Leave", exact: true }).click();
+  await expect
+    .element(screen.getByRole("heading", { name: "Daily challenge", level: 1 }))
+    .not.toBeInTheDocument();
 });

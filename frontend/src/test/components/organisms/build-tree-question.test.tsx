@@ -110,3 +110,13 @@ it("replaces a node with two children by its successor and undoes the delete", a
   await expect.element(screen.getByRole("button", { name: /^30,/ })).toBeVisible();
   expect(screen.container.textContent).not.toContain("Delete 30");
 });
+
+it("explains how to rotate a node from the info tip", async () => {
+  const screen = await renderQuestion();
+
+  await screen.getByRole("button", { name: "How to rotate or delete a node" }).click();
+
+  await expect
+    .element(screen.getByText(/Click a node in the tree to pick it/).first())
+    .toBeVisible();
+});

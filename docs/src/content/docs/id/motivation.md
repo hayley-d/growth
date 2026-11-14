@@ -24,7 +24,7 @@ Keller suggests varying the format of instruction and the style of presentation 
 
 Keller recommends building problem-solving activities in at regular intervals and using simulations that allow the learner to take part (Drew, 2026). The traversal quiz asks the learner to tap nodes in the right order. The copy and delete blocks say "Press Step to start copying." and "Press Step to start deleting.", so the learner drives the walkthrough and does not just watch it. Additionally, pointing at an underlined word lights up the matching nodes on the tree.
 
-Keller recommends real-world examples in e-learning content (Drew, 2026), and lists case studies as a way to make ideas concrete (Keller, 1987, p. 4). The traversal lessons show where each order is used, which the Relevance section covers. An additional case study feature was planned to further leverage this idea, but was cut due to time constraints
+Keller recommends real-world examples in e-learning content (Drew, 2026), and lists case studies as a way to make ideas concrete (Keller, 1987, p. 4). The traversal lessons show where each order is used, which the Relevance section covers. An additional case study feature was planned to further leverage this idea, but was cut due to time constraints.
 
 The playground gives the learner a choice of what to explore. Its setup asks "What topic?", "How do you want to explore?" and "What tree do you want to start with?", and the learner can pick "Watch it run" or "Interact with the tree". This encourages active participation as the learner can configure different playgrounds and explore different topics in different ways.
 

@@ -51,7 +51,7 @@ Growth is a web app, so it runs in the browser on whatever the learner has, whet
 
 ### Our tools and timeline
 
-We had around four weeks and a team of five ([Instructional design approach](../approach/)). We built Growth as a web app with React and a backend that stores each learner's progress, mastery and test attempts. The time limit is we stopped at a beta.
+We had around four weeks and a team of five ([Instructional design approach](../approach/)). We built Growth as a web app with React and a backend that stores each learner's progress, mastery and test attempts. Due to the time limit and lack of access to students, we decided to stop at a beta.
 
 ## Content
 

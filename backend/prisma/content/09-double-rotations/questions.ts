@@ -122,15 +122,15 @@ export default [
     difficulty: 3,
     bloomsLevel: "apply",
     prompt:
-      "Insert 25 into this AVL tree. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
+      "This tree is out of balance. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
     explanation:
-      "25 goes left of 30. 50 then has balance factor +2, and its left child 20 has −1. Opposite signs, so it is left-right with 50 as the pivot: rotate left at 20, then right at 50.",
+      "50 has balance factor +2, and its left child 20 has −1. Opposite signs, so it is left-right with 50 as the pivot: rotate left at 20, then right at 50.",
     reviewLesson: "double-rotations",
     hints: [
-      "Insert 25 as in a plain search tree, then check balance factors on the way back up.",
+      "Work out the balance factors from the leaves up, then find the lowest node at +2 or −2.",
       "50 is the lowest node at +2. Its left child 20 is at −1, so the signs are opposite.",
     ],
-    tree: "50,20,10,#,#,30,#,#,70,#,#",
+    tree: "50,20,10,#,#,30,25,#,#,#,70,#,#",
     answer: { type: "predict_rotation", rotation: "leftRight", pivotKey: 50 },
   },
   {
@@ -139,15 +139,15 @@ export default [
     difficulty: 3,
     bloomsLevel: "apply",
     prompt:
-      "Insert 55 into this AVL tree. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
+      "This tree is out of balance. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
     explanation:
-      "55 goes right of 50. 30 then has balance factor −2, and its right child 60 has +1. Opposite signs, so it is right-left with 30 as the pivot: rotate right at 60, then left at 30.",
+      "30 has balance factor −2, and its right child 60 has +1. Opposite signs, so it is right-left with 30 as the pivot: rotate right at 60, then left at 30.",
     reviewLesson: "double-rotations",
     hints: [
-      "Insert 55 as in a plain search tree, then check balance factors on the way back up.",
+      "Work out the balance factors from the leaves up, then find the lowest node at +2 or −2.",
       "30 is the lowest node at −2. Its right child 60 is at +1, so the signs are opposite.",
     ],
-    tree: "30,20,#,#,60,50,#,#,70,#,#",
+    tree: "30,20,#,#,60,50,#,55,#,#,70,#,#",
     answer: { type: "predict_rotation", rotation: "rightLeft", pivotKey: 30 },
   },
   {
@@ -172,7 +172,7 @@ export default [
     difficulty: 3,
     bloomsLevel: "analyse",
     prompt:
-      "After a delete, a node has balance factor −2 and its right child has balance factor 0. Which rotations fix it?",
+      "A node has balance factor −2 and its right child has balance factor 0. Which rotations fix it?",
     explanation:
       "The taller child is 0, not +1, so the signs are not opposite and this is not right-left. A child at 0 always gets a single rotation. The node leans right, so rotate left at the node.",
     reviewLesson: "double-rotations",
