@@ -189,7 +189,7 @@ const learningPathController = createLearningPathController({
 const leaderboardController = createLeaderboardController({
   getLeaderboard: makeGetLeaderboard({
     leaderboardRepository: new PrismaLeaderboardRepository(prismaClient),
-    now: () => new Date(),
+    clock,
   }),
 });
 

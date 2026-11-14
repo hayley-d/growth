@@ -1,24 +1,25 @@
 import { type LeaderboardResponse, toLeaderboardResponse } from "@shared/schemas";
 import { getSignedInUserId } from "@/application/lesson/lesson-access";
+import { toChallengeDate, toNextChallengeAt } from "@/domain/assessment/daily-challenge-rotation";
+import type { Clock } from "@/domain/common/clock";
 import { rankLeaderboard } from "@/domain/leaderboard/rank-leaderboard";
 import type { LeaderboardRepository } from "@/domain/leaderboard/repositories/leaderboard-repository";
-import { startOfSouthAfricanDay } from "@/domain/leaderboard/south-african-day";
 
-const southAfricanDayMs = 24 * 60 * 60 * 1000;
+const millisecondsPerDay = 24 * 60 * 60 * 1000;
 
 type GetLeaderboardDependencies = {
   leaderboardRepository: LeaderboardRepository;
-  now: () => Date;
+  clock: Clock;
 };
 
 export const makeGetLeaderboard =
-  ({ leaderboardRepository, now }: GetLeaderboardDependencies) =>
+  ({ leaderboardRepository, clock }: GetLeaderboardDependencies) =>
   async (): Promise<LeaderboardResponse> => {
     const userId = getSignedInUserId();
-    const from = startOfSouthAfricanDay(now());
-    const to = new Date(from.getTime() + southAfricanDayMs);
-    const results = await leaderboardRepository.listDailyChallengeResults(from, to);
-    return toLeaderboardResponse(rankLeaderboard(results, userId, from));
+    const challengeDate = toChallengeDate(clock.now());
+    const dayStart = new Date(toNextChallengeAt(challengeDate).getTime() - millisecondsPerDay);
+    const results = await leaderboardRepository.listDailyChallengeResults(challengeDate);
+    return toLeaderboardResponse(rankLeaderboard(results, userId, dayStart));
   };
 
 export type GetLeaderboard = ReturnType<typeof makeGetLeaderboard>;

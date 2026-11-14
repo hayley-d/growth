@@ -8,45 +8,42 @@ const userId = "user-1";
 
 describe("makeGetLeaderboard", () => {
   it.each([
-    ["2026-11-12T21:59:59.999Z", "2026-11-11T22:00:00.000Z", "2026-11-12T22:00:00.000Z"],
-    ["2026-11-12T22:00:00.000Z", "2026-11-12T22:00:00.000Z", "2026-11-13T22:00:00.000Z"],
-  ])(
-    "reads attempts from 00:00 to 24:00 South African time when now is %s",
-    async (now, fromIso, toIso) => {
-      const from = new Date(fromIso);
-      const to = new Date(toIso);
-      const listDailyChallengeResults = vi.fn().mockResolvedValue([
-        {
-          userId,
-          displayName: "Ada",
-          showOnLeaderboard: true,
-          finishedAt: new Date(from.getTime() + 90_000),
-        },
-      ]);
-      const getLeaderboard = makeGetLeaderboard({
-        leaderboardRepository: { listDailyChallengeResults },
-        now: () => new Date(now),
-      });
+    ["2026-11-12T21:59:59.999Z", "2026-11-12T00:00:00.000Z", "2026-11-11T22:00:00.000Z"],
+    ["2026-11-12T22:00:00.000Z", "2026-11-13T00:00:00.000Z", "2026-11-12T22:00:00.000Z"],
+  ])("reads today's challenge when now is %s", async (now, challengeDateIso, dayStartIso) => {
+    const challengeDate = new Date(challengeDateIso);
+    const dayStart = new Date(dayStartIso);
+    const listDailyChallengeResults = vi.fn().mockResolvedValue([
+      {
+        userId,
+        displayName: "Ada",
+        showOnLeaderboard: true,
+        finishedAt: new Date(dayStart.getTime() + 90_000),
+      },
+    ]);
+    const getLeaderboard = makeGetLeaderboard({
+      leaderboardRepository: { listDailyChallengeResults },
+      clock: { now: () => new Date(now) },
+    });
 
-      const response = await requestContext.run({ requestId: "request-1", userId }, () =>
-        getLeaderboard(),
-      );
+    const response = await requestContext.run({ requestId: "request-1", userId }, () =>
+      getLeaderboard(),
+    );
 
-      expect(listDailyChallengeResults).toHaveBeenCalledWith(from, to);
-      expect(response).toEqual({
-        data: {
-          top: [{ rank: 1, displayName: "Ada", timeSeconds: 90 }],
-          me: { displayName: "Ada", rank: 1, timeSeconds: 90, hidden: false },
-        },
-      });
-    },
-  );
+    expect(listDailyChallengeResults).toHaveBeenCalledWith(challengeDate);
+    expect(response).toEqual({
+      data: {
+        top: [{ rank: 1, displayName: "Ada", timeSeconds: 90 }],
+        me: { displayName: "Ada", rank: 1, timeSeconds: 90, hidden: false },
+      },
+    });
+  });
 
   it("throws when nobody is signed in", async () => {
     const listDailyChallengeResults = vi.fn();
     const getLeaderboard = makeGetLeaderboard({
       leaderboardRepository: { listDailyChallengeResults },
-      now: () => new Date("2026-11-12T12:00:00.000Z"),
+      clock: { now: () => new Date("2026-11-12T12:00:00.000Z") },
     });
 
     await expect(

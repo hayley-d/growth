@@ -6,12 +6,14 @@ import { withPrismaErrors } from "@/infrastructure/database/prisma-errors";
 export class PrismaLeaderboardRepository implements LeaderboardRepository {
   constructor(private readonly client: PrismaClient) {}
 
-  listDailyChallengeResults(from: Date, to: Date) {
+  listDailyChallengeResults(challengeDate: Date) {
     return withPrismaErrors(async () => {
       const rows = await this.client.assessmentAttempt.findMany({
         where: {
           kind: "daily_challenge",
-          finishedAt: { gte: from, lt: to },
+          passed: true,
+          finishedAt: { not: null },
+          dailyChallenge: { date: challengeDate },
         },
         select: {
           userId: true,

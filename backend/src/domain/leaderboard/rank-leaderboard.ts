@@ -15,17 +15,6 @@ type RankedResult = TimedResult & { rank: number };
 const wholeSecondsAfter = (dayStart: Date, finishedAt: Date) =>
   Math.floor((finishedAt.getTime() - dayStart.getTime()) / millisecondsPerSecond);
 
-const fastestPerLearner = (results: readonly DailyChallengeResult[]) => {
-  const fastest = new Map<string, DailyChallengeResult>();
-  for (const result of results) {
-    const current = fastest.get(result.userId);
-    if (!current || result.finishedAt.getTime() < current.finishedAt.getTime()) {
-      fastest.set(result.userId, result);
-    }
-  }
-  return [...fastest.values()];
-};
-
 const byTime = (left: TimedResult, right: TimedResult) =>
   left.timeSeconds - right.timeSeconds ||
   left.finishedAt.getTime() - right.finishedAt.getTime() ||
@@ -47,13 +36,13 @@ export const rankLeaderboard = (
   userId: string,
   dayStart: Date,
 ) => {
-  const fastest = fastestPerLearner(results).map((result) => ({
+  const timed = results.map((result) => ({
     ...result,
     timeSeconds: wholeSecondsAfter(dayStart, result.finishedAt),
   }));
-  const ranked = assignRanks(fastest.filter((result) => result.showOnLeaderboard).sort(byTime));
+  const ranked = assignRanks(timed.filter((result) => result.showOnLeaderboard).sort(byTime));
   const rankByUserId = new Map(ranked.map((result) => [result.userId, result.rank]));
-  const mine = fastest.find((result) => result.userId === userId);
+  const mine = timed.find((result) => result.userId === userId);
 
   return {
     top: ranked.slice(0, topSize).map(({ rank, displayName, timeSeconds }) => ({

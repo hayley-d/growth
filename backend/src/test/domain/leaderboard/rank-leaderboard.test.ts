@@ -74,18 +74,6 @@ describe("rankLeaderboard", () => {
     });
   });
 
-  it("keeps each learner's fastest attempt", () => {
-    const results = [result("a", "Ada", 40), result("b", "Bea", 15), result("a", "Ada", 8)];
-
-    expect(rankLeaderboard(results, "a", dayStart)).toEqual({
-      top: [
-        { rank: 1, displayName: "Ada", timeSeconds: 8 },
-        { rank: 2, displayName: "Bea", timeSeconds: 15 },
-      ],
-      me: { displayName: "Ada", rank: 1, timeSeconds: 8, hidden: false },
-    });
-  });
-
   it("returns only the top 10", () => {
     const results = Array.from({ length: 12 }, (_, index) =>
       result(`user-${index}`, `Learner ${index}`, index + 1),
