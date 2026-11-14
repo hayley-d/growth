@@ -1,3 +1,5 @@
+import { Link } from "@tanstack/react-router";
+
 import type { LeaderboardResponse } from "@shared/schemas";
 import { YouBadge } from "@/components/molecules/you-badge";
 import { describeDuration, formatDuration } from "@/lib/daily-challenge/format-duration";
@@ -5,6 +7,7 @@ import { cn } from "@/lib/utils";
 
 type LeaderboardCardProperties = {
   data: LeaderboardResponse["data"] | null;
+  hiddenFromBoard?: boolean;
   className?: string;
 };
 
@@ -47,7 +50,11 @@ function BoardCells({ row, isMe }: { row: BoardRow; isMe: boolean }) {
 
 const headerClasses = "sticky top-0 bg-card py-2 pr-4 font-medium";
 
-export function LeaderboardCard({ data, className }: LeaderboardCardProperties) {
+export function LeaderboardCard({
+  data,
+  hiddenFromBoard = false,
+  className,
+}: LeaderboardCardProperties) {
   if (!data) {
     return (
       <p className={cn("text-sm text-muted-foreground", className)}>
@@ -64,15 +71,20 @@ export function LeaderboardCard({ data, className }: LeaderboardCardProperties) 
     keyCounts.set(base, count);
     return { entry, key: `${base}-${count}` };
   });
+  const hidden = me?.hidden ?? hiddenFromBoard;
   const pinnedRow = me && me.rank !== null && !top.some((entry) => entry.isMe) ? me : null;
 
   return (
     <div className={cn("flex flex-col gap-3", className)}>
-      {me === null ? <p>Finish today's challenge to get on the board.</p> : null}
-      {me && !me.passed ? <p>You didn't pass today's challenge. Come back tomorrow.</p> : null}
-      {me?.passed && me.hidden ? (
-        <p>You finished in {describeDuration(me.timeSeconds)}. You're hidden from the board.</p>
+      {me === null ? (
+        <p>
+          {hidden
+            ? "Finish today's challenge to see your time."
+            : "Finish today's challenge to get on the board."}
+        </p>
       ) : null}
+      {me && !me.passed ? <p>You didn't pass today's challenge. Come back tomorrow.</p> : null}
+      {me?.passed && me.hidden ? <p>You finished in {describeDuration(me.timeSeconds)}.</p> : null}
       {top.length === 0 && me === null ? (
         <p className="text-sm text-muted-foreground">Nobody has finished today's challenge yet.</p>
       ) : null}
@@ -129,6 +141,18 @@ export function LeaderboardCard({ data, className }: LeaderboardCardProperties) 
             ) : null}
           </table>
         </section>
+      ) : null}
+      {hidden ? (
+        <p className="text-sm text-muted-foreground">
+          You've hidden yourself from the leaderboard, so other learners can't see you.{" "}
+          <Link
+            to="/settings"
+            className="font-medium text-foreground underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none"
+          >
+            Change this in settings
+          </Link>
+          .
+        </p>
       ) : null}
     </div>
   );

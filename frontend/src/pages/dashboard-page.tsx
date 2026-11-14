@@ -19,6 +19,7 @@ import {
   useDailyChallengeQuery,
   useLeaderboardQuery,
   useLearningPathQuery,
+  useMeQuery,
   useSessionQuery,
 } from "@/lib/queries";
 
@@ -32,6 +33,7 @@ export function DashboardPage() {
   const startLesson = useStartLessonMutation();
   const dailyChallenge = useDailyChallengeQuery();
   const leaderboard = useLeaderboardQuery();
+  const me = useMeQuery();
   const dailyState = dailyChallenge.data?.data ?? null;
   const { refetch: refetchDailyChallenge } = dailyChallenge;
   const { refetch: refetchLeaderboard } = leaderboard;
@@ -166,7 +168,10 @@ export function DashboardPage() {
       ) : null}
       {leaderboard.isPending ? null : (
         <DashboardCard title="Leaderboard">
-          <LeaderboardCard data={leaderboard.data?.data ?? null} />
+          <LeaderboardCard
+            data={leaderboard.data?.data ?? null}
+            hiddenFromBoard={me.data?.data.profile.showOnLeaderboard === false}
+          />
         </DashboardCard>
       )}
       {lessons.length > 0 ? (
