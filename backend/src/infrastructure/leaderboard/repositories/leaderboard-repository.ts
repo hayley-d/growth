@@ -11,12 +11,14 @@ export class PrismaLeaderboardRepository implements LeaderboardRepository {
       const rows = await this.client.assessmentAttempt.findMany({
         where: {
           kind: "daily_challenge",
-          passed: true,
           finishedAt: { not: null },
           dailyChallenge: { date: challengeDate },
         },
         select: {
           userId: true,
+          passed: true,
+          points: true,
+          startedAt: true,
           finishedAt: true,
           user: {
             select: {
@@ -33,6 +35,9 @@ export class PrismaLeaderboardRepository implements LeaderboardRepository {
           userId: row.userId,
           displayName: row.user.name,
           showOnLeaderboard: row.user.profile?.showOnLeaderboard ?? false,
+          passed: row.passed,
+          points: row.points,
+          startedAt: row.startedAt,
           finishedAt: row.finishedAt,
         });
       }

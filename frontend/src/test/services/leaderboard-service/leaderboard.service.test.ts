@@ -14,8 +14,15 @@ const mockedGet = vi.mocked(networkService.get);
 
 const response = {
   data: {
-    top: [{ rank: 1, displayName: "Ada", timeSeconds: 90, isMe: true }],
-    me: { displayName: "Ada", rank: 1, timeSeconds: 90, hidden: false },
+    top: [{ rank: 1, displayName: "Ada", timeSeconds: 90, points: 30, isMe: true }],
+    me: {
+      displayName: "Ada",
+      rank: 1,
+      timeSeconds: 90,
+      points: 30,
+      passed: true,
+      hidden: false,
+    },
   },
 };
 

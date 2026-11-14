@@ -6,12 +6,13 @@ const entry = (rank: number, displayName: string, timeSeconds: number, isMe = fa
   rank,
   displayName,
   timeSeconds,
+  points: 100,
   isMe,
 });
 
 const data = {
   top: [entry(1, "Ada", 90, true), entry(1, "Bea", 90), entry(3, "Cy", 120)],
-  me: { displayName: "Ada", rank: 1, timeSeconds: 90, hidden: false },
+  me: { displayName: "Ada", rank: 1, timeSeconds: 90, points: 100, passed: true, hidden: false },
 };
 
 describe("leaderboardResponseSchema", () => {
@@ -26,7 +27,26 @@ describe("leaderboardResponseSchema", () => {
   });
 
   it("allows a hidden entry with no rank", () => {
-    const me = { displayName: "Ada", rank: null, timeSeconds: 90, hidden: true };
+    const me = {
+      displayName: "Ada",
+      rank: null,
+      timeSeconds: 90,
+      points: 100,
+      passed: true,
+      hidden: true,
+    };
+    expect(toLeaderboardResponse({ top: [], me })).toEqual({ data: { top: [], me } });
+  });
+
+  it("allows an entry for a learner who did not pass", () => {
+    const me = {
+      displayName: "Ada",
+      rank: null,
+      timeSeconds: 90,
+      points: 0,
+      passed: false,
+      hidden: false,
+    };
     expect(toLeaderboardResponse({ top: [], me })).toEqual({ data: { top: [], me } });
   });
 

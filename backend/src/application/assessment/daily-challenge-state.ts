@@ -15,6 +15,7 @@ import type { AttemptAnswerRepository } from "@/domain/assessment/repositories/a
 import type { AttemptQuestionRepository } from "@/domain/assessment/repositories/attempt-question-repository";
 import type { HintRepository } from "@/domain/assessment/repositories/hint-repository";
 import type { QuestionRepository } from "@/domain/assessment/repositories/question-repository";
+import { toTimeTakenSeconds } from "@/domain/assessment/time-taken";
 import type { Clock } from "@/domain/common/clock";
 import { NotFoundError } from "@/domain/errors";
 import type { UserMasteryRepository } from "@/domain/user/repositories/user-mastery-repository";
@@ -34,8 +35,6 @@ export type DailyChallengeDependencies = {
   userMasteryRepository: Pick<UserMasteryRepository, "findById">;
   logger: Logger;
 };
-
-const millisecondsPerSecond = 1000;
 
 export const makeLoadDailyChallengeQuestion = (dependencies: DailyChallengeDependencies) => {
   const { attemptQuestionRepository, questionRepository } = dependencies;
@@ -125,10 +124,7 @@ export const makeLoadDailyChallengeState = (dependencies: DailyChallengeDependen
         explanation: view.explanation,
         replay: view.replay,
         points: finished.points,
-        timeTakenSeconds: Math.max(
-          0,
-          Math.round((finishedAt.getTime() - finished.startedAt.getTime()) / millisecondsPerSecond),
-        ),
+        timeTakenSeconds: toTimeTakenSeconds(finished.startedAt, finishedAt),
       },
     };
   };

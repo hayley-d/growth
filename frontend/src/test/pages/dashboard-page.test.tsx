@@ -166,63 +166,98 @@ it("sends the learner back to a challenge they've started", async () => {
   await expect.element(screen.getByText("Time so far")).toBeVisible();
 });
 
-it("shows the result and a countdown, with no link, once today's challenge is done", async () => {
-  serveWithDaily({
-    ...dailyBase,
-    status: "finished",
-    startedAt: "2026-11-14T06:00:00.000Z",
-    finishedAt: "2026-11-14T06:01:05.000Z",
-    result: {
-      prompt: "Is this tree a valid AVL tree?",
-      tree: null,
-      response: { type: "text", text: "3" },
-      isCorrect: true,
-      correctAnswer: { type: "text", text: "3" },
-      explanation: "A leaf has height 1.",
-      replay: null,
-      points: 30,
-      timeTakenSeconds: 65,
-    },
-  });
-  const screen = await renderApp("/");
+const finishedDaily = {
+  ...dailyBase,
+  status: "finished",
+  startedAt: "2026-11-14T06:00:00.000Z",
+  finishedAt: "2026-11-14T06:01:05.000Z",
+  result: {
+    prompt: "Is this tree a valid AVL tree?",
+    tree: null,
+    response: { type: "text", text: "3" },
+    isCorrect: true,
+    correctAnswer: { type: "text", text: "3" },
+    explanation: "A leaf has height 1.",
+    replay: null,
+    points: 30,
+    timeTakenSeconds: 65,
+  },
+};
 
-  await expect.element(screen.getByText("You got today's challenge right")).toBeVisible();
-  await expect.element(screen.getByText("30")).toBeVisible();
-  await expect.element(screen.getByText("1 minute 5 seconds")).toBeInTheDocument();
-  await expect.element(screen.getByText("Next challenge in")).toBeVisible();
-  await expect
-    .element(screen.getByRole("link", { name: /today's challenge/ }))
-    .not.toBeInTheDocument();
-});
-
-it("shows today's place when the leaderboard loads", async () => {
+const serveWithDailyAndLeaderboard = (daily: object, leaderboard: object) =>
   mockedGet.mockImplementation(async (url: string) => {
-    if (url.endsWith("/leaderboard")) {
-      return {
-        data: {
-          data: {
-            top: [
-              { rank: 1, displayName: "Ada", timeSeconds: 90, isMe: false },
-              { rank: 2, displayName: "Bea", timeSeconds: 120, isMe: true },
-            ],
-            me: { displayName: "Bea", rank: 2, timeSeconds: 120, hidden: false },
-          },
-        },
-      };
-    }
+    if (url.endsWith("/daily-challenge")) return { data: { data: daily } };
+    if (url.endsWith("/leaderboard")) return { data: { data: leaderboard } };
     return { data: buildLearningPath(2) };
   });
+
+it("hides the daily challenge once today's challenge is done", async () => {
+  serveWithDailyAndLeaderboard(finishedDaily, { top: [], me: null });
   const screen = await renderApp("/");
 
   await expect
     .element(screen.getByRole("heading", { name: "Leaderboard", level: 2 }))
     .toBeVisible();
-  const leaderboard = screen.getByRole("region", { name: "Leaderboard" });
-  await expect.element(leaderboard.getByText("You're #2 today")).toBeVisible();
-  await expect.element(leaderboard.getByText("You", { exact: true })).toBeVisible();
   await expect
-    .element(screen.getByRole("link", { name: "View the leaderboard" }))
-    .toHaveAttribute("href", "/leaderboard");
+    .element(screen.getByRole("heading", { name: "Daily challenge", level: 2 }))
+    .not.toBeInTheDocument();
+});
+
+it("shows the board with the learner's row, time and points", async () => {
+  serveWithDailyAndLeaderboard(finishedDaily, {
+    top: [
+      { rank: 1, displayName: "Ada", timeSeconds: 40, points: 30, isMe: false },
+      { rank: 2, displayName: "Bea", timeSeconds: 65, points: 30, isMe: true },
+    ],
+    me: {
+      displayName: "Bea",
+      rank: 2,
+      timeSeconds: 65,
+      points: 30,
+      passed: true,
+      hidden: false,
+    },
+  });
+  const screen = await renderApp("/");
+
+  const leaderboard = screen.getByRole("region", { name: "Leaderboard" });
+  await expect.element(leaderboard.getByText("Ada")).toBeVisible();
+  await expect.element(leaderboard.getByText("You", { exact: true })).toBeVisible();
+  await expect.element(leaderboard.getByText("1 minute 5 seconds")).toBeInTheDocument();
+  await expect.element(leaderboard.getByRole("link")).not.toBeInTheDocument();
+});
+
+it("shows the board before the learner has done today's challenge", async () => {
+  serveWithDailyAndLeaderboard(
+    { ...dailyBase, status: "not_started" },
+    { top: [{ rank: 1, displayName: "Ada", timeSeconds: 40, points: 30, isMe: false }], me: null },
+  );
+  const screen = await renderApp("/");
+
+  const leaderboard = screen.getByRole("region", { name: "Leaderboard" });
+  await expect.element(leaderboard.getByText("Ada")).toBeVisible();
+  await expect
+    .element(screen.getByRole("heading", { name: "Daily challenge", level: 2 }))
+    .toBeVisible();
+});
+
+it("tells a learner who did not pass to come back tomorrow", async () => {
+  serveWithDailyAndLeaderboard(finishedDaily, {
+    top: [],
+    me: {
+      displayName: "Bea",
+      rank: null,
+      timeSeconds: 65,
+      points: 0,
+      passed: false,
+      hidden: false,
+    },
+  });
+  const screen = await renderApp("/");
+
+  await expect
+    .element(screen.getByText("You didn't pass today's challenge. Come back tomorrow."))
+    .toBeVisible();
 });
 
 it("still offers the daily challenge page when the card can't load", async () => {

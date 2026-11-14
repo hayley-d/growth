@@ -4,6 +4,7 @@ const leaderboardEntrySchema = z.object({
   rank: z.int().min(1),
   displayName: z.string(),
   timeSeconds: z.int().min(0),
+  points: z.int().min(0),
   isMe: z.boolean(),
 });
 
@@ -13,6 +14,8 @@ const leaderboardMeSchema = z.object({
   displayName: z.string(),
   rank: z.int().min(1).nullable(),
   timeSeconds: z.int().min(0),
+  points: z.int().min(0),
+  passed: z.boolean(),
   hidden: z.boolean(),
 });
 

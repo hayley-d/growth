@@ -16,7 +16,7 @@ it("shows the nav links and user menu on desktop", async () => {
   await expect.element(navigation.getByRole("link", { name: "Learn" })).toBeVisible();
   await expect
     .element(navigation.getByRole("link", { name: "Leaderboard" }))
-    .toHaveAttribute("href", "/leaderboard");
+    .not.toBeInTheDocument();
   await expect.element(screen.getByRole("button", { name: "Open menu" })).not.toBeInTheDocument();
 
   await screen.getByRole("button", { name: "Open user menu" }).click();

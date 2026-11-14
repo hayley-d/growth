@@ -1207,23 +1207,31 @@
                       {
                         "rank": 1,
                         "displayName": "Ada",
-                        "timeSeconds": 41
+                        "timeSeconds": 41,
+                        "points": 100,
+                        "isMe": true
                       },
                       {
                         "rank": 2,
                         "displayName": "Grace",
-                        "timeSeconds": 55
+                        "timeSeconds": 55,
+                        "points": 100,
+                        "isMe": false
                       },
                       {
                         "rank": 3,
                         "displayName": "Alan",
-                        "timeSeconds": 72
+                        "timeSeconds": 72,
+                        "points": 80,
+                        "isMe": false
                       }
                     ],
                     "me": {
                       "displayName": "Ada",
                       "rank": 1,
                       "timeSeconds": 41,
+                      "points": 100,
+                      "passed": true,
                       "hidden": false
                     }
                   }
@@ -3516,8 +3524,11 @@
                     },
                     "timeSeconds": {
                       "type": "integer",
-                      "minimum": 0,
-                      "maximum": 9007199254740991
+                      "minimum": 0
+                    },
+                    "points": {
+                      "type": "integer",
+                      "minimum": 0
                     },
                     "isMe": {
                       "type": "boolean"
@@ -3527,6 +3538,7 @@
                     "rank",
                     "displayName",
                     "timeSeconds",
+                    "points",
                     "isMe"
                   ]
                 }
@@ -3554,6 +3566,13 @@
                         "type": "integer",
                         "minimum": 0
                       },
+                      "points": {
+                        "type": "integer",
+                        "minimum": 0
+                      },
+                      "passed": {
+                        "type": "boolean"
+                      },
                       "hidden": {
                         "type": "boolean"
                       }
@@ -3562,6 +3581,8 @@
                       "displayName",
                       "rank",
                       "timeSeconds",
+                      "points",
+                      "passed",
                       "hidden"
                     ]
                   },
