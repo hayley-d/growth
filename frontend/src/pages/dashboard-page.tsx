@@ -143,42 +143,47 @@ export function DashboardPage() {
           </DashboardCard>
         ) : null}
       </div>
-      {lessons.length > 0 ? (
-        <DashboardCard title="Your progress">
-          <UnitProgress
-            title="Overall"
-            progress={progress}
-            tone="primary"
-            completed={countCompleted(lessons.map(({ lesson }) => lesson))}
-            total={lessons.length}
-          />
-          <div className="grid gap-4 sm:grid-cols-2">
-            {units.map((unit) => (
-              <UnitProgress
-                key={unit.id}
-                title={unit.title}
-                progress={unit.progress}
-                tone={unitTone(unit.position)}
-                completed={countCompleted(unit.lessons)}
-                total={unit.lessons.length}
-              />
-            ))}
-          </div>
-        </DashboardCard>
-      ) : null}
-      {leaderboard.isPending ? null : (
-        <DashboardCard title="Leaderboard">
-          <LeaderboardCard
-            data={leaderboard.data?.data ?? null}
-            hiddenFromBoard={me.data?.data.profile.showOnLeaderboard === false}
-          />
-        </DashboardCard>
-      )}
-      {lessons.length > 0 ? (
-        <DashboardCard title="Your mastery">
-          <MasteryList lessons={allLessons.filter((lesson) => lesson.status !== "locked")} />
-        </DashboardCard>
-      ) : null}
+      <div className="grid gap-8 lg:grid-cols-2 lg:grid-rows-[auto_1fr] lg:items-start lg:gap-4">
+        {lessons.length > 0 ? (
+          <DashboardCard title="Your progress" className="lg:col-start-1">
+            <UnitProgress
+              title="Overall"
+              progress={progress}
+              tone="primary"
+              completed={countCompleted(lessons.map(({ lesson }) => lesson))}
+              total={lessons.length}
+            />
+            <div className="grid gap-4 sm:grid-cols-2">
+              {units.map((unit) => (
+                <UnitProgress
+                  key={unit.id}
+                  title={unit.title}
+                  progress={unit.progress}
+                  tone={unitTone(unit.position)}
+                  completed={countCompleted(unit.lessons)}
+                  total={unit.lessons.length}
+                />
+              ))}
+            </div>
+          </DashboardCard>
+        ) : null}
+        {leaderboard.isPending ? null : (
+          <DashboardCard
+            title="Leaderboard"
+            className="lg:col-start-2 lg:row-span-2 lg:row-start-1"
+          >
+            <LeaderboardCard
+              data={leaderboard.data?.data ?? null}
+              hiddenFromBoard={me.data?.data.profile.showOnLeaderboard === false}
+            />
+          </DashboardCard>
+        )}
+        {lessons.length > 0 ? (
+          <DashboardCard title="Your mastery" className="lg:col-start-1">
+            <MasteryList lessons={allLessons.filter((lesson) => lesson.status !== "locked")} />
+          </DashboardCard>
+        ) : null}
+      </div>
     </div>
   );
 }

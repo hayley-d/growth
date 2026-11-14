@@ -74,7 +74,7 @@ export function StepControls({ player, phases, className }: StepControlsProperti
   return (
     <fieldset
       onKeyDown={player.handleKeyDown}
-      className={cn("flex min-w-0 flex-col gap-3", className)}
+      className={cn("@container flex min-w-0 flex-col gap-3", className)}
     >
       <legend className="sr-only">Step player</legend>
       <p className="sr-only">
@@ -98,23 +98,22 @@ export function StepControls({ player, phases, className }: StepControlsProperti
         </div>
       </div>
 
-      <ul
-        aria-label="Key"
-        className="flex flex-wrap gap-x-4 gap-y-1 pl-2 text-xs text-muted-foreground"
-      >
-        {shownPhases.map((option) => (
-          <li key={option.phase} className="inline-flex items-center gap-1.5">
-            <span
-              aria-hidden="true"
-              className={cn("size-3", phaseColour[option.phase], phaseShape[option.phase])}
-            />
-            {option.label}
-          </li>
-        ))}
-      </ul>
-
-      <div className="flex flex-col items-center gap-3 sm:grid sm:grid-cols-[1fr_auto_1fr]">
-        <div className="flex items-center gap-1 sm:col-start-2">
+      <div className="flex flex-col items-center gap-3 @md:grid @md:grid-cols-[auto_1fr] @lg:grid-cols-[1fr_auto_1fr]">
+        <ul
+          aria-label="Key"
+          className="flex flex-wrap gap-x-4 gap-y-1 self-stretch pl-2 text-xs text-muted-foreground @md:col-span-2 @lg:col-span-1 @lg:col-start-1 @lg:row-start-1 @lg:self-auto"
+        >
+          {shownPhases.map((option) => (
+            <li key={option.phase} className="inline-flex items-center gap-1.5">
+              <span
+                aria-hidden="true"
+                className={cn("size-3", phaseColour[option.phase], phaseShape[option.phase])}
+              />
+              {option.label}
+            </li>
+          ))}
+        </ul>
+        <div className="flex items-center gap-1 @lg:col-start-2 @lg:row-start-1">
           <ControlButton
             label="First step"
             icon={ChevronFirst}
@@ -291,7 +290,7 @@ function SpeedPicker() {
   const name = useId();
 
   return (
-    <fieldset className="inline-flex rounded-full bg-muted p-1 sm:justify-self-end">
+    <fieldset className="inline-flex rounded-full bg-muted p-1 @md:justify-self-end @lg:col-start-3 @lg:row-start-1">
       <legend className="sr-only">Playback speed</legend>
       {playbackSpeeds.map((option) => {
         const isSelected = option === speed;

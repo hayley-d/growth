@@ -6,6 +6,7 @@ import { StepControls } from "@/components/molecules/step-controls";
 import type { StepPhase } from "@/lib/step-phases";
 import { useStepPlayer } from "@/lib/use-step-player";
 import { usePlaybackStore } from "@/stores/playback-store";
+import "@/index.css";
 
 const phases: readonly StepPhase[] = ["walk", "walk", "height", "rebalance", "rotate"];
 
@@ -78,7 +79,7 @@ it("only lists the phases in this run in the key", async () => {
 it("saves the speed the learner picks", async () => {
   const screen = await render(<Player />);
 
-  await screen.getByRole("radio", { name: "2×" }).click();
+  await screen.getByText("2×", { exact: true }).click();
 
   expect(usePlaybackStore.getState().speed).toBe(2);
   await expect.element(screen.getByRole("radio", { name: "2×" })).toBeChecked();
@@ -156,9 +157,56 @@ it("shows a pin with the step number over the current dot", async () => {
 it("leaves the arrow keys to the speed picker", async () => {
   const screen = await render(<Player />);
 
-  await screen.getByRole("radio", { name: "1×" }).click();
+  await screen.getByText("1×", { exact: true }).click();
   await userEvent.keyboard("{ArrowRight}");
 
   await expect.element(screen.getByRole("radio", { name: "2×" })).toBeChecked();
   await expect.element(screen.getByText("Showing 1")).toBeInTheDocument();
+});
+
+it("puts the key in the same row as the buttons when there is room", async () => {
+  const screen = await render(
+    <div style={{ width: 800 }}>
+      <Player />
+    </div>,
+  );
+
+  const key = screen.getByRole("list", { name: "Key" }).element().getBoundingClientRect();
+  const play = screen.getByRole("button", { name: "Play" }).element().getBoundingClientRect();
+
+  expect(key.right).toBeLessThan(play.left);
+  expect(key.bottom).toBeGreaterThan(play.top);
+  expect(key.top).toBeLessThan(play.bottom);
+});
+
+it("puts the key above the buttons when the player is narrow", async () => {
+  const screen = await render(
+    <div style={{ width: 320 }}>
+      <Player />
+    </div>,
+  );
+
+  const key = screen.getByRole("list", { name: "Key" }).element().getBoundingClientRect();
+  const play = screen.getByRole("button", { name: "Play" }).element().getBoundingClientRect();
+
+  expect(key.bottom).toBeLessThanOrEqual(play.top);
+});
+
+it("puts the speed picker beside the buttons under the key at a middle width", async () => {
+  const screen = await render(
+    <div style={{ width: 460 }}>
+      <Player />
+    </div>,
+  );
+
+  const key = screen.getByRole("list", { name: "Key" }).element().getBoundingClientRect();
+  const play = screen.getByRole("button", { name: "Play" }).element().getBoundingClientRect();
+  const speed = screen
+    .getByRole("group", { name: "Playback speed" })
+    .element()
+    .getBoundingClientRect();
+
+  expect(key.bottom).toBeLessThanOrEqual(play.top);
+  expect(speed.left).toBeGreaterThan(play.right);
+  expect(speed.top).toBeLessThan(play.bottom);
 });

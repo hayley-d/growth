@@ -9,7 +9,7 @@ type TestLayoutProperties = {
 
 export function TestLayout({ lessonTitle, children }: TestLayoutProperties) {
   return (
-    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6">
+    <div className="mx-auto flex w-full max-w-3xl flex-col gap-6 lg:max-w-5xl">
       <header className="flex items-start gap-3">
         <Link
           to="/learn"

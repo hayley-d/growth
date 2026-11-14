@@ -5,6 +5,7 @@ import type { AvlNode } from "@shared/avl";
 import type { Replay } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { AnswerReplay } from "@/components/organisms/answer-replay";
+import { TreeView } from "@/components/organisms/tree-view";
 import { cn } from "@/lib/utils";
 
 type FeedbackPanelProperties = {
@@ -61,7 +62,13 @@ export function FeedbackPanel({
         {isCorrect ? "Correct" : "Not quite"}
       </h2>
       <p>{explanation}</p>
-      {replay ? <AnswerReplay root={root} replay={replay} runKey={runKey} /> : null}
+      {replay ? (
+        <AnswerReplay root={root} replay={replay} runKey={runKey} />
+      ) : root ? (
+        <div className="h-56 rounded-xl border bg-card p-3 sm:h-72">
+          <TreeView root={root} className="h-full" />
+        </div>
+      ) : null}
       {children}
       {onNext ? (
         <Button type="button" className="min-h-11 self-end px-6" onClick={onNext}>

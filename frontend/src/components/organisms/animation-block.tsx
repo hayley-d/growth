@@ -46,7 +46,7 @@ export function AnimationBlock({
   return (
     <fieldset
       onKeyDown={player.handleKeyDown}
-      className={cn("flex min-w-0 flex-col gap-4", className)}
+      className={cn("flex min-w-0 flex-col gap-4 lg:grid lg:grid-cols-2 lg:gap-x-6", className)}
     >
       <legend className="sr-only">Animation</legend>
       <div className="h-56 rounded-xl border bg-card p-3 sm:h-72">
@@ -56,15 +56,22 @@ export function AnimationBlock({
           className="h-full"
         />
       </div>
-      {step ? (
-        <StepMessage
-          message={step.message}
-          stepNumber={player.index + 1}
-          stepCount={player.stepCount}
-          onListen={speak}
+      <div className="flex min-w-0 flex-col gap-4 lg:h-72 lg:justify-between">
+        {step ? (
+          <StepMessage
+            message={step.message}
+            stepNumber={player.index + 1}
+            stepCount={player.stepCount}
+            onListen={speak}
+            className="lg:-m-1 lg:min-h-0 lg:items-start lg:overflow-y-auto lg:p-1"
+          />
+        ) : null}
+        <StepControls
+          player={player}
+          phases={run.steps.map((each) => phaseOf(each.stepKey))}
+          className="lg:shrink-0"
         />
-      ) : null}
-      <StepControls player={player} phases={run.steps.map((each) => phaseOf(each.stepKey))} />
+      </div>
     </fieldset>
   );
 }

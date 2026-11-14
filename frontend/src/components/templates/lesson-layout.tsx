@@ -72,7 +72,9 @@ export function LessonLayout({
   }, []);
 
   return (
-    <div className={cn("flex w-full flex-col gap-6", !finished && "pb-24")}>
+    <div
+      className={cn("flex w-full flex-col gap-6", !finished && "pb-24 [--dock-bottom:4.3125rem]")}
+    >
       <header className="flex flex-col gap-3">
         <div className="flex items-start gap-3">
           <Link

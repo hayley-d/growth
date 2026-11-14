@@ -50,22 +50,23 @@ export function QuestionCard({
         </ol>
       ) : null}
       {question.type === "multiple_choice" || question.type === "text" ? (
-        root ? (
-          <div className="h-56 rounded-xl border bg-card p-3 sm:h-72">
-            <TreeView root={root} className="h-full" />
-          </div>
-        ) : null
-      ) : null}
-      {question.type === "multiple_choice" ? (
-        <MultipleChoiceQuestion
-          key={question.id}
-          options={question.options ?? []}
-          disabled={isBusy}
-          onSubmit={onSubmit}
-        />
-      ) : null}
-      {question.type === "text" ? (
-        <TextQuestion key={question.id} disabled={isBusy} onSubmit={onSubmit} />
+        <div className={cn("flex flex-col gap-4", root && "lg:grid lg:grid-cols-2 lg:gap-6")}>
+          {root ? (
+            <div className="h-56 rounded-xl border bg-card p-3 sm:h-72">
+              <TreeView root={root} className="h-full" />
+            </div>
+          ) : null}
+          {question.type === "multiple_choice" ? (
+            <MultipleChoiceQuestion
+              key={question.id}
+              options={question.options ?? []}
+              disabled={isBusy}
+              onSubmit={onSubmit}
+            />
+          ) : (
+            <TextQuestion key={question.id} disabled={isBusy} onSubmit={onSubmit} />
+          )}
+        </div>
       ) : null}
       {question.type === "build_tree" ? (
         <BuildTreeQuestion key={question.id} root={root} disabled={isBusy} onSubmit={onSubmit} />
