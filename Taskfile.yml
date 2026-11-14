@@ -1,0 +1,21 @@
+version: "3"
+
+tasks:
+  demo:
+    desc: Wipe and rebuild everything from scratch, seed the demo and run the app
+    cmds:
+      - docker compose down -v
+      - docker compose up -d --wait
+      - bun install
+      - |
+        if [ -z "$DATABASE_URL" ] || [ -z "$BETTER_AUTH_SECRET" ] || [ -z "$BETTER_AUTH_URL" ]; then
+          [ -f backend/.env ] || {
+            cp backend/.env.example backend/.env
+            sed -i "s|^BETTER_AUTH_SECRET=.*|BETTER_AUTH_SECRET=\"$(openssl rand -base64 32)\"|" backend/.env
+          }
+        fi
+      - bun run --filter @growth/backend prisma:generate
+      - bun run --filter @growth/backend prisma:deploy
+      - bun run --filter @growth/backend prisma:seed
+      - bun run --filter @growth/backend seed:demo
+      - bun run dev
