@@ -35,7 +35,7 @@ export function CommandLog({
     <ol
       ref={listReference}
       aria-label="What you've done"
-      className={cn("flex max-h-60 flex-col gap-1 overflow-y-auto font-mono text-sm", className)}
+      className={cn("flex flex-col gap-1 font-mono text-sm", className)}
     >
       {entries.map((entry) => (
         <li

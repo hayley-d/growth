@@ -16,13 +16,13 @@ type SetupPillsProperties = {
 };
 
 const pillClass =
-  "inline-flex min-h-9 items-center gap-2 rounded-full border-2 bg-card px-3.5 text-sm font-semibold";
+  "inline-flex min-h-9 items-center gap-2 rounded-full border-2 bg-card px-3.5 text-sm font-semibold whitespace-nowrap";
 
 export function SetupPills({ setup, className }: SetupPillsProperties) {
   const ExploreIcon = setup.explore === "interact" ? Hand : Play;
   return (
     <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      <ul aria-label="Your setup" className="flex flex-wrap gap-2">
+      <ul aria-label="Your setup" className="flex shrink-0 flex-wrap items-center gap-2">
         <li className={pillClass}>
           {setup.topic === "traversal" ? traversalNames[setup.traversal] : topicNames.avl}
         </li>
@@ -34,7 +34,7 @@ export function SetupPills({ setup, className }: SetupPillsProperties) {
       <Link
         to="/playground"
         search={toSearch(setup)}
-        className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
+        className="inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
       >
         <Pencil aria-hidden="true" className="size-4" />
         Change setup

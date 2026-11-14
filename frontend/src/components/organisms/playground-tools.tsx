@@ -16,7 +16,7 @@ type PlaygroundToolsProperties = {
 };
 
 const buttonClass =
-  "inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-50";
+  "inline-flex min-h-11 shrink-0 items-center gap-2 rounded-full px-4 text-sm font-semibold whitespace-nowrap transition-colors focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-50";
 
 export function PlaygroundTools({
   setup,
@@ -86,7 +86,6 @@ export function PlaygroundTools({
           className="-ml-1"
         />
       ) : null}
-      <span className="flex-1" />
       <button type="button" onClick={onToggleCode} className={cn(buttonClass, "hover:bg-muted")}>
         <CodeIcon aria-hidden="true" className="size-4" />
         {codeHidden ? "Show code" : "Hide code"}
