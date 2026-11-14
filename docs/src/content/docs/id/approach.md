@@ -30,8 +30,6 @@ step is the Savvy start, where we brainstormed ideas for each item and sketched 
 
 The second phase is the iterative design phase, which starts with project planning. We had around four weeks, so we ran the project as one sprint. Design and development overlapped. As soon as the team agreed on a storyboard for an item, it could move into its design proof while other items were still being designed.
 
-Planning also meant deciding what was in scope. Growth had to have twelve lessons over two units, the tests and checkpoints, the playground and practice mode. Test streaks and a case study feature were also planned, but we cut both because of time constraints ([Motivation](../motivation/#attention)).
-
 Each item became a ticket on our [project board](https://github.com/users/hayley-d/projects/5/views/6) with one person responsible for building it. Each ticket was built on its own branch and merged through a pull request. A pull request could only be merged once it passed the CI pipeline checks (linting and formatting, type checking, the build and the tests) and had been reviewed by at least one other team member. If a reviewer found a problem, the ticket moved to Revision until it was fixed.
 
 The rest of this phase is additional design. We took the storyboards from the Savvy start, reviewed them with the team and redesigned them. A round doesn't have to pick one storyboard. It can join the best parts of several into a new one, and we review that too. On the storyboard pages these rounds are Design 2 and Design 3. The [playground storyboard](../storyboards/playground/playground/) shows this over three rounds.
