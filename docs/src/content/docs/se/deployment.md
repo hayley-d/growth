@@ -73,6 +73,8 @@ Our documentation is built using Astro Starlight that lives under `docs/`. It in
 
 A `Docs` workflow (`docs.yml`) builds the site and deploys it to GitHub Pages on pushes to `master`. To build docs locally, run `bun run --filter @growth/docs build`.
 
+The PDFs we hand in are made from the docs site itself, so they never drift from it. `bun run pdf` makes one PDF for this document and one for the ID document, and `bun run pdf:api` makes one for the API reference. The API reference is left out of this document's PDF because it is very long. The files are written to `docs/dist-pdf/`. The first run downloads Chrome for Puppeteer.
+
 ## The repository
 
 All our code and documentation is in [the GitHub repository](https://github.com/hayley-d/growth).

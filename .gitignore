@@ -1,6 +1,7 @@
 node_modules
 dist
 .env
+backend/scripts/capture-openapi-examples.ts
 *.log
 .DS_Store
 coverage
@@ -11,3 +12,5 @@ backend/src/generated
 .vscode
 docs/plans/*
 frontend/.vitest
+docs/dist-pdf
+docs/.pdf-build

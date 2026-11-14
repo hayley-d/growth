@@ -1,13 +1,16 @@
 import { satteri } from "@astrojs/markdown-satteri";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+import starlightOpenAPI, { openAPISidebarGroups } from "starlight-openapi";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 
+import { pdfIntegration } from "./pdf/documents.mjs";
 import { citationLinks } from "./src/plugins/citation-links";
 
 export default defineConfig({
   site: "https://hayley-d.github.io",
   base: "/growth",
+  ...(process.env.PDF ? { outDir: `./.pdf-build/${process.env.PDF}` } : {}),
   markdown: {
     processor: satteri({ mdastPlugins: [citationLinks] }),
   },
@@ -20,15 +23,21 @@ export default defineConfig({
     starlight({
       title: "Growth",
       plugins: [
+        starlightOpenAPI([
+          {
+            base: "se/api",
+            schema: "./public/openapi.json",
+            sidebar: {
+              label: "API reference",
+              collapsed: true,
+              operations: { badges: true },
+            },
+          },
+        ]),
         starlightSidebarTopics(
           [
             {
-              label: "Learn the trees",
-              link: "/learn/trees/",
-              icon: "open-book",
-              items: [{ label: "Trees covered", slug: "learn/trees" }],
-            },
-            {
+              id: "se",
               label: "SE document",
               link: "/se/introduction/",
               icon: "document",
@@ -40,6 +49,7 @@ export default defineConfig({
                 { label: "Detailed design", slug: "se/design" },
                 { label: "UI design", slug: "se/ui" },
                 { label: "Quality and testing", slug: "se/testing" },
+                ...openAPISidebarGroups,
                 { label: "Deployment and running", slug: "se/deployment" },
                 { label: "Risks and limitations", slug: "se/risks" },
               ],
@@ -98,34 +108,11 @@ export default defineConfig({
                 { label: "GenAI acknowledgment", slug: "id/genai" },
               ],
             },
-            {
-              label: "Work on the code",
-              link: "/dev/getting-started/",
-              icon: "seti:config",
-              items: [
-                { label: "Getting started", slug: "dev/getting-started" },
-                {
-                  label: "Architecture",
-                  items: [
-                    { label: "Backend", slug: "dev/architecture/backend" },
-                    { label: "Frontend", slug: "dev/architecture/frontend" },
-                    { label: "Shared", slug: "dev/architecture/shared" },
-                  ],
-                },
-                {
-                  label: "Reference",
-                  items: [
-                    { label: "API reference", slug: "dev/reference/api" },
-                    { label: "Scripts and tooling", slug: "dev/reference/scripts" },
-                    { label: "Branches and commits", slug: "dev/reference/git-workflow" },
-                  ],
-                },
-              ],
-            },
           ],
-          { exclude: ["/index"] },
+          { exclude: ["/index"], topics: { se: ["/se/api", "/se/api/**/*"] } },
         ),
       ],
     }),
+    pdfIntegration(),
   ],
 });

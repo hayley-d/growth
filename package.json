@@ -16,7 +16,11 @@
     "format": "biome format --write .",
     "check": "biome check --write .",
     "typecheck": "bun run --filter \"*\" typecheck",
-    "prepare": "lefthook install"
+    "prepare": "lefthook install",
+    "pdf": "bun run --filter @growth/docs pdf",
+    "pdf:se": "bun run --filter @growth/docs pdf:se",
+    "pdf:id": "bun run --filter @growth/docs pdf:id",
+    "pdf:api": "bun run --filter @growth/docs pdf:api"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

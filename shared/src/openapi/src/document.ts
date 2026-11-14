@@ -1,3 +1,4 @@
+import { errorExamples, requestExamples, responseExamples } from "@shared/openapi/src/examples";
 import {
   type ErrorResponseName,
   type OperationSpec,
@@ -10,8 +11,11 @@ import {
   type SchemaName,
 } from "@shared/openapi/src/schema-components";
 
-const jsonContent = (name: SchemaName | "ErrorResponse") => ({
-  "application/json": { schema: { $ref: `#/components/schemas/${name}` } },
+const jsonContent = (name: SchemaName | "ErrorResponse", example?: unknown) => ({
+  "application/json": {
+    schema: { $ref: `#/components/schemas/${name}` },
+    ...(example === undefined ? {} : { example }),
+  },
 });
 
 const errorDescriptions: Record<ErrorResponseName, string> = {
@@ -25,11 +29,20 @@ const errorDescriptions: Record<ErrorResponseName, string> = {
 const errorResponses = Object.fromEntries(
   Object.entries(errorDescriptions).map(([name, description]) => [
     name,
-    { description, content: jsonContent("ErrorResponse") },
+    {
+      description,
+      content: jsonContent("ErrorResponse", errorExamples[name as ErrorResponseName]),
+    },
   ]),
 );
 
-const toResponses = (responses: OperationSpec["responses"]): JsonObject =>
+const responseContent = (schema: SchemaName | undefined, example: unknown): JsonObject => {
+  if (schema) return { content: jsonContent(schema, example) };
+  if (example === undefined) return {};
+  return { content: { "application/json": { example } } };
+};
+
+const toResponses = (operationId: string, responses: OperationSpec["responses"]): JsonObject =>
   Object.fromEntries(
     Object.entries(responses).map(([status, response]) => [
       status,
@@ -37,7 +50,7 @@ const toResponses = (responses: OperationSpec["responses"]): JsonObject =>
         ? { $ref: `#/components/responses/${response}` }
         : {
             description: response.description,
-            ...(response.schema ? { content: jsonContent(response.schema) } : {}),
+            ...responseContent(response.schema, responseExamples[`${operationId}:${status}`]),
           },
     ]),
   );
@@ -50,9 +63,14 @@ const toOperation = (operation: OperationSpec): JsonObject => ({
   ...(operation.secured ? { security: [{ sessionCookie: [] }] } : {}),
   ...(operation.parameters ? { parameters: operation.parameters } : {}),
   ...(operation.requestBody
-    ? { requestBody: { required: true, content: jsonContent(operation.requestBody) } }
+    ? {
+        requestBody: {
+          required: true,
+          content: jsonContent(operation.requestBody, requestExamples[operation.operationId]),
+        },
+      }
     : {}),
-  responses: toResponses(operation.responses),
+  responses: toResponses(operation.operationId, operation.responses),
 });
 
 const buildPaths = (): Record<string, JsonObject> => {

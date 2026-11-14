@@ -2,7 +2,10 @@ import { describe, expect, it } from "vitest";
 import { z } from "zod";
 
 import { openApiDocument } from "@shared/openapi";
+import { errorExamples, requestExamples, responseExamples } from "@shared/openapi/src/examples";
+import { operations as operationSpecs } from "@shared/openapi/src/operations";
 import { requestSchemas, responseSchemas } from "@shared/openapi/src/schema-components";
+import { errorResponseSchema } from "@shared/schemas";
 
 type Operation = {
   operationId: string;
@@ -120,5 +123,60 @@ describe("openApiDocument", () => {
         withoutStrictness(z.toJSONSchema(schema, { ...options, io: "output" })),
       );
     }
+  });
+
+  it("keeps every request example valid for its schema", () => {
+    const schemas: Record<string, z.ZodType> = { ...requestSchemas, ...responseSchemas };
+    for (const [operationId, example] of Object.entries(requestExamples)) {
+      const spec = operationSpecs.find((candidate) => candidate.operationId === operationId);
+      const schema = spec?.requestBody ? schemas[spec.requestBody] : undefined;
+      expect(schema, operationId).toBeDefined();
+      expect(schema?.safeParse(example).success, operationId).toBe(true);
+    }
+  });
+
+  it("keeps every response example on a documented response and valid for its schema", () => {
+    const schemas: Record<string, z.ZodType> = { ...requestSchemas, ...responseSchemas };
+    for (const [key, example] of Object.entries(responseExamples)) {
+      const [operationId, status = ""] = key.split(":");
+      const spec = operationSpecs.find((candidate) => candidate.operationId === operationId);
+      const response = spec?.responses[status];
+      expect(response, key).toBeDefined();
+      if (response && typeof response !== "string" && response.schema) {
+        expect(schemas[response.schema]?.safeParse(example).success, key).toBe(true);
+      }
+    }
+  });
+
+  it("gives every success response with a body an example", () => {
+    const missing = operationSpecs.flatMap((spec) =>
+      Object.entries(spec.responses)
+        .filter(
+          ([status, response]) =>
+            status.startsWith("2") && typeof response !== "string" && response.schema,
+        )
+        .map(([status]) => `${spec.operationId}:${status}`)
+        .filter((key) => responseExamples[key] === undefined),
+    );
+    expect(missing).toEqual([]);
+  });
+
+  it("gives every request body an example", () => {
+    const missing = operationSpecs
+      .filter((spec) => spec.requestBody && requestExamples[spec.operationId] === undefined)
+      .map((spec) => spec.operationId);
+    expect(missing).toEqual([]);
+  });
+
+  it("keeps every error example valid", () => {
+    for (const [name, example] of Object.entries(errorExamples)) {
+      expect(errorResponseSchema.safeParse(example).success, name).toBe(true);
+    }
+  });
+
+  it("shows no validation patterns or safe integer limits in the documented schemas", () => {
+    const text = JSON.stringify(openApiDocument);
+    expect(text).not.toContain("9007199254740991");
+    expect(text).not.toContain("[0-9a-fA-F]{8}");
   });
 });
