@@ -24,7 +24,7 @@ export function ContinueCard({
   className,
 }: ContinueCardProperties) {
   return (
-    <div className={cn("flex flex-col gap-4 rounded-lg border p-4 sm:p-6", className)}>
+    <div className={cn("flex flex-1 flex-col gap-4", className)}>
       <div className="flex flex-col gap-1">
         <p className="text-sm text-muted-foreground">{unitTitle}</p>
         <h3 className="text-xl font-semibold">{lessonTitle}</h3>
@@ -39,7 +39,7 @@ export function ContinueCard({
         type="button"
         onClick={onContinue}
         disabled={isStarting}
-        className="inline-flex min-h-11 w-fit items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:opacity-60"
+        className="mt-auto inline-flex min-h-11 w-fit items-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none disabled:opacity-60"
       >
         <Play aria-hidden className="size-4" />
         {isStarting ? "Opening..." : `${hasStarted ? "Continue" : "Start"}: ${lessonTitle}`}

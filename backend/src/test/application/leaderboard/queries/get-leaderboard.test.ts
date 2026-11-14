@@ -8,17 +8,20 @@ const userId = "user-1";
 
 describe("makeGetLeaderboard", () => {
   it.each([
-    ["2026-11-12T21:59:59.999Z", "2026-11-12T00:00:00.000Z", "2026-11-11T22:00:00.000Z"],
-    ["2026-11-12T22:00:00.000Z", "2026-11-13T00:00:00.000Z", "2026-11-12T22:00:00.000Z"],
-  ])("reads today's challenge when now is %s", async (now, challengeDateIso, dayStartIso) => {
+    ["2026-11-12T21:59:59.999Z", "2026-11-12T00:00:00.000Z"],
+    ["2026-11-12T22:00:00.000Z", "2026-11-13T00:00:00.000Z"],
+  ])("reads today's challenge when now is %s", async (now, challengeDateIso) => {
     const challengeDate = new Date(challengeDateIso);
-    const dayStart = new Date(dayStartIso);
+    const startedAt = new Date("2026-11-12T10:00:00.000Z");
     const listDailyChallengeResults = vi.fn().mockResolvedValue([
       {
         userId,
         displayName: "Ada",
         showOnLeaderboard: true,
-        finishedAt: new Date(dayStart.getTime() + 90_000),
+        passed: true,
+        points: 100,
+        startedAt,
+        finishedAt: new Date(startedAt.getTime() + 90_000),
       },
     ]);
     const getLeaderboard = makeGetLeaderboard({
@@ -33,8 +36,15 @@ describe("makeGetLeaderboard", () => {
     expect(listDailyChallengeResults).toHaveBeenCalledWith(challengeDate);
     expect(response).toEqual({
       data: {
-        top: [{ rank: 1, displayName: "Ada", timeSeconds: 90, isMe: true }],
-        me: { displayName: "Ada", rank: 1, timeSeconds: 90, hidden: false },
+        top: [{ rank: 1, displayName: "Ada", timeSeconds: 90, points: 100, isMe: true }],
+        me: {
+          displayName: "Ada",
+          rank: 1,
+          timeSeconds: 90,
+          points: 100,
+          passed: true,
+          hidden: false,
+        },
       },
     });
   });

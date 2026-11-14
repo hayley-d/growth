@@ -38,11 +38,18 @@ export const capturedResponses: Record<string, unknown> = {
   "getLeaderboard:200": {
     data: {
       top: [
-        { rank: 1, displayName: "Ada", timeSeconds: 41 },
-        { rank: 2, displayName: "Grace", timeSeconds: 55 },
-        { rank: 3, displayName: "Alan", timeSeconds: 72 },
+        { rank: 1, displayName: "Ada", timeSeconds: 41, points: 100, isMe: true },
+        { rank: 2, displayName: "Grace", timeSeconds: 55, points: 100, isMe: false },
+        { rank: 3, displayName: "Alan", timeSeconds: 72, points: 80, isMe: false },
       ],
-      me: { displayName: "Ada", rank: 1, timeSeconds: 41, hidden: false },
+      me: {
+        displayName: "Ada",
+        rank: 1,
+        timeSeconds: 41,
+        points: 100,
+        passed: true,
+        hidden: false,
+      },
     },
   },
   "getHealth:200": { status: "ok" },

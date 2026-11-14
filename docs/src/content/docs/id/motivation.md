@@ -62,7 +62,7 @@ Keller also advises avoiding surveillance and avoiding external evaluations wher
 
 ## Daily challenge and leaderboard
 
-A daily challenge gives learners one problem a day. An optional leaderboard ranks that day's attempts by the time taken to finish.
+A daily challenge gives learners one problem a day. An optional leaderboard ranks that day's passed attempts by the time taken to finish. Equal times are split by points. The board is a card on the dashboard, and it stays there once the challenge is done.
 
 This is a deliberate exception to the rules above. A ranking by time is an external evaluation, which Keller's satisfaction strategies advise against, and it brings back the time pressure we kept out of lessons and tests. We think it is still worth having for one kind of learner. Keller's need-matching strategy offers people driven by achievement a chance to meet a standard of excellence "under conditions of moderate risk" (Keller, 1987, p. 4), and a daily challenge with a time fits that. The risk is kept moderate as the learner chooses to appear on the board with "Show me on the leaderboard" in Settings, and is hidden otherwise. The challenge is outside the course content, so a slow time never affects mastery or progress. And the board resets every day.
 
