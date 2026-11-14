@@ -1,6 +1,7 @@
 import { createColumnHelper, tableFeatures, useTable } from "@tanstack/react-table";
 
 import type { LeaderboardEntry, LeaderboardMe } from "@shared/schemas";
+import { YouBadge } from "@/components/molecules/you-badge";
 import { describeDuration, formatDuration } from "@/lib/daily-challenge/format-duration";
 import { cn } from "@/lib/utils";
 
@@ -27,17 +28,7 @@ const columns = helper.columns([
     cell: (info) => <DurationTime seconds={info.getValue()} />,
   }),
 ]);
-const fallbackEntries: LeaderboardEntry[] = [];
-
 const hiddenRank = "–";
-
-function YouBadge() {
-  return (
-    <span className="inline-flex items-center rounded-full border border-foreground bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
-      You
-    </span>
-  );
-}
 
 function DurationTime({ seconds }: { seconds: number }) {
   return (
@@ -52,7 +43,7 @@ function DurationTime({ seconds }: { seconds: number }) {
 }
 
 export function LeaderboardTable({ entries, me }: LeaderboardTableProperties) {
-  const table = useTable({ features, columns, data: entries ?? fallbackEntries });
+  const table = useTable({ features, columns, data: entries });
   const showPinnedRow = me !== null && !entries.some((entry) => entry.isMe);
 
   return (

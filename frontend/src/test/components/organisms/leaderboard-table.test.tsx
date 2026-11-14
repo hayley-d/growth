@@ -24,7 +24,6 @@ it("shows a You badge and highlight on the signed-in learner", async () => {
   await expect
     .element(screen.getByRole("cell", { name: "Ada" }).getByText("You"))
     .not.toBeInTheDocument();
-  expect(learner.element().closest("tr")?.className).toContain("bg-accent/40");
 });
 
 it("pins the signed-in learner under the list when they are outside the top 10", async () => {

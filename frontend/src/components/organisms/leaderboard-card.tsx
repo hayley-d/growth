@@ -3,6 +3,7 @@ import { ArrowRight } from "lucide-react";
 
 import type { LeaderboardResponse } from "@shared/schemas";
 import { DurationClock } from "@/components/molecules/duration-clock";
+import { YouBadge } from "@/components/molecules/you-badge";
 import { describeDuration } from "@/lib/daily-challenge/format-duration";
 import { cn } from "@/lib/utils";
 
@@ -20,14 +21,6 @@ const boardLink = (to: "/daily" | "/leaderboard", label: string) => (
     <ArrowRight aria-hidden className="size-4" />
   </Link>
 );
-
-function YouBadge() {
-  return (
-    <span className="inline-flex items-center rounded-full border border-foreground bg-accent px-2 py-0.5 text-xs font-semibold text-accent-foreground">
-      You
-    </span>
-  );
-}
 
 export function LeaderboardCard({ data, className }: LeaderboardCardProperties) {
   const cardClasses = cn("flex flex-col gap-3 rounded-lg border p-4 sm:p-6", className);
