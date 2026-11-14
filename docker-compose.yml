@@ -10,6 +10,11 @@ services:
       POSTGRES_DB: growth
     ports:
       - "5433:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U growth -d growth"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
     volumes:
       - database-data:/var/lib/postgresql/data
 

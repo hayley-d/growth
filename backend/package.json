@@ -19,6 +19,7 @@
     "dev:daily-new": "bun --bun scripts/new-daily-challenge.ts",
     "content:load": "bun prisma/load-content.ts",
     "unlock": "bun scripts/unlock-lessons.ts",
+    "seed:demo": "bun --bun scripts/seed-demo.ts",
     "typecheck": "bun --bun node_modules/.bin/prisma generate && tsc --noEmit"
   },
   "dependencies": {
