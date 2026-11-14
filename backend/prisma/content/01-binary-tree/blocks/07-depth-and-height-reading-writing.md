@@ -1,5 +1,5 @@
 ---
-position: 8
+position: 7
 style: reading-writing
 transcript: "Write the depth and height. For each of the nodes 8, 4 and 14, write its depth and its height."
 write: true

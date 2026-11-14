@@ -2,7 +2,7 @@ import type { BlockContent } from "@/infrastructure/course-content/content/conte
 
 export default {
   type: "diagram",
-  position: 8,
+  position: 7,
   transcript:
     "Depth and height. The depth of a node is how many edges lie between it and the root. The root has depth 0, 4 and 12 have depth 1, and the leaves have depth 2. The height of a node counts the nodes on the longest way down to a leaf, starting with the node itself. A leaf has height 1, and 4 and 12 have height 2. The height of the tree is the height of its root, which is 3. So the height is the deepest depth plus 1. Some books count height in edges instead, which makes a leaf height 0. In this course a leaf has height 1. In the tree, one path from the root to a leaf is highlighted: 8, then 12, then 14. It has three nodes, so the height of the tree is 3. 14 is two edges below the root, so its depth is 2.",
   body: {
