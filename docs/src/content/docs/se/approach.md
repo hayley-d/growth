@@ -36,5 +36,3 @@ feature branch ──▶ staging ──fast-forward──▶ master
 - The pipeline checks every pull request. Lint, typecheck and build must pass. Tests run and report, but do not block.
 - Feature branches are squash merged or rebased, and `staging` goes into `master` by fast-forward only. This keeps the history linear.
 - Commits and pull request titles follow Conventional Commits, for example `feat(frontend): add tree loader`. A hook rejects anything else.
-
-The full rules are in [Branches and commits](../../dev/reference/git-workflow/).
