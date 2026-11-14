@@ -33,12 +33,12 @@ const me = (overrides: Partial<NonNullable<LeaderboardResponse["data"]["me"]>> =
   ...overrides,
 });
 
-const renderCard = (data: LeaderboardResponse["data"] | null) => {
+const renderCard = (data: LeaderboardResponse["data"] | null, hiddenFromBoard = false) => {
   queryClient.clear();
   const rootRoute = createRootRoute({
     component: () => (
       <>
-        <LeaderboardCard data={data} />
+        <LeaderboardCard data={data} hiddenFromBoard={hiddenFromBoard} />
         <Outlet />
       </>
     ),
@@ -53,8 +53,13 @@ const renderCard = (data: LeaderboardResponse["data"] | null) => {
     path: "/daily",
     component: () => null,
   });
+  const settingsRoute = createRoute({
+    getParentRoute: () => rootRoute,
+    path: "/settings",
+    component: () => null,
+  });
   const router = createRouter({
-    routeTree: rootRoute.addChildren([indexRoute, dailyRoute]),
+    routeTree: rootRoute.addChildren([indexRoute, dailyRoute, settingsRoute]),
     history: createMemoryHistory({ initialEntries: ["/"] }),
   });
 
@@ -134,10 +139,37 @@ it("says the learner is hidden but still shows the board", async () => {
     me: me({ rank: null, hidden: true }),
   });
 
+  await expect.element(screen.getByText("You finished in 2 minutes.")).toBeVisible();
   await expect
-    .element(screen.getByText("You finished in 2 minutes. You're hidden from the board."))
+    .element(screen.getByText(/You've hidden yourself from the leaderboard/))
     .toBeVisible();
   await expect.element(screen.getByText("Ada")).toBeVisible();
+});
+
+it("shows the hidden note and no board promise when a hidden learner has not finished", async () => {
+  const screen = await renderCard({ top: [entry(1, "Ada", 90)], me: null }, true);
+
+  await expect
+    .element(screen.getByText("Finish today's challenge to see your time."))
+    .toBeVisible();
+  await expect
+    .element(screen.getByText("Finish today's challenge to get on the board."))
+    .not.toBeInTheDocument();
+  await expect
+    .element(screen.getByText(/You've hidden yourself from the leaderboard/))
+    .toBeVisible();
+  await expect
+    .element(screen.getByRole("link", { name: "Change this in settings" }))
+    .toHaveAttribute("href", "/settings");
+  await expect.element(screen.getByText("Ada")).toBeVisible();
+});
+
+it("leaves out the hidden note for a learner on the board", async () => {
+  const screen = await renderCard({ top: [entry(1, "Ada", 90)], me: null });
+
+  await expect
+    .element(screen.getByText(/You've hidden yourself from the leaderboard/))
+    .not.toBeInTheDocument();
 });
 
 it("lists rank, name, time and points with a You badge", async () => {
