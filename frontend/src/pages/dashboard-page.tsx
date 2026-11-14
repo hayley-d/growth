@@ -8,12 +8,18 @@ import { MasteryList } from "@/components/molecules/mastery-list";
 import { PageLoader } from "@/components/molecules/page-loader";
 import { UnitProgress } from "@/components/molecules/unit-progress";
 import { DailyChallengeCard } from "@/components/organisms/daily-challenge-card";
+import { LeaderboardCard } from "@/components/organisms/leaderboard-card";
 import { useRunAt } from "@/lib/daily-challenge/use-run-at";
 import { countCompleted } from "@/lib/learning-path/count-completed";
 import { isCourseFinished } from "@/lib/learning-path/is-course-finished";
 import { unitTone } from "@/lib/learning-path/unit-tone";
 import { useStartLessonMutation } from "@/lib/mutations";
-import { useDailyChallengeQuery, useLearningPathQuery, useSessionQuery } from "@/lib/queries";
+import {
+  useDailyChallengeQuery,
+  useLeaderboardQuery,
+  useLearningPathQuery,
+  useSessionQuery,
+} from "@/lib/queries";
 
 const linkClasses =
   "inline-flex min-h-11 items-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground hover:opacity-90 focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none";
@@ -24,6 +30,7 @@ export function DashboardPage() {
   const learningPath = useLearningPathQuery();
   const startLesson = useStartLessonMutation();
   const dailyChallenge = useDailyChallengeQuery();
+  const leaderboard = useLeaderboardQuery();
   const dailyState = dailyChallenge.data?.data ?? null;
   const { refetch: refetchDailyChallenge } = dailyChallenge;
   useRunAt(
@@ -126,6 +133,14 @@ export function DashboardPage() {
             Daily challenge
           </h2>
           <DailyChallengeCard state={dailyState} />
+        </section>
+      )}
+      {leaderboard.isPending ? null : (
+        <section aria-labelledby="leaderboard" className="flex flex-col gap-3">
+          <h2 id="leaderboard" className="text-lg font-semibold">
+            Leaderboard
+          </h2>
+          <LeaderboardCard data={leaderboard.data?.data ?? null} />
         </section>
       )}
       {lessons.length > 0 ? (

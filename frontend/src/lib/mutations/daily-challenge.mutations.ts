@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import type { DailyChallengeStateResponse, SubmitAnswerRequest } from "@shared/schemas";
 import { dailyChallengeQueryKeys } from "@/lib/queries/daily-challenge.queries";
+import { leaderboardQueryKeys } from "@/lib/queries/leaderboard.queries";
 import { dailyChallengeService } from "@/services/daily-challenge-service";
 
 const useSetDailyChallenge = () => {
@@ -19,10 +20,14 @@ export const useStartDailyChallengeMutation = () => {
 };
 
 export const useSubmitDailyChallengeAnswerMutation = () => {
+  const queryClient = useQueryClient();
   const setDailyChallenge = useSetDailyChallenge();
   return useMutation({
     mutationFn: (request: SubmitAnswerRequest) =>
       dailyChallengeService.submitDailyChallengeAnswer(request),
-    onSuccess: setDailyChallenge,
+    onSuccess: (response) => {
+      setDailyChallenge(response);
+      void queryClient.invalidateQueries({ queryKey: leaderboardQueryKeys.all });
+    },
   });
 };

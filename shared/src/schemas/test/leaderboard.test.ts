@@ -2,14 +2,15 @@ import { describe, expect, it } from "vitest";
 
 import { leaderboardResponseSchema, toLeaderboardResponse } from "@shared/schemas";
 
-const entry = (rank: number, displayName: string, timeSeconds: number) => ({
+const entry = (rank: number, displayName: string, timeSeconds: number, isMe = false) => ({
   rank,
   displayName,
   timeSeconds,
+  isMe,
 });
 
 const data = {
-  top: [entry(1, "Ada", 90), entry(1, "Bea", 90), entry(3, "Cy", 120)],
+  top: [entry(1, "Ada", 90, true), entry(1, "Bea", 90), entry(3, "Cy", 120)],
   me: { displayName: "Ada", rank: 1, timeSeconds: 90, hidden: false },
 };
 
