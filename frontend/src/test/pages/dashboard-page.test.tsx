@@ -195,6 +195,36 @@ it("shows the result and a countdown, with no link, once today's challenge is do
     .not.toBeInTheDocument();
 });
 
+it("shows today's place when the leaderboard loads", async () => {
+  mockedGet.mockImplementation(async (url: string) => {
+    if (url.endsWith("/leaderboard")) {
+      return {
+        data: {
+          data: {
+            top: [
+              { rank: 1, displayName: "Ada", timeSeconds: 90, isMe: false },
+              { rank: 2, displayName: "Bea", timeSeconds: 120, isMe: true },
+            ],
+            me: { displayName: "Bea", rank: 2, timeSeconds: 120, hidden: false },
+          },
+        },
+      };
+    }
+    return { data: buildLearningPath(2) };
+  });
+  const screen = await renderApp("/");
+
+  await expect
+    .element(screen.getByRole("heading", { name: "Leaderboard", level: 2 }))
+    .toBeVisible();
+  const leaderboard = screen.getByRole("region", { name: "Leaderboard" });
+  await expect.element(leaderboard.getByText("You're #2 today")).toBeVisible();
+  await expect.element(leaderboard.getByText("You", { exact: true })).toBeVisible();
+  await expect
+    .element(screen.getByRole("link", { name: "View the leaderboard" }))
+    .toHaveAttribute("href", "/leaderboard");
+});
+
 it("still offers the daily challenge page when the card can't load", async () => {
   mockedGet.mockImplementation(async (url: string) => {
     if (url.endsWith("/daily-challenge")) throw { statusCode: 500, message: "Server error" };

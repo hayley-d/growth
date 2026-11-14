@@ -27,7 +27,7 @@ export function Navbar() {
           <Logo />
           <span className="text-lg">Growth</span>
         </Link>
-        <div className="absolute left-1/2 hidden -translate-x-1/2 md:block">
+        <div className="absolute left-1/2 hidden -translate-x-1/2 lg:block">
           <NavLinks />
         </div>
         <div className="ml-auto flex items-center gap-1">
@@ -35,7 +35,7 @@ export function Navbar() {
           <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
             <SheetTrigger
               aria-label="Open menu"
-              className="flex size-11 items-center justify-center rounded-md hover:bg-muted md:hidden"
+              className="flex size-11 items-center justify-center rounded-md hover:bg-muted lg:hidden"
             >
               <Menu className="size-5" />
             </SheetTrigger>

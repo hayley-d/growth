@@ -4,6 +4,7 @@ const leaderboardEntrySchema = z.object({
   rank: z.int().min(1),
   displayName: z.string(),
   timeSeconds: z.int().min(0),
+  isMe: z.boolean(),
 });
 
 export type LeaderboardEntry = z.infer<typeof leaderboardEntrySchema>;

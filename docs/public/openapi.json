@@ -3516,13 +3516,18 @@
                     },
                     "timeSeconds": {
                       "type": "integer",
-                      "minimum": 0
+                      "minimum": 0,
+                      "maximum": 9007199254740991
+                    },
+                    "isMe": {
+                      "type": "boolean"
                     }
                   },
                   "required": [
                     "rank",
                     "displayName",
-                    "timeSeconds"
+                    "timeSeconds",
+                    "isMe"
                   ]
                 }
               },

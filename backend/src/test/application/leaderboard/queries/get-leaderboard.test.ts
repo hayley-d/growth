@@ -33,7 +33,7 @@ describe("makeGetLeaderboard", () => {
     expect(listDailyChallengeResults).toHaveBeenCalledWith(challengeDate);
     expect(response).toEqual({
       data: {
-        top: [{ rank: 1, displayName: "Ada", timeSeconds: 90 }],
+        top: [{ rank: 1, displayName: "Ada", timeSeconds: 90, isMe: true }],
         me: { displayName: "Ada", rank: 1, timeSeconds: 90, hidden: false },
       },
     });

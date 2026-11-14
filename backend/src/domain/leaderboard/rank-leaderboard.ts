@@ -45,10 +45,11 @@ export const rankLeaderboard = (
   const mine = timed.find((result) => result.userId === userId);
 
   return {
-    top: ranked.slice(0, topSize).map(({ rank, displayName, timeSeconds }) => ({
-      rank,
-      displayName,
-      timeSeconds,
+    top: ranked.slice(0, topSize).map((result) => ({
+      rank: result.rank,
+      displayName: result.displayName,
+      timeSeconds: result.timeSeconds,
+      isMe: result.userId === userId,
     })),
     me: mine
       ? {
