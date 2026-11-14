@@ -34,7 +34,6 @@ import {
   PrismaAttemptQuestionRepository,
   PrismaDailyChallengeRepository,
   PrismaHintRepository,
-  PrismaLeaderboardRepository,
   PrismaQuestionRepository,
 } from "@/infrastructure/assessment/repositories";
 import { authHandler, getSession } from "@/infrastructure/auth/auth";
@@ -50,6 +49,7 @@ import {
   PrismaUnitRepository,
 } from "@/infrastructure/course-content/repositories";
 import { prismaClient } from "@/infrastructure/database/prisma-client";
+import { PrismaLeaderboardRepository } from "@/infrastructure/leaderboard/repositories";
 import { registerGracefulShutdown } from "@/infrastructure/lifecycle/register-graceful-shutdown";
 import { registerProcessErrorHandlers } from "@/infrastructure/lifecycle/register-process-error-handlers";
 import { createPinoLogger } from "@/infrastructure/logging/pino-logger";

@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 
 import type { PrismaClient } from "@/generated/prisma/client";
-import { PrismaLeaderboardRepository } from "@/infrastructure/assessment/repositories";
+import { PrismaLeaderboardRepository } from "@/infrastructure/leaderboard/repositories";
 
 const challengeDate = new Date("2026-11-12T00:00:00.000Z");
 const finishedAt = new Date("2026-11-12T06:00:00.000Z");
