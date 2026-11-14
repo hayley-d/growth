@@ -14,6 +14,7 @@ type LessonStepProperties = {
   stepNumber: number;
   objectives: readonly string[] | null;
   styleNames: Readonly<Record<string, string>>;
+  showListen: boolean;
 };
 
 function StyledBlock({
@@ -39,7 +40,13 @@ function StyledBlock({
   );
 }
 
-export function LessonStep({ step, stepNumber, objectives, styleNames }: LessonStepProperties) {
+export function LessonStep({
+  step,
+  stepNumber,
+  objectives,
+  styleNames,
+  showListen,
+}: LessonStepProperties) {
   const othersId = useId();
   const [othersOpen, setOthersOpen] = useState(false);
   const extra = pickExtra(step, styleNames);
@@ -52,12 +59,16 @@ export function LessonStep({ step, stepNumber, objectives, styleNames }: LessonS
     : leadsWithText(step.coreBlock)
       ? "core"
       : "own-row";
-  const listen = <ListenButton id={`step-${step.position}`} texts={transcripts} />;
+  const listen = showListen ? (
+    <ListenButton id={`step-${step.position}`} texts={transcripts} />
+  ) : undefined;
 
   return (
     <div className="flex flex-col gap-6">
       <h2 className="sr-only">Step {stepNumber}</h2>
-      {listenPlace === "own-row" ? <div className="flex justify-end">{listen}</div> : null}
+      {listenPlace === "own-row" && listen ? (
+        <div className="flex justify-end">{listen}</div>
+      ) : null}
 
       {objectives && objectives.length > 0 ? (
         <section

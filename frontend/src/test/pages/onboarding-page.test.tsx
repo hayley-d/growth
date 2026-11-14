@@ -131,7 +131,7 @@ const answerEverything = async () => {
   await page.getByRole("button", { name: "Next" }).click();
   await page.getByRole("button", { name: "No, keep me off it" }).click();
   await page.getByRole("button", { name: "Next" }).click();
-  await page.getByRole("button", { name: "Yes, read them aloud" }).click();
+  await page.getByRole("button", { name: "Yes, show audio buttons" }).click();
 };
 
 describe("a learner who hasn't onboarded", () => {
@@ -260,7 +260,7 @@ describe("a learner who hasn't onboarded", () => {
     await page.getByRole("button", { name: "Next" }).click();
     await page.getByRole("button", { name: "Yes, show me" }).click();
     await page.getByRole("button", { name: "Next" }).click();
-    await page.getByRole("button", { name: "No thanks" }).click();
+    await page.getByRole("button", { name: "No, hide them" }).click();
     await page.getByRole("button", { name: "Finish" }).click();
 
     await expect.element(heading("Dashboard")).toBeVisible();
@@ -326,7 +326,7 @@ describe("a learner who hasn't onboarded", () => {
 
     await expect.element(page.getByText(/Your answers are still here/)).toBeVisible();
     await expect
-      .element(page.getByRole("button", { name: "Yes, read them aloud" }))
+      .element(page.getByRole("button", { name: "Yes, show audio buttons" }))
       .toHaveAttribute("aria-pressed", "true");
     await page.getByRole("button", { name: "Finish" }).click();
     await expect.element(heading("Dashboard")).toBeVisible();

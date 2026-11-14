@@ -1,6 +1,7 @@
 import { beforeEach, expect, it, vi } from "vitest";
 import { page, userEvent } from "vitest/browser";
 
+import type { MeResponse } from "@shared/schemas";
 import { networkService } from "@/services/network.service";
 import {
   buildLesson,
@@ -9,7 +10,7 @@ import {
   lessonFixtureId,
   visualStyleId,
 } from "@/test/lesson-fixture";
-import { renderApp } from "@/test/render-app";
+import { onboardedMe, renderApp } from "@/test/render-app";
 
 vi.mock("@/services/network.service", () => ({
   networkService: {
@@ -27,8 +28,23 @@ const lessonUrl = `/api/lessons/${lessonFixtureId}`;
 const noteUrl = `${lessonUrl}/note`;
 const lessonPath = `/lessons/${lessonFixtureId}`;
 
-const serve = (lesson = buildLesson()) => {
+const meFor = (textToSpeech: boolean) => ({
+  data: {
+    user: { email: "test@example.com", emailVerified: true, displayName: "Test User" },
+    profile: {
+      codeLanguageId: null,
+      colourTheme: "default",
+      learningStyleId: null,
+      onboardingComplete: true,
+      showOnLeaderboard: true,
+      textToSpeech,
+    },
+  },
+});
+
+const serve = (lesson = buildLesson(), textToSpeech = true) => {
   const responses: Record<string, unknown> = {
+    "/api/me": meFor(textToSpeech),
     [lessonUrl]: lesson,
     [noteUrl]: { data: { lessonId: lessonFixtureId, body: "Root first.", updatedAt: null } },
     "/api/learning-styles": learningStylesResponse,
@@ -241,15 +257,27 @@ it("shows the error and lets the learner try again", async () => {
   await expect.element(screen.getByRole("heading", { name: "Pre-order", level: 1 })).toBeVisible();
 });
 
+const withAudioButtons: MeResponse = {
+  data: { ...onboardedMe.data, profile: { ...onboardedMe.data.profile, textToSpeech: true } },
+};
+
 it("hides Listen where the browser can't speak", async () => {
   serve();
-  const screen = await renderApp(lessonPath);
+  const screen = await renderApp(lessonPath, { me: withAudioButtons });
   await expect.element(screen.getByRole("heading", { name: "The rule" })).toBeVisible();
 
   const supported = "speechSynthesis" in window;
   const listen = screen.getByRole("button", { name: "Listen" });
   if (supported) await expect.element(listen.first()).toBeVisible();
   else expect(listen.elements()).toHaveLength(0);
+});
+
+it("hides Listen when the learner turned audio buttons off", async () => {
+  serve();
+  const screen = await renderApp(lessonPath);
+  await expect.element(screen.getByRole("heading", { name: "The rule" })).toBeVisible();
+
+  expect(screen.getByRole("button", { name: "Listen" }).elements()).toHaveLength(0);
 });
 
 it("goes straight to the test from the last step of a checkpoint", async () => {

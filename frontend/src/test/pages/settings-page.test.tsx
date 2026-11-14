@@ -126,7 +126,7 @@ describe("signed in", () => {
       .element(screen.getByRole("combobox", { name: "Code language" }))
       .toHaveValue(javaId);
     await expect
-      .element(screen.getByRole("checkbox", { name: /Read lessons aloud/ }))
+      .element(screen.getByRole("checkbox", { name: /Show audio buttons/ }))
       .not.toBeChecked();
     await expect
       .element(screen.getByRole("checkbox", { name: /Show me on the leaderboard/ }))
@@ -172,7 +172,7 @@ describe("signed in", () => {
   });
 
   it.each([
-    ["Read lessons aloud", { textToSpeech: true }],
+    ["Show audio buttons", { textToSpeech: true }],
     ["Show me on the leaderboard", { showOnLeaderboard: false }],
   ])("saves the %s toggle", async (label, changes) => {
     const screen = await renderApp("/settings");
@@ -187,11 +187,11 @@ describe("signed in", () => {
     saveFails();
     const screen = await renderApp("/settings");
 
-    await screen.getByRole("checkbox", { name: /Read lessons aloud/ }).click();
+    await screen.getByRole("checkbox", { name: /Show audio buttons/ }).click();
 
     await expect.element(screen.getByText("Unable to save your settings")).toBeVisible();
     await expect
-      .element(screen.getByRole("checkbox", { name: /Read lessons aloud/ }))
+      .element(screen.getByRole("checkbox", { name: /Show audio buttons/ }))
       .not.toBeChecked();
     expect(screen.getByText("Saved").elements()).toHaveLength(0);
   });
