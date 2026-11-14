@@ -9,6 +9,7 @@ import type { AlgorithmController } from "@/presentation/controllers/algorithm-c
 import type { AttemptController } from "@/presentation/controllers/attempt-controller";
 import type { CourseContentController } from "@/presentation/controllers/course-content-controller";
 import type { DailyChallengeController } from "@/presentation/controllers/daily-challenge-controller";
+import type { LeaderboardController } from "@/presentation/controllers/leaderboard-controller";
 import type { LearningPathController } from "@/presentation/controllers/learning-path-controller";
 import type { LessonController } from "@/presentation/controllers/lesson-controller";
 import type { OnboardingController } from "@/presentation/controllers/onboarding-controller";
@@ -25,6 +26,7 @@ import { createAuthRoutes } from "@/presentation/routes/auth-routes";
 import { createCourseContentRoutes } from "@/presentation/routes/course-content-routes";
 import { createDailyChallengeRoutes } from "@/presentation/routes/daily-challenge-routes";
 import { healthRoutes } from "@/presentation/routes/health-routes";
+import { createLeaderboardRoutes } from "@/presentation/routes/leaderboard-routes";
 import { createLearningPathRoutes } from "@/presentation/routes/learning-path-routes";
 import { createLessonRoutes } from "@/presentation/routes/lesson-routes";
 import { createOnboardingRoutes } from "@/presentation/routes/onboarding-routes";
@@ -43,6 +45,7 @@ type ApplicationDependencies = {
   userController: UserController;
   courseContentController: CourseContentController;
   learningPathController: LearningPathController;
+  leaderboardController: LeaderboardController;
   onboardingController: OnboardingController;
 };
 
@@ -58,6 +61,7 @@ export const createApplication = ({
   userController,
   courseContentController,
   learningPathController,
+  leaderboardController,
   onboardingController,
 }: ApplicationDependencies) => {
   const application = new Hono();
@@ -81,6 +85,7 @@ export const createApplication = ({
   application.route("/api", createPracticeRoutes(practiceController));
   application.route("/api/daily-challenge", createDailyChallengeRoutes(dailyChallengeController));
   application.route("/api/learning-path", createLearningPathRoutes(learningPathController));
+  application.route("/api/leaderboard", createLeaderboardRoutes(leaderboardController));
   application.route("/api/me", createUserRoutes(userController));
   application.route("/api/onboarding", createOnboardingRoutes(onboardingController));
   application.route("/api", createCourseContentRoutes(courseContentController));
