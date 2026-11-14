@@ -8,12 +8,18 @@
     "preview": "astro preview",
     "typecheck": "astro check",
     "images": "bun scripts/convert-images.ts",
-    "test": "echo \"No tests for docs\""
+    "test": "echo \"No tests for docs\"",
+    "pdf:browser": "puppeteer browsers install chrome",
+    "pdf:se": "bun run pdf:browser && PDF=se astro build",
+    "pdf:id": "bun run pdf:browser && PDF=id astro build",
+    "pdf:api": "bun run pdf:browser && PDF=api astro build",
+    "pdf": "bun run pdf:se && bun run pdf:id"
   },
   "dependencies": {
     "@astrojs/markdown-satteri": "0.4.4",
     "@astrojs/starlight": "0.42.6",
     "astro": "7.4.0",
+    "astro-pdf": "2.0.0",
     "satteri": "0.10.5",
     "sharp": "0.35.5",
     "starlight-openapi": "0.27.1",
@@ -22,6 +28,7 @@
   "devDependencies": {
     "@astrojs/check": "0.9.10",
     "@types/mdast": "4.0.4",
+    "puppeteer": "25.17.0",
     "typescript": "6.0.3"
   }
 }

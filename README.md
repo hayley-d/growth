@@ -132,6 +132,8 @@ The [getting started guide](https://hayley-d.github.io/growth/dev/getting-starte
 | `bun run lint` | Lints with Biome |
 | `bun run check` | Lints and formats with Biome, writing fixes |
 | `bun run build` | Builds every workspace |
+| `bun run pdf` | Makes the SE and ID documents as PDFs in `docs/dist-pdf/` |
+| `bun run pdf:api` | Makes the API reference as a PDF in `docs/dist-pdf/` |
 
 ## Project structure
 
