@@ -144,6 +144,28 @@ describe("generate", () => {
     }
   });
 
+  it("predict-rotation with unbalanced shows a tree that needs the answer's rotation", () => {
+    const lowestUnbalanced = (node: AvlNode | null): number | null => {
+      if (!node) return null;
+      const below = lowestUnbalanced(node.left) ?? lowestUnbalanced(node.right);
+      if (below !== null) return below;
+      return Math.abs(balanceOf(node)) >= 2 ? node.key : null;
+    };
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        const question = generate("predict-rotation", { seed, difficulty, unbalanced: true });
+        if (question.answer.type !== "predict_rotation")
+          throw new Error("expected predict_rotation");
+        expect(question.prompt).not.toMatch(/insert|delete/i);
+        expect(question.replay).toBeNull();
+        expect(lowestUnbalanced(requireTree(question.tree))).toBe(question.answer.pivotKey);
+        if (difficulty === 1) expect(question.answer.rotation).toBe("none");
+        if (difficulty === 2) expect(["left", "right"]).toContain(question.answer.rotation);
+        if (difficulty >= 4) expect(["leftRight", "rightLeft"]).toContain(question.answer.rotation);
+      }
+    }
+  });
+
   it("delete-result at difficulty 5 rotates and at difficulty 4 does not", () => {
     for (const seed of seeds) {
       const rotated = generate("delete-result", { seed, difficulty: 5 });

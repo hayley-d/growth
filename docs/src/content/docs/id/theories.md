@@ -38,7 +38,7 @@ Information processing theory treats memory as a set of stores. Input passes thr
 
 Most of our presentation choices are about optimising short-term memory. Each lesson step teaches one idea. Most lesson trees have seven nodes, which is enough to show a pattern and still small enough to keep track of. The [Presentation](../presentation/#cognitive-load) page covers this under Sweller's cognitive load theory (Sweller, 1988), so we won't repeat it here.
 
-For the depth-first traversals we storyboarded five approaches, and we picked the one where the learner reads the code and then steps through it with the tree, the highlighted line and the call stack on screen together ([depth-first storyboard](../storyboards/lessons/depth-first-traversals/#decision)). Our call stack panel shows how the call stack looks so the learner sees `preorder(20)` paused at line 4 instead of holding it in their head.
+For the depth-first traversals we storyboarded five approaches, and we picked the one where the learner reads the code and then steps through it with the tree, the highlighted line and the call stack on screen together ([depth-first storyboard](../storyboards/lessons/traversals/#decision)). Our call stack panel shows how the call stack looks so the learner sees `preorder(20)` paused at line 4 instead of holding it in their head.
 
 We implemented two methods for getting something from working memory into long-term memory. Key terms in the lesson text have a dotted underline. If the learner hovers over "height" the nodes it corresponds with light up on the tree. This enables the learner to see the word and the picture together, so the learner encodes the term in two forms at once (Paivio, 1986).
 

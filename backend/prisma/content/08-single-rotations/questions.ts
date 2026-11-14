@@ -7,7 +7,8 @@ export default [
     difficulty: 1,
     bloomsLevel: "remember",
     prompt:
-      "Tree 30 with left child 20 with left child 10, after one right rotation at 30. What key is the new root?",
+      "This is the tree before the rotation. After one right rotation at 30, what key is the new root?",
+    tree: "30,20,10,#,#,#,#",
     explanation:
       "The left child of 30 moves up. 20 becomes the new root. 10 stays on the left of 20, and 30 becomes the right child of 20.",
     reviewLesson: "single-rotations",
@@ -75,15 +76,15 @@ export default [
     difficulty: 2,
     bloomsLevel: "apply",
     prompt:
-      "Insert 10 into this AVL tree. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
+      "This tree is out of balance. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
     explanation:
-      "10 hangs left of 20. 50 then has balance factor +2, and 30 has +1. That is left-left, so rotate 50 right. 50 is the lowest unbalanced node, so it is the pivot.",
+      "50 has balance factor +2, and its left child 30 has +1. That is left-left, so rotate 50 right. 50 is the lowest unbalanced node, so it is the pivot.",
     reviewLesson: "single-rotations",
     hints: [
-      "Insert 10 as in a plain search tree, then look at balance factors on the way back up.",
+      "Work out the balance factors from the leaves up, then find the lowest node at +2 or −2.",
       "50 is the lowest node with balance factor +2. Its left child leans left, so rotate 50 right.",
     ],
-    tree: "50,30,20,#,#,40,#,#,70,#,#",
+    tree: "50,30,20,10,#,#,#,40,#,#,70,#,#",
     answer: { type: "predict_rotation", rotation: "right", pivotKey: 50 },
   },
   {
@@ -92,15 +93,15 @@ export default [
     difficulty: 2,
     bloomsLevel: "apply",
     prompt:
-      "Insert 80 into this AVL tree. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
+      "This tree is out of balance. Which rotation fixes it, and which node is the pivot (the lowest unbalanced node)?",
     explanation:
-      "80 hangs right of 70. 60 then has balance factor −2, and 70 has −1. That is right-right, so rotate 60 left. 60 is the lowest unbalanced node, so it is the pivot.",
+      "60 has balance factor −2, and its right child 70 has −1. That is right-right, so rotate 60 left. 60 is the lowest unbalanced node, so it is the pivot.",
     reviewLesson: "single-rotations",
     hints: [
-      "Insert 80 as in a plain search tree, then look at balance factors on the way back up.",
+      "Work out the balance factors from the leaves up, then find the lowest node at +2 or −2.",
       "60 is the lowest node with balance factor −2. Its right child leans right, so rotate 60 left.",
     ],
-    tree: "40,20,10,#,#,30,#,#,60,#,70,#,#",
+    tree: "40,20,10,#,#,30,#,#,60,#,70,#,80,#,#",
     answer: { type: "predict_rotation", rotation: "left", pivotKey: 60 },
   },
   {

@@ -4,6 +4,7 @@ export default [
   {
     key: "predict-rotation-none",
     generatorKey: "predict-rotation",
+    generatorOptions: { unbalanced: true },
     type: "predict_rotation",
     difficulty: 1,
     bloomsLevel: "understand",
@@ -12,6 +13,7 @@ export default [
   {
     key: "predict-rotation-single",
     generatorKey: "predict-rotation",
+    generatorOptions: { unbalanced: true },
     type: "predict_rotation",
     difficulty: 2,
     bloomsLevel: "apply",

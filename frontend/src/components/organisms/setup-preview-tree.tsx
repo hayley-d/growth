@@ -97,10 +97,10 @@ export function SetupPreviewTree({ answers, className }: SetupPreviewTreePropert
         className,
       )}
     >
-      <div className="grid h-40 place-items-center sm:h-72">
+      <div className="relative grid h-40 place-items-center sm:h-72">
         {tree ? (
           <div
-            className="grid h-full w-full place-items-center"
+            className="absolute inset-0 mx-auto"
             style={{ maxWidth: `${(nodeCount + 1) * columnWidth}px` }}
           >
             <TreeView

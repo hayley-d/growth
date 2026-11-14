@@ -99,7 +99,7 @@ Completing a lesson's steps does not unlock the next lesson on its own. A lesson
 
 Tests show one question at a time. Feedback is given immediately after each answer, either "Correct" or "Not quite", with an explanation and, for some questions, a replay of the correct answer on the tree. Hints are revealed one at a time, and the question card states that using hints lowers the score, so the learner can make an informed choice. The [Scaffolding](../scaffolding/) page covers the support given to learners who struggle.
 
-There are no timers in the app. Time pressure adds stress without supporting the learning objectives, and learners should be able to take as long as they need on a difficult operation such as a double rotation.
+There are no timers on lessons or tests. Time pressure adds stress without supporting the learning objectives, and learners should be able to take as long as they need on a difficult operation such as a double rotation. The daily challenge is the one exception, and the [Motivation](../motivation/#daily-challenge-and-leaderboard) page explains why.
 
 ## Cognitive load
 
