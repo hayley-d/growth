@@ -41,7 +41,7 @@ export function TraceLayout({
   const shownTab: TraceTab = codeHidden ? "tree" : tab;
 
   return (
-    <div className={cn("overflow-hidden rounded-2xl border bg-card", className)}>
+    <div className={cn("overflow-clip rounded-2xl border bg-card", className)}>
       {isWide ? null : (
         <div role="tablist" aria-label="Show" hidden={codeHidden} className="flex gap-1 p-3 pb-0">
           {tabs.map((option) => {
@@ -102,8 +102,10 @@ export function TraceLayout({
           </section>
         ))}
       </div>
-      <div className="border-t bg-muted/40 px-4 py-4 sm:px-6">{message}</div>
-      {controls ? <div className="border-t px-4 py-3 sm:px-6">{controls}</div> : null}
+      <div className="z-10 bg-card md:sticky md:bottom-[var(--dock-bottom,0px)]">
+        <div className="border-t bg-muted/40 px-4 py-4 sm:px-6">{message}</div>
+        {controls ? <div className="border-t px-4 py-3 sm:px-6">{controls}</div> : null}
+      </div>
     </div>
   );
 }

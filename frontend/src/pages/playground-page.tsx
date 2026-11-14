@@ -207,22 +207,22 @@ function PlaygroundSession({ setup }: { setup: PlaygroundSetup }) {
 
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-4">
+      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-3">
         <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Playground</h1>
-        <SetupPills setup={setup} />
+        <SetupPills setup={setup} className="lg:flex-1" />
+        <PlaygroundTools
+          setup={setup}
+          autoBalance={session.autoBalance}
+          busy={busy}
+          codeHidden={codeHidden}
+          onCommand={(text) => runText(text, "tapped")}
+          onNewTree={() => {
+            setSelectedKey(null);
+            dispatch({ type: "new-tree" });
+          }}
+          onToggleCode={() => setCodeHidden((current) => !current)}
+        />
       </div>
-      <PlaygroundTools
-        setup={setup}
-        autoBalance={session.autoBalance}
-        busy={busy}
-        codeHidden={codeHidden}
-        onCommand={(text) => runText(text, "tapped")}
-        onNewTree={() => {
-          setSelectedKey(null);
-          dispatch({ type: "new-tree" });
-        }}
-        onToggleCode={() => setCodeHidden((current) => !current)}
-      />
       <TraceLayout
         codeHidden={codeHidden}
         tree={

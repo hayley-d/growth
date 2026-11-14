@@ -93,18 +93,20 @@ export function SettingsPage() {
         <h1 className="text-2xl font-semibold sm:text-3xl">Settings</h1>
         <p className="mt-1 text-muted-foreground">Make Growth work the way you see best.</p>
       </div>
-      <ColourSchemeSection signedIn={signedIn} />
-      {signedIn ? (
-        <SignedInSettings />
-      ) : (
-        <p className="max-w-2xl text-sm text-muted-foreground">
-          <Link to="/login" className="font-medium text-foreground underline underline-offset-4">
-            Log in
-          </Link>{" "}
-          to set your display name, learning style, code language, text to speech and leaderboard
-          visibility.
-        </p>
-      )}
+      <div className="flex flex-col gap-8 lg:block lg:columns-2 lg:gap-x-12 lg:*:mb-8 lg:*:break-inside-avoid">
+        <ColourSchemeSection signedIn={signedIn} />
+        {signedIn ? (
+          <SignedInSettings />
+        ) : (
+          <p className="max-w-2xl text-sm text-muted-foreground">
+            <Link to="/login" className="font-medium text-foreground underline underline-offset-4">
+              Log in
+            </Link>{" "}
+            to set your display name, learning style, code language, text to speech and leaderboard
+            visibility.
+          </p>
+        )}
+      </div>
     </div>
   );
 }

@@ -4,6 +4,7 @@ import { page, userEvent } from "vitest/browser";
 import { render } from "vitest-browser-react";
 
 import { TraceLayout } from "@/components/organisms/trace-layout";
+import "@/index.css";
 
 const renderLayout = () =>
   render(
@@ -157,4 +158,53 @@ it("keeps the same tree panel when the code is shown again", async () => {
 
   await expect.element(screen.getByText("the code")).toBeVisible();
   expect(screen.getByText("the tree").element()).toBe(before);
+});
+
+const renderTallLayout = () =>
+  render(
+    <TraceLayout
+      tree={<div className="h-[1500px]">the tree</div>}
+      code={<p>the code</p>}
+      message={<p>the message</p>}
+      controls={<button type="button">Play</button>}
+    />,
+  );
+
+it("keeps the message and the controls on screen when the card is taller than the screen", async () => {
+  await page.viewport(1280, 600);
+  const screen = await renderTallLayout();
+
+  const play = screen.getByRole("button", { name: "Play" }).element().getBoundingClientRect();
+  const message = screen.getByText("the message").element().getBoundingClientRect();
+
+  expect(play.bottom).toBeLessThanOrEqual(window.innerHeight);
+  expect(message.top).toBeGreaterThanOrEqual(0);
+  expect(message.bottom).toBeLessThanOrEqual(play.top);
+});
+
+it("keeps the controls above a fixed footer named by --dock-bottom", async () => {
+  await page.viewport(1280, 600);
+  const screen = await render(
+    <div className="[--dock-bottom:4rem]">
+      <TraceLayout
+        tree={<div className="h-[1500px]">the tree</div>}
+        code={<p>the code</p>}
+        message={<p>the message</p>}
+        controls={<button type="button">Play</button>}
+      />
+    </div>,
+  );
+
+  const play = screen.getByRole("button", { name: "Play" }).element().getBoundingClientRect();
+
+  expect(play.bottom).toBeLessThanOrEqual(window.innerHeight - 64);
+});
+
+it("leaves the controls under the tree on a phone", async () => {
+  await page.viewport(375, 600);
+  const screen = await renderTallLayout();
+
+  const play = screen.getByRole("button", { name: "Play" }).element().getBoundingClientRect();
+
+  expect(play.top).toBeGreaterThan(window.innerHeight);
 });

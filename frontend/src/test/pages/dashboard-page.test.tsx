@@ -272,3 +272,37 @@ it("still offers the daily challenge page when the card can't load", async () =>
     .toHaveAttribute("href", "/daily");
   await expect.element(screen.getByRole("alert")).not.toBeInTheDocument();
 });
+
+it("keeps mastery right under progress when the leaderboard is long", async () => {
+  await page.viewport(1440, 900);
+  serveWithDailyAndLeaderboard(finishedDaily, {
+    top: Array.from({ length: 10 }, (_, index) => ({
+      rank: index + 1,
+      displayName: `Learner ${index + 1}`,
+      timeSeconds: 40 + index,
+      points: 30,
+      isMe: false,
+    })),
+    me: {
+      displayName: "Bea",
+      rank: 40,
+      timeSeconds: 300,
+      points: 30,
+      passed: true,
+      hidden: false,
+    },
+  });
+  const screen = await renderApp("/");
+
+  const leaderboard = screen.getByRole("region", { name: "Leaderboard" });
+  await expect.element(leaderboard.getByText("Learner 1", { exact: true })).toBeVisible();
+  const progress = screen.getByRole("region", { name: "Your progress" }).element();
+  const mastery = screen.getByRole("region", { name: "Your mastery" }).element();
+  const progressBox = progress.getBoundingClientRect();
+  const masteryBox = mastery.getBoundingClientRect();
+  const leaderboardBox = leaderboard.element().getBoundingClientRect();
+
+  expect(masteryBox.top - progressBox.bottom).toBeLessThanOrEqual(16);
+  expect(leaderboardBox.left).toBeGreaterThanOrEqual(progressBox.right);
+  expect(leaderboardBox.top).toBe(progressBox.top);
+});
