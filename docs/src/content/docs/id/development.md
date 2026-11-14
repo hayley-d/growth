@@ -19,7 +19,7 @@ Each item was built into an alpha first. When we used the alpha and found someth
 
 ## Beta test (14 November)
 
-We ran the beta test ourselves. Each of us worked through Growth as if we were a new learner: onboarding, lesson 1 and its test, a traversal lesson, an AVL lesson, the playground, practice mode and the daily challenge. While working through it we noted anything that blocked us, any answer that was marked wrong when it was right, wording that was confusing and anything that was hard to use with a keyboard or a screen reader.
+We ran the beta test ourselves. Each of us worked through Growth as if we were a new learner. This includes onboarding, going through lessons and tests, testing the playground, practice mode and the daily challenge.
 
 | Item | What we found in the beta test | What we changed |
 | --- | --- | --- |
