@@ -59,9 +59,7 @@ it("shows an empty state when nobody has finished", async () => {
     .element(screen.getByRole("heading", { name: "Leaderboard", level: 1 }))
     .toBeVisible();
   await expect
-    .element(
-      screen.getByText("Today's daily challenge, ranked by time since 00:00 South African time."),
-    )
+    .element(screen.getByText("Today's daily challenge, ranked since midnight."))
     .toBeVisible();
   await expect.element(screen.getByText("Nobody has finished today's challenge yet")).toBeVisible();
   await expect
