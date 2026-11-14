@@ -4,11 +4,13 @@ import { defineConfig } from "astro/config";
 import starlightOpenAPI, { openAPISidebarGroups } from "starlight-openapi";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 
+import { pdfIntegration } from "./pdf/documents.mjs";
 import { citationLinks } from "./src/plugins/citation-links";
 
 export default defineConfig({
   site: "https://hayley-d.github.io",
   base: "/growth",
+  ...(process.env.PDF ? { outDir: `./.pdf-build/${process.env.PDF}` } : {}),
   markdown: {
     processor: satteri({ mdastPlugins: [citationLinks] }),
   },
@@ -141,5 +143,6 @@ export default defineConfig({
         ),
       ],
     }),
+    pdfIntegration(),
   ],
 });

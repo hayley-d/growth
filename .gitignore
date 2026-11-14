@@ -12,3 +12,5 @@ backend/src/generated
 .vscode
 docs/plans/*
 frontend/.vitest
+docs/dist-pdf
+docs/.pdf-build
