@@ -38,7 +38,7 @@ export function LeaderboardPage() {
       <div>
         <h1 className="text-2xl font-semibold sm:text-3xl">Leaderboard</h1>
         <p className="mt-1 text-muted-foreground">
-          Today's daily challenge, ranked by time since 00:00 South African time.
+          Today's daily challenge, ranked since midnight.
         </p>
       </div>
       {top.length === 0 && me === null ? (
