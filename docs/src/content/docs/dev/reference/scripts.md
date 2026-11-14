@@ -24,6 +24,7 @@ description: Workspace scripts, Biome, the git hooks and coding rules.
 | `bun run prisma:deploy`   | Applies existing migrations without creating a new one. Used in CI |
 | `bun run prisma:studio`   | Opens Prisma Studio                                    |
 | `bun run prisma:seed`     | Adds the learning styles, code languages and algorithms, then fails if a code snippet has no line for a step. Also creates the dev admin login (`admin@growth.local`) when `SEED_DEV_ADMIN=true` and the database is on localhost |
+| `bun run openapi:examples` | Calls every endpoint of a running backend and writes the real example bodies for the API reference. Needs a throwaway database, see [API reference](../api/) |
 | `bun run dev:progress <email> <0-12>` | Sets how many lessons a user has completed, so you can preview the dashboard and learning path. Replaces their old progress. Refuses to run unless the database is on localhost |
 | `bun run dev:daily-reset <email>` | Deletes that user's attempt at today's daily challenge, so they can start it again. The question and seed stay the same. Refuses to run unless the database is on localhost |
 | `bun run dev:daily-new [generator key]` | Replaces today's daily challenge with a random generator question and a new seed. Give a key, like `insert-result`, to pick the kind of question. It deletes every learner's attempt at today's challenge. Tomorrow's challenge is picked as usual. Refuses to run unless the database is on localhost |
