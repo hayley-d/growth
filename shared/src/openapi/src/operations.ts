@@ -44,6 +44,16 @@ export const tags = [
     description:
       "Lesson tests, checkpoints and the final challenge. An attempt holds up to 5 questions chosen when it starts. The correct answer is only sent after the learner answers.",
   },
+  {
+    name: "Practice",
+    description:
+      "Open-ended practice on one topic. Questions are generated one at a time until the learner stops. Hints and answers use the attempt endpoints. Practice has no stakes: its ratings live only inside the session, so it never changes mastery, difficulty on tests or lesson progress.",
+  },
+  {
+    name: "Daily challenge",
+    description:
+      "One generated question a day, the same for everyone. Days start at 00:00 in Africa/Johannesburg. The learner gets one go, timed from when they press Start. No hints, and it never changes mastery or ratings.",
+  },
 ];
 
 const lessonErrors: Record<string, ResponseSpec> = {
@@ -359,7 +369,7 @@ export const operations: OperationSpec[] = [
     tag: "Tests",
     summary: "Unlock the next hint",
     description:
-      "Each hint lowers the score for that answer. Returns 409 when the question is not the current one, is already answered, has no hints left, or the attempt is finished.",
+      "Each hint lowers the score for that answer. Works in practice attempts too. Returns 409 when the question is not the current one, is already answered, has no hints left, or the attempt is finished.",
     secured: true,
     parameters: idParameters,
     requestBody: "RequestHintRequest",
@@ -378,7 +388,7 @@ export const operations: OperationSpec[] = [
     tag: "Tests",
     summary: "Answer the current question",
     description:
-      "Grades the answer, updates the learner's rating for the question's lesson and returns the correct answer and the explanation. After the last answer, `question` is null and `result` is set. A pass completes the lesson and every lesson before it. The answer type must match the question type. A question id that is not in the attempt returns 404. A question that is already answered, is not the current one, or an attempt that is finished returns 409.",
+      "Grades the answer, updates the learner's rating for the question's lesson and returns the correct answer and the explanation. After the last answer of a test, `question` is null and `result` is set. In practice `result` is always null and the next question comes from the practice questions endpoint. A pass completes the lesson and every lesson before it. The answer type must match the question type. A question id that is not in the attempt returns 404. A question that is already answered, is not the current one, or an attempt that is finished returns 409.",
     secured: true,
     parameters: idParameters,
     requestBody: "SubmitAnswerRequest",
@@ -387,6 +397,136 @@ export const operations: OperationSpec[] = [
         description: "The feedback, and the next question or the result.",
         schema: "SubmitAnswerResponse",
       },
+      "400": "BadRequest",
+      "401": "Unauthorized",
+      "404": "NotFound",
+      "409": "Conflict",
+    },
+  },
+  {
+    operationId: "getPracticeTopics",
+    method: "get",
+    path: "/api/practice/topics",
+    tag: "Practice",
+    summary: "List the practice topics",
+    description:
+      "A topic is available when an unlocked lesson has generated questions for it. Unavailable topics return 409 from the start endpoint.",
+    secured: true,
+    responses: {
+      "200": {
+        description: "Every topic and whether it can be started.",
+        schema: "PracticeTopicsResponse",
+      },
+      "401": "Unauthorized",
+    },
+  },
+  {
+    operationId: "startPractice",
+    method: "post",
+    path: "/api/practice/attempts",
+    tag: "Practice",
+    summary: "Start practising a topic",
+    description:
+      "Always starts a new attempt and finishes any unfinished practice attempt first. Questions come from lessons the learner has unlocked. The rating for each lesson starts at the learner's stored rating and then changes inside the session only, and difficulty follows it. A topic with no questions returns 409.",
+    secured: true,
+    requestBody: "StartPracticeRequest",
+    responses: {
+      "201": {
+        description: "A new attempt and its first question.",
+        schema: "AttemptStateResponse",
+      },
+      "400": "BadRequest",
+      "401": "Unauthorized",
+      "409": "Conflict",
+    },
+  },
+  {
+    operationId: "nextPracticeQuestion",
+    method: "post",
+    path: "/api/practice/attempts/{id}/questions",
+    tag: "Practice",
+    summary: "Get the next practice question",
+    description:
+      "Returns the current question when one is unanswered, otherwise generates a new one. A finished attempt returns 409.",
+    secured: true,
+    parameters: idParameters,
+    responses: {
+      "200": {
+        description: "The attempt with its current question.",
+        schema: "AttemptStateResponse",
+      },
+      "400": "BadRequest",
+      "401": "Unauthorized",
+      "404": "NotFound",
+      "409": "Conflict",
+    },
+  },
+  {
+    operationId: "finishPractice",
+    method: "post",
+    path: "/api/practice/attempts/{id}/finish",
+    tag: "Practice",
+    summary: "Stop practising",
+    description:
+      "Finishes the attempt and returns the summary: questions answered, how many were right and the rating change for each lesson (rating before and after, inside the session). An unanswered question is dropped. Finishing twice returns the same summary.",
+    secured: true,
+    parameters: idParameters,
+    responses: {
+      "200": { description: "The summary.", schema: "PracticeSummaryResponse" },
+      "400": "BadRequest",
+      "401": "Unauthorized",
+      "404": "NotFound",
+    },
+  },
+  {
+    operationId: "getDailyChallenge",
+    method: "get",
+    path: "/api/daily-challenge",
+    tag: "Daily challenge",
+    summary: "Get today's challenge",
+    description:
+      "The first request of the day creates the day's challenge. Returns whether the learner has started or finished it, the question while it is in progress, and the result once it is answered. Never starts the clock.",
+    secured: true,
+    responses: {
+      "200": {
+        description: "Today's challenge for the learner.",
+        schema: "DailyChallengeStateResponse",
+      },
+      "401": "Unauthorized",
+      "409": "Conflict",
+    },
+  },
+  {
+    operationId: "startDailyChallenge",
+    method: "post",
+    path: "/api/daily-challenge/start",
+    tag: "Daily challenge",
+    summary: "Start today's challenge",
+    description:
+      "Starts the clock and returns the question without its answer. Starting again returns the same attempt with 200, so a double click or a reload can't restart the clock.",
+    secured: true,
+    responses: {
+      "201": { description: "The challenge started.", schema: "DailyChallengeStateResponse" },
+      "200": {
+        description: "It was already started or finished.",
+        schema: "DailyChallengeStateResponse",
+      },
+      "401": "Unauthorized",
+      "409": "Conflict",
+    },
+  },
+  {
+    operationId: "submitDailyChallengeAnswer",
+    method: "post",
+    path: "/api/daily-challenge/answers",
+    tag: "Daily challenge",
+    summary: "Answer today's challenge",
+    description:
+      "Grades the answer, stops the clock and returns the result with the correct answer and the explanation. Answering before starting, or a second time, returns 409. A question id that isn't today's returns 404.",
+    secured: true,
+    requestBody: "SubmitAnswerRequest",
+    responses: {
+      "200": { description: "The result.", schema: "DailyChallengeStateResponse" },
       "400": "BadRequest",
       "401": "Unauthorized",
       "404": "NotFound",

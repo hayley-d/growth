@@ -45,6 +45,32 @@ describe("contentBlockBodySchema", () => {
     expect(result.type).toBe("diagram");
   });
 
+  it("parses a diagram block that draws its tree as a plain search tree", () => {
+    const result = contentBlockBodySchema.parse({
+      type: "diagram",
+      body: {
+        startingKeys: [30, 10, 20],
+        highlights: [],
+        caption: "A zig-zag",
+        treeMode: "bst",
+      },
+    });
+    expect(result.type === "diagram" && result.body.treeMode).toBe("bst");
+  });
+
+  it("rejects a diagram block with an unknown tree mode", () => {
+    const result = contentBlockBodySchema.safeParse({
+      type: "diagram",
+      body: {
+        startingKeys: [30, 10, 20],
+        highlights: [],
+        caption: "A zig-zag",
+        treeMode: "red-black",
+      },
+    });
+    expect(result.success).toBe(false);
+  });
+
   it("parses an animation block", () => {
     const result = contentBlockBodySchema.parse({
       type: "animation",

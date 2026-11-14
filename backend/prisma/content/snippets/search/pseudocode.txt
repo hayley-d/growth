@@ -1,0 +1,9 @@
+search(root, key):
+  node = root
+  while node exists: // @step search.check-empty
+    if key == node.key: return node // @step search.compare search.found
+    if key < node.key: // @step search.check-smaller
+      node = node.left // @step search.go-left
+    else:
+      node = node.right // @step search.go-right
+  return empty // @step search.not-found

@@ -9,7 +9,7 @@ Linear approaches such as ADDIE finish one stage before starting the next and tr
 SAM allowed us to build rough versions, test them and refine them in small iterations,
 where each iteration gets us closer to the final product.
 
-SAM comes in two versions, both versions use an interative approach to create the final product. SAM 1 fits smaller projects and teams better as it only has three iterations of the evaluation, design and development steps. SAM 2 is an extension of SAM 1 for larger projects. SAM 2 has eight
+SAM comes in two versions, both versions use an iterative approach to create the final product. SAM 1 has one cycle of evaluate, design and develop that repeats about three times, so design and development happen together. It suits simple projects where there isn't much to build. SAM 2 splits design and development into separate phases, for projects where there is real development work to do. SAM 2 has eight
 steps spread across three phases, preparation, iterative design and iterative development (Peck, 2026). For this project we decided to use SAM 2. 
 
 ![The SAM 2 process: the preparation, iterative design and iterative development phases](../../../assets/id/sam-2-process.webp)
@@ -18,24 +18,36 @@ steps spread across three phases, preparation, iterative design and iterative de
 
 ## Description of Phases
 
-The **preparation phase** is where we gather information about the learners, learning goals,
-and constraints. This phase is supposed to be short as we will come back to it again. The second
-step in the preparation phase is **Savvy start**, where we sketched storyboards and brainstormed
-ideas of lessons, quizes and learning paths.  
+The eight steps of SAM 2 are split over the three phases:
 
-The second phase is the **interative design phase**. This is an iterative process where 
-we first designed a prototype of a lesson, quiz or learning path and then 
-reviewed the ideas with the team. Project planning also happens in this phase, we planned
-what we were going to build and who was going to build the different items. Each item then
-become a ticket on our sprint board.
+- Preparation: information gathering and the Savvy start
+- Iterative design: project planning and additional design
+- Iterative development: design proof, alpha, beta and gold
 
-The final phase is the **iterative development** phase where we started with a design proof which allowed us to see if the design worked as we wanted. After the design proof we completed the alpha version of the content which was a complete version of the item that required testing. After 
-the alpha version we developed the beta version of an item which resolved any errors found in the alpha version. Finally the gold version was developed which was the final version of the item (Peck, 2026).
+The preparation phase starts with information gathering, where we gather information about the learners, learning goals
+and constraints. For us this meant reading the project specification, choosing the data structure from CS2023 and working out who our learners are. This step is supposed to be short as we will come back to it again. The second
+step is the Savvy start, where we brainstormed ideas for each item and sketched a first round of rough storyboards. On the storyboard pages this is the round with ideas A to E, which is labelled "Savvy start".
+
+The second phase is the iterative design phase, which starts with project planning. We had around four weeks, so we ran the project as one sprint. Design and development overlapped. As soon as the team agreed on a storyboard for an item, it could move into its design proof while other items were still being designed.
+
+Each item became a ticket on our [project board](https://github.com/users/hayley-d/projects/5/views/6) with one person responsible for building it. Each ticket was built on its own branch and merged through a pull request. A pull request could only be merged once it passed the CI pipeline checks (linting and formatting, type checking, the build and the tests) and had been reviewed by at least one other team member. If a reviewer found a problem, the ticket moved to Revision until it was fixed.
+
+The rest of this phase is additional design. We took the storyboards from the Savvy start, reviewed them with the team and redesigned them. A round doesn't have to pick one storyboard. It can join the best parts of several into a new one, and we review that too. On the storyboard pages these rounds are Design 2 and Design 3. The [playground storyboard](../storyboards/playground/playground/) shows this over three rounds.
+
+![Our GitHub project board for Growth. Columns run from Todo, In Progress, blocked, Revision and In review to Done. Each card is one item, such as "Course content: Lesson 7 - Height and balance factor" or "Skill map: Learning path tree", with a label for frontend, backend or documentation and the avatar of the team member building it. Parent items such as "Course content" and "ID Document" show how many of their tickets are done.](../../../assets/id/project-board.webp)
+
+*Figure 2: Our [project board](https://github.com/users/hayley-d/projects/5/views/6). Each item is a ticket with the person building it, and an item that needs fixing after review moves to Revision.*
+
+The final phase is the iterative development phase. We started each item with a design proof, which let us see if the design worked the way we wanted in the actual app. After the design proof we built the alpha version, which is a complete version of the item that still needs testing. The beta version fixes the errors found in the alpha, and the gold version is the final version (Peck, 2026).
+
+Since Growth is a prototype, and we only had around four weeks, we did not go as far as gold. All the items we built went through alpha and beta testing. We tested the beta ourselves as a team because we couldn't get access to COS212 students in the time we had. The [Alpha and beta](../development/) page shows what we changed along the way.
 
 ## Why we picked SAM 2
 
 When we received the project specification, we had around four weeks and a team of five to build the app.
 SAM lets us get a rough version of everything working and then go back and improve parts when we have time.
+
+We picked SAM 2 because Growth consists of twelve lessons, a playground, tests and practice mode. We wanted important items to undergo a few rounds of storyboards before we knew what to build, and then it needed to be built. SAM 2 enabled us to agree on a storyboard as a team first, and only then turn it into a ticket for someone to build. 
 
 SAM also matches our software engineering approach. We chose Agile for the software engineering approach, and SAM works in the same way using short iterations. 
 
@@ -45,8 +57,8 @@ SAM allows us to try more than one idea. SAM expects you to test a few versions 
 
 Allen, M.W. and Sites, R. (2012) *Leaving ADDIE for SAM: an agile model for developing the best learning experiences*. Alexandria, VA: ASTD Press.
 
-Elm Learning (n.d.) *The SAM (Successive Approximation Model) approach to eLearning*. Available at: https://elmlearning.com/hub/instructional-design/sam-successive-approximation-model/ (Accessed: 27 October 2026).
+Allen Interactions (2021) *SAM 2 process* [diagram]. Cited in: Elm Learning (n.d.) *The SAM (Successive Approximation Model) approach to eLearning*. Available at: https://elmlearning.com/hub/instructional-design/sam-successive-approximation-model/ (Accessed: 27 October 2026).
 
-Marshall, L. (2026) *L11 – Educational software development: lifecycles and instructional design* [Lecture slides]. COS750: Educational Software Development, University of Pretoria.
+Elm Learning (n.d.) *The SAM (Successive Approximation Model) approach to eLearning*. Available at: https://elmlearning.com/hub/instructional-design/sam-successive-approximation-model/ (Accessed: 27 October 2026).
 
 Peck, D. (2026) *The Successive Approximation Model (SAM): a complete guide*. Available at: https://www.devlinpeck.com/content/successive-approximation-model (Accessed: 27 October 2026).

@@ -65,6 +65,20 @@ export class PrismaAssessmentAttemptRepository
     });
   }
 
+  findUnfinishedPractice(userId: string) {
+    return withPrismaErrors(async () => {
+      const row = await this.client.assessmentAttempt.findFirst({
+        where: { userId, kind: "practice", finishedAt: null },
+        orderBy: { startedAt: "desc" },
+      });
+      return row ? toAssessmentAttempt(row) : null;
+    });
+  }
+
+  findByUserAndDailyChallenge(userId: string, dailyChallengeId: string) {
+    return this.findOne({ userId_dailyChallengeId: { userId, dailyChallengeId } });
+  }
+
   hasPassedForLesson(userId: string, lessonId: string) {
     return withPrismaErrors(async () => {
       const attempt = await this.client.assessmentAttempt.findFirst({

@@ -95,6 +95,8 @@ Two use cases in `application/learning-path/` have no route. The attempt use cas
 
 The status is `completed` when the learner's own progress says so, and `current` otherwise.
 
+Every lesson in the learning path response also has `mastery`, a whole percent from 0 to 100. It is the learner's stored mastery for that lesson (`UserMastery`), rounded, and `0` when they have never answered a question in it. `masteryLabel` in `shared/src/schemas/src/learning-path.ts` turns it into "Just started" (under 40), "Getting there" (40 to 79) or "Strong" (80 or more), so the page shows words as well as the number.
+
 Steps are the lesson's content blocks grouped by `position`. In each step, the block with no learning style is the core block. The block for the learner's style is the style block, and it is `null` if they have no style. The other styled blocks go in `otherBlocks`. Every block carries its `learningStyleId` (`null` on the core block), so the page can name the style. Every body is parsed with `contentBlockBodySchema`. A bad body, or a step without exactly one core block, is logged and returns a 500 `InvalidContentError`, so broken content shows up early.
 
 The note is saved as typed, with no trimming. `PUT` returns 400 over 2000 characters, and 400 for a lesson with no `notePrompt`. `GET` on such a lesson returns the empty note.
@@ -108,7 +110,7 @@ A test is an attempt. All four endpoints need a signed-in learner. The use cases
 | `POST /api/lessons/:id/attempts` | Starts an attempt and returns it with its first question. If the learner already has an unfinished attempt for that lesson, it returns that one instead. It returns 201 for a new attempt and 200 for a resumed one. Two starts at the same moment make one attempt, and both get it |
 | `GET /api/attempts/:id` | The attempt, with its current question and the hints already unlocked, or with its result when it is finished. Use it to pick up after a reload |
 | `POST /api/attempts/:id/hints` | Body `{ questionId }`. Unlocks the next hint for the current question and counts it |
-| `POST /api/attempts/:id/answers` | Body `{ questionId, answer }`. Grades the answer and returns whether it was right, the correct answer, the explanation, the new rating and the next question. After the last answer it returns the result instead of a next question |
+| `POST /api/attempts/:id/answers` | Body `{ questionId, answer }`. Grades the answer and returns whether it was right, the correct answer, the explanation, a `replay` for the page to animate the correct answer (or `null`), the new rating and the next question. After the last answer it returns the result instead of a next question |
 
 Every response is `{ data }`. Use `attemptStateResponseSchema`, `requestHintResponseSchema` and `submitAnswerResponseSchema` to parse them.
 
@@ -120,9 +122,28 @@ How an attempt works:
 - **The question id.** Hints and answers carry the `id` of the question the server sent. If it isn't the current unanswered question, the request returns 409. A question id that isn't in the attempt returns 404. This is why a double click or a retry can't answer the wrong question.
 - **Grading.** `application/assessment/grade-answer.ts` compares the answer with the accepted answers. A text answer is trimmed, lower cased and stripped of all spaces on both sides. A written text question can accept more than one answer, and the first one is shown as the correct answer.
 - **Hints.** A written question has the hints in the `Hint` table. A generated question has three. Each hint lowers the score for that answer, see `getScore`. After the last hint, the endpoint returns 409.
+- **Replay.** A generated question stores `replay` next to its answer: `{ kind: "operation", operation, key }` for insert and delete questions, or `{ kind: "traversal", order }` for traversal questions. The page runs the matching tracer on the question's tree to step through the correct answer. Questions without a tree operation, and written questions, have `null`.
 - **Rating.** Each answer updates the rating, mastery and difficulty of the question's own lesson, with the Elo maths in `domain/assessment/elo-rating.ts`. The answer and the rating are saved in one transaction (`recordAnswer`).
-- **The end.** After the last answer the attempt is finished. The score is the percent of questions answered correctly, and 80 or more passes. The result has the score, `passed`, the points, the total rating change, the answers with their explanations, and the lessons to review for the questions the learner got wrong. A pass calls `makeCompleteLesson`, which also completes every lesson before it. If a crash left an attempt with every question answered but not finished, the next `GET` or answer finishes it.
+- **The end.** After the last answer the attempt is finished. The score is the percent of questions answered correctly, and 80 or more passes. The result has the score, `passed`, the points, the total rating change, `masteryBefore` and `masteryAfter` (whole percents, averaged over the lessons the attempt touched), the answers with their explanations, and the lessons to review for the questions the learner got wrong. A pass calls `makeCompleteLesson`, which also completes every lesson before it. If a crash left an attempt with every question answered but not finished, the next `GET` or answer finishes it.
 - **Errors.** Another learner's attempt returns 404. Answering a question twice, answering after the attempt is finished, and asking for a hint that doesn't exist return 409.
+
+### Practice
+
+Practice is an open-ended attempt of kind `practice` on one topic: `traversals`, `insertion`, `deletion`, `rotations` or `mixed`. It uses the same attempt tables as a test, but it has no stakes. It never completes a lesson, never finishes by itself and never changes mastery. The use cases live in `application/assessment/` (`start-practice`, `next-practice-question`, `finish-practice`, `get-practice-topics`). All endpoints need a signed-in learner.
+
+| Endpoint | What it does |
+| --- | --- |
+| `GET /api/practice/topics` | Every topic and whether it can be started |
+| `POST /api/practice/attempts` | Body `{ topic }`. Always starts a new attempt and returns it with its first question (201). An unfinished practice attempt is finished first, so there is no resume. A topic with no questions returns 409 |
+| `POST /api/practice/attempts/:id/questions` | The current question, or a new one when the last was answered |
+| `POST /api/practice/attempts/:id/finish` | Stops and returns the summary: questions answered, how many were right, the rating change, and the rating before and after for each lesson |
+
+Hints and answers use the test endpoints, `POST /api/attempts/:id/hints` and `/answers`. After an answer in practice `question` and `result` are both `null`, and the page asks for the next question.
+
+- **Which questions.** A topic maps to generator keys (`application/assessment/practice-topics.ts`): `traversals` is `traversal-order`, `insertion` is `insert-result`, `deletion` is `delete-result`, `rotations` is `predict-rotation` and `mixed` is every key. The pool is the active generated questions of lessons the learner has unlocked. Written questions are left out. A question is picked by generator key first, then lesson, then row, so a key with many rows does not dominate a mixed session.
+- **One at a time.** A question is made when it is asked for. The same question can come up again with a new seed, because an answer belongs to a served question (`AttemptAnswer.attemptQuestionId`), not to the question.
+- **Session rating.** The first answer on a lesson starts from the learner's stored rating (1000 if none). Every later answer in that session starts from the last answer's `ratingAfter`, and the next difficulty follows it (`practice-rating.ts`). `UserMastery` is never written, and practice answers do not count towards the Elo step of later tests. Each new session starts from the stored rating again.
+- **The topic.** It is saved on the attempt (`practiceTopic`) because the next question needs it.
 
 ## Request flow
 
@@ -298,7 +319,7 @@ Every other block is a `.ts` file whose body matches `contentBlockBodySchema` in
 
 | Type | Body |
 | --- | --- |
-| `diagram` | a tree from `startingKeys`, with highlighted nodes and a caption. An optional `labels` list pins words to nodes: each label has `text` (one string a line), `keys` and a `place` of `right`, `below` or `side`. The checker rejects a label pointing at a key that isn't in the tree. An optional `markdown` holds text shown above it, and `terms` links its bold words to nodes, as for text blocks |
+| `diagram` | a tree from `startingKeys`, with highlighted nodes and a caption. An optional `labels` list pins words to nodes: each label has `text` (one string a line), `keys` and a `place` of `right`, `below` or `side`. The checker rejects a label pointing at a key that isn't in the tree. An optional `markdown` holds text shown above it, and `terms` links its bold words to nodes, as for text blocks. In the AVL unit every tree is built with AVL insert, so it is always balanced. Set `treeMode: "bst"` to draw an unbalanced tree as the keys give it, like the zig-zag in `09-double-rotations/blocks/01-zig-zag.ts` |
 | `animation` | insert, delete and search steps run on a tree. An optional `markdown` holds text shown above it, heading included |
 | `playground` | a tree the learner works on, with the operations they may use and an optional goal |
 | `code_trace` | one algorithm run on a tree, line by line, with the call stack. The `operation` is `{ operation: "traverse" }` for `preorder`, `inorder`, `postorder` and `levelorder`, and an insert, delete or search with a key for the rest. The checker rejects any other pairing. An optional `markdown` holds text shown above the trace, heading included. `showCode: false` hides the code and shows only the tree and the call stack, for a step about the stack itself, like `02-pre-order/blocks/04-why-calls-wait.ts`. Its text and transcript then can't mention line numbers |

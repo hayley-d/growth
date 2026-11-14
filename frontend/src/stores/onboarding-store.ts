@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export const onboardingSteps = 4;
+export const onboardingSteps = 5;
 
 type OnboardingAnswers = {
   step: number;

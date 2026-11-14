@@ -1,26 +1,17 @@
-import { generate } from "@shared/engine";
-import {
-  type AttemptStateResponse,
-  type GeneratedQuestion,
-  generatorKeySchema,
-  generatorOptionsSchema,
-  type IdParam,
-} from "@shared/schemas";
+import type { AttemptStateResponse, IdParam } from "@shared/schemas";
 import type { AttemptStateDependencies } from "@/application/assessment/attempt-dependencies";
 import { makeLoadAttemptState } from "@/application/assessment/attempt-state";
-import { pickQuestions, pickSeed, type Random } from "@/application/assessment/select-questions";
+import { makeGenerateDraft } from "@/application/assessment/generate-draft";
+import { pickQuestions, type Random } from "@/application/assessment/select-questions";
 import type { CanTakeTest } from "@/application/learning-path/queries/can-take-test";
 import { getSignedInUserId } from "@/application/lesson/lesson-access";
 import type { AssessmentAttempt } from "@/domain/assessment/assessment-attempt";
-import type { Question } from "@/domain/assessment/question";
 import type { AssessmentAttemptRepository } from "@/domain/assessment/repositories/assessment-attempt-repository";
 import type { QuestionRepository } from "@/domain/assessment/repositories/question-repository";
 import { getTestPoolLessonIds } from "@/domain/assessment/test-pool";
 import type { LessonRepository } from "@/domain/course-content/repositories/lesson-repository";
-import { ConflictError, InvalidContentError, NotFoundError } from "@/domain/errors";
+import { ConflictError, NotFoundError } from "@/domain/errors";
 import type { UserMasteryRepository } from "@/domain/user/repositories/user-mastery-repository";
-
-const startingDifficulty = 1;
 
 type StartAttemptDependencies = AttemptStateDependencies & {
   assessmentAttemptRepository: Pick<
@@ -51,26 +42,7 @@ export const makeStartAttempt = (dependencies: StartAttemptDependencies) => {
   } = dependencies;
   const loadAttemptState = makeLoadAttemptState(dependencies);
 
-  const generateFor = async (
-    userId: string,
-    question: Question,
-  ): Promise<{ seed: number; difficulty: number; generated: GeneratedQuestion }> => {
-    const key = generatorKeySchema.safeParse(question.generatorKey);
-    const options = generatorOptionsSchema.safeParse(question.generatorOptions ?? {});
-    if (!key.success || !options.success) {
-      logger.error("Stored generator settings are invalid", { questionId: question.id });
-      throw new InvalidContentError("Question content is invalid", { questionId: question.id });
-    }
-    const mastery = await userMasteryRepository.findById({ userId, lessonId: question.lessonId });
-    const difficulty = mastery?.currentDifficulty ?? startingDifficulty;
-    const seed = pickSeed(random);
-    const generated = generate(key.data, {
-      ...options.data,
-      seed,
-      difficulty: difficulty as 1 | 2 | 3 | 4 | 5,
-    });
-    return { seed, difficulty, generated };
-  };
+  const generateFor = makeGenerateDraft({ userMasteryRepository, logger, random });
 
   return async ({ id: lessonId }: IdParam): Promise<StartAttemptResult> => {
     const userId = getSignedInUserId();

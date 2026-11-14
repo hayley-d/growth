@@ -3,7 +3,12 @@ import { describe, expect, it } from "vitest";
 import { type AvlNode, decodeTree, toKeys } from "@shared/avl";
 import { balanceOf, type Difficulty, generate, heightOf, isAvl } from "@shared/engine";
 import { treeSizeBounds } from "@shared/engine/src/generators/support";
-import { type GeneratorKey, generatedQuestionSchema, generatorKeySchema } from "@shared/schemas";
+import {
+  type GeneratedQuestion,
+  type GeneratorKey,
+  generatedQuestionSchema,
+  generatorKeySchema,
+} from "@shared/schemas";
 
 const difficulties: Difficulty[] = [1, 2, 3, 4, 5];
 const seeds = [...Array.from({ length: 20 }, (_, index) => index + 1), 123456, 1762600000000];
@@ -18,6 +23,17 @@ const requireTree = (text: string | null): AvlNode => {
 const everyCase = (key: GeneratorKey, check: (difficulty: Difficulty, seed: number) => void) => {
   for (const difficulty of difficulties) for (const seed of seeds) check(difficulty, seed);
   return key;
+};
+
+const withoutRange = (text: string) => text.replace(/-2 or 2/g, "").replace(/-2/g, "");
+
+const expectHintsHideRotation = (question: GeneratedQuestion) => {
+  const hints = withoutRange(question.hints.join(" "));
+  expect(hints).not.toMatch(/leftRight|rightLeft|\b(left|right)(-| )(left|right)\b/i);
+  expect(hints).not.toMatch(/\b(left|right) rotation\b|rotate \d|is (left|right)-heavy/i);
+  if (question.answer.type === "predict_rotation" && question.answer.pivotKey !== null) {
+    expect(hints).not.toMatch(new RegExp(`\\b${question.answer.pivotKey}\\b`));
+  }
 };
 
 const nodeKeys = (text: string | null) => toKeys(requireTree(text));
@@ -61,6 +77,21 @@ describe("generate", () => {
       const size = nodeKeys(question.tree).length;
       expect(size).toBeGreaterThanOrEqual(minimum);
       expect(size).toBeLessThanOrEqual(maximum);
+    });
+  });
+
+  it("gives operation and traversal questions a replay that matches the prompt", () => {
+    everyCase("insert-result", (difficulty, seed) => {
+      const insert = generate("insert-result", { seed, difficulty });
+      const remove = generate("delete-result", { seed, difficulty });
+      expect(insert.replay).toMatchObject({ kind: "operation", operation: "insert" });
+      expect(remove.replay).toMatchObject({ kind: "operation", operation: "delete" });
+      if (insert.replay?.kind === "operation") {
+        expect(insert.prompt).toContain(`Insert ${insert.replay.key} `);
+      }
+      const traversal = generate("traversal-order", { seed, difficulty, order: "postorder" });
+      expect(traversal.replay).toEqual({ kind: "traversal", order: "postorder" });
+      expect(generate("height", { seed, difficulty }).replay ?? null).toBeNull();
     });
   });
 
@@ -110,6 +141,28 @@ describe("generate", () => {
       expect(easy.answer).toEqual({ type: "predict_rotation", rotation: "none", pivotKey: null });
       expect(["leftRight", "rightLeft"]).toContain(hard.answer.rotation);
       expect(nodeKeys(hard.tree)).toContain(hard.answer.pivotKey);
+    }
+  });
+
+  it("predict-rotation with unbalanced shows a tree that needs the answer's rotation", () => {
+    const lowestUnbalanced = (node: AvlNode | null): number | null => {
+      if (!node) return null;
+      const below = lowestUnbalanced(node.left) ?? lowestUnbalanced(node.right);
+      if (below !== null) return below;
+      return Math.abs(balanceOf(node)) >= 2 ? node.key : null;
+    };
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        const question = generate("predict-rotation", { seed, difficulty, unbalanced: true });
+        if (question.answer.type !== "predict_rotation")
+          throw new Error("expected predict_rotation");
+        expect(question.prompt).not.toMatch(/insert|delete/i);
+        expect(question.replay).toBeNull();
+        expect(lowestUnbalanced(requireTree(question.tree))).toBe(question.answer.pivotKey);
+        if (difficulty === 1) expect(question.answer.rotation).toBe("none");
+        if (difficulty === 2) expect(["left", "right"]).toContain(question.answer.rotation);
+        if (difficulty >= 4) expect(["leftRight", "rightLeft"]).toContain(question.answer.rotation);
+      }
     }
   });
 
@@ -192,6 +245,26 @@ describe("generate", () => {
     expect(replaced).toBeGreaterThan(0);
   });
 
+  it("predict-rotation only asks about inserts when told to", () => {
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        const question = generate("predict-rotation", { seed, difficulty, operation: "insert" });
+        expect(question.replay).toMatchObject({ operation: "insert" });
+        expect(question.prompt.startsWith("Insert ")).toBe(true);
+      }
+    }
+  });
+
+  it("predict-rotation hints for deletes never reveal the pivot or the rotation", () => {
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        expectHintsHideRotation(
+          generate("predict-rotation", { seed, difficulty, operation: "delete" }),
+        );
+      }
+    }
+  });
+
   it("is-avl hints are the same for valid and invalid trees", () => {
     const hints = new Set<string>();
     for (const seed of seeds) {
@@ -200,6 +273,24 @@ describe("generate", () => {
       }
     }
     expect(hints.size).toBe(1);
+  });
+
+  it("rotation hints never reveal the pivot or the rotation", () => {
+    for (const key of ["insert-result", "delete-result", "predict-rotation"] as const) {
+      everyCase(key, (difficulty, seed) => {
+        expectHintsHideRotation(generate(key, { seed, difficulty }));
+      });
+    }
+  });
+
+  it("predict-rotation only asks about deletes when told to", () => {
+    for (const difficulty of difficulties) {
+      for (const seed of seeds) {
+        const question = generate("predict-rotation", { seed, difficulty, operation: "delete" });
+        expect(question.replay).toMatchObject({ operation: "delete" });
+        expect(question.prompt.startsWith("Delete ")).toBe(true);
+      }
+    }
   });
 
   it("traversal-order never reveals every key in its last hint", () => {
@@ -231,6 +322,28 @@ describe("generate", () => {
       const answer = question.answer.type === "multiple_choice" ? question.answer.optionId : null;
       const chosen = question.options?.find((option) => option.id === answer);
       expect(chosen?.text.startsWith("Yes")).toBe(isAvl(requireTree(question.tree)));
+    });
+  });
+});
+
+describe("bst-shaped questions", () => {
+  const bstKeys = ["traversal-order", "height"] as const;
+
+  it.each(bstKeys)("%s builds plain search trees that are not always balanced", (key) => {
+    const trees = difficulties.flatMap((difficulty) =>
+      seeds.map((seed) => requireTree(generate(key, { seed, difficulty, shape: "bst" }).tree)),
+    );
+    for (const tree of trees) {
+      const keysInOrder = toKeys(tree);
+      expect(keysInOrder).toEqual([...keysInOrder].sort((left, right) => left - right));
+      expect(heightOf(tree)).toBeLessThanOrEqual(Math.ceil(Math.log2(keysInOrder.length + 1)) + 2);
+    }
+    expect(trees.some((tree) => !isAvl(tree))).toBe(true);
+  });
+
+  it.each(bstKeys)("%s still builds avl trees when no shape is given", (key) => {
+    everyCase(key, (difficulty, seed) => {
+      expect(isAvl(requireTree(generate(key, { seed, difficulty }).tree))).toBe(true);
     });
   });
 });

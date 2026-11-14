@@ -203,6 +203,8 @@ describe("makeSubmitAnswer", () => {
     const last = await answerAll(useCases, state.attempt.id, () => false);
     expect(last?.data.result).toMatchObject({ score: 0, passed: false, points: 0 });
     expect(last?.data.result?.ratingChange).toBeLessThan(0);
+    const result = last?.data.result;
+    expect(result?.masteryBefore).toBeGreaterThan(result?.masteryAfter ?? 100);
     expect(last?.data.result?.reviewLessons).toHaveLength(2);
     expect(last?.data.result?.reviewLessons).toEqual(
       expect.arrayContaining([

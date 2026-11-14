@@ -5,4 +5,5 @@ export type QuestionRepository = Repository<Question, NewQuestion, QuestionChang
   listActiveByLessonId(lessonId: string): Promise<Question[]>;
   listActiveByLessonIds(lessonIds: readonly string[]): Promise<Question[]>;
   listByIds(ids: readonly string[]): Promise<Question[]>;
+  listActiveGenerated(): Promise<Question[]>;
 };

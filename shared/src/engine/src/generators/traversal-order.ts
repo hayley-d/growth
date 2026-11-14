@@ -4,7 +4,7 @@ import { type TraversalOrder, TreeTraversal } from "@shared/avl/src/tree-travers
 import {
   createGeneratorRandom,
   type GenerateOptions,
-  makePlainTree,
+  makeTreeShaped,
   pickFrom,
 } from "@shared/engine/src/generators/support";
 import type { GeneratedQuestion } from "@shared/schemas";
@@ -29,9 +29,10 @@ export const generateTraversalOrder = ({
   seed,
   difficulty,
   order,
+  shape,
 }: GenerateOptions): GeneratedQuestion => {
   const random = createGeneratorRandom(seed, 1);
-  const tree = makePlainTree(seed, difficulty);
+  const tree = makeTreeShaped(seed, difficulty, shape);
   const chosenOrder = order ?? pickFrom(orders, random);
   const keys = [...new TreeTraversal(tree, chosenOrder)].map((node) => node.key);
   const asText = random() < 0.5;
@@ -50,6 +51,7 @@ export const generateTraversalOrder = ({
     tree: encodeTree(tree),
     answer,
     explanation: `${title} visits ${orderRules[chosenOrder]}. For this tree that gives ${keys.join(", ")}.`,
+    replay: { kind: "traversal", order: chosenOrder },
     hints: [
       `${title} traversal visits ${orderRules[chosenOrder]}.`,
       `The root is ${tree.key}. It has ${toKeys(tree.left).length} keys in its left subtree and ${toKeys(tree.right).length} in its right.`,

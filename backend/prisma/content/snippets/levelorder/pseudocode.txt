@@ -1,0 +1,10 @@
+levelorder(root):
+  queue = empty queue
+  if root exists: add root to queue // @step levelorder.enqueue-root
+  while queue is not empty: // @step levelorder.check-queue
+    node = take the front of the queue // @step levelorder.dequeue
+    visit(node) // @step levelorder.visit
+    if node.left exists: // @step levelorder.check-left
+      add node.left to queue // @step levelorder.enqueue-left
+    if node.right exists: // @step levelorder.check-right
+      add node.right to queue // @step levelorder.enqueue-right

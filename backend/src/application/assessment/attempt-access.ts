@@ -20,8 +20,7 @@ export const makeResolveOwnedAttempt =
   async (attemptId: string): Promise<AssessmentAttempt> => {
     const userId = getSignedInUserId();
     const attempt = await assessmentAttemptRepository.findById(attemptId);
-    const isTest = attempt?.kind === "lesson_test" || attempt?.kind === "checkpoint";
-    if (!attempt || attempt.userId !== userId || !isTest || !attempt.lessonId) {
+    if (!attempt || attempt.userId !== userId || attempt.kind === "daily_challenge") {
       throw new NotFoundError("Attempt not found", { attemptId });
     }
     return attempt;
@@ -48,13 +47,11 @@ export const makeResolveCurrentQuestion = (dependencies: AttemptAccessDependenci
     const attemptQuestion = attemptQuestions.find((candidate) => candidate.id === questionId);
     if (!attemptQuestion) throw new NotFoundError("Question not found", { questionId });
 
-    const answeredQuestionIds = new Set(answers.map((answer) => answer.questionId));
-    if (answeredQuestionIds.has(attemptQuestion.questionId)) {
+    const answeredIds = new Set(answers.map((answer) => answer.attemptQuestionId));
+    if (answeredIds.has(attemptQuestion.id)) {
       throw new ConflictError("Question is already answered", { questionId });
     }
-    const current = attemptQuestions.find(
-      (candidate) => !answeredQuestionIds.has(candidate.questionId),
-    );
+    const current = attemptQuestions.find((candidate) => !answeredIds.has(candidate.id));
     if (current?.id !== attemptQuestion.id) {
       throw new ConflictError("This is not the current question", { questionId });
     }

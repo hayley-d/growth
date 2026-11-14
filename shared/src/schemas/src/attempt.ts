@@ -1,6 +1,11 @@
 import { z } from "zod";
 
-import { learnerAnswerSchema, questionTypeSchema } from "@shared/schemas/src/assessment";
+import {
+  learnerAnswerSchema,
+  questionTypeSchema,
+  replaySchema,
+} from "@shared/schemas/src/assessment";
+import { practiceTopicSchema } from "@shared/schemas/src/practice";
 
 export const testAttemptKindSchema = z.enum(["lesson_test", "checkpoint"]);
 
@@ -10,12 +15,15 @@ export const attemptStatusSchema = z.enum(["in_progress", "finished"]);
 
 export type AttemptStatus = z.infer<typeof attemptStatusSchema>;
 
+export const attemptStateKindSchema = z.enum(["lesson_test", "checkpoint", "practice"]);
+
 export const attemptSchema = z.object({
   id: z.uuid(),
-  lessonId: z.uuid(),
-  kind: testAttemptKindSchema,
+  lessonId: z.uuid().nullable(),
+  kind: attemptStateKindSchema,
+  topic: practiceTopicSchema.nullable(),
   status: attemptStatusSchema,
-  total: z.int().positive(),
+  total: z.int().nonnegative(),
   answeredCount: z.int().nonnegative(),
   startedAt: z.iso.datetime(),
   finishedAt: z.iso.datetime().nullable(),
@@ -52,6 +60,7 @@ export const attemptReviewAnswerSchema = z.object({
   isCorrect: z.boolean(),
   correctAnswer: learnerAnswerSchema,
   explanation: z.string(),
+  replay: replaySchema.nullable(),
   hintsUsed: z.int().nonnegative(),
   points: z.int().nonnegative(),
 });
@@ -61,6 +70,8 @@ export const attemptResultSchema = z.object({
   passed: z.boolean(),
   points: z.int().nonnegative(),
   ratingChange: z.int(),
+  masteryBefore: z.int().min(0).max(100),
+  masteryAfter: z.int().min(0).max(100),
   reviewLessons: z.array(attemptReviewLessonSchema),
   answers: z.array(attemptReviewAnswerSchema),
 });
@@ -106,6 +117,7 @@ export const submitAnswerResponseSchema = z.object({
     isCorrect: z.boolean(),
     correctAnswer: learnerAnswerSchema,
     explanation: z.string(),
+    replay: replaySchema.nullable(),
     hintsUsed: z.int().nonnegative(),
     points: z.int().nonnegative(),
     rating: z.object({ before: z.int(), after: z.int() }),

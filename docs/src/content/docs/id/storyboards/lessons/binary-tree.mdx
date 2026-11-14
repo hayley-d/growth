@@ -1,72 +1,71 @@
 ---
-title: "Lesson 1: What is a binary tree"
+title: "What is a binary tree"
+description: How we designed lesson 1 from five savvy start storyboards.
 ---
 
 import { Aside, Steps } from "@astrojs/starlight/components";
 
-Lesson 1 is the pilot lesson, so everything after it borrows its words. It teaches what a binary tree is (nodes, root, leaves, parents and children, subtrees, depth and height) and then the binary search tree rule. It ends in a playground where learners insert keys into a plain search tree and watch where each one lands.
+Lesson 1 will be the first lesson a learner does on Growth. It is assumed that the learner knows nothing about trees. Lesson 1 should teach the learner terminology and the binary search tree rules (see [objectives](../../../objectives/) for more).
 
-Before building anything we sketched five different ways to teach it. Each storyboard below walks through the whole lesson, step by step, with the real text the learner would see. The playground is storyboarded once, after the five, because every one of them finishes there.
+The savvy start generated five ways to approach teaching lesson 1. Design 2 improved upon the selected idea and design 3 improved upon design 2. The whole team reviewed every round.
 
-Height counts nodes, so a leaf has height 1 and an empty tree has height 0. That matches the height question generator.
+## Savvy start
 
-## A: Vocabulary first
+### A: Vocabulary first
 
-This one teaches a single word at a time, all on the same tree. The learner works through every word first and only then meets the search tree rule, before heading to the playground.
+Teach one word at a time using the same tree. The learner will work through every word and then after that they will be introduced to the binary search tree rule.
 
 <Steps>
 
 1. The learner is shown a tree and learns what a node and an edge are.
 
-2. The learner meets the root.
+2. The learner learns what the root is.
 
-3. The learner meets parents and children.
+3. The learner learns what parents and children are.
 
    ![Three frames. Frame 1 shows the 7-node tree with one node and one edge labelled. Frame 2 highlights the top node as the root. Frame 3 marks 8 as the parent of 4 and 12.](../../../../../assets/id/prototypes/binary-tree/vocabulary-first-1.webp)
 
-   *Figure 1: A · Vocabulary first, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 1: A · Vocabulary first, steps 1 to 3*
 
-4. The learner meets leaves.
+4. The learner learns what leaves are.
 
 5. The learner finds out that binary means each node has at most two children, a left one and a right one.
 
-6. The learner sees a box drawn around part of the tree and learns that it is a subtree.
+6. The learner sees a box drawn around part of the tree and learns that it's a subtree.
 
    ![Three frames. Frame 4 marks the four bottom nodes as leaves. Frame 5 labels the left and right children of 8 and shows 4 with a single child. Frame 6 boxes the left subtree of 8 with 4 as its root.](../../../../../assets/id/prototypes/binary-tree/vocabulary-first-2.webp)
 
-   *Figure 2: A · Vocabulary first, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 2: A · Vocabulary first, steps 4 to 6*
 
 7. The learner taps the leaves to check that the words so far have stuck.
 
-8. The learner meets depth.
+8. The learner learns depth.
 
-9. The learner meets height.
+9. The learner learns height.
 
    ![Three frames. Frame 7 asks the learner to tap every leaf, with Clear and Check buttons. Frame 8 numbers each node with its depth, 0 for the root down to 2. Frame 9 numbers each node with its height, 1 for the leaves up to 3 for the root.](../../../../../assets/id/prototypes/binary-tree/vocabulary-first-3.webp)
 
-   *Figure 3: A · Vocabulary first, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 3: A · Vocabulary first, steps 7 to 9*
 
-10. The learner reads the search tree rule: smaller keys sit on the left and bigger keys on the right.
+10. The learner reads the search tree rule.
 
 11. The learner moves on to the playground and inserts keys of their own.
 
-12. The learner writes notes in their own words.
+12. The learner writes a note in their own words.
 
     ![Three frames. Frame 10 boxes the left subtree as smaller and the right subtree as bigger than 8. Frame 11 shows the playground with an insert box and a small tree. Frame 12 is the notes step with an empty text box.](../../../../../assets/id/prototypes/binary-tree/vocabulary-first-4.webp)
 
-    *Figure 4: A · Vocabulary first, steps 10 to 12. Own work, low-fidelity prototype.*
+    *Figure 4: A · Vocabulary first, steps 10 to 12*
 
 </Steps>
 
-**Playground:** The learner has only just read the rule, so the playground is their first chance to use it.
+### B: Family tree first
 
-## B: Family tree first
-
-This one begins with something learners already know, a family tree, and gradually turns it into a binary tree. Along the way it shows where the comparison stops working.
+Use a family tree as an example and link the idea to a binary tree.
 
 <Steps>
 
-1. The learner starts with a family tree they already know.
+1. The learner starts with a family tree.
 
 2. The learner watches the family tree turn into circles and lines.
 
@@ -74,47 +73,45 @@ This one begins with something learners already know, a family tree, and gradual
 
    ![Three frames. Frame 1 shows a family tree with Gran at the top and three generations below. Frame 2 shows the family tree redrawn as numbered nodes joined by edges. Frame 3 marks the top node as the root and 4 and 12 as its children.](../../../../../assets/id/prototypes/binary-tree/family-tree-first-1.webp)
 
-   *Figure 5: B · Family tree first, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 5: B · Family tree first, steps 1 to 3*
 
-4. The learner meets leaves.
+4. The learner learns what leaves are.
 
 5. The learner learns that, unlike a family, a binary tree allows at most two children per node.
 
-6. The learner sees one branch of the family boxed in and learns that it is a subtree.
+6. The learner sees one branch of the family boxed in and learns that it's a subtree.
 
    ![Three frames. Frame 4 marks the nodes with no children as leaves. Frame 5 shows a node with a left and a right child and a note that three or more children are not allowed. Frame 6 boxes one branch of the tree as a subtree.](../../../../../assets/id/prototypes/binary-tree/family-tree-first-2.webp)
 
-   *Figure 6: B · Family tree first, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 6: B · Family tree first, steps 4 to 6*
 
-7. The learner counts generations down the tree and so gets depth and height.
+7. The learner counts generations down the tree and learns depth and height.
 
-8. The learner sees where the family picture stops working, and the search tree rule takes over.
+8. The learner sees where the family picture stops working, and it becomes a search tree.
 
 9. The learner answers a quick multiple choice question about parents.
 
    ![Three frames. Frame 7 numbers each generation from the root and marks the height of the tree. Frame 8 shows the tree with the left subtree smaller and the right subtree bigger than 8. Frame 9 asks which node is the parent of 6, with 4 chosen.](../../../../../assets/id/prototypes/binary-tree/family-tree-first-3.webp)
 
-   *Figure 7: B · Family tree first, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 7: B · Family tree first, steps 7 to 9*
 
 10. The learner moves on to the playground and inserts keys of their own.
 
-11. The learner writes notes in their own words.
+11. The learner writes a note in their own words.
 
     ![Two frames. Frame 10 shows the playground with an insert box and a small tree. Frame 11 is the notes step with an empty text box.](../../../../../assets/id/prototypes/binary-tree/family-tree-first-4.webp)
 
-    *Figure 8: B · Family tree first, steps 10 and 11. Own work, low-fidelity prototype.*
+    *Figure 8: B · Family tree first, steps 10 and 11*
 
 </Steps>
 
-**Playground:** The playground is the same one every idea ends with.
+### C: Build it yourself
 
-## C: Build it yourself
-
-This one starts from an empty canvas. The learner builds the tree by tapping, and each word turns up just as it is needed. Keys only arrive near the end.
+The lesson opens with an empty canvas and the learner builds their own tree by tapping.
 
 <Steps>
 
-1. The learner adds the first node and is told it is the root.
+1. The learner adds the first node and is told it's the root.
 
 2. The learner taps + to give a node a child, and meets the words parent and child.
 
@@ -122,7 +119,7 @@ This one starts from an empty canvas. The learner builds the tree by tapping, an
 
    ![Three frames. Frame 1 shows an empty canvas with one new node and an Add node button. Frame 2 shows a root with one child and an empty + slot on the right. Frame 3 shows a node with two children and a blocked third slot with a message.](../../../../../assets/id/prototypes/binary-tree/build-it-yourself-1.webp)
 
-   *Figure 9: C · Build it yourself, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 9: C · Build it yourself, steps 1 to 3*
 
 4. The learner keeps growing the tree and watches leaves appear as nodes with no children.
 
@@ -132,7 +129,7 @@ This one starts from an empty canvas. The learner builds the tree by tapping, an
 
    ![Three frames. Frame 4 shows a full 7-node tree with the four leaves tagged. Frame 5 shows a tapped node with its subtree boxed. Frame 6 shows each node with its depth as a number.](../../../../../assets/id/prototypes/binary-tree/build-it-yourself-2.webp)
 
-   *Figure 10: C · Build it yourself, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 10: C · Build it yourself, steps 4 to 6*
 
 7. The learner switches on a height counter and sees how tall each node's subtree is.
 
@@ -142,23 +139,21 @@ This one starts from an empty canvas. The learner builds the tree by tapping, an
 
    ![Three frames. Frame 7 shows each node with its height as a number and the tree height of 3. Frame 8 asks whether 5 goes left or right of 6 on the way down the tree. Frame 9 shows 5 placed to the left of 6 with the rule written under the tree.](../../../../../assets/id/prototypes/binary-tree/build-it-yourself-3.webp)
 
-   *Figure 11: C · Build it yourself, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 11: C · Build it yourself, steps 7 to 9*
 
 10. The learner moves on to the playground and inserts keys of their own.
 
-11. The learner writes notes in their own words.
+11. The learner writes a note in their own words.
 
     ![Two frames. Frame 10 shows the playground with an insert box and a small tree. Frame 11 is the notes step with an empty text box.](../../../../../assets/id/prototypes/binary-tree/build-it-yourself-4.webp)
 
-    *Figure 12: C · Build it yourself, steps 10 and 11. Own work, low-fidelity prototype.*
+    *Figure 12: C · Build it yourself, steps 10 and 11*
 
 </Steps>
 
-**Playground:** The learner has been adding nodes by hand all along, so the playground is where keys and the rule come in.
+### D: Guess first
 
-## D: Guess first
-
-This one shows a finished tree and asks the learner to guess each word before it is explained. The answer follows straight after every guess.
+Starts off with a finished tree and the learner has to guess each word before it is explained.
 
 <Steps>
 
@@ -170,7 +165,7 @@ This one shows a finished tree and asks the learner to guess each word before it
 
    ![Three frames. Frame 1 asks the learner to tap the root of an unlabelled tree. Frame 2 confirms the root and asks the learner to tap every leaf. Frame 3 shows the four leaves and asks which node is the parent of 10.](../../../../../assets/id/prototypes/binary-tree/guess-first-1.webp)
 
-   *Figure 13: D · Guess first, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 13: D · Guess first, steps 1 to 3*
 
 4. The learner taps every node they think is in the left subtree.
 
@@ -180,7 +175,7 @@ This one shows a finished tree and asks the learner to guess each word before it
 
    ![Three frames. Frame 4 asks the learner to tap everything in the left subtree of 8. Frame 5 asks how many edges lie between the root and 14, with a number box. Frame 6 asks for the height of the whole tree, with a number box.](../../../../../assets/id/prototypes/binary-tree/guess-first-2.webp)
 
-   *Figure 14: D · Guess first, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 14: D · Guess first, steps 4 to 6*
 
 7. The learner taps the empty spot where they think a new key belongs.
 
@@ -190,21 +185,19 @@ This one shows a finished tree and asks the learner to guess each word before it
 
    ![Three frames. Frame 7 asks where the key 5 should go, with empty slots to tap. Frame 8 shows the path from the root down to where 5 lands, with the rule written out. Frame 9 shows the playground with an insert box and a small tree.](../../../../../assets/id/prototypes/binary-tree/guess-first-3.webp)
 
-   *Figure 15: D · Guess first, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 15: D · Guess first, steps 7 to 9*
 
-10. The learner writes notes in their own words.
+10. The learner writes a note in their own words.
 
     ![One frame. Frame 10 is the notes step with an empty text box.](../../../../../assets/id/prototypes/binary-tree/guess-first-4.webp)
 
-    *Figure 16: D · Guess first, step 10. Own work, low-fidelity prototype.*
+    *Figure 16: D · Guess first, step 10*
 
 </Steps>
 
-**Playground:** The learner has been guessing all lesson, so the playground is simply open practice with no prompts.
+### E: Drop keys in
 
-## E: Drop keys in
-
-This one opens with the same insert box the learner will use in the playground. They drop keys into an empty tree, and each word is introduced as soon as the tree needs it.
+It opens with the same insert box the learner will use in the playground. They drop keys into an empty tree, and each word is introduced.
 
 <Steps>
 
@@ -212,11 +205,11 @@ This one opens with the same insert box the learner will use in the playground. 
 
 2. The learner watches the first key become the root.
 
-3. The learner inserts 4 and sees that smaller keys go left. Parent and child get their names here.
+3. The learner inserts 4 and sees that smaller keys go left, and parent and child get their names.
 
    ![Three frames. Frame 1 shows an empty tree with a key box holding 8 and an Insert button. Frame 2 shows 8 placed at the top and marked as the root. Frame 3 shows 4 compared with 8 and placed on the left.](../../../../../assets/id/prototypes/binary-tree/drop-keys-in-1.webp)
 
-   *Figure 17: E · Drop keys in, steps 1 to 3. Own work, low-fidelity prototype.*
+   *Figure 17: E · Drop keys in, steps 1 to 3*
 
 4. The learner inserts 12 and sees that bigger keys go right.
 
@@ -226,7 +219,7 @@ This one opens with the same insert box the learner will use in the playground. 
 
    ![Three frames. Frame 4 shows 12 compared with 8 and placed on the right. Frame 5 shows suggested keys 2, 6, 10 and 14 and the full tree they build. Frame 6 labels the root, the four leaves and the parents on the finished tree.](../../../../../assets/id/prototypes/binary-tree/drop-keys-in-2.webp)
 
-   *Figure 18: E · Drop keys in, steps 4 to 6. Own work, low-fidelity prototype.*
+   *Figure 18: E · Drop keys in, steps 4 to 6*
 
 7. The learner sees a subtree boxed in, and that everything in the left one is smaller than its parent.
 
@@ -236,67 +229,148 @@ This one opens with the same insert box the learner will use in the playground. 
 
    ![Three frames. Frame 7 boxes the left subtree of 8 and marks everything in it as smaller than 8. Frame 8 shows the depth of each node as a number and the tree height of 3. Frame 9 asks the learner to tap the one key in the wrong place, with 9 chosen.](../../../../../assets/id/prototypes/binary-tree/drop-keys-in-3.webp)
 
-   *Figure 19: E · Drop keys in, steps 7 to 9. Own work, low-fidelity prototype.*
+   *Figure 19: E · Drop keys in, steps 7 to 9*
 
 10. The learner moves on to the playground and inserts whatever keys they like.
 
-11. The learner writes notes in their own words.
+11. The learner writes a note in their own words.
 
     ![Two frames. Frame 10 shows the playground with an insert box and a small tree. Frame 11 is the notes step with an empty text box.](../../../../../assets/id/prototypes/binary-tree/drop-keys-in-4.webp)
 
-    *Figure 20: E · Drop keys in, steps 10 and 11. Own work, low-fidelity prototype.*
+    *Figure 20: E · Drop keys in, steps 10 and 11*
 
 </Steps>
 
-**Playground:** The learner met the insert box in step 1, so there is nothing new to learn when they reach the playground.
+### Review
 
-## Playground: insert keys into a plain search tree
+The team reviewed the storyboards and liked A and E the most. We liked A since it introduced the learner to the definitions before they did anything to the tree. We also liked E because it had the learner do something and at the same time introduced them to each type of node step by step.
 
-Every storyboard above ends here. The learner types in a key, presses Insert and watches it travel down from the root, with each comparison written out as it happens. That way they can see why a key goes left or right instead of just being told. Nothing is balanced yet, and that is on purpose: the learner can see a plain search tree stretch into a line, which is exactly the problem AVL trees solve later.
+With B we liked that it started off with a familiar real world example but thought it may confuse learners because family trees can have more than two children.
+
+C had the learner start with an empty canvas and build a tree with no keys in it which we thought would confuse the learners.
+
+We also did not like D as it told the learner to guess before they had been taught anything which may discourage some.
+
+After further discussion the team noticed that E already does what we liked about A. It introduces one word at a time on one tree, but the tree is one the learner has just built. The only thing E gives up is A's order of definitions before doing, and we preferred having the learner act first. We decided to only carry E forward into the next round. Additionally, the team wanted to add the playground into the lesson and storyboard some ideas for that step.
+
+## Design 2
+
+### Drop keys in, with its playground
+
+This is E unchanged with an additional playground storyboard. The learner types a key and watches it travel down from the root with every comparison written out.
 
 <Steps>
 
-1. The learner starts with a tree holding one key, an insert box and three buttons.
+1. The learner builds the 7-node tree by dropping keys in.
 
-2. The learner presses Insert and watches the key travel down the tree, with every comparison written out.
+2. The learner reaches the playground and sees a tree holding only 8, an insert box, and Insert, Random and Reset buttons.
 
-3. The learner sees the key land, and the node count and height update.
+3. The learner presses Insert and watches 10 travel down the tree, with every comparison listed under it.
 
-   ![Three frames. Frame 1 shows a tree with the single key 8, an insert box, and Insert, Random and Reset buttons. Frame 2 shows 10 moving down from the root, with each comparison listed below the tree. Frame 3 shows 10 placed under 12 with the counts updated.](../../../../../assets/id/prototypes/binary-tree/playground-1.webp)
+4. The learner sees 10 land under 12, and the node count and height update.
 
-   *Figure 21: Playground, steps 1 to 3. Own work, low-fidelity prototype.*
+   ![Three frames. Frame 2 shows a tree with the single key 8, an insert box, and Insert, Random and Reset buttons. Frame 3 shows 10 moving down from the root, with each comparison listed below the tree. Frame 4 shows 10 placed under 12 with the counts updated.](../../../../../assets/id/prototypes/binary-tree/playground-1.webp)
 
-4. The learner inserts keys in sorted order and watches the tree stretch into a line.
+   *Figure 21: Design 2 · The playground, steps 2 to 4*
 
-5. The learner tries to insert a key that is already there and is told why it can't go in.
+5. The learner inserts 1, 2, 3, 4 and 5 in order and watches the tree stretch into a line with a height of 5.
 
-6. The learner compares two insert orders of the same keys, side by side.
+6. The learner tries to insert 10 again and is told it's already in the tree.
 
-   ![Three frames. Frame 4 shows the keys 1 to 5 inserted in order, forming a single line down to the right with a height of 5. Frame 5 shows an error message saying 10 is already in the tree and the tree unchanged. Frame 6 shows two trees built from the same five keys, one a line with height 5 and one wide with height 3.](../../../../../assets/id/prototypes/binary-tree/playground-2.webp)
+7. The learner compares two insert orders of the same keys side by side, one a line and one wide.
 
-   *Figure 22: Playground, steps 4 to 6. Own work, low-fidelity prototype.*
+   ![Three frames. Frame 5 shows the keys 1 to 5 inserted in order, forming a single line down to the right with a height of 5. Frame 6 shows an error message saying 10 is already in the tree and the tree unchanged. Frame 7 shows two trees built from the same five keys, one a line with height 5 and one wide with height 3.](../../../../../assets/id/prototypes/binary-tree/playground-2.webp)
+
+   *Figure 22: Design 2 · The playground, steps 5 to 7*
+
+8. The learner writes a note in their own words.
 
 </Steps>
 
-**Controls:** Insert adds the key in the box, Random adds a key that isn't in the tree yet, and Reset empties the tree. After every insert the node count and height appear under the tree.
+### Review
+
+The team liked the addition of the playground. Our one concern was that in this design the learner never reads the rule. They only pick it up from the inserts they've watched. For example, a learner who later inserts 5 and thinks it just goes next to 4 would be surprised to see it travel past 4 and land as the left child of 6, two levels down.
+
+For design 3 the team wanted to move the rule to step 2, so the learner knows why each key turns before they insert one.
+
+We also took some steps out of the lesson and moved each one somewhere it fits better.
+* The tap-the-wrong-key step (E, step 9) would work better as a test question.
+* The duplicate-key step (design 2, step 6) is covered by the rule in step 2, which says each key appears only once, so we removed it.
+* The line of keys 1 to 5 and the side-by-side insert orders (design 2, steps 5 and 7) fit better in lesson 7.
+
+## Design 3
+
+### Drop keys in, rule first
+
+The learner still builds the tree themselves, but they know the rule they're following from step 2.
+
+<Steps>
+
+1. The learner sees 8 placed in an empty tree and reads that the first key becomes the root.
+
+2. The learner reads the search tree rule.
+
+3. The learner presses play and watches 8, 4 and 12 go in, with 4 going left of 8 and 12 going right.
+
+4. The learner steps through 2, 6, 10 and 14 going in, with a line under the tree saying why each one turned the way it did.
+
+5. The learner reads the names of the pieces on the tree they just built, and hovers over a word like "leaf" to light up the nodes it means.
+
+   ![Step 5 of the binary tree lesson, "Name the pieces". The core text names the root, children, parent and leaves, with each term underlined. Under it, "Another way to see it" shows a card labelled "For visual learners" with an eye icon. The card holds a tree with 8 at the root, 4 and 12 below it, and the leaves 2, 6, 10 and 14 lit up. A label beside 8 says "8 is the root" and a bracket under the leaves says "The four leaves: 2, 6, 10 and 14".](../../../../../assets/id/learning-styles/visual-1.webp)
+
+   *Figure 23: Design 3 · Step 5, name the pieces, with the visual block*
+
+6. The learner reads that a node and everything below it is a subtree, and that the left subtree of 8 is 4, 2 and 6.
+
+7. The learner sees the left subtree of 8 highlighted with the label "all smaller than 8".
+
+8. The learner reads depth and height on the same tree, and hovers over "height" to see the three nodes it counts.
+
+   ![Step 8 of the binary tree lesson, "Depth and height". The word "height" in the text is highlighted yellow. Below, a tree with 8 at the root, 4 and 12 below it and 2, 6, 10 and 14 at the bottom. Nodes 8, 12 and 14 are yellow. A bracket on the right says "Height 3: 3 nodes from the root to a leaf", and a bracket under 14 says "14 has depth 2". Under the tree, "Picked for you" starts a card labelled "For auditory learners".](../../../../../assets/id/learning-styles/visual-2.webp)
+
+   *Figure 24: Design 3 · Step 8, depth and height*
+
+9. The learner starts the playground with only 8 in the tree and inserts 4, 12, 2, 6, 10 and 14, then any keys they like.
+
+   ![Step 9 of 10 in "What is a binary tree", under the course name "Binary trees and traversals". The progress bar is nearly full and a Listen button sits top right. The instruction reads "Insert 4, 12, 2, 6, 10 and 14, then try your own keys. Smaller goes left, bigger goes right." Below it, zoom buttons show 100%, and the tree holds one node, 8. Under the tree is a Start again button, then a command box that says "Type a command below, like insert n, or tap one to fill it in", with the prompt "tree >" holding "insert n" and a Run button.](../../../../../assets/id/prototypes/binary-tree/design-3-playground.webp)
+
+   *Figure 25: Design 3 · Step 9, the playground*
+
+10. The learner writes a note explaining a binary search tree in their own words, using root, leaf and subtree.
+
+</Steps>
+
+### Review
+
+Putting the rule first deals with the concern from design 2. The learner reads why keys go left or right before they insert any, and step 4 says why each key turned. We read design 3 next to the four objectives and found nothing was missing.
 
 ## Decision
 
-<Aside type="tip" title="We picked E, drop keys in">
+<Aside type="tip" title="We picked design 3, drop keys in with the rule first">
+The learner builds a 7-node search tree from fixed keys, then learns every word on the tree they built.
 </Aside>
 
-### Why we chose drop keys in
+### Why we picked it
 
-- The learner is doing something from the very first screen. They type a key and watch it land, instead of reading definitions or guessing.
-- The insert box in the lesson is the same one they use in the playground, so the lesson flows straight into it and there is nothing new to learn at the end.
-- Every word in the lesson's scope is still covered: root, parents and children, leaves, subtrees, depth and height, and the search tree rule. Each one shows up when the tree the learner has built needs it, in steps 2 to 8.
-- The rule comes out of what the learner just did instead of arriving as a definition. That matters later, because reading a search tree in order gives its keys sorted, and the traversal lessons build on it.
-- Every step pairs a tree with a short piece of text and a log of the comparisons, so it works with text-to-speech as well as the diagram.
-- The best parts of the other ideas still fit inside it. The labelled tree from A is step 6, and the tap-to-check from D is step 9.
+The learner watches the tree grow one key at a time from step 3, and learns every word on the tree they've just seen built. In the playground they type in keys of their own and watch each one land. Kinesthetic learners don't have to wait for the playground to insert keys, because their version of step 3 has them insert 4 and 12 themselves. The diagrams show the word and the node together, which should help learners associate one with the other.
 
-### Why we dropped the others
+This design allows us to introduce the rule to the learners early on. Learners need to know why a key goes left before they see it happen, or it looks random.
 
-- **A: Vocabulary first.** It is clear and easy to check, but the learner reads seven definitions before they do anything, and the search tree rule only turns up at step 10. It feels like a glossary.
-- **B: Family tree first.** It starts from something familiar, but a family can have any number of children and has no order, so a lot of steps go on explaining where the picture stops working. The search tree rule still has to be taught on top.
-- **C: Build it yourself.** It is hands-on, but the nodes have no keys until step 8, so the learner builds shapes for no reason. Tapping + slots is also fiddly on a small screen, and it needs a tree editor that nothing else in the app uses.
-- **D: Guess first.** A learner can't guess a word they have never heard, so the first guesses at root and leaf are just luck. It works better as a check after the words, which is why we kept it for step 9 of E.
+### CCAF
+
+For step 3, the first inserts.
+
+| | |
+| --- | --- |
+| **Context** | The learner is on step 3 of "What is a binary tree". They've seen 8 become the root and have just read the rule. |
+| **Challenge** | See the rule decide where 4 and 12 go. |
+| **Activity** | The learner presses play and watches 8, 4 and 12 go in one at a time. A kinesthetic learner gets a small playground block instead. It starts with only 8 in the tree and has the goal "Insert 4 and 12. Smaller goes left, bigger goes right." |
+| **Feedback** | Each key travels down from 8 and lands, 4 on the left and 12 on the right. The text says "4 is smaller than 8, so it goes left" and "12 is bigger than 8, so it goes right," and Listen reads it out. In the kinesthetic block the goal ticks off once both keys are in. |
+
+## Design proof
+
+Lesson 1 was the first lesson we built. The content is nine block files in `backend/prisma/content/01-binary-tree/blocks/`, plus learning style variants for steps 2, 3, 5 and 8.
+
+![Step 5 of 10 in "What is a binary tree", "Name the pieces", as built. The core text names the root (8), children, parent and the four leaves 2, 6, 10 and 14, with each term in bold, and a Listen button sits top right. Under "Picked for you" is a card for reading/writing learners, "Write the words", asking for one sentence each for root, parent, child and leaf, with an empty answer box and the note "Only you can see this. It isn't saved." Below, "Other ways to learn this (2)" is open, showing a kinesthetic card, "Draw it on paper", and a visual card with the tree 8, 4, 12, 2, 6, 10, 14, the label "8 is the root" and a bracket under the four leaves. Back and Continue buttons sit at the bottom.](../../../../../assets/id/prototypes/binary-tree/design-proof-name-the-pieces.webp)
+
+*Figure 26: Design proof · Step 5, name the pieces, as built*

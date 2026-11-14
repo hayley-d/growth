@@ -23,16 +23,16 @@ export default [
     type: "multiple_choice",
     difficulty: 1,
     bloomsLevel: "remember",
-    prompt: "In the in-order code, which line is visit(node) on?",
+    prompt:
+      "After the empty check, in-order does three things: visit(node), inorder(node.left) and inorder(node.right). Which position is visit(node) in?",
     explanation:
-      "In-order visits between the two calls. Line 3 goes left, line 4 visits, and line 5 goes right.",
+      "In-order visits between the two calls. It goes left first, then visits, then goes right, so visit(node) is 2nd.",
     reviewLesson: "in-order",
     hints: ["In-order visits between the two calls.", "The left call comes first."],
     options: [
-      { key: "line-two", text: "Line 2", isCorrect: false },
-      { key: "line-three", text: "Line 3", isCorrect: false },
-      { key: "line-four", text: "Line 4", isCorrect: true },
-      { key: "line-five", text: "Line 5", isCorrect: false },
+      { key: "first", text: "1st, before both calls", isCorrect: false },
+      { key: "second", text: "2nd, between the calls", isCorrect: true },
+      { key: "third", text: "3rd, after both calls", isCorrect: false },
     ],
   },
   {

@@ -4,7 +4,7 @@ export default [
   {
     key: "pre-order-easy",
     generatorKey: "traversal-order",
-    generatorOptions: { order: "preorder" },
+    generatorOptions: { order: "preorder", shape: "bst" },
     type: "order_nodes",
     difficulty: 1,
     bloomsLevel: "apply",
@@ -13,7 +13,7 @@ export default [
   {
     key: "pre-order-medium",
     generatorKey: "traversal-order",
-    generatorOptions: { order: "preorder" },
+    generatorOptions: { order: "preorder", shape: "bst" },
     type: "order_nodes",
     difficulty: 2,
     bloomsLevel: "apply",
@@ -22,7 +22,7 @@ export default [
   {
     key: "pre-order-hard",
     generatorKey: "traversal-order",
-    generatorOptions: { order: "preorder" },
+    generatorOptions: { order: "preorder", shape: "bst" },
     type: "order_nodes",
     difficulty: 3,
     bloomsLevel: "apply",

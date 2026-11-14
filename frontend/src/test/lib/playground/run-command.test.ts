@@ -15,6 +15,36 @@ const context = (keys: number[], changes: Partial<CommandContext> = {}): Command
   ...changes,
 });
 
+describe("runCommand in bst mode", () => {
+  it("traces an insert without rotating", () => {
+    const outcome = runCommand(context([], { treeMode: "bst" }), {
+      kind: "insert",
+      keys: [30, 20, 10],
+    });
+    expect(outcome.ok).toBe(true);
+    expect(outcome.tree?.key).toBe(30);
+    expect(outcome.tree?.left?.left?.key).toBe(10);
+    expect(outcome.run?.steps.length).toBeGreaterThan(0);
+    expect(
+      outcome.run?.steps.some((step) => /^(rotate|rebalance|update-height)/.test(step.stepKey)),
+    ).toBe(false);
+  });
+
+  it("traces a delete without rebalancing", () => {
+    const start = runCommand(context([], { treeMode: "bst" }), {
+      kind: "insert",
+      keys: [10, 20, 30, 40],
+    });
+    const outcome = runCommand(context([], { treeMode: "bst", tree: start.tree }), {
+      kind: "delete",
+      key: 10,
+    });
+    expect(outcome.tree?.key).toBe(20);
+    expect(outcome.tree?.right?.right?.key).toBe(40);
+    expect(outcome.run?.steps.some((step) => step.stepKey.endsWith(".rebalance"))).toBe(false);
+  });
+});
+
 describe("runCommand", () => {
   it("traces an insert that rotates", () => {
     const outcome = runCommand(context([30, 20]), { kind: "insert", keys: [10] });
@@ -105,5 +135,26 @@ describe("runCommand", () => {
     const searched = runCommand(context([5, 3]), { kind: "search", key: 3 });
     expect(searched.tree).toEqual(build([5, 3]));
     expect(searched.run?.label).toBe("Search for 3");
+  });
+});
+
+describe("random trees for traversals", () => {
+  it("are plain search trees that are not always balanced", () => {
+    const trees = Array.from(
+      { length: 30 },
+      (_, index) =>
+        runCommand(
+          context([], {
+            setup: { topic: "traversal", traversal: "inorder", explore: "watch" },
+            seed: index + 1,
+          }),
+          { kind: "random", size: 12 },
+        ).tree,
+    );
+    expect(trees.some((tree) => unbalancedKeys(tree).length > 0)).toBe(true);
+    for (const tree of trees) {
+      const keys = toKeys(tree);
+      expect(keys).toEqual([...keys].sort((left, right) => left - right));
+    }
   });
 });

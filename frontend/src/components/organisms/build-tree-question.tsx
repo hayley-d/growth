@@ -1,12 +1,13 @@
-import { RotateCcw, RotateCw, Undo2 } from "lucide-react";
+import { RotateCcw, RotateCw, Trash2, Undo2 } from "lucide-react";
 import { useId, useState } from "react";
 
 import { type AvlNode, encodeTree, toKeys } from "@shared/avl";
-import { insertBst, rotate } from "@shared/engine";
+import { insertBst, removeBst, rotate } from "@shared/engine";
 import type { LearnerAnswer } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
 import { Input } from "@/components/atoms/input";
 import { Label } from "@/components/atoms/label";
+import { InfoTip } from "@/components/molecules/info-tip";
 import { TreeView } from "@/components/organisms/tree-view";
 import { parseKey } from "@/lib/playground/commands";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,11 @@ export function BuildTreeQuestion({
     setNewKey("");
   };
 
+  const remove = () => {
+    if (selectedKey === null) return;
+    push(removeBst(tree, selectedKey));
+  };
+
   const turn = (kind: "left" | "right") => {
     if (selectedKey === null) return;
     const result = rotate(tree, selectedKey, kind);
@@ -76,30 +82,46 @@ export function BuildTreeQuestion({
         className="max-h-80"
       />
       <form
-        className="flex flex-wrap items-center gap-3"
+        className="flex flex-wrap items-end gap-3"
         onSubmit={(event) => {
           event.preventDefault();
           if (!disabled) insert();
         }}
       >
-        <Label htmlFor={inputId}>New key</Label>
-        <Input
-          id={inputId}
-          inputMode="numeric"
-          maxLength={2}
-          value={newKey}
-          disabled={disabled}
-          autoComplete="off"
-          className="min-h-11 w-20 text-base tabular-nums"
-          onChange={(event) => setNewKey(event.target.value.replace(/\D/g, "").slice(0, 2))}
-        />
+        <div className="flex flex-col gap-1.5">
+          <Label htmlFor={inputId}>New key</Label>
+          <Input
+            id={inputId}
+            inputMode="numeric"
+            maxLength={2}
+            value={newKey}
+            disabled={disabled}
+            autoComplete="off"
+            className="min-h-11 w-20 text-base tabular-nums"
+            onChange={(event) => setNewKey(event.target.value.replace(/\D/g, "").slice(0, 2))}
+          />
+        </div>
         <Button type="submit" variant="outline" className="min-h-11" disabled={disabled}>
           Insert
         </Button>
+        <InfoTip
+          label="How to rotate or delete a node"
+          text="Click a node in the tree to pick it. Buttons to rotate it left or right, or to delete it, then show up below."
+        />
       </form>
       {selectedKey === null ? null : (
         <fieldset className="flex flex-wrap gap-2">
           <legend className="sr-only">Node {selectedKey}</legend>
+          <Button
+            type="button"
+            variant="outline"
+            className="min-h-11"
+            disabled={disabled}
+            onClick={remove}
+          >
+            <Trash2 aria-hidden="true" />
+            Delete {selectedKey}
+          </Button>
           <Button
             type="button"
             variant="outline"

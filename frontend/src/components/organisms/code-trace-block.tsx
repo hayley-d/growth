@@ -6,9 +6,8 @@ import {
   isAlgorithmCode,
   type Step,
   type TraversalOrder,
-  traceInsert,
-  traceRemove,
-  traceSearch,
+  type TreeMode,
+  toKeys,
   traceTraversal,
 } from "@shared/avl";
 import type { CodeTraceOperation } from "@shared/schemas";
@@ -18,7 +17,9 @@ import { StepMessage } from "@/components/molecules/step-message";
 import { CodeTrace } from "@/components/organisms/code-trace";
 import { TraceLayout } from "@/components/organisms/trace-layout";
 import { TreeView } from "@/components/organisms/tree-view";
-import { buildTree } from "@/lib/lesson/animation-steps";
+import { TreeViewport } from "@/components/organisms/tree-viewport";
+import { buildTree, traceTreeOperation } from "@/lib/lesson/animation-steps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { usePlaygroundSnippets } from "@/lib/playground/use-playground-snippets";
 import { speak } from "@/lib/speak";
 import { phaseOf } from "@/lib/step-phases";
@@ -41,15 +42,14 @@ const traceSteps = (
   root: AvlNode | null,
   algorithmCode: string,
   operation: CodeTraceOperation,
+  mode: TreeMode,
 ): Step[] => {
   if (operation.operation === "traverse") {
     return traversalOrders.includes(algorithmCode)
       ? traceTraversal(root, algorithmCode as TraversalOrder).steps
       : [];
   }
-  if (operation.operation === "insert") return traceInsert(root, operation.key).steps;
-  if (operation.operation === "delete") return traceRemove(root, operation.key).steps;
-  return traceSearch(root, operation.key).steps;
+  return traceTreeOperation(root, operation, mode).steps;
 };
 
 type CodeTraceBlockProperties = {
@@ -60,6 +60,8 @@ type CodeTraceBlockProperties = {
   className?: string;
 };
 
+const largeTreeNodes = 8;
+
 export function CodeTraceBlock({
   algorithmCode,
   startingKeys,
@@ -67,10 +69,11 @@ export function CodeTraceBlock({
   showCode = true,
   className,
 }: CodeTraceBlockProperties) {
-  const root = useMemo(() => buildTree(startingKeys), [startingKeys]);
+  const mode = useTreeMode();
+  const root = useMemo(() => buildTree(startingKeys, mode), [startingKeys, mode]);
   const steps = useMemo(
-    () => traceSteps(root, algorithmCode, operation),
-    [root, algorithmCode, operation],
+    () => traceSteps(root, algorithmCode, operation, mode),
+    [root, algorithmCode, operation, mode],
   );
   const codes = useMemo<readonly AlgorithmCode[]>(
     () =>
@@ -85,9 +88,16 @@ export function CodeTraceBlock({
   const step = player.step;
 
   const treeView = (
-    <div className="h-64 w-full self-start sm:h-80">
+    <TreeViewport
+      className={cn(
+        "w-full",
+        toKeys(root).length >= largeTreeNodes
+          ? "h-80 md:h-auto md:min-h-96 md:self-stretch"
+          : "h-64 self-start sm:h-80",
+      )}
+    >
       <TreeView root={step?.tree ?? root} nodeStates={step?.nodeStates} className="h-full" />
-    </div>
+    </TreeViewport>
   );
   const message = step ? (
     <StepMessage

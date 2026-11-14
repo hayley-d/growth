@@ -29,7 +29,7 @@ const question: QuestionRow = {
 };
 
 const rows = (overrides: Partial<ContentRows> = {}): ContentRows => ({
-  units: [{ id: "unit-1", title: "Traversal", position: 1 }],
+  units: [{ id: "unit-1", title: "Traversal", position: 1, treeMode: "bst" }],
   lessons: [
     {
       id: "lesson-a",

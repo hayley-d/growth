@@ -61,13 +61,21 @@ export class PrismaAttemptAnswerRepository
   countByUserAndLesson(userId: string, lessonId: string) {
     return withPrismaErrors(() =>
       this.client.attemptAnswer.count({
-        where: { assessmentAttempt: { userId }, question: { lessonId } },
+        where: {
+          assessmentAttempt: { userId, kind: { notIn: ["practice", "daily_challenge"] } },
+          question: { lessonId },
+        },
       }),
     );
   }
 
   recordAnswer({ answer, mastery }: RecordAnswerInput) {
     return withPrismaErrors(async () => {
+      if (!mastery) {
+        return toAttemptAnswer(
+          await this.client.attemptAnswer.create({ data: toAttemptAnswerCreateData(answer) }),
+        );
+      }
       const { userId, lessonId, ...values } = mastery;
       const [row] = await this.client.$transaction([
         this.client.attemptAnswer.create({ data: toAttemptAnswerCreateData(answer) }),

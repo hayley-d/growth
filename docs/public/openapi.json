@@ -43,6 +43,14 @@
     {
       "name": "Tests",
       "description": "Lesson tests, checkpoints and the final challenge. An attempt holds up to 5 questions chosen when it starts. The correct answer is only sent after the learner answers."
+    },
+    {
+      "name": "Practice",
+      "description": "Open-ended practice on one topic. Questions are generated one at a time until the learner stops. Hints and answers use the attempt endpoints. Practice has no stakes: its ratings live only inside the session, so it never changes mastery, difficulty on tests or lesson progress."
+    },
+    {
+      "name": "Daily challenge",
+      "description": "One generated question a day, the same for everyone. Days start at 00:00 in Africa/Johannesburg. The learner gets one go, timed from when they press Start. No hints, and it never changes mastery or ratings."
     }
   ],
   "paths": {
@@ -823,7 +831,7 @@
           "Tests"
         ],
         "summary": "Unlock the next hint",
-        "description": "Each hint lowers the score for that answer. Returns 409 when the question is not the current one, is already answered, has no hints left, or the attempt is finished.",
+        "description": "Each hint lowers the score for that answer. Works in practice attempts too. Returns 409 when the question is not the current one, is already answered, has no hints left, or the attempt is finished.",
         "security": [
           {
             "sessionCookie": []
@@ -884,7 +892,7 @@
           "Tests"
         ],
         "summary": "Answer the current question",
-        "description": "Grades the answer, updates the learner's rating for the question's lesson and returns the correct answer and the explanation. After the last answer, `question` is null and `result` is set. A pass completes the lesson and every lesson before it. The answer type must match the question type. A question id that is not in the attempt returns 404. A question that is already answered, is not the current one, or an attempt that is finished returns 409.",
+        "description": "Grades the answer, updates the learner's rating for the question's lesson and returns the correct answer and the explanation. After the last answer of a test, `question` is null and `result` is set. In practice `result` is always null and the next question comes from the practice questions endpoint. A pass completes the lesson and every lesson before it. The answer type must match the question type. A question id that is not in the attempt returns 404. A question that is already answered, is not the current one, or an attempt that is finished returns 409.",
         "security": [
           {
             "sessionCookie": []
@@ -919,6 +927,306 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/SubmitAnswerResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/practice/topics": {
+      "get": {
+        "operationId": "getPracticeTopics",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "List the practice topics",
+        "description": "A topic is available when an unlocked lesson has generated questions for it. Unavailable topics return 409 from the start endpoint.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Every topic and whether it can be started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeTopicsResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          }
+        }
+      }
+    },
+    "/api/practice/attempts": {
+      "post": {
+        "operationId": "startPractice",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "Start practising a topic",
+        "description": "Always starts a new attempt and finishes any unfinished practice attempt first. Questions come from lessons the learner has unlocked. The rating for each lesson starts at the learner's stored rating and then changes inside the session only, and difficulty follows it. A topic with no questions returns 409.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/StartPracticeRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "A new attempt and its first question.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/practice/attempts/{id}/questions": {
+      "post": {
+        "operationId": "nextPracticeQuestion",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "Get the next practice question",
+        "description": "Returns the current question when one is unanswered, otherwise generates a new one. A finished attempt returns 409.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The attempt with its current question.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AttemptStateResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/practice/attempts/{id}/finish": {
+      "post": {
+        "operationId": "finishPractice",
+        "tags": [
+          "Practice"
+        ],
+        "summary": "Stop practising",
+        "description": "Finishes the attempt and returns the summary: questions answered, how many were right and the rating change for each lesson (rating before and after, inside the session). An unanswered question is dropped. Finishing twice returns the same summary.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The summary.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PracticeSummaryResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "$ref": "#/components/responses/BadRequest"
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "404": {
+            "$ref": "#/components/responses/NotFound"
+          }
+        }
+      }
+    },
+    "/api/daily-challenge": {
+      "get": {
+        "operationId": "getDailyChallenge",
+        "tags": [
+          "Daily challenge"
+        ],
+        "summary": "Get today's challenge",
+        "description": "The first request of the day creates the day's challenge. Returns whether the learner has started or finished it, the question while it is in progress, and the result once it is answered. Never starts the clock.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Today's challenge for the learner.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/daily-challenge/start": {
+      "post": {
+        "operationId": "startDailyChallenge",
+        "tags": [
+          "Daily challenge"
+        ],
+        "summary": "Start today's challenge",
+        "description": "Starts the clock and returns the question without its answer. Starting again returns the same attempt with 200, so a double click or a reload can't restart the clock.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "It was already started or finished.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
+                }
+              }
+            }
+          },
+          "201": {
+            "description": "The challenge started.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
+                }
+              }
+            }
+          },
+          "401": {
+            "$ref": "#/components/responses/Unauthorized"
+          },
+          "409": {
+            "$ref": "#/components/responses/Conflict"
+          }
+        }
+      }
+    },
+    "/api/daily-challenge/answers": {
+      "post": {
+        "operationId": "submitDailyChallengeAnswer",
+        "tags": [
+          "Daily challenge"
+        ],
+        "summary": "Answer today's challenge",
+        "description": "Grades the answer, stops the clock and returns the result with the correct answer and the explanation. Answering before starting, or a second time, returns 409. A question id that isn't today's returns 404.",
+        "security": [
+          {
+            "sessionCookie": []
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitAnswerRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "The result.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DailyChallengeStateResponse"
                 }
               }
             }
@@ -1059,6 +1367,24 @@
         "required": [
           "questionId",
           "answer"
+        ]
+      },
+      "StartPracticeRequest": {
+        "type": "object",
+        "properties": {
+          "topic": {
+            "type": "string",
+            "enum": [
+              "traversals",
+              "insertion",
+              "deletion",
+              "rotations",
+              "mixed"
+            ]
+          }
+        },
+        "required": [
+          "topic"
         ]
       },
       "ScoreQuizRequest": {
@@ -1562,6 +1888,11 @@
                               "current",
                               "locked"
                             ]
+                          },
+                          "mastery": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "maximum": 100
                           }
                         },
                         "required": [
@@ -1570,7 +1901,8 @@
                           "summary",
                           "kind",
                           "position",
-                          "status"
+                          "status",
+                          "mastery"
                         ]
                       }
                     }
@@ -1683,12 +2015,20 @@
                     "type": "integer",
                     "minimum": -9007199254740991,
                     "maximum": 9007199254740991
+                  },
+                  "treeMode": {
+                    "type": "string",
+                    "enum": [
+                      "bst",
+                      "avl"
+                    ]
                   }
                 },
                 "required": [
                   "id",
                   "title",
-                  "position"
+                  "position",
+                  "treeMode"
                 ]
               },
               "status": {
@@ -1977,6 +2317,13 @@
                                       "maximum": 9007199254740991
                                     }
                                   }
+                                },
+                                "treeMode": {
+                                  "type": "string",
+                                  "enum": [
+                                    "bst",
+                                    "avl"
+                                  ]
                                 }
                               },
                               "required": [
@@ -2944,6 +3291,13 @@
                                           "maximum": 9007199254740991
                                         }
                                       }
+                                    },
+                                    "treeMode": {
+                                      "type": "string",
+                                      "enum": [
+                                        "bst",
+                                        "avl"
+                                      ]
                                     }
                                   },
                                   "required": [
@@ -3916,6 +4270,13 @@
                                         "maximum": 9007199254740991
                                       }
                                     }
+                                  },
+                                  "treeMode": {
+                                    "type": "string",
+                                    "enum": [
+                                      "bst",
+                                      "avl"
+                                    ]
                                   }
                                 },
                                 "required": [
@@ -4708,15 +5069,40 @@
             "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
           },
           "lessonId": {
-            "type": "string",
-            "format": "uuid",
-            "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid",
+                "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "kind": {
             "type": "string",
             "enum": [
               "lesson_test",
-              "checkpoint"
+              "checkpoint",
+              "practice"
+            ]
+          },
+          "topic": {
+            "anyOf": [
+              {
+                "type": "string",
+                "enum": [
+                  "traversals",
+                  "insertion",
+                  "deletion",
+                  "rotations",
+                  "mixed"
+                ]
+              },
+              {
+                "type": "null"
+              }
             ]
           },
           "status": {
@@ -4728,7 +5114,7 @@
           },
           "total": {
             "type": "integer",
-            "exclusiveMinimum": 0,
+            "minimum": 0,
             "maximum": 9007199254740991
           },
           "answeredCount": {
@@ -4758,6 +5144,7 @@
           "id",
           "lessonId",
           "kind",
+          "topic",
           "status",
           "total",
           "answeredCount",
@@ -4872,6 +5259,16 @@
             "minimum": -9007199254740991,
             "maximum": 9007199254740991
           },
+          "masteryBefore": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
+          "masteryAfter": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 100
+          },
           "reviewLessons": {
             "type": "array",
             "items": {
@@ -4928,6 +5325,65 @@
                 "explanation": {
                   "type": "string"
                 },
+                "replay": {
+                  "anyOf": [
+                    {
+                      "oneOf": [
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "operation"
+                            },
+                            "operation": {
+                              "type": "string",
+                              "enum": [
+                                "insert",
+                                "delete"
+                              ]
+                            },
+                            "key": {
+                              "type": "integer",
+                              "minimum": -9007199254740991,
+                              "maximum": 9007199254740991
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "operation",
+                            "key"
+                          ]
+                        },
+                        {
+                          "type": "object",
+                          "properties": {
+                            "kind": {
+                              "type": "string",
+                              "const": "traversal"
+                            },
+                            "order": {
+                              "type": "string",
+                              "enum": [
+                                "preorder",
+                                "inorder",
+                                "postorder",
+                                "levelorder"
+                              ]
+                            }
+                          },
+                          "required": [
+                            "kind",
+                            "order"
+                          ]
+                        }
+                      ]
+                    },
+                    {
+                      "type": "null"
+                    }
+                  ]
+                },
                 "hintsUsed": {
                   "type": "integer",
                   "minimum": 0,
@@ -4948,6 +5404,7 @@
                 "isCorrect",
                 "correctAnswer",
                 "explanation",
+                "replay",
                 "hintsUsed",
                 "points"
               ]
@@ -4959,6 +5416,8 @@
           "passed",
           "points",
           "ratingChange",
+          "masteryBefore",
+          "masteryAfter",
           "reviewLessons",
           "answers"
         ]
@@ -5056,6 +5515,65 @@
               "explanation": {
                 "type": "string"
               },
+              "replay": {
+                "anyOf": [
+                  {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "operation"
+                          },
+                          "operation": {
+                            "type": "string",
+                            "enum": [
+                              "insert",
+                              "delete"
+                            ]
+                          },
+                          "key": {
+                            "type": "integer",
+                            "minimum": -9007199254740991,
+                            "maximum": 9007199254740991
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "operation",
+                          "key"
+                        ]
+                      },
+                      {
+                        "type": "object",
+                        "properties": {
+                          "kind": {
+                            "type": "string",
+                            "const": "traversal"
+                          },
+                          "order": {
+                            "type": "string",
+                            "enum": [
+                              "preorder",
+                              "inorder",
+                              "postorder",
+                              "levelorder"
+                            ]
+                          }
+                        },
+                        "required": [
+                          "kind",
+                          "order"
+                        ]
+                      }
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
               "hintsUsed": {
                 "type": "integer",
                 "minimum": 0,
@@ -5113,10 +5631,381 @@
               "isCorrect",
               "correctAnswer",
               "explanation",
+              "replay",
               "hintsUsed",
               "points",
               "rating",
               "attempt",
+              "question",
+              "result"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "PracticeTopicsResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "topic": {
+                  "type": "string",
+                  "enum": [
+                    "traversals",
+                    "insertion",
+                    "deletion",
+                    "rotations",
+                    "mixed"
+                  ]
+                },
+                "available": {
+                  "type": "boolean"
+                }
+              },
+              "required": [
+                "topic",
+                "available"
+              ]
+            }
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "PracticeSummaryResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "answered": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "correct": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 9007199254740991
+              },
+              "ratingChange": {
+                "type": "integer",
+                "minimum": -9007199254740991,
+                "maximum": 9007199254740991
+              },
+              "lessons": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "properties": {
+                    "lessonId": {
+                      "type": "string",
+                      "format": "uuid",
+                      "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                    },
+                    "title": {
+                      "type": "string"
+                    },
+                    "ratingBefore": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    },
+                    "ratingAfter": {
+                      "type": "integer",
+                      "minimum": -9007199254740991,
+                      "maximum": 9007199254740991
+                    }
+                  },
+                  "required": [
+                    "lessonId",
+                    "title",
+                    "ratingBefore",
+                    "ratingAfter"
+                  ]
+                }
+              }
+            },
+            "required": [
+              "answered",
+              "correct",
+              "ratingChange",
+              "lessons"
+            ]
+          }
+        },
+        "required": [
+          "data"
+        ]
+      },
+      "DailyChallengeStateResponse": {
+        "type": "object",
+        "properties": {
+          "data": {
+            "type": "object",
+            "properties": {
+              "date": {
+                "type": "string",
+                "format": "date",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))$"
+              },
+              "nextChallengeAt": {
+                "type": "string",
+                "format": "date-time",
+                "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+              },
+              "status": {
+                "type": "string",
+                "enum": [
+                  "not_started",
+                  "in_progress",
+                  "finished"
+                ]
+              },
+              "startedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "finishedAt": {
+                "anyOf": [
+                  {
+                    "type": "string",
+                    "format": "date-time",
+                    "pattern": "^(?:(?:\\d\\d[2468][048]|\\d\\d[13579][26]|\\d\\d0[48]|[02468][048]00|[13579][26]00)-02-29|\\d{4}-(?:(?:0[13578]|1[02])-(?:0[1-9]|[12]\\d|3[01])|(?:0[469]|11)-(?:0[1-9]|[12]\\d|30)|(?:02)-(?:0[1-9]|1\\d|2[0-8])))T(?:(?:[01]\\d|2[0-3]):[0-5]\\d:[0-5]\\d(?:\\.\\d+)?(?:Z))$"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "question": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "string",
+                        "format": "uuid",
+                        "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                      },
+                      "position": {
+                        "type": "integer",
+                        "exclusiveMinimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "type": {
+                        "type": "string",
+                        "enum": [
+                          "multiple_choice",
+                          "build_tree",
+                          "order_nodes",
+                          "predict_rotation",
+                          "text"
+                        ]
+                      },
+                      "prompt": {
+                        "type": "string"
+                      },
+                      "tree": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "options": {
+                        "type": "array",
+                        "items": {
+                          "type": "object",
+                          "properties": {
+                            "id": {
+                              "type": "string",
+                              "format": "uuid",
+                              "pattern": "^([0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[1-8][0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}|00000000-0000-0000-0000-000000000000|ffffffff-ffff-ffff-ffff-ffffffffffff)$"
+                            },
+                            "text": {
+                              "type": "string"
+                            }
+                          },
+                          "required": [
+                            "id",
+                            "text"
+                          ]
+                        }
+                      },
+                      "difficulty": {
+                        "type": "integer",
+                        "minimum": 1,
+                        "maximum": 5
+                      },
+                      "hints": {
+                        "type": "array",
+                        "items": {
+                          "type": "string"
+                        }
+                      },
+                      "hintsTotal": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "hintsRemaining": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "position",
+                      "type",
+                      "prompt",
+                      "tree",
+                      "difficulty",
+                      "hints",
+                      "hintsTotal",
+                      "hintsRemaining"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "result": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "prompt": {
+                        "type": "string"
+                      },
+                      "tree": {
+                        "type": [
+                          "string",
+                          "null"
+                        ]
+                      },
+                      "response": {
+                        "$ref": "#/components/schemas/LearnerAnswer"
+                      },
+                      "isCorrect": {
+                        "type": "boolean"
+                      },
+                      "correctAnswer": {
+                        "$ref": "#/components/schemas/LearnerAnswer"
+                      },
+                      "explanation": {
+                        "type": "string"
+                      },
+                      "replay": {
+                        "anyOf": [
+                          {
+                            "oneOf": [
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "operation"
+                                  },
+                                  "operation": {
+                                    "type": "string",
+                                    "enum": [
+                                      "insert",
+                                      "delete"
+                                    ]
+                                  },
+                                  "key": {
+                                    "type": "integer",
+                                    "minimum": -9007199254740991,
+                                    "maximum": 9007199254740991
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "operation",
+                                  "key"
+                                ]
+                              },
+                              {
+                                "type": "object",
+                                "properties": {
+                                  "kind": {
+                                    "type": "string",
+                                    "const": "traversal"
+                                  },
+                                  "order": {
+                                    "type": "string",
+                                    "enum": [
+                                      "preorder",
+                                      "inorder",
+                                      "postorder",
+                                      "levelorder"
+                                    ]
+                                  }
+                                },
+                                "required": [
+                                  "kind",
+                                  "order"
+                                ]
+                              }
+                            ]
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "points": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      },
+                      "timeTakenSeconds": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "maximum": 9007199254740991
+                      }
+                    },
+                    "required": [
+                      "prompt",
+                      "tree",
+                      "response",
+                      "isCorrect",
+                      "correctAnswer",
+                      "explanation",
+                      "replay",
+                      "points",
+                      "timeTakenSeconds"
+                    ]
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "date",
+              "nextChallengeAt",
+              "status",
+              "startedAt",
+              "finishedAt",
               "question",
               "result"
             ]

@@ -38,6 +38,35 @@ export const layoutTreeLabels = (
   const width = base.width + sidePad;
   const height = base.height + bottomPad;
   const edge = base.width;
+  const span = (label: TreeLabel) => {
+    const ys = label.keys.map((key) => at(key).cy);
+    return { top: Math.min(...ys) - radius, bottom: Math.max(...ys) + radius };
+  };
+  const rows = new Map<string, TreeLabel[]>();
+  for (const label of usable) {
+    if (label.place !== "side") continue;
+    const { top, bottom } = span(label);
+    const row = `${top}:${bottom}`;
+    rows.set(row, [...(rows.get(row) ?? []), label]);
+  }
+  const stacked = new Map<TreeLabel, { top: number; bottom: number }>();
+  for (const group of rows.values()) {
+    if (group.length < 2) continue;
+    const ordered = [...group].sort(
+      (first, second) =>
+        Math.min(...first.keys.map((key) => at(key).cx)) -
+        Math.min(...second.keys.map((key) => at(key).cx)),
+    );
+    const heights = ordered.map((label) => label.text.length * labelLineHeight + 8);
+    const total = heights.reduce((sum, value) => sum + value, 0);
+    const { top, bottom } = span(ordered[0] as TreeLabel);
+    let cursor = (top + bottom) / 2 - total / 2;
+    ordered.forEach((label, index) => {
+      const sliceHeight = heights[index] ?? 0;
+      stacked.set(label, { top: cursor, bottom: cursor + sliceHeight });
+      cursor += sliceHeight;
+    });
+  }
 
   const placed = usable.map((label): PlacedLabel => {
     if (label.place === "right") {
@@ -51,10 +80,27 @@ export const layoutTreeLabels = (
         text: { x: edge + 16, y: cy + 5, anchor: "start" },
       };
     }
+    const slice = stacked.get(label);
+    if (slice) {
+      const bracketX = edge + 4;
+      const sliceMiddle = (slice.top + slice.bottom) / 2;
+      return {
+        label,
+        leaders: label.keys.map((key) => {
+          const { cx, cy } = at(key);
+          return `M ${cx + radius + 6} ${cy} H ${bracketX - 16} V ${sliceMiddle} H ${bracketX - 6}`;
+        }),
+        bracket: `M ${bracketX - 6} ${slice.top + 2} H ${bracketX} V ${slice.bottom - 2} H ${bracketX - 6}`,
+        dot: null,
+        text: {
+          x: bracketX + 14,
+          y: sliceMiddle - ((label.text.length - 1) * labelLineHeight) / 2 + 5,
+          anchor: "start",
+        },
+      };
+    }
     if (label.place === "side") {
-      const ys = label.keys.map((key) => at(key).cy);
-      const top = Math.min(...ys) - radius;
-      const bottom = Math.max(...ys) + radius;
+      const { top, bottom } = span(label);
       const bracketX = edge + 4;
       const middle = (top + bottom) / 2 - ((label.text.length - 1) * labelLineHeight) / 2 + 5;
       return {

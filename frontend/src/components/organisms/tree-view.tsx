@@ -63,6 +63,7 @@ type SnapshotEdgeProperties = {
 };
 
 const columnGap = 64;
+const edgeExitSec = 0.12;
 const rowGap = 40;
 
 const emptyKeys: ReadonlySet<number> = new Set();
@@ -230,6 +231,13 @@ export function TreeView({
       fontFamily="inherit"
       className={cn("block h-full w-full text-foreground", className)}
     >
+      {labelLayout && labelsShown ? (
+        <TreeLabels
+          placed={labelLayout.placed}
+          litKeys={litKeys ?? emptyKeys}
+          animated={labelsAnimated && !reduced}
+        />
+      ) : null}
       <AnimatePresence initial={false}>
         {placed.map((position) => {
           if (position.parentKey === null) return null;
@@ -241,7 +249,11 @@ export function TreeView({
           );
           const glide = { duration: instant ? 0 : treeGlideSec, ease: "easeInOut" as const };
           return (
-            <motion.g key={link.key} exit={{ opacity: 0 }} transition={glide}>
+            <motion.g
+              key={link.key}
+              exit={{ opacity: 0, transition: { duration: instant ? 0 : edgeExitSec } }}
+              transition={glide}
+            >
               <SnapshotEdge
                 x1={link.x1}
                 y1={link.y1}
@@ -288,13 +300,6 @@ export function TreeView({
           );
         })}
       </AnimatePresence>
-      {labelLayout && labelsShown ? (
-        <TreeLabels
-          placed={labelLayout.placed}
-          litKeys={litKeys ?? emptyKeys}
-          animated={labelsAnimated && !reduced}
-        />
-      ) : null}
       {placedSlots.map((slot) => {
         const active = slot.id === activeSlotId;
         return (

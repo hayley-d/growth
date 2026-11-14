@@ -5,6 +5,7 @@ import { StepButtons } from "@/components/molecules/step-buttons";
 import { TreeView } from "@/components/organisms/tree-view";
 import { trimTree } from "@/lib/copy-tree-steps";
 import { type DeleteTreeStep, deleteTreeSteps } from "@/lib/delete-tree-steps";
+import { useTreeMode } from "@/lib/lesson/tree-mode";
 import { useStepPlayer } from "@/lib/use-step-player";
 import { cn } from "@/lib/utils";
 
@@ -27,8 +28,9 @@ const messageFor = (step: DeleteTreeStep | null, total: number) => {
 };
 
 export function DeleteTree({ startingKeys, caption, className }: DeleteTreeProperties) {
-  const runKey = startingKeys.join(",");
-  const { root, steps } = useMemo(() => deleteTreeSteps(startingKeys), [startingKeys]);
+  const mode = useTreeMode();
+  const runKey = `${mode}|${startingKeys.join(",")}`;
+  const { root, steps } = useMemo(() => deleteTreeSteps(startingKeys, mode), [startingKeys, mode]);
   const player = useStepPlayer(steps, runKey);
   const { step } = player;
   const total = steps.length - 1;

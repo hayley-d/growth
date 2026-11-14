@@ -1,0 +1,10 @@
+insert(node, key):
+  if node is empty: return new Node(key) // @step insert.check-empty insert.create-node
+  if key < node.key: // @step insert.compare
+    node.left = insert(node.left, key) // @step insert.go-left
+  else if key > node.key: // @step insert.check-bigger
+    node.right = insert(node.right, key) // @step insert.go-right
+  else:
+    return node // @step insert.duplicate
+  updateHeight(node) // @step insert.update-height
+  return rebalance(node) // @step insert.rebalance

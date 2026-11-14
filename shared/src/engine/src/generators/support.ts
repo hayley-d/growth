@@ -1,4 +1,11 @@
-import { type AvlNode, findNode, toKeys, traceInsert, traceRemove } from "@shared/avl/src/avl-tree";
+import {
+  type AvlNode,
+  findNode,
+  type TreeMode,
+  toKeys,
+  traceInsert,
+  traceRemove,
+} from "@shared/avl/src/avl-tree";
 import { allKeys, createRandom, randomTree } from "@shared/avl/src/random-tree";
 import type { Step } from "@shared/avl/src/step-recorder";
 import type { GeneratorOptions, Rotation } from "@shared/schemas";
@@ -86,6 +93,26 @@ export const makePlainTree = (seed: number, difficulty: Difficulty): AvlNode => 
   if (!tree) throw new Error("Generated an empty tree");
   return tree;
 };
+
+const bstAttempts = 20;
+
+const tallestBstFor = (size: number) => Math.ceil(Math.log2(size + 1)) + 2;
+
+export const makeBstTree = (seed: number, difficulty: Difficulty): AvlNode => {
+  const size = sizeFor(seed, difficulty);
+  const tallest = tallestBstFor(size);
+  for (let attempt = 0; attempt < bstAttempts; attempt += 1) {
+    const tree = randomTree({ size, seed: seed + attempt * 7919, mode: "bst" });
+    if (tree && tree.height <= tallest) return tree;
+  }
+  return makePlainTree(seed, difficulty);
+};
+
+export const makeTreeShaped = (
+  seed: number,
+  difficulty: Difficulty,
+  shape: TreeMode = "avl",
+): AvlNode => (shape === "bst" ? makeBstTree(seed, difficulty) : makePlainTree(seed, difficulty));
 
 export const unusedKeys = (tree: AvlNode | null): number[] => {
   const used = new Set(toKeys(tree));
@@ -208,12 +235,3 @@ export const describeRotation = (
   rotation === "none" || pivotKey === null
     ? "No node ends up with a balance factor outside -1 to 1, so no rotation is needed."
     : rotationSummaries[rotation](pivotLabel(pivotKey, replacedKey));
-
-export const pivotHint = (
-  rotation: Rotation,
-  pivotKey: number | null,
-  replacedKey: number | null = null,
-): string =>
-  rotation === "none" || pivotKey === null
-    ? "Check every node on the path. None of them reaches a balance factor of -2 or 2."
-    : `The lowest unbalanced node is ${replacedKey === null ? pivotKey : `the one that took ${replacedKey}'s place (it now holds ${pivotKey})`}.`;

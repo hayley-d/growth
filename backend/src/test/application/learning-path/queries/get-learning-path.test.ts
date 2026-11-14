@@ -6,13 +6,19 @@ import type { Lesson } from "@/domain/course-content/lesson";
 import type { Unit } from "@/domain/course-content/unit";
 import { UnauthorizedError } from "@/domain/errors";
 import type { LessonProgress, ProgressStatus } from "@/domain/user/lesson-progress";
+import type { UserMastery } from "@/domain/user/user-mastery";
 
 const userId = "user-1";
 
 const units: Unit[] = [
-  { id: "00000000-0000-4000-8000-000000000001", title: "Traversals", position: 1 },
-  { id: "00000000-0000-4000-8000-000000000002", title: "AVL basics", position: 2 },
-  { id: "00000000-0000-4000-8000-000000000003", title: "Coming soon", position: 3 },
+  { id: "00000000-0000-4000-8000-000000000001", title: "Traversals", position: 1, treeMode: "bst" },
+  { id: "00000000-0000-4000-8000-000000000002", title: "AVL basics", position: 2, treeMode: "avl" },
+  {
+    id: "00000000-0000-4000-8000-000000000003",
+    title: "Coming soon",
+    position: 3,
+    treeMode: "avl",
+  },
 ];
 const [firstUnit, secondUnit] = units as [Unit, Unit, Unit];
 
@@ -36,12 +42,23 @@ const lessons: Lesson[] = [
 ];
 const lessonIds = lessons.map((path) => path.id);
 
-const createGetLearningPath = (progress: Record<string, ProgressStatus> = {}) => {
+const createGetLearningPath = (
+  progress: Record<string, ProgressStatus> = {},
+  masteries: Record<string, number> = {},
+) => {
   const rows: LessonProgress[] = Object.entries(progress).map(([lessonId, status]) => ({
     userId,
     lessonId,
     status,
     completedAt: null,
+  }));
+  const masteryRows: UserMastery[] = Object.entries(masteries).map(([lessonId, mastery]) => ({
+    userId,
+    lessonId,
+    rating: 1000,
+    mastery,
+    currentDifficulty: 1,
+    updatedAt: new Date("2026-11-11T00:00:00.000Z"),
   }));
   const requestedUserIds: string[] = [];
   const getLearningPath = makeGetLearningPath({
@@ -53,6 +70,7 @@ const createGetLearningPath = (progress: Record<string, ProgressStatus> = {}) =>
         return rows;
       },
     },
+    userMasteryRepository: { listByUserId: async () => masteryRows },
   });
   return { getLearningPath, requestedUserIds };
 };
@@ -83,6 +101,7 @@ describe("makeGetLearningPath", () => {
           kind: "lesson",
           position: 1,
           status: "current",
+          mastery: 0,
         },
         {
           id: lessonIds[1],
@@ -91,6 +110,7 @@ describe("makeGetLearningPath", () => {
           kind: "lesson",
           position: 2,
           status: "locked",
+          mastery: 0,
         },
       ],
     });
@@ -100,6 +120,15 @@ describe("makeGetLearningPath", () => {
     ]);
     expect(response.data.progress).toBe(0);
     expect(response.data.currentLessonId).toBe(lessonIds[0]);
+  });
+
+  it("rounds each lesson's stored mastery to a percentage and defaults to zero", async () => {
+    const { getLearningPath } = createGetLearningPath({}, { [lessonIds[0] as string]: 0.4567 });
+    const response = await asLearner(() => getLearningPath());
+
+    expect(response.data.units.flatMap((unit) => unit.lessons.map((path) => path.mastery))).toEqual(
+      [46, 0, 0, 0],
+    );
   });
 
   it("works out statuses, progress and the current lesson from completed rows", async () => {

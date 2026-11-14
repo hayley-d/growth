@@ -21,6 +21,7 @@ vi.mock("@/services/network.service", () => ({
 
 const mockedGet = vi.mocked(networkService.get);
 const mockedPut = vi.mocked(networkService.put);
+const mockedPost = vi.mocked(networkService.post);
 
 const lessonUrl = `/api/lessons/${lessonFixtureId}`;
 const noteUrl = `${lessonUrl}/note`;
@@ -42,6 +43,7 @@ beforeEach(async () => {
   await page.viewport(1280, 900);
   mockedGet.mockReset();
   mockedPut.mockReset();
+  mockedPost.mockReset();
 });
 
 it("shows the header, the progress and the first step with its objectives", async () => {
@@ -248,4 +250,52 @@ it("hides Listen where the browser can't speak", async () => {
   const listen = screen.getByRole("button", { name: "Listen" });
   if (supported) await expect.element(listen.first()).toBeVisible();
   else expect(listen.elements()).toHaveLength(0);
+});
+
+it("goes straight to the test from the last step of a checkpoint", async () => {
+  serve(buildLesson({ kind: "checkpoint", notePrompt: null }));
+  mockedPost.mockResolvedValue({
+    data: {
+      data: {
+        attempt: {
+          id: "20000000-0000-4000-8000-000000000001",
+          lessonId: lessonFixtureId,
+          kind: "lesson_test",
+          topic: null,
+          status: "in_progress",
+          total: 5,
+          answeredCount: 0,
+          startedAt: "2026-11-11T10:00:00.000Z",
+          finishedAt: null,
+        },
+        question: {
+          id: "30000000-0000-4000-8000-000000000001",
+          position: 1,
+          type: "text",
+          prompt: "Name the rotation.",
+          tree: null,
+          difficulty: 1,
+          hints: [],
+          hintsTotal: 3,
+          hintsRemaining: 3,
+        },
+        result: null,
+      },
+    },
+  });
+  const screen = await renderApp(`${lessonPath}?step=2`);
+
+  await expect.element(screen.getByRole("button", { name: "Take the test" })).toBeVisible();
+  expect(screen.container.textContent).not.toContain("Finish the lesson");
+
+  await screen.getByRole("button", { name: "Take the test" }).click();
+
+  await vi.waitFor(() => expect(screen.router.state.location.pathname).toBe(`${lessonPath}/test`));
+  await expect.element(screen.getByRole("heading", { name: "Test", level: 1 })).toBeVisible();
+  await expect.element(screen.getByText("Question 1 of 5")).toBeVisible();
+  await expect
+    .element(screen.getByRole("button", { name: "Take the test" }))
+    .not.toBeInTheDocument();
+  expect(screen.container.textContent).not.toContain("You finished");
+  expect(mockedPost).toHaveBeenCalledWith(`/api/lessons/${lessonFixtureId}/attempts`);
 });

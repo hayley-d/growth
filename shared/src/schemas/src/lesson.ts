@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import { contentBlockBodySchema } from "@shared/schemas/src/content-block";
+import { contentBlockBodySchema, treeModeSchema } from "@shared/schemas/src/content-block";
 
 export const lessonKindSchema = z.enum(["lesson", "checkpoint"]);
 
@@ -44,6 +44,7 @@ export const lessonResponseSchema = z.object({
       id: z.uuid(),
       title: z.string(),
       position: z.int(),
+      treeMode: treeModeSchema,
     }),
     status: lessonResponseStatusSchema,
     previousLessonId: z.uuid().nullable(),

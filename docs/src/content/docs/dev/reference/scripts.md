@@ -24,6 +24,9 @@ description: Workspace scripts, Biome, the git hooks and coding rules.
 | `bun run prisma:deploy`   | Applies existing migrations without creating a new one. Used in CI |
 | `bun run prisma:studio`   | Opens Prisma Studio                                    |
 | `bun run prisma:seed`     | Adds the learning styles, code languages and algorithms, then fails if a code snippet has no line for a step. Also creates the dev admin login (`admin@growth.local`) when `SEED_DEV_ADMIN=true` and the database is on localhost |
+| `bun run dev:progress <email> <0-12>` | Sets how many lessons a user has completed, so you can preview the dashboard and learning path. Replaces their old progress. Refuses to run unless the database is on localhost |
+| `bun run dev:daily-reset <email>` | Deletes that user's attempt at today's daily challenge, so they can start it again. The question and seed stay the same. Refuses to run unless the database is on localhost |
+| `bun run dev:daily-new [generator key]` | Replaces today's daily challenge with a random generator question and a new seed. Give a key, like `insert-result`, to pick the kind of question. It deletes every learner's attempt at today's challenge. Tomorrow's challenge is picked as usual. Refuses to run unless the database is on localhost |
 | `bun run auth:generate`   | Merges anything new Better Auth needs into `infrastructure/auth/models/auth.prisma`. Run it after you upgrade Better Auth or add a plugin, then create a migration |
 | `bun run unlock <email> <count>` | Opens the first `count` lessons for the user with that email, for testing and demos. It marks the lessons before the last one completed, so lesson `count` is the current one. It never locks anything again |
 

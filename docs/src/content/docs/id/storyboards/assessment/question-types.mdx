@@ -7,7 +7,7 @@ import { Aside, Steps } from "@astrojs/starlight/components";
 
 Every lesson ends in a test of five questions, and the checkpoints have one too. A question is one of five kinds: order nodes, build tree, predict rotation, multiple choice or short text. The learner meets this screen at the end of every lesson, so it has to be obvious. This page is about how they answer, not what we ask.
 
-The questions test the lesson's objectives. Order nodes tests "List the nodes of a tree in pre-order". Build tree tests "Insert a key into an AVL tree and rebalance it". Predict rotation tests "Fix a left-left or right-right imbalance with one rotation". Multiple choice and short text cover the rest. See the [learning objectives](../../../objectives/) page for the full list.
+The questions test the lesson's objectives. Order nodes tests "List the nodes of a tree in pre-order". Build tree tests "Insert a key as in a binary search tree, then update the heights on the way back up to the root". Predict rotation tests "Fix a left-left or right-right imbalance with one rotation". Multiple choice and short text cover the rest. See the [learning objectives](../../../objectives/) page for the full list.
 
 We followed SAM 2, as described in [Instructional design approach](../../../approach/). The savvy start was five storyboards, A to E, each a different way of answering. A review cut them down to one. Design 2 reworked it and design 3 settled it. Then we built a design proof and checked it.
 
@@ -211,15 +211,7 @@ We went with tapping because it's the only gesture all five question kinds can s
 
 Every choice is shown twice. A pick is a number on the node and a chip in the list. A pivot is a ring on the tree and the words "Pivot: 30". Take the colour away and the learner still sees what they chose. That matters most in the high contrast and colour-blind friendly schemes, and it's a rule of the app. See [presentation design](../../../presentation/).
 
-:::note[Add to the Presentation design page]
-Say that every selected state in a test is shown with a number or a word as well as a colour, and link back to this storyboard.
-:::
-
 It's also kind to a learner who's tested. No timer and no hidden gesture, and a step back for every move. Undo, Clear and Reset let them change their mind, which is more of an [assessment](../../../assessment/) choice than a design one.
-
-:::note[Add to the Assessment page]
-Explain that test questions are answered with a tap, and that nothing on screen gives the answer away before Submit. Link back to this storyboard.
-:::
 
 ### CCAF
 

@@ -1,7 +1,15 @@
+import { makeFinishPractice } from "@/application/assessment/commands/finish-practice";
+import { makeGetDailyChallenge } from "@/application/assessment/commands/get-daily-challenge";
+import { makeGetTodaysChallenge } from "@/application/assessment/commands/get-todays-challenge";
+import { makeNextPracticeQuestion } from "@/application/assessment/commands/next-practice-question";
 import { makeRequestHint } from "@/application/assessment/commands/request-hint";
 import { makeStartAttempt } from "@/application/assessment/commands/start-attempt";
+import { makeStartDailyChallenge } from "@/application/assessment/commands/start-daily-challenge";
+import { makeStartPractice } from "@/application/assessment/commands/start-practice";
 import { makeSubmitAnswer } from "@/application/assessment/commands/submit-answer";
+import { makeSubmitDailyChallengeAnswer } from "@/application/assessment/commands/submit-daily-challenge-answer";
 import { makeGetAttempt } from "@/application/assessment/queries/get-attempt";
+import { makeGetPracticeTopics } from "@/application/assessment/queries/get-practice-topics";
 import { makeGetAlgorithmSnippet } from "@/application/course-content/queries/get-algorithm-snippet";
 import { makeListAlgorithms } from "@/application/course-content/queries/list-algorithms";
 import { makeListCodeLanguages } from "@/application/course-content/queries/list-code-languages";
@@ -23,6 +31,7 @@ import {
   PrismaAssessmentAttemptRepository,
   PrismaAttemptAnswerRepository,
   PrismaAttemptQuestionRepository,
+  PrismaDailyChallengeRepository,
   PrismaHintRepository,
   PrismaQuestionRepository,
 } from "@/infrastructure/assessment/repositories";
@@ -52,9 +61,11 @@ import {
 import { createAlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import { createAttemptController } from "@/presentation/controllers/attempt-controller";
 import { createCourseContentController } from "@/presentation/controllers/course-content-controller";
+import { createDailyChallengeController } from "@/presentation/controllers/daily-challenge-controller";
 import { createLearningPathController } from "@/presentation/controllers/learning-path-controller";
 import { createLessonController } from "@/presentation/controllers/lesson-controller";
 import { createOnboardingController } from "@/presentation/controllers/onboarding-controller";
+import { createPracticeController } from "@/presentation/controllers/practice-controller";
 import { createUserController } from "@/presentation/controllers/user-controller";
 import { createApplication } from "@/presentation/http/create-application";
 
@@ -98,6 +109,7 @@ const lessonController = createLessonController({
 });
 
 const userRepository = new PrismaUserRepository(prismaClient);
+const userMasteryRepository = new PrismaUserMasteryRepository(prismaClient);
 const completeLesson = makeCompleteLesson(lessonAccess);
 const attemptDependencies = {
   assessmentAttemptRepository: new PrismaAssessmentAttemptRepository(prismaClient),
@@ -106,7 +118,7 @@ const attemptDependencies = {
   questionRepository: new PrismaQuestionRepository(prismaClient),
   answerOptionRepository: new PrismaAnswerOptionRepository(prismaClient),
   hintRepository: new PrismaHintRepository(prismaClient),
-  userMasteryRepository: new PrismaUserMasteryRepository(prismaClient),
+  userMasteryRepository,
   lessonRepository: lessonAccess.lessonRepository,
   completeLesson,
   logger,
@@ -120,6 +132,30 @@ const attemptController = createAttemptController({
   getAttempt: makeGetAttempt(attemptDependencies),
   requestHint: makeRequestHint(attemptDependencies),
   submitAnswer: makeSubmitAnswer(attemptDependencies),
+});
+
+const practiceDependencies = { ...attemptDependencies, ...lessonAccess };
+const practiceController = createPracticeController({
+  getPracticeTopics: makeGetPracticeTopics(practiceDependencies),
+  startPractice: makeStartPractice(practiceDependencies),
+  nextPracticeQuestion: makeNextPracticeQuestion(practiceDependencies),
+  finishPractice: makeFinishPractice(practiceDependencies),
+});
+
+const clock = { now: () => new Date() };
+const dailyChallengeDependencies = {
+  ...attemptDependencies,
+  clock,
+  getTodaysChallenge: makeGetTodaysChallenge({
+    clock,
+    dailyChallengeRepository: new PrismaDailyChallengeRepository(prismaClient),
+    questionRepository: attemptDependencies.questionRepository,
+  }),
+};
+const dailyChallengeController = createDailyChallengeController({
+  getDailyChallenge: makeGetDailyChallenge(dailyChallengeDependencies),
+  startDailyChallenge: makeStartDailyChallenge(dailyChallengeDependencies),
+  submitDailyChallengeAnswer: makeSubmitDailyChallengeAnswer(dailyChallengeDependencies),
 });
 
 const userController = createUserController({
@@ -144,7 +180,7 @@ const onboardingController = createOnboardingController({
 });
 
 const learningPathController = createLearningPathController({
-  getLearningPath: makeGetLearningPath({ ...lessonAccess, unitRepository }),
+  getLearningPath: makeGetLearningPath({ ...lessonAccess, unitRepository, userMasteryRepository }),
 });
 
 const application = createApplication({
@@ -154,6 +190,8 @@ const application = createApplication({
   algorithmController,
   lessonController,
   attemptController,
+  practiceController,
+  dailyChallengeController,
   userController,
   courseContentController,
   learningPathController,

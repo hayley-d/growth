@@ -2,6 +2,7 @@ model AttemptAnswer {
   id                  String            @id @default(uuid()) @database.Uuid
   assessmentAttemptId String            @database.Uuid
   questionId          String            @database.Uuid
+  attemptQuestionId   String            @database.Uuid
   answerOptionId      String?           @database.Uuid
   seed                Int?
   generatedQuestion   Json?
@@ -13,9 +14,11 @@ model AttemptAnswer {
   ratingAfter         Int
   assessmentAttempt   AssessmentAttempt @relation(fields: [assessmentAttemptId], references: [id], onDelete: Cascade)
   question            Question          @relation(fields: [questionId], references: [id], onDelete: Restrict)
+  attemptQuestion     AttemptQuestion   @relation(fields: [attemptQuestionId], references: [id], onDelete: Cascade)
   answerOption        AnswerOption?     @relation(fields: [answerOptionId], references: [id], onDelete: Restrict)
 
-  @@unique([assessmentAttemptId, questionId])
+  @@unique([attemptQuestionId])
+  @@index([assessmentAttemptId])
   @@index([questionId])
   @@index([answerOptionId])
   @@map("attemptAnswer")

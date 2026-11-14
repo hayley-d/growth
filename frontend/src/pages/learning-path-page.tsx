@@ -4,6 +4,8 @@ import { EmptyState } from "@/components/molecules/empty-state";
 import { PageLoader } from "@/components/molecules/page-loader";
 import { UnitProgress } from "@/components/molecules/unit-progress";
 import { LearningPathTree } from "@/components/organisms/learning-path-tree";
+import { countCompleted } from "@/lib/learning-path/count-completed";
+import { isCourseFinished } from "@/lib/learning-path/is-course-finished";
 import { unitTone } from "@/lib/learning-path/unit-tone";
 import { useStartLessonMutation } from "@/lib/mutations";
 import { useLearningPathQuery } from "@/lib/queries";
@@ -33,7 +35,7 @@ export function LearningPathPage() {
     );
   }
 
-  const { units, currentLessonId } = learningPath.data.data;
+  const { units } = learningPath.data.data;
 
   if (!units.some((unit) => unit.lessons.length > 0)) {
     return (
@@ -51,7 +53,7 @@ export function LearningPathPage() {
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-2xl font-semibold sm:text-3xl">Learn</h1>
-        {currentLessonId === null ? (
+        {isCourseFinished(units.flatMap((unit) => unit.lessons)) ? (
           <p className="mt-1 text-muted-foreground">
             You've finished every lesson. Tap any node to review it.
           </p>
@@ -65,7 +67,9 @@ export function LearningPathPage() {
             key={unit.id}
             title={unit.title}
             progress={unit.progress}
-            unit={unitTone(unit.position)}
+            tone={unitTone(unit.position)}
+            completed={countCompleted(unit.lessons)}
+            total={unit.lessons.length}
           />
         ))}
       </div>

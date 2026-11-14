@@ -2,7 +2,7 @@ import { beforeEach, expect, it, vi } from "vitest";
 import { page } from "vitest/browser";
 
 import { networkService } from "@/services/network.service";
-import { buildLearningPath } from "@/test/learning-path-fixture";
+import { buildLearningPath, lessonIdAt } from "@/test/learning-path-fixture";
 import { buildLesson } from "@/test/lesson-fixture";
 import { renderApp } from "@/test/render-app";
 
@@ -110,13 +110,43 @@ it("stays on the map and shows the error when the start fails", async () => {
 
 it("goes to the test page for a locked lesson", async () => {
   mockedGet.mockResolvedValue({ data: buildLearningPath(2) });
+  mockedPost.mockResolvedValue({
+    data: {
+      data: {
+        attempt: {
+          id: "20000000-0000-4000-8000-000000000001",
+          lessonId: lessonIdAt(7),
+          kind: "lesson_test",
+          topic: null,
+          status: "in_progress",
+          total: 5,
+          answeredCount: 0,
+          startedAt: "2026-11-11T10:00:00.000Z",
+          finishedAt: null,
+        },
+        question: {
+          id: "30000000-0000-4000-8000-000000000001",
+          position: 1,
+          type: "text",
+          prompt: "Name the rotation.",
+          tree: null,
+          difficulty: 1,
+          hints: [],
+          hintsTotal: 3,
+          hintsRemaining: 3,
+        },
+        result: null,
+      },
+    },
+  });
   const screen = await renderApp("/learn");
 
   await screen.getByRole("button", { name: "Single rotations, locked" }).click();
   await page.getByRole("button", { name: "Take the test to skip ahead" }).click();
 
   await expect.element(screen.getByRole("heading", { name: "Test", level: 1 })).toBeVisible();
-  expect(mockedPost).not.toHaveBeenCalled();
+  await expect.element(screen.getByText("Question 1 of 5")).toBeVisible();
+  expect(mockedPost).toHaveBeenCalledWith(`/api/lessons/${lessonIdAt(7)}/attempts`);
 });
 
 it("goes to the lesson page to review a done lesson", async () => {

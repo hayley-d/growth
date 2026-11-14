@@ -14,6 +14,9 @@
     "auth:generate": "bun --bun node_modules/.bin/auth generate --config src/infrastructure/auth/auth.ts --output src/infrastructure/auth/models/auth.prisma -y",
     "prisma:seed": "bun --bun node_modules/.bin/prisma db seed",
     "openapi": "bun scripts/generate-openapi.ts",
+    "dev:progress": "bun --bun scripts/set-progress.ts",
+    "dev:daily-reset": "bun --bun scripts/reset-daily-challenge.ts",
+    "dev:daily-new": "bun --bun scripts/new-daily-challenge.ts",
     "content:load": "bun prisma/load-content.ts",
     "unlock": "bun scripts/unlock-lessons.ts",
     "typecheck": "bun --bun node_modules/.bin/prisma generate && tsc --noEmit"

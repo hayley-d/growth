@@ -33,6 +33,7 @@
     "docs": {
       "name": "@growth/docs",
       "dependencies": {
+        "@astrojs/markdown-satteri": "0.4.4",
         "@astrojs/starlight": "0.42.6",
         "astro": "7.4.0",
         "satteri": "0.10.5",
@@ -41,6 +42,7 @@
       },
       "devDependencies": {
         "@astrojs/check": "0.9.10",
+        "@types/mdast": "4.0.4",
         "typescript": "6.0.3",
       },
     },

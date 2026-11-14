@@ -1,6 +1,8 @@
 import { z } from "zod";
 
-import type { NodeState, TraversalOrder, TreeGoal } from "@shared/avl";
+import type { NodeState, TraversalOrder, TreeGoal, TreeMode } from "@shared/avl";
+
+export const treeModeSchema = z.enum(["bst", "avl"]) satisfies z.ZodType<TreeMode>;
 
 export const treeKeySchema = z.number().int();
 
@@ -88,6 +90,7 @@ export const diagramBlockBodySchema = z.object({
   labels: z.array(treeLabelSchema).optional(),
   markdown: z.string().min(1).optional(),
   terms: treeTermsSchema.optional(),
+  treeMode: treeModeSchema.optional(),
 });
 
 export type DiagramBlockBody = z.infer<typeof diagramBlockBodySchema>;

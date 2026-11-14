@@ -1,10 +1,16 @@
+import { satteri } from "@astrojs/markdown-satteri";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 
+import { citationLinks } from "./src/plugins/citation-links";
+
 export default defineConfig({
   site: "https://hayley-d.github.io",
   base: "/growth",
+  markdown: {
+    processor: satteri({ mdastPlugins: [citationLinks] }),
+  },
   vite: {
     ssr: {
       external: ["satteri"],
@@ -44,7 +50,7 @@ export default defineConfig({
               icon: "pencil",
               items: [
                 { label: "Introduction", slug: "id/introduction" },
-                { label: "Learners", slug: "id/learners" },
+                { label: "Analysis", slug: "id/learners" },
                 { label: "Approach", slug: "id/approach" },
                 { label: "Learning objectives", slug: "id/objectives" },
                 { label: "Learning theories", slug: "id/theories" },
@@ -54,18 +60,15 @@ export default defineConfig({
                 {
                   label: "Storyboards",
                   items: [
-                    { label: "Playground", slug: "id/storyboards/playground" },
                     {
                       label: "Lessons",
                       items: [
                         {
-                          label: "Lesson 1: What is a binary tree",
+                          label: "What is a binary tree",
                           slug: "id/storyboards/lessons/binary-tree",
                         },
-                        {
-                          label: "Lessons 2 to 4: Depth-first traversals",
-                          slug: "id/storyboards/lessons/depth-first-traversals",
-                        },
+                        { label: "Traversals", slug: "id/storyboards/lessons/traversals" },
+                        { label: "Rotations", slug: "id/storyboards/lessons/rotations" },
                       ],
                     },
                     {
@@ -80,6 +83,7 @@ export default defineConfig({
                     {
                       label: "Playground",
                       items: [
+                        { label: "Playground page", slug: "id/storyboards/playground/playground" },
                         { label: "Code trace", slug: "id/storyboards/playground/code-trace" },
                         { label: "Step player", slug: "id/storyboards/playground/step-player" },
                       ],
@@ -89,6 +93,7 @@ export default defineConfig({
                 { label: "Motivation", slug: "id/motivation" },
                 { label: "Assessment", slug: "id/assessment" },
                 { label: "Scaffolding", slug: "id/scaffolding" },
+                { label: "Alpha and beta", slug: "id/development" },
                 { label: "Evaluation", slug: "id/evaluation" },
                 { label: "GenAI acknowledgment", slug: "id/genai" },
               ],

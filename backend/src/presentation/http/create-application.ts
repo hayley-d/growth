@@ -8,9 +8,11 @@ import type { Logger } from "@/application/logging/logger";
 import type { AlgorithmController } from "@/presentation/controllers/algorithm-controller";
 import type { AttemptController } from "@/presentation/controllers/attempt-controller";
 import type { CourseContentController } from "@/presentation/controllers/course-content-controller";
+import type { DailyChallengeController } from "@/presentation/controllers/daily-challenge-controller";
 import type { LearningPathController } from "@/presentation/controllers/learning-path-controller";
 import type { LessonController } from "@/presentation/controllers/lesson-controller";
 import type { OnboardingController } from "@/presentation/controllers/onboarding-controller";
+import type { PracticeController } from "@/presentation/controllers/practice-controller";
 import type { UserController } from "@/presentation/controllers/user-controller";
 import { createAuthMiddleware } from "@/presentation/middleware/auth-middleware";
 import { createErrorHandler } from "@/presentation/middleware/error-handler";
@@ -21,10 +23,12 @@ import { createAlgorithmRoutes } from "@/presentation/routes/algorithm-routes";
 import { createAttemptRoutes } from "@/presentation/routes/attempt-routes";
 import { createAuthRoutes } from "@/presentation/routes/auth-routes";
 import { createCourseContentRoutes } from "@/presentation/routes/course-content-routes";
+import { createDailyChallengeRoutes } from "@/presentation/routes/daily-challenge-routes";
 import { healthRoutes } from "@/presentation/routes/health-routes";
 import { createLearningPathRoutes } from "@/presentation/routes/learning-path-routes";
 import { createLessonRoutes } from "@/presentation/routes/lesson-routes";
 import { createOnboardingRoutes } from "@/presentation/routes/onboarding-routes";
+import { createPracticeRoutes } from "@/presentation/routes/practice-routes";
 import { createUserRoutes } from "@/presentation/routes/user-routes";
 
 type ApplicationDependencies = {
@@ -34,6 +38,8 @@ type ApplicationDependencies = {
   algorithmController: AlgorithmController;
   lessonController: LessonController;
   attemptController: AttemptController;
+  practiceController: PracticeController;
+  dailyChallengeController: DailyChallengeController;
   userController: UserController;
   courseContentController: CourseContentController;
   learningPathController: LearningPathController;
@@ -47,6 +53,8 @@ export const createApplication = ({
   algorithmController,
   lessonController,
   attemptController,
+  practiceController,
+  dailyChallengeController,
   userController,
   courseContentController,
   learningPathController,
@@ -70,6 +78,8 @@ export const createApplication = ({
   application.route("/api/algorithms", createAlgorithmRoutes(algorithmController));
   application.route("/api/lessons", createLessonRoutes(lessonController));
   application.route("/api", createAttemptRoutes(attemptController));
+  application.route("/api", createPracticeRoutes(practiceController));
+  application.route("/api/daily-challenge", createDailyChallengeRoutes(dailyChallengeController));
   application.route("/api/learning-path", createLearningPathRoutes(learningPathController));
   application.route("/api/me", createUserRoutes(userController));
   application.route("/api/onboarding", createOnboardingRoutes(onboardingController));

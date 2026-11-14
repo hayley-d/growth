@@ -5,9 +5,11 @@ import {
   findNode,
   insertKey,
   type RotationDirection,
-  randomTree,
   type Step,
+  type TreeMode,
   toKeys,
+  traceBstInsert,
+  traceBstRemove,
   traceInsert,
   traceRemove,
   traceRotateLeft,
@@ -17,7 +19,12 @@ import {
 } from "@shared/avl";
 import { findUnbalanced, insertBst, removeBst } from "@shared/engine";
 import { helpText, type PlaygroundCommand } from "@/lib/playground/commands";
-import { maxPlaygroundKeys, type PlaygroundSetup, traversalNames } from "@/lib/playground/setup";
+import {
+  maxPlaygroundKeys,
+  type PlaygroundSetup,
+  randomTreeFor,
+  traversalNames,
+} from "@/lib/playground/setup";
 
 export type PlaygroundRun = {
   label: string;
@@ -32,6 +39,7 @@ export type CommandContext = {
   autoBalance: boolean;
   setup: Pick<PlaygroundSetup, "topic" | "traversal" | "explore">;
   seed: number;
+  treeMode?: TreeMode;
 };
 
 export type CommandOutcome = {
@@ -93,7 +101,8 @@ const runInsert = (context: CommandContext, keys: readonly number[]): CommandOut
       `The playground holds up to ${maxPlaygroundKeys} keys. Delete one or clear the tree first.`,
     );
   }
-  if (!context.autoBalance) {
+  const isBst = context.treeMode === "bst";
+  if (!isBst && !context.autoBalance) {
     const tree = keys.reduce<AvlNode | null>((built, key) => insertBst(built, key), context.tree);
     const note = unbalancedNote(tree);
     return done(context, {
@@ -106,7 +115,7 @@ const runInsert = (context: CommandContext, keys: readonly number[]): CommandOut
   }
   const traced = keys.reduce<{ tree: AvlNode | null; steps: Step[] }>(
     (built, key) => {
-      const inserted = traceInsert(built.tree, key);
+      const inserted = isBst ? traceBstInsert(built.tree, key) : traceInsert(built.tree, key);
       return { tree: inserted.result, steps: [...built.steps, ...inserted.steps] };
     },
     { tree: context.tree, steps: [] },
@@ -122,7 +131,8 @@ const runDelete = (context: CommandContext, key: number): CommandOutcome => {
   if (!hasKey(context.tree, key)) {
     return fail(context, `${key} isn't in the tree, so there's nothing to delete.`);
   }
-  if (!context.autoBalance) {
+  const isBst = context.treeMode === "bst";
+  if (!isBst && !context.autoBalance) {
     const tree = removeBst(context.tree, key);
     const note = unbalancedNote(tree);
     return done(context, {
@@ -133,7 +143,7 @@ const runDelete = (context: CommandContext, key: number): CommandOutcome => {
         : `${key} is gone, and the tree is still an AVL tree.`,
     });
   }
-  const traced = traceRemove(context.tree, key);
+  const traced = isBst ? traceBstRemove(context.tree, key) : traceRemove(context.tree, key);
   return done(context, {
     tree: traced.result,
     run: { label: `Delete ${key}`, steps: traced.steps, walk: null },
@@ -217,7 +227,7 @@ const runTree = (context: CommandContext, keys: readonly number[]): CommandOutco
 
 const runRandom = (context: CommandContext, size: number): CommandOutcome =>
   done(context, {
-    tree: randomTree({ size, seed: context.seed }),
+    tree: randomTreeFor(context.setup.topic, size, context.seed),
     autoBalance: true,
     message: `A random tree with ${size} keys.`,
   });

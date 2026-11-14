@@ -4,11 +4,13 @@ import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 
 import { PageLoader } from "@/components/molecules/page-loader";
+import { clearCacheOnUserSwitch } from "@/lib/clear-cache-on-user-switch";
 import { queryClient } from "@/lib/query-client";
 import { syncColourScheme } from "@/lib/sync-colour-scheme";
 import { routeTree } from "@/routeTree.gen";
 import "@/index.css";
 
+clearCacheOnUserSwitch();
 syncColourScheme();
 
 const router = createRouter({

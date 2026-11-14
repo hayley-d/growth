@@ -105,4 +105,5 @@ bun run dev
 | `bun run prisma:migrate` (in `backend`)  | Apply changes to the schema        |
 | `bun run prisma:studio` (in `backend`)   | Browse the database in your browser |
 | `bun run prisma:seed` (in `backend`)     | Add learning styles, code languages, algorithms and the dev admin |
+| `bun run dev:progress <email> <0-12>` (in `backend`) | Fake a learner's progress to preview the dashboard |
 | `bun run check`                          | Format and fix lint issues         |
