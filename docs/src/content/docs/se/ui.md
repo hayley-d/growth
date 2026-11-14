@@ -31,9 +31,9 @@ _Figure 8: Onboarding, finding a learning style._
 
 ## Learning
 
-The dashboard acts as the home screen. It shows the learner what their next lesson is. It provides access to the daily challenge and shows the user's overall progress and lesson mastery.
+The dashboard acts as the home screen. It shows the learner what their next lesson is, with the daily challenge next to it until it is done. Below that is the overall progress, then a scrollable leaderboard of the day's fastest times, with the learner's own row pinned if they are outside the top 10, and then lesson mastery. Every section is a card with its title inside it.
 
-![The dashboard: a Continue learning card, a Daily challenge card, progress bars for each unit and a mastery card for each unlocked lesson.](../../../assets/se/ui/dashboard.webp)
+![The dashboard: a Continue learning card, a Leaderboard card with a scrollable list of times and points, progress bars for each unit and the mastery of each unlocked lesson.](../../../assets/se/ui/dashboard.webp)
 
 _Figure 9: Dashboard._
 

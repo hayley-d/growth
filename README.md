@@ -72,7 +72,7 @@ The learning path has 12 lessons:
       An 8-question quiz finds your learning style. You also pick whether code is shown as pseudocode, Java (the language COS212 uses) or Rust, whether lessons are read aloud, and whether you appear on the leaderboard.
     </td>
     <td width="50%" valign="top">
-      <img src=".github/assets/dashboard.png" alt="The dashboard with progress and mastery" />
+      <img src=".github/assets/dashboard.png" alt="The dashboard with the next lesson, the leaderboard, progress and mastery" />
       <h3>Progress and mastery</h3>
       The dashboard picks up where you left off and shows your mastery of each lesson, which checkpoint tests feed into.
     </td>
