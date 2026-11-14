@@ -1,6 +1,7 @@
 import { satteri } from "@astrojs/markdown-satteri";
 import starlight from "@astrojs/starlight";
 import { defineConfig } from "astro/config";
+import starlightOpenAPI, { openAPISidebarGroups } from "starlight-openapi";
 import starlightSidebarTopics from "starlight-sidebar-topics";
 
 import { citationLinks } from "./src/plugins/citation-links";
@@ -20,6 +21,17 @@ export default defineConfig({
     starlight({
       title: "Growth",
       plugins: [
+        starlightOpenAPI([
+          {
+            base: "se/api",
+            schema: "./public/openapi.json",
+            sidebar: {
+              label: "API reference",
+              collapsed: true,
+              operations: { badges: true },
+            },
+          },
+        ]),
         starlightSidebarTopics(
           [
             {
@@ -29,6 +41,7 @@ export default defineConfig({
               items: [{ label: "Trees covered", slug: "learn/trees" }],
             },
             {
+              id: "se",
               label: "SE document",
               link: "/se/introduction/",
               icon: "document",
@@ -40,6 +53,7 @@ export default defineConfig({
                 { label: "Detailed design", slug: "se/design" },
                 { label: "UI design", slug: "se/ui" },
                 { label: "Quality and testing", slug: "se/testing" },
+                ...openAPISidebarGroups,
                 { label: "Deployment and running", slug: "se/deployment" },
                 { label: "Risks and limitations", slug: "se/risks" },
               ],
@@ -123,7 +137,7 @@ export default defineConfig({
               ],
             },
           ],
-          { exclude: ["/index"] },
+          { exclude: ["/index"], topics: { se: ["/se/api", "/se/api/**/*"] } },
         ),
       ],
     }),

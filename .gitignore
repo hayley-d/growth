@@ -1,6 +1,7 @@
 node_modules
 dist
 .env
+backend/scripts/capture-openapi-examples.ts
 *.log
 .DS_Store
 coverage

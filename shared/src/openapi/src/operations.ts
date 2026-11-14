@@ -89,7 +89,11 @@ export const operations: OperationSpec[] = [
     requestBody: "SignUpRequest",
     responses: {
       "200": { description: "Account created. The session cookie is set." },
-      "400": { description: "The email is already used, or a field is invalid." },
+      "400": {
+        description:
+          "A field is invalid, such as a malformed email or a password under 8 characters.",
+      },
+      "422": { description: "The email is already used." },
     },
   },
   {
@@ -104,7 +108,9 @@ export const operations: OperationSpec[] = [
     requestBody: "SignInRequest",
     responses: {
       "200": { description: "Signed in. The session cookie is set." },
+      "400": { description: "A field is invalid, such as a malformed email." },
       "401": { description: "Wrong email or password." },
+      "403": { description: "The request did not come from the origin in BETTER_AUTH_URL." },
     },
   },
   {
