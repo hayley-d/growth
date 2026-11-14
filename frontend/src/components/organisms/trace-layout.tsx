@@ -11,6 +11,7 @@ type TraceLayoutProperties = {
   message: ReactNode;
   controls?: ReactNode;
   codeHidden?: boolean;
+  pinControls?: boolean;
   className?: string;
 };
 
@@ -32,6 +33,7 @@ export function TraceLayout({
   message,
   controls,
   codeHidden = false,
+  pinControls = true,
   className,
 }: TraceLayoutProperties) {
   const isWide = useMediaQuery("(min-width: 48rem)");
@@ -102,7 +104,12 @@ export function TraceLayout({
           </section>
         ))}
       </div>
-      <div className="z-10 bg-card md:sticky md:bottom-[var(--dock-bottom,0px)]">
+      <div
+        className={cn(
+          "z-10 bg-card",
+          pinControls && "md:sticky md:bottom-[var(--dock-bottom,0px)]",
+        )}
+      >
         <div className="border-t bg-muted/40 px-4 py-4 sm:px-6">{message}</div>
         {controls ? <div className="border-t px-4 py-3 sm:px-6">{controls}</div> : null}
       </div>

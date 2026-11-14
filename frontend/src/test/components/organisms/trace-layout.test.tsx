@@ -200,6 +200,23 @@ it("keeps the controls above a fixed footer named by --dock-bottom", async () =>
   expect(play.bottom).toBeLessThanOrEqual(window.innerHeight - 64);
 });
 
+it("leaves the controls under the tree when they are not pinned", async () => {
+  await page.viewport(1280, 600);
+  const screen = await render(
+    <TraceLayout
+      tree={<div className="h-[1500px]">the tree</div>}
+      code={<p>the code</p>}
+      message={<p>the message</p>}
+      controls={<button type="button">Play</button>}
+      pinControls={false}
+    />,
+  );
+
+  const play = screen.getByRole("button", { name: "Play" }).element().getBoundingClientRect();
+
+  expect(play.top).toBeGreaterThan(window.innerHeight);
+});
+
 it("leaves the controls under the tree on a phone", async () => {
   await page.viewport(375, 600);
   const screen = await renderTallLayout();
