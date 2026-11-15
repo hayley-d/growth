@@ -1,4 +1,5 @@
-import { vi } from "vitest";
+import { toast } from "sonner";
+import { afterEach, vi } from "vitest";
 
 vi.mock("@/lib/auth-client", () => ({
   authClient: {
@@ -9,3 +10,7 @@ vi.mock("@/lib/auth-client", () => ({
     updateUser: vi.fn(),
   },
 }));
+
+afterEach(() => {
+  toast.dismiss();
+});

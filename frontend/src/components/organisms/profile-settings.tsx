@@ -1,6 +1,7 @@
 import { useForm } from "@tanstack/react-form";
 import { Link } from "@tanstack/react-router";
-import type { ReactNode } from "react";
+import { Code, Lightbulb, Trophy, Volume2 } from "lucide-react";
+import { toast } from "sonner";
 
 import {
   type ListCodeLanguagesResponse,
@@ -10,8 +11,17 @@ import {
   type UpdateUserProfileRequest,
 } from "@shared/schemas";
 import { Button } from "@/components/atoms/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/atoms/select";
+import { Switch } from "@/components/atoms/switch";
 import { FormField } from "@/components/molecules/form-field";
 import { SaveStatus } from "@/components/molecules/save-status";
+import { SettingsCard, SettingsRow } from "@/components/molecules/settings-card";
 import { useUpdateDisplayNameMutation, useUpdateProfileMutation } from "@/lib/mutations";
 
 type Profile = MeResponse["data"]["profile"];
@@ -24,44 +34,53 @@ type ProfileSettingsProperties = {
 
 const displayNameSchema = signUpRequestSchema.pick({ name: true });
 
-const selectClassName =
-  "min-h-11 w-full rounded-md border border-input bg-background px-3 text-base focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none sm:max-w-sm md:text-sm";
-
 function useProfileSetting<Field extends keyof UpdateUserProfileRequest & keyof Profile>(
   field: Field,
   saved: Profile[Field],
+  savedMessage: string,
 ) {
   const mutation = useUpdateProfileMutation();
   const pending = mutation.isPending ? mutation.variables[field] : undefined;
   return {
     value: (pending ?? saved) as Profile[Field],
     save: (value: NonNullable<UpdateUserProfileRequest[Field]>) =>
-      mutation.mutate({ [field]: value } as UpdateUserProfileRequest),
-    status: <SaveStatus status={mutation.status} errorMessage={mutation.error?.message} />,
+      mutation.mutate({ [field]: value } as UpdateUserProfileRequest, {
+        onSuccess: () => toast.success(savedMessage, { id: field }),
+      }),
+    status: mutation.isError ? (
+      <SaveStatus status="error" errorMessage={mutation.error.message} />
+    ) : null,
   };
 }
 
-function SettingSection({
+function ProfileSelect({
   id,
-  title,
-  description,
-  children,
+  value,
+  options,
+  onChange,
 }: {
   id: string;
-  title: string;
-  description: string;
-  children: ReactNode;
+  value: string | null;
+  options: { id: string; name: string }[];
+  onChange: (value: string) => void;
 }) {
   return (
-    <section aria-labelledby={id} className="flex max-w-2xl flex-col gap-3">
-      <div>
-        <h2 id={id} className="text-lg font-semibold">
-          {title}
-        </h2>
-        <p className="text-sm text-muted-foreground">{description}</p>
-      </div>
-      {children}
-    </section>
+    <Select value={value ?? ""} onValueChange={onChange}>
+      <SelectTrigger
+        id={id}
+        aria-describedby={`${id}-description`}
+        className="min-h-11 w-full bg-background text-base data-[size=default]:h-auto sm:w-48 md:text-sm"
+      >
+        <SelectValue placeholder="Not chosen yet" />
+      </SelectTrigger>
+      <SelectContent position="popper" align="end" className="w-(--radix-select-trigger-width)">
+        {options.map((option) => (
+          <SelectItem key={option.id} value={option.id} className="min-h-11">
+            {option.name}
+          </SelectItem>
+        ))}
+      </SelectContent>
+    </Select>
   );
 }
 
@@ -70,11 +89,14 @@ function DisplayNameSetting({ displayName }: { displayName: string }) {
   const form = useForm({
     defaultValues: { name: displayName },
     validators: { onChange: displayNameSchema },
-    onSubmit: ({ value }) => mutation.mutate(value.name),
+    onSubmit: ({ value }) =>
+      mutation.mutate(value.name, {
+        onSuccess: () => toast.success("Display name saved", { id: "display-name" }),
+      }),
   });
 
   return (
-    <SettingSection
+    <SettingsCard
       id="display-name"
       title="Display name"
       description="The name other learners see on the leaderboard."
@@ -105,8 +127,10 @@ function DisplayNameSetting({ displayName }: { displayName: string }) {
           Save name
         </Button>
       </form>
-      <SaveStatus status={mutation.status} errorMessage={mutation.error?.message} />
-    </SettingSection>
+      {mutation.isError ? (
+        <SaveStatus status="error" errorMessage={mutation.error.message} />
+      ) : null}
+    </SettingsCard>
   );
 }
 
@@ -117,43 +141,32 @@ function LearningStyleSetting({
   saved: string | null;
   learningStyles: ProfileSettingsProperties["learningStyles"];
 }) {
-  const setting = useProfileSetting("learningStyleId", saved);
+  const setting = useProfileSetting("learningStyleId", saved, "Learning style saved");
 
   return (
-    <SettingSection
-      id="learning-style"
+    <SettingsRow
+      icon={Lightbulb}
       title="Learning style"
       description="Lessons lean towards the way you learn best."
+      controlId="learning-style-select"
+      control={
+        <ProfileSelect
+          id="learning-style-select"
+          value={setting.value}
+          options={learningStyles}
+          onChange={setting.save}
+        />
+      }
     >
-      <label htmlFor="learning-style-select" className="sr-only">
-        Learning style
-      </label>
-      <select
-        id="learning-style-select"
-        className={selectClassName}
-        value={setting.value ?? ""}
-        onChange={(event) => setting.save(event.target.value)}
-      >
-        {setting.value === null && (
-          <option value="" disabled>
-            Not chosen yet
-          </option>
-        )}
-        {learningStyles.map((learningStyle) => (
-          <option key={learningStyle.id} value={learningStyle.id}>
-            {learningStyle.name}
-          </option>
-        ))}
-      </select>
       <Link
         to="/onboarding"
         search={{ retake: true }}
-        className="inline-flex min-h-11 items-center self-start text-sm font-medium underline underline-offset-4"
+        className="inline-flex min-h-11 items-center self-start text-sm font-medium underline underline-offset-4 pointer-fine:min-h-8"
       >
         Not sure? Retake the quiz
       </Link>
       {setting.status}
-    </SettingSection>
+    </SettingsRow>
   );
 }
 
@@ -164,36 +177,25 @@ function CodeLanguageSetting({
   saved: string | null;
   codeLanguages: ProfileSettingsProperties["codeLanguages"];
 }) {
-  const setting = useProfileSetting("codeLanguageId", saved);
+  const setting = useProfileSetting("codeLanguageId", saved, "Code language saved");
 
   return (
-    <SettingSection
-      id="code-language"
+    <SettingsRow
+      icon={Code}
       title="Code language"
       description="The language the code trace shows."
+      controlId="code-language-select"
+      control={
+        <ProfileSelect
+          id="code-language-select"
+          value={setting.value}
+          options={codeLanguages}
+          onChange={setting.save}
+        />
+      }
     >
-      <label htmlFor="code-language-select" className="sr-only">
-        Code language
-      </label>
-      <select
-        id="code-language-select"
-        className={selectClassName}
-        value={setting.value ?? ""}
-        onChange={(event) => setting.save(event.target.value)}
-      >
-        {setting.value === null && (
-          <option value="" disabled>
-            Not chosen yet
-          </option>
-        )}
-        {codeLanguages.map((codeLanguage) => (
-          <option key={codeLanguage.id} value={codeLanguage.id}>
-            {codeLanguage.name}
-          </option>
-        ))}
-      </select>
       {setting.status}
-    </SettingSection>
+    </SettingsRow>
   );
 }
 
@@ -201,33 +203,43 @@ function ToggleSetting({
   field,
   saved,
   id,
+  icon,
   title,
   description,
-  label,
 }: {
   field: "textToSpeech" | "showOnLeaderboard";
   saved: boolean;
   id: string;
+  icon: typeof Volume2;
   title: string;
   description: string;
-  label: string;
 }) {
-  const setting = useProfileSetting(field, saved);
+  const setting = useProfileSetting(field, saved, `${title} saved`);
+  const controlId = `${id}-switch`;
 
   return (
-    <SettingSection id={id} title={title} description={description}>
-      <label className="flex min-h-11 cursor-pointer items-center gap-3 self-start">
-        <input
-          type="checkbox"
-          checked={setting.value}
-          onChange={(event) => setting.save(event.target.checked)}
-          className="size-5 cursor-pointer accent-primary"
-        />
-        <span className="font-medium">{label}</span>
-        <span className="text-sm text-muted-foreground">{setting.value ? "On" : "Off"}</span>
-      </label>
+    <SettingsRow
+      icon={icon}
+      title={title}
+      description={description}
+      controlId={controlId}
+      control={
+        <div className="flex min-h-11 items-center gap-3">
+          <span aria-hidden="true" className="text-sm text-muted-foreground">
+            {setting.value ? "On" : "Off"}
+          </span>
+          <Switch
+            id={controlId}
+            size="lg"
+            aria-describedby={`${controlId}-description`}
+            checked={setting.value}
+            onCheckedChange={setting.save}
+          />
+        </div>
+      }
+    >
       {setting.status}
-    </SettingSection>
+    </SettingsRow>
   );
 }
 
@@ -237,24 +249,32 @@ export function ProfileSettings({ me, learningStyles, codeLanguages }: ProfileSe
   return (
     <>
       <DisplayNameSetting displayName={user.displayName} />
-      <LearningStyleSetting saved={profile.learningStyleId} learningStyles={learningStyles} />
-      <CodeLanguageSetting saved={profile.codeLanguageId} codeLanguages={codeLanguages} />
-      <ToggleSetting
-        field="textToSpeech"
-        saved={profile.textToSpeech}
-        id="text-to-speech"
-        title="Audio buttons"
-        description="Show a Listen button on lesson steps."
-        label="Show audio buttons"
-      />
-      <ToggleSetting
-        field="showOnLeaderboard"
-        saved={profile.showOnLeaderboard}
-        id="leaderboard"
-        title="Leaderboard"
-        description="Choose whether other learners can see you."
-        label="Show me on the leaderboard"
-      />
+      <SettingsCard
+        id="preferences"
+        title="Preferences"
+        description="How lessons and the leaderboard work for you."
+      >
+        <ul className="divide-y">
+          <LearningStyleSetting saved={profile.learningStyleId} learningStyles={learningStyles} />
+          <CodeLanguageSetting saved={profile.codeLanguageId} codeLanguages={codeLanguages} />
+          <ToggleSetting
+            field="textToSpeech"
+            saved={profile.textToSpeech}
+            id="text-to-speech"
+            icon={Volume2}
+            title="Audio buttons"
+            description="Show a Listen button on lesson steps."
+          />
+          <ToggleSetting
+            field="showOnLeaderboard"
+            saved={profile.showOnLeaderboard}
+            id="leaderboard"
+            icon={Trophy}
+            title="Leaderboard"
+            description="Let other learners see you on the leaderboard."
+          />
+        </ul>
+      </SettingsCard>
     </>
   );
 }
