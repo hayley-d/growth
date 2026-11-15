@@ -1,11 +1,9 @@
-import { Link } from "@tanstack/react-router";
-import { Hand, Pencil, Play } from "lucide-react";
+import { Hand, Play, Route, Scale } from "lucide-react";
 
 import {
-  exploreNames,
+  exploreBadgeNames,
   type PlaygroundSetup,
   topicNames,
-  toSearch,
   traversalNames,
 } from "@/lib/playground/setup";
 import { cn } from "@/lib/utils";
@@ -16,29 +14,25 @@ type SetupPillsProperties = {
 };
 
 const pillClass =
-  "inline-flex min-h-9 items-center gap-2 rounded-full border-2 bg-card px-3.5 text-sm font-semibold";
+  "inline-flex min-h-7 items-center gap-1.5 rounded-full border px-2.5 text-xs font-semibold whitespace-nowrap";
+
+const topicClass = "border-pill-topic/30 bg-pill-topic/10 text-pill-topic";
+const exploreClass = "border-pill-explore/30 bg-pill-explore/10 text-pill-explore";
 
 export function SetupPills({ setup, className }: SetupPillsProperties) {
+  const isTraversal = setup.topic === "traversal";
+  const TopicIcon = isTraversal ? Route : Scale;
   const ExploreIcon = setup.explore === "interact" ? Hand : Play;
   return (
-    <div className={cn("flex flex-wrap items-center gap-2", className)}>
-      <ul aria-label="Your setup" className="flex flex-wrap gap-2">
-        <li className={pillClass}>
-          {setup.topic === "traversal" ? traversalNames[setup.traversal] : topicNames.avl}
-        </li>
-        <li className={pillClass}>
-          <ExploreIcon aria-hidden="true" className="size-4 text-primary" />
-          {exploreNames[setup.explore]}
-        </li>
-      </ul>
-      <Link
-        to="/playground"
-        search={toSearch(setup)}
-        className="ml-auto inline-flex min-h-11 items-center gap-2 rounded-full px-4 text-sm font-semibold text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none"
-      >
-        <Pencil aria-hidden="true" className="size-4" />
-        Change setup
-      </Link>
-    </div>
+    <ul aria-label="Your setup" className={cn("flex flex-wrap gap-1.5", className)}>
+      <li className={cn(pillClass, topicClass)}>
+        <TopicIcon aria-hidden="true" className="size-3.5" />
+        {isTraversal ? traversalNames[setup.traversal] : topicNames.avl}
+      </li>
+      <li className={cn(pillClass, exploreClass)}>
+        <ExploreIcon aria-hidden="true" className="size-3.5" />
+        {exploreBadgeNames[setup.explore]}
+      </li>
+    </ul>
   );
 }

@@ -12,7 +12,10 @@ type ZoomControlsProperties = {
   className?: string;
 };
 
-const buttonClass =
+export const floatingGroupClass =
+  "flex items-center gap-1 rounded-full border bg-card/90 p-1 shadow-sm backdrop-blur";
+
+export const floatingButtonClass =
   "flex size-11 items-center justify-center rounded-full bg-accent text-accent-foreground transition-colors hover:bg-accent/80 focus-visible:ring-[3px] focus-visible:ring-ring/50 focus-visible:outline-none disabled:opacity-40 pointer-fine:size-8";
 
 export function ZoomControls({
@@ -26,19 +29,14 @@ export function ZoomControls({
 }: ZoomControlsProperties) {
   const percent = Math.round(zoom * 100);
   return (
-    <fieldset
-      className={cn(
-        "flex items-center gap-1 rounded-full border bg-card/90 p-1 shadow-sm backdrop-blur",
-        className,
-      )}
-    >
+    <fieldset className={cn(floatingGroupClass, className)}>
       <legend className="sr-only">Zoom</legend>
       <button
         type="button"
         aria-label="Zoom out"
         disabled={!canZoomOut}
         onClick={onZoomOut}
-        className={buttonClass}
+        className={floatingButtonClass}
       >
         <Minus aria-hidden="true" className="size-4" />
       </button>
@@ -50,7 +48,7 @@ export function ZoomControls({
         aria-label="Zoom in"
         disabled={!canZoomIn}
         onClick={onZoomIn}
-        className={buttonClass}
+        className={floatingButtonClass}
       >
         <Plus aria-hidden="true" className="size-4" />
       </button>
@@ -59,7 +57,7 @@ export function ZoomControls({
         aria-label="Reset zoom"
         disabled={percent === 100}
         onClick={onReset}
-        className={buttonClass}
+        className={floatingButtonClass}
       >
         <RotateCcw aria-hidden="true" className="size-4" />
       </button>

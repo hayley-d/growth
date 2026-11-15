@@ -2,12 +2,14 @@ import { Navigate, useSearch } from "@tanstack/react-router";
 import { type PointerEvent, useCallback, useEffect, useMemo, useReducer, useState } from "react";
 
 import { type AlgorithmCode, type AvlNode, toKeys } from "@shared/avl";
+import { ChangeSetupLink } from "@/components/molecules/change-setup-link";
 import { CommandLog } from "@/components/molecules/command-log";
 import { DragGhost } from "@/components/molecules/drag-ghost";
 import { PlaygroundNotice } from "@/components/molecules/playground-notice";
 import { SetupPills } from "@/components/molecules/setup-pills";
 import { StepControls } from "@/components/molecules/step-controls";
 import { StepMessage } from "@/components/molecules/step-message";
+import { TreeTools } from "@/components/molecules/tree-tools";
 import { CodeTrace } from "@/components/organisms/code-trace";
 import { DraggableTree } from "@/components/organisms/draggable-tree";
 import { HandsOnTools } from "@/components/organisms/hands-on-tools";
@@ -205,22 +207,40 @@ function PlaygroundSession({ setup }: { setup: PlaygroundSetup }) {
     <TreeView root={shownTree} nodeStates={nodeStates} showBalance={isAvl} className="h-full" />
   );
 
+  const hasTree = Boolean(shownTree) || slots.length > 0;
+
+  const treeTools = (
+    <TreeTools
+      busy={busy}
+      codeHidden={codeHidden}
+      onToggleCode={() => setCodeHidden((current) => !current)}
+      onNewTree={
+        isAvl && !isInteract
+          ? undefined
+          : () => {
+              setSelectedKey(null);
+              dispatch({ type: "new-tree" });
+            }
+      }
+      onClear={isAvl && isInteract ? () => runText("clear", "tapped") : undefined}
+    />
+  );
+
   return (
     <div className="flex flex-col gap-5">
-      <div className="flex flex-col gap-4 lg:flex-row lg:flex-wrap lg:items-center lg:gap-x-3">
-        <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Playground</h1>
-        <SetupPills setup={setup} className="lg:flex-1" />
+      <div className="flex flex-col gap-3">
+        <div className="flex items-start gap-3">
+          <div className="flex min-w-0 flex-1 flex-wrap items-center gap-x-3 gap-y-2">
+            <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">Playground</h1>
+            <SetupPills setup={setup} />
+          </div>
+          <ChangeSetupLink setup={setup} />
+        </div>
         <PlaygroundTools
           setup={setup}
           autoBalance={session.autoBalance}
           busy={busy}
-          codeHidden={codeHidden}
           onCommand={(text) => runText(text, "tapped")}
-          onNewTree={() => {
-            setSelectedKey(null);
-            dispatch({ type: "new-tree" });
-          }}
-          onToggleCode={() => setCodeHidden((current) => !current)}
         />
       </div>
       <TraceLayout
@@ -230,17 +250,21 @@ function PlaygroundSession({ setup }: { setup: PlaygroundSetup }) {
             {session.notice ? (
               <PlaygroundNotice tone={session.notice.tone} message={session.notice.message} />
             ) : null}
-            {shownTree || slots.length > 0 ? (
-              <TreeViewport className={viewportClassName}>{tree}</TreeViewport>
+            {hasTree ? (
+              <TreeViewport tools={treeTools} className={viewportClassName}>
+                {tree}
+              </TreeViewport>
             ) : (
-              <p className="grid min-h-48 place-items-center text-center text-muted-foreground">
-                The tree is empty.{" "}
-                {isAvl
-                  ? "Add a key to start."
-                  : isInteract
-                    ? "Press New tree to start."
-                    : "Press New tree, or build one with a command."}
-              </p>
+              <TreeViewport tools={treeTools} showZoom={false} className={viewportClassName}>
+                <p className="grid h-full place-items-center px-4 text-center text-muted-foreground">
+                  The tree is empty.{" "}
+                  {isAvl
+                    ? "Add a key to start."
+                    : isInteract
+                      ? "Press the dice for a new tree."
+                      : "Press the dice for a new tree, or build one with a command."}
+                </p>
+              </TreeViewport>
             )}
             {isInteract && isAvl ? (
               <HandsOnTools

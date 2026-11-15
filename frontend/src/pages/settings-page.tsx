@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 import { Button } from "@/components/atoms/button";
 import { ColourSchemePicker } from "@/components/molecules/colour-scheme-picker";
 import { PageLoader } from "@/components/molecules/page-loader";
 import { SaveStatus } from "@/components/molecules/save-status";
+import { SettingsCard } from "@/components/molecules/settings-card";
 import { ProfileSettings } from "@/components/organisms/profile-settings";
 import type { ColourScheme } from "@/lib/colour-schemes";
 import { useUpdateProfileMutation } from "@/lib/mutations";
@@ -22,28 +24,28 @@ function ColourSchemeSection({ signedIn }: { signedIn: boolean }) {
 
   const handleChange = (scheme: ColourScheme) => {
     setColourScheme(scheme);
-    if (signedIn) mutation.mutate({ colourTheme: scheme });
+    if (signedIn) {
+      mutation.mutate(
+        { colourTheme: scheme },
+        { onSuccess: () => toast.success("Colour scheme saved", { id: "colour-scheme" }) },
+      );
+    }
   };
 
   return (
-    <section aria-labelledby="colour-scheme" className="flex max-w-2xl flex-col gap-3">
-      <div>
-        <h2 id="colour-scheme" className="text-lg font-semibold">
-          Colour scheme
-        </h2>
-        <p className="text-sm text-muted-foreground">
-          Pick the colours that are easiest for you to tell apart.{" "}
-          {signedIn ? "Saved on this device and to your profile." : "Saved on this device."}
-        </p>
-      </div>
+    <SettingsCard
+      id="colour-scheme"
+      title="Colour scheme"
+      description={`Pick the colours that are easiest for you to tell apart. ${signedIn ? "Saved on this device and to your profile." : "Saved on this device."}`}
+    >
       <ColourSchemePicker value={colourScheme} onChange={handleChange} />
-      {signedIn && (
+      {signedIn && mutation.isError ? (
         <SaveStatus
-          status={mutation.status}
-          errorMessage={`${mutation.error?.message}. It's still saved on this device.`}
+          status="error"
+          errorMessage={`${mutation.error.message}. It's still saved on this device.`}
         />
-      )}
-    </section>
+      ) : null}
+    </SettingsCard>
   );
 }
 

@@ -105,7 +105,7 @@ it("only offers New tree for an empty tree in a hands-on traversal", async () =>
   );
 
   await expect
-    .element(screen.getByText("The tree is empty. Press New tree to start."))
+    .element(screen.getByText("The tree is empty. Press the dice for a new tree."))
     .toBeVisible();
 });
 

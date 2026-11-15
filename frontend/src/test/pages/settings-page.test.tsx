@@ -121,16 +121,12 @@ describe("signed in", () => {
       .toHaveValue("Test User");
     await expect
       .element(screen.getByRole("combobox", { name: "Learning style" }))
-      .toHaveValue(visualId);
+      .toHaveTextContent("Visual");
     await expect
       .element(screen.getByRole("combobox", { name: "Code language" }))
-      .toHaveValue(javaId);
-    await expect
-      .element(screen.getByRole("checkbox", { name: /Show audio buttons/ }))
-      .not.toBeChecked();
-    await expect
-      .element(screen.getByRole("checkbox", { name: /Show me on the leaderboard/ }))
-      .toBeChecked();
+      .toHaveTextContent("Java");
+    await expect.element(screen.getByRole("switch", { name: "Audio buttons" })).not.toBeChecked();
+    await expect.element(screen.getByRole("switch", { name: "Leaderboard" })).toBeChecked();
     await expect
       .element(screen.getByRole("link", { name: /Retake the quiz/ }))
       .toHaveAttribute("href", "/onboarding?retake=true");
@@ -141,7 +137,7 @@ describe("signed in", () => {
 
     await screen.getByText("Colour-blind friendly").click();
 
-    await expect.element(screen.getByText("Saved")).toBeVisible();
+    await expect.element(screen.getByText("Colour scheme saved")).toBeVisible();
     expect(mockedPatch).toHaveBeenCalledWith("/api/me/profile", { colourTheme: "okabe-ito" });
     expect(document.documentElement.dataset.colourScheme).toBe("okabe-ito");
   });
@@ -159,27 +155,28 @@ describe("signed in", () => {
   });
 
   it.each([
-    ["Learning style", auditoryId, { learningStyleId: auditoryId }],
-    ["Code language", rustId, { codeLanguageId: rustId }],
-  ])("saves the %s", async (label, value, changes) => {
+    ["Learning style", "Auditory", { learningStyleId: auditoryId }],
+    ["Code language", "Rust", { codeLanguageId: rustId }],
+  ])("saves the %s", async (label, name, changes) => {
     const screen = await renderApp("/settings");
 
-    await screen.getByRole("combobox", { name: label }).selectOptions(value);
+    await screen.getByRole("combobox", { name: label }).click();
+    await screen.getByRole("option", { name }).click();
 
-    await expect.element(screen.getByText("Saved")).toBeVisible();
-    await expect.element(screen.getByRole("combobox", { name: label })).toHaveValue(value);
+    await expect.element(screen.getByText(`${label} saved`)).toBeVisible();
+    await expect.element(screen.getByRole("combobox", { name: label })).toHaveTextContent(name);
     expect(mockedPatch).toHaveBeenCalledWith("/api/me/profile", changes);
   });
 
   it.each([
-    ["Show audio buttons", { textToSpeech: true }],
-    ["Show me on the leaderboard", { showOnLeaderboard: false }],
-  ])("saves the %s toggle", async (label, changes) => {
+    ["Audio buttons", "Audio buttons saved", { textToSpeech: true }],
+    ["Leaderboard", "Leaderboard saved", { showOnLeaderboard: false }],
+  ])("saves the %s toggle", async (label, message, changes) => {
     const screen = await renderApp("/settings");
 
-    await screen.getByRole("checkbox", { name: new RegExp(label) }).click();
+    await screen.getByRole("switch", { name: label }).click();
 
-    await expect.element(screen.getByText("Saved")).toBeVisible();
+    await expect.element(screen.getByText(message)).toBeVisible();
     expect(mockedPatch).toHaveBeenCalledWith("/api/me/profile", changes);
   });
 
@@ -187,24 +184,26 @@ describe("signed in", () => {
     saveFails();
     const screen = await renderApp("/settings");
 
-    await screen.getByRole("checkbox", { name: /Show audio buttons/ }).click();
+    await screen.getByRole("switch", { name: "Audio buttons" }).click();
 
     await expect.element(screen.getByText("Unable to save your settings")).toBeVisible();
-    await expect
-      .element(screen.getByRole("checkbox", { name: /Show audio buttons/ }))
-      .not.toBeChecked();
-    expect(screen.getByText("Saved").elements()).toHaveLength(0);
+    await expect.element(screen.getByRole("switch", { name: "Audio buttons" })).not.toBeChecked();
+    expect(screen.getByText("Audio buttons saved").elements()).toHaveLength(0);
   });
 
   it("asks for a learning style and code language when none is chosen yet", async () => {
     serveMe(meFor({ learningStyleId: null, codeLanguageId: null }));
     const screen = await renderApp("/settings");
 
-    await expect.element(screen.getByRole("combobox", { name: "Learning style" })).toHaveValue("");
-    await expect.element(screen.getByRole("combobox", { name: "Code language" })).toHaveValue("");
-    expect(screen.getByRole("option", { name: "Not chosen yet" }).elements()).toHaveLength(2);
+    await expect
+      .element(screen.getByRole("combobox", { name: "Learning style" }))
+      .toHaveTextContent("Not chosen yet");
+    await expect
+      .element(screen.getByRole("combobox", { name: "Code language" }))
+      .toHaveTextContent("Not chosen yet");
 
-    await screen.getByRole("combobox", { name: "Learning style" }).selectOptions(visualId);
+    await screen.getByRole("combobox", { name: "Learning style" }).click();
+    await screen.getByRole("option", { name: "Visual" }).click();
 
     expect(mockedPatch).toHaveBeenCalledWith("/api/me/profile", { learningStyleId: visualId });
   });
@@ -216,7 +215,7 @@ describe("signed in", () => {
     await screen.getByRole("textbox", { name: "Display name" }).fill("  Ada Lovelace ");
     await screen.getByRole("button", { name: "Save name" }).click();
 
-    await expect.element(screen.getByText("Saved")).toBeVisible();
+    await expect.element(screen.getByText("Display name saved")).toBeVisible();
     expect(authClient.updateUser).toHaveBeenCalledWith({ name: "Ada Lovelace" });
   });
 

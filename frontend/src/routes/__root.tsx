@@ -1,5 +1,6 @@
 import { createRootRouteWithContext, Outlet } from "@tanstack/react-router";
 
+import { Toaster } from "@/components/atoms/sonner";
 import { AppLayout } from "@/components/templates/app-layout";
 import { sessionQueryOptions } from "@/lib/queries/auth.queries";
 import { queryClient } from "@/lib/query-client";
@@ -15,10 +16,19 @@ export const Route = createRootRouteWithContext<RouterContext>()({
     });
     return { session };
   },
-  component: Outlet,
+  component: RootComponent,
   errorComponent: RootErrorPage,
   notFoundComponent: RootNotFound,
 });
+
+function RootComponent() {
+  return (
+    <>
+      <Outlet />
+      <Toaster />
+    </>
+  );
+}
 
 function RootNotFound() {
   return (

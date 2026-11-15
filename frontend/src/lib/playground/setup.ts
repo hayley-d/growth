@@ -60,6 +60,11 @@ export const exploreNames: Record<PlaygroundExplore, string> = {
   interact: "Interact with the tree",
 };
 
+export const exploreBadgeNames: Record<PlaygroundExplore, string> = {
+  watch: "Watch",
+  interact: "Interact",
+};
+
 export const startNames: Record<PlaygroundStart, string> = {
   small: "A small random tree",
   large: "A large random tree",
