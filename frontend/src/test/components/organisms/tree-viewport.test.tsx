@@ -119,3 +119,14 @@ it("keeps the middle of the tree in view when zooming", async () => {
   const middle = (scroller.scrollLeft + scroller.clientWidth / 2) / scroller.scrollWidth;
   expect(middle).toBeCloseTo(0.5, 1);
 });
+
+it("shows extra tools beside the zoom, and can hide the zoom", async () => {
+  const screen = await render(
+    <TreeViewport tools={<button type="button">Dice</button>} showZoom={false} className="h-64">
+      <p>Tree</p>
+    </TreeViewport>,
+  );
+
+  await expect.element(screen.getByRole("button", { name: "Dice" })).toBeVisible();
+  await expect.element(screen.getByRole("button", { name: "Zoom in" })).not.toBeInTheDocument();
+});

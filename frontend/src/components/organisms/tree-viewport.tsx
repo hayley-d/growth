@@ -5,6 +5,8 @@ import { cn } from "@/lib/utils";
 
 type TreeViewportProperties = {
   children: ReactNode;
+  tools?: ReactNode;
+  showZoom?: boolean;
   className?: string;
 };
 
@@ -21,7 +23,12 @@ const noPanSelector = "[data-node-key], [data-drop], button";
 const overflows = (element: HTMLElement) =>
   element.scrollWidth > element.clientWidth || element.scrollHeight > element.clientHeight;
 
-export function TreeViewport({ children, className }: TreeViewportProperties) {
+export function TreeViewport({
+  children,
+  tools,
+  showZoom = true,
+  className,
+}: TreeViewportProperties) {
   const [level, setLevel] = useState(defaultLevel);
   const [canPan, setCanPan] = useState(false);
   const [panning, setPanning] = useState(false);
@@ -119,15 +126,18 @@ export function TreeViewport({ children, className }: TreeViewportProperties) {
           {children}
         </div>
       </div>
-      <ZoomControls
-        zoom={zoom}
-        canZoomIn={level < zoomLevels.length - 1}
-        canZoomOut={level > 0}
-        onZoomIn={() => zoomTo(level + 1)}
-        onZoomOut={() => zoomTo(level - 1)}
-        onReset={() => zoomTo(defaultLevel)}
-        className="absolute top-2 right-2 z-10"
-      />
+      {tools ? <div className="absolute top-2 left-2 z-10">{tools}</div> : null}
+      {showZoom ? (
+        <ZoomControls
+          zoom={zoom}
+          canZoomIn={level < zoomLevels.length - 1}
+          canZoomOut={level > 0}
+          onZoomIn={() => zoomTo(level + 1)}
+          onZoomOut={() => zoomTo(level - 1)}
+          onReset={() => zoomTo(defaultLevel)}
+          className="absolute top-2 right-2 z-10"
+        />
+      ) : null}
     </div>
   );
 }
